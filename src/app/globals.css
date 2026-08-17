@@ -1,26 +1,136 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Brand */
+  --color-brand: #11b1a7;
+  --color-brand-dark: #0e8f87;
+  --color-brand-darker: #006666;
+  --color-brand-soft: #e6f7f5;
+
+  /* Primary (action) */
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-soft: #d9e7ff;
+
+  /* Text */
+  --color-ink: #0e1311;
+  --color-body: #374151;
+  --color-muted: #6b7280;
+  --color-faint: #9ca3af;
+
+  /* Lines & surfaces */
+  --color-line: #e5e7eb;
+  --color-line-soft: #f0f1f3;
+  --color-surface: #ffffff;
+  --color-bg: #f9fafb;
+  --color-bg-alt: #f3f4f6;
+
+  /* Status */
+  --color-on-accent: #ffffff;
+  --color-star: #ffc53d;
+  --color-success: #11b1a7;
+  --color-warning: #ffb846;
+  --color-danger: #ef4444;
+
+  /* Radius */
+  --radius-btn: 0.75rem;
+
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-anton), var(--font-inter), sans-serif;
+  --font-caveat: var(--font-caveat), ui-serif, cursive;
+
+  /* Animation */
+  --animate-marquee: marquee 40s linear infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes showcaseFade {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+@utility shadow-soft {
+  box-shadow:
+    0 1px 3px rgba(14, 19, 17, 0.08),
+    0 1px 2px rgba(14, 19, 17, 0.04);
+}
+
+@utility shadow-card {
+  box-shadow: 0 8px 28px rgba(14, 19, 17, 0.08);
+}
+
+@utility shadow-pop {
+  box-shadow: 0 12px 40px rgba(14, 19, 17, 0.14);
+}
+
+@utility marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+
+@utility showcase-fade {
+  animation: showcaseFade 0.32s both;
+}
+
+@utility scroll-thin {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 999px;
+  }
+}
+
+.marquee-group:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase-fade,
+  .animate-marquee {
+    animation: none;
+  }
 }
