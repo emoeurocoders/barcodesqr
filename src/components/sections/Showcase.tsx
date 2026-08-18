@@ -13,14 +13,16 @@ import {
   MessageSquare,
   Share2,
   Wifi,
-  Star,
-  CreditCard,
+  Utensils,
   Mail,
-  MapPin,
   Phone,
+  MapPin,
   CalendarDays,
+  Star,
   Link as LinkIcon,
+  CreditCard,
   Type,
+  ArrowDown,
   Pencil,
   Palette,
   Briefcase,
@@ -49,11 +51,12 @@ type QrType = {
   blurb: string;
 };
 
-const types: QrType[] = [
+/** The ten formats most people reach for, shown in the first row. */
+const mainTypes: QrType[] = [
   {
     key: "website",
     label: "Website",
-    accent: "#2563eb",
+    accent: "#3670f4",
     icon: Globe,
     tiles: [Pencil, Palette],
     blurb:
@@ -62,7 +65,7 @@ const types: QrType[] = [
   {
     key: "vcard",
     label: "vCard",
-    accent: "#11b1a7",
+    accent: "#5d6ded",
     icon: Contact,
     tiles: [Briefcase, UserPlus],
     blurb:
@@ -71,7 +74,7 @@ const types: QrType[] = [
   {
     key: "pdf",
     label: "PDF",
-    accent: "#f97316",
+    accent: "#d52025",
     icon: FileText,
     tiles: [Download, Share2],
     blurb:
@@ -80,7 +83,7 @@ const types: QrType[] = [
   {
     key: "image",
     label: "Image",
-    accent: "#0ea5e9",
+    accent: "#3d994c",
     icon: ImageIcon,
     tiles: [Images, Camera],
     blurb:
@@ -89,7 +92,7 @@ const types: QrType[] = [
   {
     key: "video",
     label: "Video",
-    accent: "#10b981",
+    accent: "#db4243",
     icon: Video,
     tiles: [Images, Share2],
     blurb:
@@ -98,7 +101,7 @@ const types: QrType[] = [
   {
     key: "applink",
     label: "App Link",
-    accent: "#6366f1",
+    accent: "#2aa7c5",
     icon: Smartphone,
     tiles: [Star, LinkIcon],
     blurb:
@@ -107,7 +110,7 @@ const types: QrType[] = [
   {
     key: "whatsapp",
     label: "WhatsApp",
-    accent: "#22c55e",
+    accent: "#48a656",
     icon: MessageCircle,
     tiles: [Pencil, Camera],
     blurb:
@@ -116,7 +119,7 @@ const types: QrType[] = [
   {
     key: "sms",
     label: "SMS",
-    accent: "#f59e0b",
+    accent: "#22a1f7",
     icon: MessageSquare,
     tiles: [Pencil, LinkIcon],
     blurb:
@@ -125,7 +128,7 @@ const types: QrType[] = [
   {
     key: "social",
     label: "Social Media",
-    accent: "#d946ef",
+    accent: "#f35d9e",
     icon: Share2,
     tiles: [LinkIcon, Images],
     blurb:
@@ -134,85 +137,100 @@ const types: QrType[] = [
   {
     key: "wifi",
     label: "WiFi",
-    accent: "#06b6d4",
+    accent: "#1aa8ba",
     icon: Wifi,
     tiles: [Lock, QrCode],
     blurb:
       "Share your Wi-Fi without the password dance. Guests scan once and connect automatically — ideal for cafés, offices, rentals, and events.",
   },
+];
+
+/** Everything else, revealed under the "More Formats" divider. */
+const moreTypes: QrType[] = [
   {
-    key: "feedback",
-    label: "Feedback",
-    accent: "#f43f5e",
-    icon: Star,
-    tiles: [MessageCircle, Pencil],
+    key: "menu",
+    label: "Menu",
+    accent: "#f89139",
+    icon: Utensils,
+    tiles: [FileText, Pencil],
     blurb:
-      "Turn a scan into a review. Let customers rate their visit and leave feedback on the spot, so you learn what's working and fix what isn't.",
-  },
-  {
-    key: "payment",
-    label: "Payment",
-    accent: "#0d9488",
-    icon: CreditCard,
-    tiles: [Lock, QrCode],
-    blurb:
-      "Get paid with a scan. Point the code at your payment link and let customers check out on their phone — nothing to install, no integration to wire up.",
+      "Put your menu on every table without reprinting it. Update dishes, prices, and specials whenever you like — the code on the table stays exactly the same.",
   },
   {
     key: "email",
     label: "Email",
-    accent: "#8b5cf6",
+    accent: "#269ebc",
     icon: Mail,
     tiles: [Pencil, Share2],
     blurb:
       "One scan pre-fills the recipient, subject line, and body in their mail app — handy for support requests, bookings, and quick questions you'd rather not type out.",
   },
   {
-    key: "location",
-    label: "Location",
-    accent: "#f4633a",
-    icon: MapPin,
-    tiles: [QrCode, LinkIcon],
-    blurb:
-      "Put your address one scan away. The code opens directions in their maps app and guides visitors straight to your store, office, or event.",
-  },
-  {
     key: "phone",
     label: "Phone",
-    accent: "#65a30d",
+    accent: "#469d62",
     icon: Phone,
     tiles: [UserPlus, MessageSquare],
     blurb:
       "Let customers call you in one tap. A scan dials your number directly — no typing, no searching — perfect for support lines, bookings, and storefronts.",
   },
   {
+    key: "location",
+    label: "Location",
+    accent: "#1aa6c3",
+    icon: MapPin,
+    tiles: [QrCode, LinkIcon],
+    blurb:
+      "Put your address one scan away. The code opens directions in their maps app and guides visitors straight to your store, office, or event.",
+  },
+  {
     key: "event",
     label: "Event",
-    accent: "#dc2626",
+    accent: "#2e84f3",
     icon: CalendarDays,
     tiles: [Clock, MapPin],
     blurb:
       "Get your event into their calendar. One scan shows guests the date, time, and venue with one-tap add to calendar — fewer no-shows, no back-and-forth.",
   },
   {
+    key: "reviews",
+    label: "Reviews",
+    accent: "#f8b02c",
+    icon: Star,
+    tiles: [MessageCircle, Pencil],
+    blurb:
+      "Turn a scan into a review. Let customers rate their visit and leave feedback on the spot, so you learn what's working and fix what isn't.",
+  },
+  {
     key: "multilink",
     label: "Multi-Link",
-    accent: "#7e22ce",
+    accent: "#847dec",
     icon: LinkIcon,
     tiles: [Share2, Star],
     blurb:
       "One code, all your links. Send visitors to a mini page with your menu, booking, phone, and directions — perfect for windows, counters, and receipts.",
   },
   {
+    key: "payment",
+    label: "Payment",
+    accent: "#ce2ae9",
+    icon: CreditCard,
+    tiles: [Lock, QrCode],
+    blurb:
+      "Get paid with a scan. Point the code at your payment link and let customers check out on their phone — nothing to install, no integration to wire up.",
+  },
+  {
     key: "text",
-    label: "Text",
-    accent: "#404040",
+    label: "Plain Text",
+    accent: "#7a8192",
     icon: Type,
     tiles: [Pencil, FileText],
     blurb:
       "Share a message with no website needed. A scan reveals your note — instructions, a welcome, a heads-up — readable instantly on any phone.",
   },
 ];
+
+const allTypes = [...mainTypes, ...moreTypes];
 
 /** rgba() helper so the accent can be used at partial opacity. */
 function alpha(hex: string, a: number) {
@@ -221,6 +239,40 @@ function alpha(hex: string, a: number) {
   const g = (n >> 8) & 255;
   const b = n & 255;
   return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+function TypeCard({
+  type,
+  selected,
+  onSelect,
+}: {
+  type: QrType;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const Icon = type.icon;
+  return (
+    <button
+      role="tab"
+      aria-selected={selected}
+      tabIndex={selected ? 0 : -1}
+      onClick={onSelect}
+      className={`flex w-[104px] shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border bg-white px-3 py-4 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
+        selected
+          ? "border-primary bg-primary-soft/40 shadow-soft"
+          : "border-line/70 hover:border-line hover:shadow-soft"
+      }`}
+    >
+      <Icon className="h-6 w-6" style={{ color: type.accent }} />
+      <span
+        className={`whitespace-nowrap text-[13px] font-medium ${
+          selected ? "text-primary" : "text-body"
+        }`}
+      >
+        {type.label}
+      </span>
+    </button>
+  );
 }
 
 function PhonePreview({ type }: { type: QrType }) {
@@ -233,7 +285,6 @@ function PhonePreview({ type }: { type: QrType }) {
       className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] sm:aspect-[16/10] lg:aspect-[16/9]"
       style={{ background: alpha(accent, 0.1) }}
     >
-      {/* Floating accent badges */}
       <span
         className="absolute left-5 top-1/2 z-20 hidden h-14 w-14 -translate-y-1/2 items-center justify-center rounded-2xl text-white shadow-pop sm:flex"
         style={{ background: accent }}
@@ -253,7 +304,6 @@ function PhonePreview({ type }: { type: QrType }) {
         <TileB className="h-5 w-5" />
       </span>
 
-      {/* Phone */}
       <div
         key={type.key}
         className="showcase-fade absolute left-1/2 top-7 w-[210px] -translate-x-1/2 sm:w-[240px]"
@@ -345,60 +395,53 @@ function PhonePreview({ type }: { type: QrType }) {
 }
 
 export function Showcase() {
-  const [active, setActive] = useState(0);
-  const type = types[active];
+  const [activeKey, setActiveKey] = useState(allTypes[0].key);
+  const type = allTypes.find((t) => t.key === activeKey) ?? allTypes[0];
 
   return (
-    <section className="bg-white">
+    <section id="types" className="scroll-mt-20 bg-bg">
       <div className="container-page py-16 md:py-20">
         <h2 className="text-center text-3xl font-bold sm:text-4xl">
-          Generate a QR code in seconds.
+          Choose your QR&nbsp;code type
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-center text-muted">
-          Choose a type below and watch your dynamic QR code come to life.
+          Select the type that best fits what you want to share.
         </p>
 
         <div
           role="tablist"
-          aria-label="Generate a QR code in seconds."
-          className="scroll-thin mt-10 flex gap-3 overflow-x-auto px-1 pb-2 pt-1"
+          aria-label="Choose your QR code type"
+          className="mt-10"
         >
-          {types.map((t, i) => {
-            const selected = i === active;
-            const Icon = t.icon;
-            return (
-              <button
+          <div className="flex flex-wrap justify-center gap-3">
+            {mainTypes.map((t) => (
+              <TypeCard
                 key={t.key}
-                role="tab"
-                aria-selected={selected}
-                tabIndex={selected ? 0 : -1}
-                onClick={() => setActive(i)}
-                className={`flex min-w-[104px] shrink-0 cursor-pointer flex-col items-center gap-2.5 rounded-2xl border bg-white p-4 shadow-sm transition-shadow duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
-                  selected ? "" : "border-line/70 text-body hover:shadow-md"
-                }`}
-                style={
-                  selected
-                    ? {
-                        borderColor: t.accent,
-                        color: t.accent,
-                        background: alpha(t.accent, 0.07),
-                      }
-                    : undefined
-                }
-              >
-                <Icon
-                  className="h-7 w-7"
-                  style={{ color: selected ? t.accent : "#0e8f87" }}
-                />
-                <span className="whitespace-nowrap text-xs font-semibold">
-                  {t.label}
-                </span>
-              </button>
-            );
-          })}
+                type={t}
+                selected={t.key === activeKey}
+                onSelect={() => setActiveKey(t.key)}
+              />
+            ))}
+          </div>
+
+          <div className="my-6 flex items-center justify-center gap-2 text-sm font-semibold text-ink">
+            More Formats
+            <ArrowDown className="h-4 w-4" aria-hidden="true" />
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            {moreTypes.map((t) => (
+              <TypeCard
+                key={t.key}
+                type={t}
+                selected={t.key === activeKey}
+                onSelect={() => setActiveKey(t.key)}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="mt-12 grid items-center gap-10 md:grid-cols-[5fr_7fr]">
+        <div className="mt-14 grid items-center gap-10 md:grid-cols-[5fr_7fr]">
           <div>
             <h3 className="text-2xl font-bold">{type.label}</h3>
             <p className="mt-4 max-w-md text-lg leading-relaxed text-muted">

@@ -4,7 +4,7 @@ import { Hero } from "@/components/sections/Hero";
 import { TrustBar } from "@/components/sections/TrustBar";
 import { Steps } from "@/components/sections/Steps";
 import { Showcase } from "@/components/sections/Showcase";
-import { Features } from "@/components/sections/Features";
+import { WhyBarcodesQR } from "@/components/sections/WhyBarcodesQR";
 import { Reviews } from "@/components/sections/Reviews";
 import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
@@ -18,7 +18,7 @@ export default function Home() {
         <TrustBar />
         <Steps />
         <Showcase />
-        <Features />
+        <WhyBarcodesQR />
         <Reviews />
         <Pricing />
         <Faq />
