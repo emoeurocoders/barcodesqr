@@ -1,0 +1,239 @@
+/* Input Font
+--------------------------------------------------------------*/ 
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt, select { font-family:"Roboto","Helvetica Neue", Arial, "Nimbus Sans L", "FreeSans;"; font-weight: 400; }
+/* Input Metrics (mobile first 16px fixed till reaching 16px scaling breakpoint)
+--------------------------------------------------------------*/   
+select { padding-top: 0px!important; padding-bottom: 0px!important; background-position: calc(100% - 1.8rem) center!important; background-position: 97% center; line-height: 1.5em; height: 3.6em; background-size: 2.1rem 1.4rem; }
+@-moz-document url-prefix() {
+select {
+margin-top: 1px;
+background-size: 1.8rem 1.3rem;
+}
+}
+input[type=text], select, input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt { font-size: 16px; line-height: 1.5em; height: 3.6em; padding: 0.50em 0.8em 0.45em 0.8em; letter-spacing: 0.01em; }
+select { padding-left: calc(1em - 3px)!important; padding-right: 1.2em; }
+.Explorer select { padding-left: calc(0.5em - 1px)!important; }
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt, select { border-width: 1px; border-style: solid; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
+ @media all and (min-width: 640px) {
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt { border-width: 1px; font-size: 18px; padding: 0.50em 0.8em 0.45em 0.8em; height: 3.6em; }
+select { font-size: 18px; background-size: 1.1rem 1rem; padding-right: 3.1rem; background-position: calc(100% - 0.9rem) center!important; height: 3.6em; padding-left: 0.75em!important; }
+}
+.textarea textarea { min-height: 7em; }
+/*checkbox*/
+.chk { line-height: 2.6rem; height: 3.9rem; width: 3.9rem; font-size: 3.8rem; margin-right: 1rem; }
+.rad { line-height: 3.8rem; height: 3.8rem; width: 3.8rem; font-size: 3.6rem; margin-right: 1rem; }
+.chk span, .rad span { width: 3.9rem; height: 3.9rem; }
+.rad span { background: #000; top: 0.80rem; left: 0.80rem; width: 2.2rem; height: 2.2rem; }
+@media screen and (min-width: 640px) {
+.chk { line-height: 1.3rem; height: 2.2rem; width: 2.2rem; font-size: 2rem; }
+.rad { line-height: 1.3rem; height: 2.2rem; width: 2.2rem; font-size: 5.6rem; margin-right: 1rem; }
+.rad span { width: 1.2rem; height: 1.2rem; top: 0.5rem; left: 0.5rem; }
+}
+/* Input Colors (seperated for simplicity )
+--------------------------------------------------------------*/   
+select { box-shadow: 0 5px 10px -5px rgba(0,0,0,0.1); border: 1px solid #777; background-color: rgba(0,0,0,0); color: #555; }
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt { border-color: #777; color: #555; background: none rgba(255,255,255,0.01);  box-shadow: 0 5px 10px -5px rgba(0,0,0,0.1);  }
+input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=tel]:focus, input[type=number]:focus, input[type=search]:focus, textarea:focus, .inputFocused select, .textAreaFocused { border-color: #777!important; box-shadow:  0 5px 10px -5px rgba(0,0,0,0.1), inset 0 0 0 1px #000;}/*global input focus*/
+
+small.error { font-size: 12px; color: #cc0000; position: relative; top: 2px; padding-left: 0; font-family:  "Helvetica Neue", Arial, "Nimbus Sans L", "FreeSans;";  }
+input.error, textarea.error, select.error { border-color: #cc0000!important; }
+input.error:focus, textarea.error:focus, .inputFocused select.error { box-shadow:  0 5px 10px -5px rgba(0,0,0,0.1), inset 0 0 0 1px #cc0000; border-color: #cc0000!important; }
+@media screen and (min-width: 640px) {
+small.error { font-size: 12px;  padding-left: 15px;  }
+}
+/*checkbox*/
+.chk { background: #fff; border: solid 1px #dfdfdf; }
+.rad { background: #fff; border: solid 1px #a3a3a3; }
+.rad span { background: #000; }
+input[type=checkbox].switch { height: 0; width: 0; visibility: hidden; position: absolute; left: 0; }
+label.switchLabel { cursor: pointer; text-indent: -9999px; width: 6rem; height: 3rem; background: #eaeaea; box-shadow: inset 0.2rem 0.2rem 0.8rem 0.2rem rgba(0,0,0,0.15); display: block; display: block; border-radius: 100px; position: relative; border: solid 1px #a3a3a3; display: -moz-inline-stack; display: inline-block; zoom: 1; *display:inline;
+}
+label.switchLabel:after { content: ' '; position: absolute; top: 0.6rem; left: 0.6rem; width: 1.8rem; height: 1.8rem; background: #fff; border-radius: 90px; transition: 0.3s; }
+input.switch:checked + label.switchLabel { background: #1899c1; box-shadow: inset 0.2rem 0.2rem 0.8rem 0.2rem rgba(6, 94, 121,0.15); border-color: #1899c1; }
+input.switch:checked + label.switchLabel:after { left: calc(100% - 0.6rem); transform: translateX(-100%); }
+label.switchLabel:active:after { width: 4.5rem; }
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+ background-color: rgba(0,0,0,0.01)!important;
+ transition: background-color 5000s ease-in-out 5000s;
+ color: #555!important;
+ -webkit-text-fill-color: #555;
+}
+/*Input Text Placeholder colors*/
+::-webkit-input-placeholder {
+color:rgba(102, 102, 102, 1);
+font-style:normal;
+}
+:-moz-placeholder {
+color:rgba(102, 102, 102, 1);
+font-style:normal;
+opacity:1;
+-moz-opacity:1;
+}
+::-moz-placeholder {
+color:rgba(102, 102, 102, 1);
+font-style:normal;
+opacity:1;
+}
+:-ms-input-placeholder {
+color:rgba(102, 102, 102, 1)!important;
+font-style:normal;
+}
+:focus::-webkit-input-placeholder {
+color:rgba(102, 102, 102, 0.58);
+font-style:normal;
+}
+:focus:-moz-placeholder {
+color:rgba(102, 102, 102, 0.58);
+font-style:normal;
+opacity:1;
+-moz-opacity:1;
+}
+:focus::-moz-placeholder {
+color:rgba(102, 102, 102, 0.58);
+font-style:normal;
+opacity:1;
+}
+:focus:-ms-input-placeholder {
+color:rgba(102, 102, 102, 0.58)!important;
+font-style:normal;
+}
+/* Form Wrapper
+--------------------------------------------------------------*/
+.formWrp { width: 100%; }
+.formWrp p { display: block; width: 100%; float: left; padding-bottom: 15px; }
+.formWrp p label { display: block; font-size: 2rem; line-height: 1.5em; }
+.formWrp p input, .formWrp p select { width: 100%; }
+.formWrp p.btnWrp { padding-bottom: 0; margin-top: 0.2rem; }
+/* Insulated fixed font to match static 16px input */
+.formWrp p.ThCol { width: 33.33%; }
+@media screen and (max-width: 352px) {
+.formWrp p { padding-bottom: 15px; }
+}
+/* Insulated halfsies and labels */
+@media screen and (max-width: 639px) {
+.formWrp p.HfRsm { padding-left: 0.5rem; display: block; width: 50%; float: left; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.formWrp p.HfLsm { padding-right: 0.5rem; clear: left; display: block; width: 50%; float: left; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.formWrp p.ThCol { width: calc(33.33%  - 0.3332rem);  padding-left: 0.5rem;  padding-right: 0.5rem; display: block;  float: left; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.formWrp p.ThCol:first-child { padding-left: 0; width: calc(33.33% - 0.1666rem);  }
+.formWrp p.ThCol:last-child { padding-right: 0; width: calc(33.33% - 0.1666rem);  }
+}
+@media screen and (max-width: 352px) {
+.formWrp p.HfRsm { padding-left: 2.25px; }
+.formWrp p.HfLsm { padding-right: 2.25px; }
+.formWrp p.ThCol { width: calc(33.33% +  1.5px);  padding-left: 2.25px;  padding-right: 2.25px; }
+.formWrp p.ThCol:first-child { padding-left: 0; width: calc(33.33% - 0.75px);  }
+.formWrp p.ThCol:last-child { padding-right: 0; width: calc(33.33% - 0.75px);  }
+}
+@media screen and (min-width: 640px) {
+.formWrp p.HfRlg { padding-left: 0.75rem; display: block; width: 50%; float: left; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.formWrp p.HfLlg { padding-right: 0.75rem; clear: left; display: block; width: 50%; float: left; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.formWrp p.ThCol { width: calc(33.33% + 0.5rem );  padding-left: 0.75rem;  padding-right: 0.75rem;  float: left; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.formWrp p.ThCol:first-child { padding-left: 0; width: calc(33.33% - 0.250rem);  }
+.formWrp p.ThCol:last-child { padding-right: 0; width: calc(33.33% - 0.250rem);  }
+.formWrp p { padding-bottom: 15px; }
+.formWrp p label { font-size: 2rem; line-height: 1.5em; }
+.formWrp p.btnWrp { margin-top: 0.2rem; }
+}
+/* 
+////
+//// FloatLabels
+////
+--------------------------------------------------------------*/
+.floatLabels p { position: relative; display: block; }
+.floatLabels p label { position: absolute; left: 0; right: 0; padding-left: 13px; top: 8px; font-size: 18px;  line-height: 18px;  display: block; cursor: text; z-index: 10; padding-top: 15px; -webkit-transition-property: all; -webkit-transition-duration: 150ms; -webkit-transition-timing-function: linear; -moz-transition-property: all; -moz-transition-duration: 150ms; -moz-transition-timing-function: linear; transition-property: all; transition-duration: 150ms; transition-timing-function: linear; pointer-events: none; font-family: "Roboto","Helvetica Neue", Arial, "Nimbus Sans L", "FreeSans;"; font-weight: 400; color: #777; }
+.floatLabels .inputHasVal label, .floatLabels .inputFocused label { padding-top:5px; color: #000; font-size: 10px; line-height: 12px; padding-left: 11px;  font-weight: 600;  }
+.floatLabels .inputFocused label { color: #000 !important;  font-weight 600;  }
+.floatLabels .inputHasVal input, .floatLabels .inputFocused input, .floatLabels .inputHasVal select, .floatLabels .inputFocused select { padding-top: 0.8em!important; }
+.floatLabels p.HfRlg label,  .formWrp p.ThCol  label { left: 0.75rem; }
+.formWrp p.ThCol:first-child label { left: 0!important; }
+@media screen and (max-width: 640px) {
+.floatLabels p label { font-size: 16px; line-height: 16px; padding-top: 17px;  top: 3px; }
+.floatLabels .inputHasVal label, .floatLabels .inputFocused label { padding-top: 5px; color: #000; font-size: 10px; line-height: 12px; }
+.floatLabels .inputFocused label { color: #000 !important; }
+}
+@media screen and (max-width: 639px) {
+.formWrp p.HfLsm { padding-right: 0.5rem;  }
+.floatLabels p.HfRlg label, .formWrp p.ThCol label { left: 0.5rem; }
+}
+@media screen and (max-width: 352px) {
+.formWrp p.HfRsm { padding-left: 2.25px; }
+.floatLabels p.HfRlg label,  .formWrp p.ThCol label { left: 2.25px; }
+}
+/*Input Text Placeholder colors*/
+.floatLabels ::-webkit-input-placeholder {
+color:rgba(98,98,98,0.01);
+font-style:normal;
+}
+.floatLabels :-moz-placeholder {
+color:rgba(98,98,98,0.01);
+font-style:normal;
+opacity:1;
+-moz-opacity:1;
+}
+.floatLabels ::-moz-placeholder {
+color:rgba(98,98,98,0.01);
+font-style:normal;
+opacity:1;
+}
+.floatLabels :-ms-input-placeholder {
+color:rgba(98,98,98,0.01)!important;
+font-style:normal;
+}
+.floatLabels :focus::-webkit-input-placeholder {
+color:rgba(98,98,98,0.01);
+font-style:normal;
+}
+.floatLabels :focus:-moz-placeholder {
+color:rgba(98,98,98,0.01);
+font-style:normal;
+opacity:1;
+-moz-opacity:1;
+}
+.floatLabels :focus::-moz-placeholder {
+color:rgba(98,98,98,0.01);
+font-style:normal;
+opacity:1;
+}
+.floatLabels :focus:-ms-input-placeholder {
+color:rgba(98,98,98,0.01)!important;
+font-style:normal;
+}
+/*Input Text Placeholder colors*/
+.floatLabels .inputHasVal ::-webkit-input-placeholder, .floatLabels .inputFocused ::-webkit-input-placeholder {
+color:rgba(98,98,98,1);
+font-style:normal;
+}
+.floatLabels .inputHasVal :-moz-placeholder, .floatLabels .inputFocused :-moz-placeholder {
+color:rgba(98,98,98,1);
+font-style:normal;
+opacity:1;
+-moz-opacity:1;
+}
+.floatLabels .inputHasVal ::-moz-placeholder, .floatLabels .inputFocused ::-moz-placeholder {
+color:rgba(98,98,98,1);
+font-style:normal;
+opacity:1;
+}
+.floatLabels .inputHasVal :-ms-input-placeholder, .floatLabels .inputFocused :-ms-input-placeholder {
+color:rgba(98,98,98,1)!important;
+font-style:normal;
+}
+.floatLabels .inputHasVal :focus::-webkit-input-placeholder, .inputFocused .inputHasVal :focus::-webkit-input-placeholder {
+color:rgba(98,98,98,1);
+font-style:normal;
+}
+.floatLabels .inputHasVal :focus:-moz-placeholder, .floatLabels .inputFocused :focus:-moz-placeholder {
+color:rgba(98,98,98,1);
+font-style:normal;
+opacity:1;
+-moz-opacity:1;
+}
+.floatLabels .inputHasVal :focus::-moz-placeholder, .floatLabels .inputFocused :focus::-moz-placeholder {
+color:rgba(98,98,98,1);
+font-style:normal;
+opacity:1;
+}
+.floatLabels .inputHasVal :focus:-ms-input-placeholder, .floatLabels .inputFocused :focus:-ms-input-placeholder {
+color:rgba(98,98,98,1)!important;
+font-style:normal;
+}

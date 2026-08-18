@@ -1,0 +1,36 @@
+/* Global Buttons and colors
+--------------------------------------------------------------*/
+.btn, .btn:active, .btn:focus { border: 0; display: -moz-inline-stack; display: inline-block; zoom: 1; *display:inline;
+-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; position: relative; -webkit-tap-highlight-color: rgba(0,0,0,0); z-index: 3; text-align: center; color: #fff; letter-spacing: 0.05em; background: rgba(0,0,0,0); font-family: "Inter", "Helvetica Neue", Arial, "Nimbus Sans L", FreeSans; }
+.btn:after { content: ' ';  position: absolute; left: 0; top: 0; bottom: 0; right: 0; display: block; z-index: -2; background: #000000; -webkit-background-clip: padding-box;   background-clip:  padding-box; -webkit-border-radius: 0.7em; -moz-border-radius: 0.7em; border-radius: 0.7em; }
+.btn:active:after, .btn:active:before  { left: 1.3px; top: 1.3px; bottom: 1.3px; right: 1.3px; }
+.btnFull { display:block; width: 100%;  }
+.btn .ico { width: 1em; height: 1.2em; vertical-align: top; top: -0.2em; position: relative; margin-bottom: -0.2em;  }
+button.genBtn1 { -webkit-appearance: none; background: none; border: none; outline: 0; }
+.genBtn1 { padding: 0.65em 1.1em 0.65em 1.1em; line-height: 1.1em; font-size: 14px;   font-family: "Inter", "Helvetica Neue", Arial, "Nimbus Sans L", FreeSans; font-weight: 500;   text-transform:  capitalize;  letter-spacing: 0.0em;   }
+.genBtn4, .genBtn4:active, .genBtn4:focus { padding: 1em 2.2em 1em 2.2em;  line-height: 1em; font-size: 16px;  font-family:  "Inter",  "Helvetica Neue",  Arial, "Nimbus Sans L", FreeSans; font-weight: 500; text-transform: capitalize;  letter-spacing: 0.0em;  }
+.genBtn5, .genBtn5:active, .genBtn5:focus { padding: 1.25em 3em 1.25em 3em;  line-height: 1em; font-size: 17px;  font-family:  "Inter",  "Helvetica Neue",  Arial, "Nimbus Sans L", FreeSans; font-weight: 500; text-transform: capitalize;  letter-spacing: 0.0em; display: inline-flex; align-items: center; }
+/* Mobile Size
+-----------------------*/
+@media all and (max-width: 572px) {
+.genBtn1{ font-size: 13px!important; padding: 0.8em 1.05em 0.8em 1.05em; }
+.genBtn4 { font-size: 14px!important; }   
+.genBtn5 { font-size: 14px!important; }   
+}
+@media all and (max-width: 479px) {
+.genBtn1{ font-size: 13px!important; }
+.genBtn4 { font-size: 13px!important; }   
+.genBtn5 { font-size: 13px!important; }   
+}
+/* Button Colors
+-----------------------*/
+.btnC0 { color: #000!important; }
+.btnC0:after {  background: none!important;}
+.btnC1 { color: #fff!important; }
+.btnC1:after {  background: #2563eb!important; } 
+.btnC3 { color: #fff!important; }
+.btnC3:after { background: #2563eb!important; }
+.btnC4 { color: #374151!important; }
+.btnC4:after { background: #ffffff!important; border: 1px solid #d7dde2; }
+
+

@@ -1,0 +1,129 @@
+/* http://www.007css.com Layout Scaler for 640px and less
+Made by Carl C. (320-640px @ 8px steps)
+--------------------------------------------------------------*/
+@media all and (max-width: 640px) {
+body, html { font-size: 10px!important }
+}
+@media all and (max-width: 632px) {
+body, html { font-size: 9.875px!important }
+}
+@media all and (max-width: 624px) {
+body, html { font-size: 9.75px!important }
+}
+@media all and (max-width: 616px) {
+body, html { font-size: 9.625px!important }
+}
+@media all and (max-width: 608px) {
+body, html { font-size: 9.5px!important }
+}
+@media all and (max-width: 600px) {
+body, html { font-size: 9.375px!important }
+}
+@media all and (max-width: 592px) {
+body, html { font-size: 9.25px!important }
+}
+@media all and (max-width: 584px) {
+body, html { font-size: 9.125px!important }
+}
+@media all and (max-width: 576px) {
+body, html { font-size: 9px!important }
+}
+@media all and (max-width: 568px) {
+body, html { font-size: 8.825px!important }
+}
+@media all and (max-width: 560px) {
+body, html { font-size: 8.75px!important }
+}
+@media all and (max-width: 552px) {
+body, html { font-size: 8.625px!important }
+}
+@media all and (max-width: 544px) {
+body, html { font-size: 8.5px!important }
+}
+@media all and (max-width: 536px) {
+body, html { font-size: 8.375px!important }
+}
+@media all and (max-width: 528px) {
+body, html { font-size: 8.25px!important }
+}
+@media all and (max-width: 520px) {
+body, html { font-size: 8.125px!important }
+}
+@media all and (max-width: 512px) {
+body, html { font-size: 8px!important }
+}
+@media all and (max-width: 504px) {
+body, html { font-size: 7.875px!important }
+}
+@media all and (max-width: 496px) {
+body, html { font-size: 7.75px!important }
+}
+@media all and (max-width: 488px) {
+body, html { font-size: 7.625px!important }
+}
+@media all and (max-width: 480px) {
+body, html { font-size: 7.5px!important }
+}
+@media all and (max-width: 472px) {
+body, html { font-size: 7.375px!important }
+}
+@media all and (max-width: 464px) {
+body, html { font-size: 7.25px!important }
+}
+@media all and (max-width: 456px) {
+body, html { font-size: 7.125px!important }
+}
+@media all and (max-width: 448px) {
+body, html { font-size: 7px!important }
+}
+@media all and (max-width: 440px) {
+body, html { font-size: 6.875px!important }
+}
+@media all and (max-width: 432px) {
+body, html { font-size: 6.75px!important }
+}
+@media all and (max-width: 424px) {
+body, html { font-size: 6.625px!important }
+}
+@media all and (max-width: 416px) {
+body, html { font-size: 6.5px!important }
+}
+@media all and (max-width: 408px) {
+body, html { font-size: 6.375px!important }
+}
+@media all and (max-width: 400px) {
+body, html { font-size: 6.25px!important }
+}
+@media all and (max-width: 392px) {
+body, html { font-size: 6.125px!important }
+}
+@media all and (max-width: 384px) {
+body, html { font-size: 6px!important }
+}
+@media all and (max-width: 376px) {
+body, html { font-size: 5.875px!important }
+}
+@media all and (max-width: 368px) {
+body, html { font-size: 5.75px!important }
+}
+@media all and (max-width: 360px) {
+body, html { font-size: 5.625px!important }
+}
+@media all and (max-width: 352px) {
+body, html { font-size: 5.5px!important }
+}
+@media all and (max-width: 344px) {
+body, html { font-size: 5.375px!important }
+}
+@media all and (max-width: 336px) {
+body, html { font-size: 5.25px!important }
+}
+@media all and (max-width: 328px) {
+body, html { font-size: 5.125px!important }
+}
+@media all and (max-width: 320px) {
+body, html { font-size: 5px!important }
+}
+@media all and (max-width: 640px) {
+body, html { font-size: 1.5625vw!important;}
+}

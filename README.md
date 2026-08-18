@@ -43,6 +43,11 @@ src/
     ui/                Button, Logo, MiniQr, AnimatedCounter
 public/
   avatars/ payments/ previews/
+scripts/
+  sync-design.mjs      pulls the designer's mockup into html_files/
+html_files/            read-only mirror of the designer's mockup — do not edit
+  main.html
+  assets/css/ assets/scripts/ assets/images/
 ```
 
 ## Design system
@@ -56,6 +61,33 @@ tokens in `src/app/globals.css`. Use the semantic names rather than raw hex:
 - Surfaces — `bg-surface`, `bg-bg`, `bg-bg-alt`, `border-line`
 - Custom utilities — `container-page`, `shadow-soft`, `shadow-card`,
   `shadow-pop`, `marquee-mask`, `scroll-thin`, `showcase-fade`
+
+## Design sync
+
+The design arrives as a static HTML/CSS/JS mockup on the designer's staging
+host. `html_files/` is a read-only mirror of it — **never hand-edit anything in
+there**, or the next sync reverts your work.
+
+```bash
+npm run sync:design              # pull the latest mockup
+npm run sync:design -- --dry     # report what changed, write nothing
+npm run sync:design -- foo.html  # add a page we do not track yet
+```
+
+Copy `.env.example` to `.env.local` and fill in the designer host credentials
+first. The host is behind HTTP basic auth with no directory listing, so the
+script re-fetches everything it already has and follows `href`/`src`/`url()`
+references out of the HTML and CSS it downloads — new images come along
+automatically, while a brand-new *page* needs naming once.
+
+When a new mockup lands:
+
+1. `npm run sync:design -- --dry` — see the scope
+2. `npm run sync:design` — pull it
+3. `git diff html_files/` — **this is the design change, as a reviewable diff**
+4. Port it into `src/components/`
+
+`html_files/` is committed so that step 3 has a baseline to diff against.
 
 ## Notes / TODO
 

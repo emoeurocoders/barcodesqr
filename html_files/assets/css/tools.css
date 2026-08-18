@@ -1,0 +1,177 @@
+@charset "UTF-8";
+/* 
+#############################################################################
+# V1.05 Made by Carl C. http://www.007css.com                               #
+# Licensed under https://creativecommons.org/licenses/by/4.0/ Copyright (c) #
+# Free to use free to edit, just keep url and name in credits               #
+# Open to reports and suggestions, you may send me your adaptations         #
+#############################################################################
+*/
+/* Wire Framing (Frm*)
+--------------------------------------------------------------*/  
+.FrmCtr { padding: 0 2rem; margin: 0 auto; max-width: 1240px; }
+.FrmCtr2 { padding: 0 2rem; margin: 0 auto; max-width: 1140px; }
+.FrmCtr3 { padding: 0 2rem; margin: 0 auto; max-width: 2024px; } /*collection product listings*/
+.FrmCtr4 { padding: 6rem  5rem 0 5rem; margin: 0 auto; max-width: 1040px; } /*about page, terms, etc*/
+/* Reverse Center for inner childs if needed for diff breakpoint layout padding*/
+@media screen and (max-width: 640px) {
+.FrmRvCtrSmall { margin-left: -2.5rem; margin-right: -2.5rem; padding-left: 2.5rem; padding-right: 2.5rem; }
+}
+@media all and (max-width: 819px) {
+.FrmCtr2 {  max-width: 628px;   }
+}
+@media screen and (max-width: 768px) {
+.FrmRvCtrMed { margin-left: -2.5rem; margin-right: -2.5rem; padding-left: 2.5rem; padding-right: 2.5rem; }
+.FrmCtr4 { padding: 5rem 0 0  0; }
+}
+@media screen and (min-width: 769px) {
+.FrmRvCtrLg { margin-left: -2.5rem; margin-right: -2.5rem; padding-left: 2.5rem; padding-right: 2.5rem; }
+}
+.FrmRvCtr {  margin-left: -2.5rem; margin-right: -2.5rem; padding-left: 2.5rem; padding-right: 2.5rem;  }
+.FrmPadRgt { padding-right: 2rem; }
+.FrmPadLft { padding-left: 2rem; }
+.FrmPad2xRgt { padding-right: 4rem; }
+.FrmPad2xLft { padding-left: 4rem; }
+/* Simple Grid uses border box as box-sizing so you can add padding directly to them using classes and breakpoints (add clearing class to parent)
+Pretty much covers any grid system seperation if you use children combination Ex: FrmCol50Pct parent with FrmCol20Pct child = a 10 col seperation, no margins or padding on any size for simplicity.
+--------------------------------------------------------------*/  
+/* All Sizes*/
+[class^="FrmCol"], [class*=" FrmCol"]{ float:left; width: 100%;}
+.FrmCol100Pct { width: 100%;}
+.FrmCol75Pct { width: 75%;}
+.FrmCol50Pct { width: 50%;}
+.FrmCol33Pct { width: 33.33%;}
+.FrmCol25Pct { width: 25%;}
+.FrmCol20Pct { width: 20%;}
+.FrmCol10Pct { width: 10%;}
+
+/* Small Only */
+@media screen and (max-width: 640px) {
+.FrmCol100PctSm { width: 75%;} 
+.FrmCol75PctSm { width: 75%;} 
+.FrmCol50PctSm { width: 50%;}
+.FrmCol33PctSm { width: 33.3333%;}
+.FrmCol25PctSm { width: 25%;}
+.FrmCol20PctSm { width: 20%;}
+.FrmCol10PctSm { width: 10%;}
+}
+/* Small and Medium Only */
+@media screen and (max-width: 768px) {
+.FrmCol75PctSmMed { width: 75%;}
+.FrmCol50PctSmMed { width: 50%;}
+.FrmCol33PctSmMed { width: 33.3333%;}
+.FrmCol25PctSmMed { width: 25%;}
+.FrmCol20PctSmMed { width: 20%;}
+.FrmCol10PctSmMed { width: 10%;}
+}
+/* Medium Only */
+@media screen and (min-width: 641px) and (max-width: 768px) {
+.FrmCol75PctMed { width: 75%;}
+.FrmCol50PctMed { width: 50%;}
+.FrmCol33PctMed { width: 33.3333%;}
+.FrmCol25PctMed { width: 25%;}
+.FrmCol20PctMed { width: 20%;}
+.FrmCol10PctMed { width: 10%;}
+}
+/* Medium and Large Only */
+@media screen and (min-width: 641px) {
+.FrmCol75PctMedLg { width: 75%;}
+.FrmCol50PctMedLg { width: 50%;}
+.FrmCol33PctMedLg { width: 33.3333%;}
+.FrmCol25PctMedLg { width: 25%;}
+.FrmCol20PctMedLg { width: 25%;}
+.FrmCol10PctMedLg  { width: 10%;}
+}
+/* Large Only */
+@media screen and (min-width: 769px) {
+.FrmCol75PctLg { width: 75%;}
+.FrmCol50PctLg { width: 50%;}
+.FrmCol33PctLg { width: 33.3333%;}
+.FrmCol25PctLg { width: 25%;}
+.FrmCol20PctLg { width: 20%;}
+.FrmCol10PctLg { width: 10%;}
+}
+/* Html element manipulation shortcuts (Elm*)
+--------------------------------------------------------------*/
+/*
+Basic usage:
+To hide on desktop only: (visible at 768px and lower)
+.ElmShowMedSmall, .ElmHideLg
+To hide on desktop and tablet (visible at 640px and lower):
+.ElmShowSmall
+To hide on desktop and phone (visible at 641px to 768px):
+.ElmShowMed
+To hide on tablet and phone (visible at 640px and lower):
+.ElmShowLg
+To hide on tablet (visible at 640px and lower and visible at 769px and higher):
+.ElmShowSmallLg, .ElmHideMed
+To hide on phone (visible at 641px and higher):
+.ElmShowMedLg, .ElmHideSmall
+Added to ElmHide: *In, *Td, *Tr of quick non default styling
+*/
+/* Responsive show/hide elements, simplified for fast cut & paste for larger breakpoint additions*/
+@media screen and (max-width: 640px) {
+.ElmHideSmall, .ElmHideSmallIn, .ElmHideSmallTd, .ElmHideSmallTr { display: none!important; }
+}
+@media screen and (max-width: 768px) {
+.ElmHideSmallMed, .ElmHideSmallMedIn, .ElmHideSmallMedTd, .ElmHideSmallMedTr { display: none!important; }
+}
+/*1px after small endpoint (change 641px to suit your needs)*/
+@media screen and (min-width: 641px) {
+body .ElmShowSmall { display: none!important; }
+body .ElmHideSmallIn { display: inline!important; }
+body .ElmHideSmallTd { display: table-cell!important; }
+body .ElmHideSmallTr { display: table-row!important; }
+}
+/*small endpoint (change 641px to suit your needs)*/
+@media screen and (max-width: 640px) {
+body .ElmShowMed { display: none!important;  }
+body .ElmShowLg { display: none!important;  }
+body .ElmShowMedLg { display: none!important;  }
+body .ElmHideSmall { display: none!important; }
+}
+/*1px after small endpoint, medium endopoint  (change 641px and 768px to suit your needs)*/
+@media screen and (min-width: 641px)  and (max-width: 768px) {
+body .ElmShowSmallLg { display: none!important; }
+body .ElmShowLg { display: none!important;  }
+body .ElmHideMed { display: none!important; }
+}
+/*1px after medium endpoint (change 769px to suit your needs)*/
+@media screen and (min-width: 769px) {
+body .ElmShowMed { display: none!important; }
+body .ElmShowMedSmall { display: none!important;  }
+body .ElmHideLg { display: none!important; }
+body .ElmHideSmallMed { display: block!important; }
+body .ElmHideSmallMedIn { display: inline!important; }
+body .ElmHideSmallMedTd { display: table-cell!important; }
+body .ElmHideSmallMedTr { display: table-row!important; }
+}
+/* html elements */
+.ElmBrdBox { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.ElmCirc, .ElmCirc:after { -webkit-background-clip: padding-box; background-clip: padding-box; -webkit-border-radius: 665px!important; -moz-border-radius: 665px!important; border-radius: 665px!important; }
+.ElmInlBlk { display: -moz-inline-stack; display: inline-block; zoom: 1; *display:inline; vertical-align: top; }
+.ElmBgCvr { background-size: cover!important; background-repeat: no-repeat!important; background-position:center center!important; }
+.ElmBgFllW { background-size: 100% auto!important; background-repeat: no-repeat!important; background-position:center top!important; }
+.ElmBgFllH { background-size: auto 100%!important; background-repeat: no-repeat!important; background-position:center center!important; }
+.ElmNoMar { margin: 0!important; }
+.ElmNoPad { padding: 0!important; }
+.ElmNoBord { border: 0!important; }
+.ElmLft { float: left!important;}
+.ElmRgt { float: right!important;}
+.ElmCtr { margin-left: auto!important; margin-right: auto!important; display: block; }
+.ElmBord {  border-width:1px;}
+.ElmBordTop { border-top-width:1px;}
+.ElmBordBtm { border-bottom-width:1px;}
+.ElmBordRight { border-right-width:1px;}
+.ElmBordLeft {  border-left-width:1px;}
+.ElmNoTrans, .ElmNoTransChildren * { -webkit-transition-property: none!important; -moz-transition-property: none!important; transition-property: none!important; }
+.ElmAccel3d { -moz-transform: scale3d(1, 1, 1); -ms-transform: translateZ(0); -o-transform: translateZ(0); transform: scale3d(1, 1, 1); -webkit-perspective: 0; -webkit-backface-visibility: hidden; -webkit-transform: translate3d(0, 0, 0); }
+.Elmhidden { display: none; }
+.Elmhidden0 { display: none!important; } /*for 0-1 toggle of styled element*/
+/* text elements */
+.TxtAlCtr { text-align: center!important; display: block; }
+.TxtAlLft { text-align: left; }
+.TxtIta { font-style: italic; }
+.TxtUnd { text-decoration:underline; }
+.TxtLnThr { text-decoration: line-through; }
+.TxtHi { padding-left: 0.3em; padding-right: 0.3em; background: #FF0; }
