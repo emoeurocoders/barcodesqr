@@ -1,21 +1,35 @@
 import Link from "next/link";
-import { Headphones } from "lucide-react";
+import { MessageCircle, ArrowRight, Globe, ChevronDown } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 
-const columns = [
+type FooterLink = { href: string; label: string };
+
+const columns: { title: string; links: FooterLink[] }[] = [
   {
-    title: "Customer Support",
+    title: "QR Code Types",
     links: [
-      { href: "/dashboard", label: "Cancel Subscription" },
-      { href: "/help", label: "Contact Support" },
+      { href: "/#types", label: "Website QR" },
+      { href: "/#types", label: "PDF QR" },
+      { href: "/#types", label: "vCard QR" },
+      { href: "/#types", label: "WiFi QR" },
+      { href: "/#types", label: "Menu QR" },
     ],
   },
   {
-    title: "Legal",
+    title: "Use Cases",
     links: [
-      { href: "/legal/privacy", label: "Privacy & Cookie Policy" },
-      { href: "/legal/terms", label: "Terms & Conditions" },
-      { href: "/legal/terms#refunds", label: "Refund Policy" },
+      { href: "/#types", label: "Restaurants" },
+      { href: "/#types", label: "Business Cards" },
+      { href: "/#types", label: "Packaging" },
+      { href: "/#types", label: "Events" },
+      { href: "/#types", label: "Real Estate" },
+    ],
+  },
+  {
+    title: "Support",
+    links: [
+      { href: "/help", label: "Help Center" },
+      { href: "/dashboard", label: "Cancel Subscription" },
     ],
   },
   {
@@ -23,16 +37,14 @@ const columns = [
     links: [
       { href: "/#pricing", label: "Pricing" },
       { href: "/reviews", label: "Reviews" },
-      { href: "/help", label: "Help Center" },
     ],
   },
   {
-    title: "Features",
+    title: "Legal",
     links: [
-      { href: "/#features", label: "Full QR Customization" },
-      { href: "/#features", label: "Dynamic & Editable QR Codes" },
-      { href: "/#features", label: "Advanced QR Analytics" },
-      { href: "/#features", label: "High-Quality QR Downloads" },
+      { href: "/legal/privacy", label: "Privacy Policy" },
+      { href: "/legal/terms", label: "Terms & Conditions" },
+      { href: "/legal/terms#refunds", label: "Refund Policy" },
     ],
   },
 ];
@@ -49,11 +61,7 @@ const payments = [
     alt: "American Express",
     className: "h-[22px] w-auto",
   },
-  {
-    src: "/payments/applepay.svg",
-    alt: "Apple Pay",
-    className: "h-3.5 w-auto",
-  },
+  { src: "/payments/applepay.svg", alt: "Apple Pay", className: "h-3.5 w-auto" },
   {
     src: "/payments/googlepay.svg",
     alt: "Google Pay",
@@ -61,72 +69,89 @@ const payments = [
   },
 ];
 
+const linkClass = "text-sm text-muted transition-colors hover:text-ink";
+
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-line bg-bg-alt">
-      <div className="container-page py-12">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(4,1fr)]">
+    <footer className="mt-auto border-t border-line bg-white">
+      <div className="container-page py-14">
+        <div className="grid gap-10 lg:grid-cols-[1.6fr_repeat(5,1fr)]">
+          {/* Brand */}
           <div>
             <span className="inline-flex items-center gap-2">
               <Logo />
               <span className="text-lg font-bold tracking-tight text-ink">
-                BarcodesQR
+                Barcodes<span className="text-primary">QR</span>
               </span>
             </span>
-            <p className="mt-3 max-w-xs text-sm text-muted">
-              Create, customize and track QR codes that work everywhere.
-            </p>
-            <p className="mt-4 max-w-[16rem] text-xs text-muted">
-              100 Example Ave, Suite 200, Wilmington, DE 19801, USA
-            </p>
-            <p className="mt-1 text-xs text-muted">
-              © {year} BarcodesQR. All rights reserved.
+            <p className="mt-4 max-w-[15rem] text-sm leading-relaxed text-muted">
+              Create, customize and manage QR codes for web, print and business.
             </p>
           </div>
 
           {columns.map((col) => (
             <div key={col.title}>
-              <h4 className="text-sm font-semibold text-ink">{col.title}</h4>
-              <ul className="mt-3 space-y-2">
+              <h4 className="text-sm font-bold text-ink">{col.title}</h4>
+              <ul className="mt-4 space-y-2.5">
+                {col.title === "Support" && (
+                  <li>
+                    <Link
+                      href="/help"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink transition-colors hover:text-primary"
+                    >
+                      Live Help
+                      <MessageCircle className="h-4 w-4 text-primary" />
+                    </Link>
+                  </li>
+                )}
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      className="text-sm text-muted transition-colors hover:text-ink"
-                      href={link.href}
-                    >
+                    <Link className={linkClass} href={link.href}>
                       {link.label}
                     </Link>
                   </li>
                 ))}
+                {col.title === "QR Code Types" && (
+                  <li className="pt-1">
+                    <Link
+                      href="/#types"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
+                    >
+                      View All QR Types
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </li>
+                )}
               </ul>
-              {col.title === "Customer Support" && (
-                <div className="mt-4 flex items-center gap-2 rounded-xl border border-line bg-white p-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-soft text-brand">
-                    <Headphones className="h-4 w-4" />
-                  </span>
-                  <span className="text-xs font-medium text-ink">
-                    Reach our team 24/7
-                  </span>
-                </div>
-              )}
             </div>
           ))}
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-6 border-t border-line pt-6 sm:flex-row">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="mt-12 flex flex-col items-center justify-between gap-6 border-t border-line pt-6 sm:flex-row">
+          <p className="text-sm text-muted">
+            © {year} BarcodesQR. All rights reserved.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-2">
             {payments.map((p) => (
               <span
                 key={p.alt}
-                className="flex h-7 items-center justify-center rounded-md border border-line bg-white px-3"
+                className="flex h-8 items-center justify-center rounded-md border border-line bg-white px-3"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.src} alt={p.alt} className={p.className} />
               </span>
             ))}
           </div>
+
+          {/* Language is display-only until i18n is wired up. */}
+          <span className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink">
+            <Globe className="h-4 w-4 text-muted" aria-hidden="true" />
+            English
+            <ChevronDown className="h-4 w-4 text-muted" aria-hidden="true" />
+          </span>
         </div>
       </div>
     </footer>

@@ -33,14 +33,10 @@ import {
   Lock,
   QrCode,
   Clock,
-  Signal,
-  BatteryFull,
-  ChevronLeft,
-  ChevronRight,
-  Heart,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { PhoneScreen, alpha } from "@/components/ui/PhoneScreens";
 
 type QrType = {
   key: string;
@@ -232,15 +228,6 @@ const moreTypes: QrType[] = [
 
 const allTypes = [...mainTypes, ...moreTypes];
 
-/** rgba() helper so the accent can be used at partial opacity. */
-function alpha(hex: string, a: number) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = (n >> 16) & 255;
-  const g = (n >> 8) & 255;
-  const b = n & 255;
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
-}
-
 function TypeCard({
   type,
   selected,
@@ -312,80 +299,7 @@ function PhonePreview({ type }: { type: QrType }) {
           <span className="absolute left-1/2 top-3 z-20 h-5 w-16 -translate-x-1/2 rounded-full bg-ink sm:w-20" />
           <div className="relative h-[452px] overflow-hidden rounded-[2rem] bg-white">
             <div className="flex h-full flex-col">
-              <div style={{ background: accent }}>
-                <div className="flex items-center justify-between px-5 pb-1 pt-3 text-xs font-semibold text-white">
-                  <span>9:41</span>
-                  <span className="flex items-center gap-1">
-                    <Signal className="h-3 w-3" />
-                    <Wifi className="h-3 w-3" />
-                    <BatteryFull className="h-3 w-3" />
-                  </span>
-                </div>
-                <div className="px-3 pb-3 pt-1">
-                  <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 shadow-sm">
-                    <Globe className="h-3 w-3 text-muted" />
-                    <span className="truncate text-[11px] font-medium text-ink">
-                      barcodesqr.com
-                    </span>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between px-0.5 text-white">
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="-mt-1 flex-1 rounded-t-2xl bg-white p-3.5">
-                <div className="relative h-32 overflow-hidden rounded-2xl">
-                  <div
-                    role="img"
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: "url(/previews/cafe.jpg)" }}
-                  />
-                  <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white shadow-sm">
-                    <Heart className="h-3 w-3" style={{ color: accent }} />
-                  </span>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="space-y-2">
-                    <div
-                      className="h-2 rounded-full bg-line-soft"
-                      style={{ width: 64 }}
-                    />
-                  </div>
-                  <Icon className="h-4 w-4" style={{ color: accent }} />
-                </div>
-
-                <div className="mt-2.5 grid grid-cols-2 gap-2.5">
-                  {[TileA, TileB].map((Tile, i) => (
-                    <div
-                      key={i}
-                      className="rounded-xl border border-line/70 bg-white p-2 shadow-sm"
-                    >
-                      <div
-                        className="relative grid h-14 place-items-center rounded-lg"
-                        style={{ background: alpha(accent, 0.12) }}
-                      >
-                        <Tile className="h-5 w-5" style={{ color: accent }} />
-                        <span className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full bg-white shadow-sm">
-                          <Star className="h-2.5 w-2.5 text-star" />
-                        </span>
-                      </div>
-                      <div className="mt-2 space-y-2">
-                        <div
-                          className="h-2 rounded-full bg-line-soft"
-                          style={{ width: "90%" }}
-                        />
-                        <div
-                          className="h-2 rounded-full bg-line-soft"
-                          style={{ width: "50%" }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <PhoneScreen type={type.key} accent={accent} />
             </div>
           </div>
         </div>

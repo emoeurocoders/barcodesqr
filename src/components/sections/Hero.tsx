@@ -176,7 +176,7 @@ export function Hero() {
               <div className="flex w-[560px] overflow-hidden rounded-2xl border border-line bg-white shadow-card">
                 <div className="w-44 shrink-0 border-r border-line bg-bg-alt/40 p-4">
                   <span className="inline-flex items-center gap-1.5">
-                    <Logo className="h-5 w-5 text-brand" />
+                    <Logo className="h-5 w-5 text-primary" />
                     <span className="text-sm font-bold tracking-tight text-ink">
                       BarcodesQR
                     </span>

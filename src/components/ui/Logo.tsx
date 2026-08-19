@@ -1,4 +1,4 @@
-export function Logo({ className = "h-7 w-7 text-brand" }: { className?: string }) {
+export function Logo({ className = "h-7 w-7 text-primary" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 1200 1200"
