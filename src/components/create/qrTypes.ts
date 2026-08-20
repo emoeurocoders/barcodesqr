@@ -1,0 +1,184 @@
+import {
+  Globe,
+  Contact,
+  Link as LinkIcon,
+  Share2,
+  Smartphone,
+  FileText,
+  Image as ImageIcon,
+  Video,
+  Wifi,
+  MessageCircle,
+  Utensils,
+  MapPin,
+  CalendarDays,
+  Mail,
+  MessageSquare,
+  Phone,
+  Type,
+  CreditCard,
+  Music,
+  TicketPercent,
+  Star,
+  Building2,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { ReviewIcon } from "@/components/ui/ReviewIcon";
+
+export type QrTypeIcon = LucideIcon | typeof ReviewIcon;
+
+export type CreateQrType = {
+  value: string;
+  label: string;
+  desc: string;
+  color: string;
+  icon: QrTypeIcon;
+  tag?: string;
+};
+
+/**
+ * The formats shown as full rows, each with a one-line description.
+ *
+ * Google Review and Google Maps carry Google's trademarked marks in the
+ * designer's file. We keep the names — which describe where the code points
+ * — but swap the artwork for neutral icons, since we have no licence to
+ * display the logos themselves.
+ */
+export const primaryTypes: CreateQrType[] = [
+  {
+    value: "website",
+    label: "Website",
+    desc: "Open a website or landing page",
+    color: "#2563EB",
+    icon: Globe,
+    tag: "MOST USED",
+  },
+  {
+    value: "vcard",
+    label: "vCard",
+    desc: "Share a digital business card",
+    color: "#2563EB",
+    icon: Contact,
+  },
+  {
+    value: "multilink",
+    label: "Multi-Link",
+    desc: "Share several links at once",
+    color: "#7C3AED",
+    icon: LinkIcon,
+  },
+  {
+    value: "social",
+    label: "Social Media",
+    desc: "Share all your social profiles",
+    color: "#EC4899",
+    icon: Share2,
+  },
+  {
+    value: "applink",
+    label: "App Link",
+    desc: "Send users to the right app store",
+    color: "#10B981",
+    icon: Smartphone,
+  },
+  {
+    value: "pdf",
+    label: "PDF",
+    desc: "Open or download a PDF file",
+    color: "#DC2626",
+    icon: FileText,
+  },
+  {
+    value: "image",
+    label: "Image",
+    desc: "Display an image or photo",
+    color: "#16A34A",
+    icon: ImageIcon,
+  },
+  {
+    value: "video",
+    label: "Video",
+    desc: "Play a video with one scan",
+    color: "#EF4444",
+    icon: Video,
+  },
+  {
+    value: "wifi",
+    label: "WiFi",
+    desc: "Connect to a WiFi network",
+    color: "#0EA5E9",
+    icon: Wifi,
+  },
+  {
+    value: "whatsapp",
+    label: "WhatsApp",
+    desc: "Start a WhatsApp chat",
+    color: "#25D366",
+    icon: MessageCircle,
+  },
+  {
+    value: "menu",
+    label: "Menu",
+    desc: "Share your digital menu",
+    color: "#F97316",
+    icon: Utensils,
+  },
+  {
+    value: "review",
+    label: "Google Review",
+    desc: "Get more reviews on Google",
+    color: "#6366F1",
+    icon: ReviewIcon,
+  },
+  {
+    value: "maps",
+    label: "Google Maps",
+    desc: "Share a location",
+    color: "#EA4335",
+    icon: MapPin,
+  },
+  {
+    value: "event",
+    label: "Event",
+    desc: "Promote your event",
+    color: "#3B82F6",
+    icon: CalendarDays,
+  },
+  {
+    value: "email",
+    label: "Email",
+    desc: "Send an email message",
+    color: "#8B5CF6",
+    icon: Mail,
+  },
+];
+
+/** Formats shown as compact tiles under the "More QR Types" link. */
+export const secondaryTypes: CreateQrType[] = [
+  { value: "sms", label: "SMS", desc: "", color: "#2563EB", icon: MessageSquare },
+  { value: "phone", label: "Phone", desc: "", color: "#16A34A", icon: Phone },
+  { value: "text", label: "Plain Text", desc: "", color: "#6B7280", icon: Type },
+  {
+    value: "payment",
+    label: "Payment",
+    desc: "",
+    color: "#7C3AED",
+    icon: CreditCard,
+  },
+  { value: "audio", label: "Audio", desc: "", color: "#F59E0B", icon: Music },
+  {
+    value: "coupon",
+    label: "Coupon",
+    desc: "",
+    color: "#EF4444",
+    icon: TicketPercent,
+  },
+  { value: "feedback", label: "Feedback", desc: "", color: "#F59E0B", icon: Star },
+  {
+    value: "business",
+    label: "Business",
+    desc: "",
+    color: "#2563EB",
+    icon: Building2,
+  },
+];
