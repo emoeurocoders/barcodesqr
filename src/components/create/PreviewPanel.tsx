@@ -1,4 +1,4 @@
-import { RefreshCw, ChartColumn, SquarePen, ShieldCheck } from "lucide-react";
+import { RefreshCw, Clock, SquarePen, ShieldLock } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const benefits: { icon: LucideIcon; title: string; desc: string }[] = [
@@ -8,7 +8,7 @@ const benefits: { icon: LucideIcon; title: string; desc: string }[] = [
     desc: "Update content anytime",
   },
   {
-    icon: ChartColumn,
+    icon: Clock,
     title: "Track Scans",
     desc: "See real-time scan analytics",
   },
@@ -18,7 +18,7 @@ const benefits: { icon: LucideIcon; title: string; desc: string }[] = [
     desc: "Edit your QR code destination",
   },
   {
-    icon: ShieldCheck,
+    icon: ShieldLock,
     title: "Secure & Reliable",
     desc: "Enterprise-grade security",
   },
@@ -26,7 +26,7 @@ const benefits: { icon: LucideIcon; title: string; desc: string }[] = [
 
 export function PreviewPanel() {
   return (
-    <aside className="h-fit rounded-2xl border border-line/80 bg-white p-6 text-center lg:sticky lg:top-24">
+    <aside className="h-fit shrink-0 rounded-2xl border border-line/80 bg-white p-6 text-center lg:sticky lg:top-24 lg:w-[330px]">
       <div className="mx-auto grid w-fit place-items-center rounded-2xl border border-line/60 p-6">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
