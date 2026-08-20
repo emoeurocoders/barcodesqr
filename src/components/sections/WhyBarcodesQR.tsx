@@ -37,7 +37,7 @@ export function WhyBarcodesQR() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Copy */}
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-brand-darker">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#e9f0fb] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
               <Sparkle className="h-3.5 w-3.5" aria-hidden="true" />
               Why BarcodesQR
             </span>
@@ -58,7 +58,7 @@ export function WhyBarcodesQR() {
                   key={title}
                   className="flex items-start gap-4 rounded-2xl border border-line/70 bg-white p-4 transition-shadow duration-200 hover:shadow-soft"
                 >
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand-dark">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#e9f0fb] text-primary">
                     <Icon className="h-5 w-5" />
                   </span>
                   <div>

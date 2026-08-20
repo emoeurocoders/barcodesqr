@@ -8,6 +8,7 @@ import { WhyBarcodesQR } from "@/components/sections/WhyBarcodesQR";
 import { Reviews } from "@/components/sections/Reviews";
 import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
+import { ReadyCta } from "@/components/sections/ReadyCta";
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
         <Reviews />
         <Pricing />
         <Faq />
+        <ReadyCta />
       </main>
       <Footer />
     </>

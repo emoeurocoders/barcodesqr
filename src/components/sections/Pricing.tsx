@@ -74,7 +74,7 @@ export function Pricing() {
           customization.
         </p>
 
-        <div className="mx-auto mt-12 grid max-w-5xl items-start gap-6 md:grid-cols-3">
+        <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -100,9 +100,15 @@ export function Pricing() {
                 <span className="ml-1.5 text-sm text-muted">{plan.period}</span>
               </div>
 
-              {plan.save && (
+              {plan.save ? (
                 <span className="mt-4 inline-flex w-fit rounded-full bg-brand-soft px-3 py-1 text-sm font-semibold text-brand-dark">
                   {plan.save}
+                </span>
+              ) : (
+                /* Keeps the terms line and everything under it on the same
+                   baseline as the plans that do show a discount pill. */
+                <span aria-hidden="true" className="mt-4 inline-flex w-fit px-3 py-1 text-sm font-semibold opacity-0">
+                  &nbsp;
                 </span>
               )}
 
