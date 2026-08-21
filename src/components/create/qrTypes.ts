@@ -182,3 +182,6 @@ export const secondaryTypes: CreateQrType[] = [
     icon: Building2,
   },
 ];
+
+/** Both groups, for looking a type up by value. */
+export const allTypes: CreateQrType[] = [...primaryTypes, ...secondaryTypes];

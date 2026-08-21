@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Check, ChevronDown, MoreHorizontal } from "lucide-react";
 import { primaryTypes, secondaryTypes } from "./qrTypes";
 import type { CreateQrType } from "./qrTypes";
-import { PreviewPanel } from "./PreviewPanel";
 
 /** Filled circle + tick when chosen, hollow ring otherwise. */
 function RadioDot({ selected }: { selected: boolean }) {
@@ -113,13 +111,15 @@ function TypeTile({
   );
 }
 
-export function TypePicker() {
-  const [selected, setSelected] = useState("website");
-
+export function TypePicker({
+  selected,
+  onSelect,
+}: {
+  selected: string;
+  onSelect: (value: string) => void;
+}) {
   return (
-    <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-start">
-      {/* Type selection */}
-      <div className="min-w-0 flex-1">
+    <div className="min-w-0 flex-1">
         <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-[34px] sm:leading-tight">
           What do you want to create?
         </h1>
@@ -133,7 +133,7 @@ export function TypePicker() {
               key={type.value}
               type={type}
               selected={selected === type.value}
-              onSelect={() => setSelected(type.value)}
+              onSelect={() => onSelect(type.value)}
             />
           ))}
         </div>
@@ -154,7 +154,7 @@ export function TypePicker() {
               key={type.value}
               type={type}
               selected={selected === type.value}
-              onSelect={() => setSelected(type.value)}
+              onSelect={() => onSelect(type.value)}
             />
           ))}
           <button
@@ -167,9 +167,6 @@ export function TypePicker() {
             </span>
           </button>
         </div>
-      </div>
-
-      <PreviewPanel />
     </div>
   );
 }
