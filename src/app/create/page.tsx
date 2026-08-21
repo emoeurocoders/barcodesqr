@@ -15,7 +15,7 @@ export default function CreatePage() {
     <>
       <Header />
       <main className="flex-1 bg-[#f5f7f9]">
-        <div className="container-page py-8 md:py-10">
+        <div className="mx-auto w-full max-w-[1280px] px-5 py-8 md:py-10">
           <div className="overflow-hidden rounded-2xl border border-line/80 bg-white shadow-soft">
             <StepRail current={1} />
             <TypePicker />

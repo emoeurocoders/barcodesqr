@@ -26,18 +26,18 @@ const benefits: { icon: LucideIcon; title: string; desc: string }[] = [
 
 export function PreviewPanel() {
   return (
-    <aside className="h-fit shrink-0 rounded-2xl border border-line/80 bg-white p-6 text-center lg:sticky lg:top-24 lg:w-[330px]">
-      <div className="mx-auto grid w-fit place-items-center rounded-2xl border border-line/60 p-6">
+    <aside className="h-fit shrink-0 rounded-2xl border border-line/80 bg-white p-5 text-center lg:sticky lg:top-24 lg:w-[330px]">
+      <div className="grid place-items-center rounded-2xl border border-line/60 p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/create/qr-illustration.svg"
           alt=""
           aria-hidden="true"
-          className="h-28 w-28"
+          className="h-[205px] w-[205px] max-w-full"
         />
       </div>
 
-      <h2 className="mt-5 flex items-center justify-center gap-1.5 text-base font-bold text-ink">
+      <h2 className="mt-5 flex items-center justify-center gap-1.5 text-[17px] font-bold text-ink">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/create/sparkle.svg"

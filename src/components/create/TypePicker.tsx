@@ -11,13 +11,13 @@ function RadioDot({ selected }: { selected: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition-colors ${
+      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 transition-colors ${
         selected
           ? "border-primary bg-primary text-white"
           : "border-line bg-white"
       }`}
     >
-      {selected && <Check className="h-3 w-3" strokeWidth={3} />}
+      {selected && <Check className="h-4 w-4" strokeWidth={3} />}
     </span>
   );
 }
@@ -34,13 +34,13 @@ function TypeCard({
   const Icon = type.icon;
   return (
     <label
-      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${
+      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${
         selected
           ? "border-primary bg-[#eff4ff]"
           : "border-line/80 bg-white hover:border-line hover:bg-bg-alt/40"
       }`}
     >
-      <Icon className="mt-0.5 h-6 w-6 shrink-0" style={{ color: type.color }} />
+      <Icon className="mt-0.5 h-[25px] w-[25px] shrink-0" style={{ color: type.color }} />
 
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -87,13 +87,13 @@ function TypeTile({
   const Icon = type.icon;
   return (
     <label
-      className={`flex cursor-pointer flex-col items-center justify-start gap-2 rounded-xl border px-2 py-3.5 text-center transition-colors ${
+      className={`flex cursor-pointer flex-col items-center justify-start gap-2 rounded-xl border px-[5px] py-[13px] text-center transition-colors ${
         selected
           ? "border-primary bg-[#eff4ff]"
           : "border-line/80 bg-white hover:border-line hover:bg-bg-alt/40"
       }`}
     >
-      <Icon className="h-5 w-5" style={{ color: type.color }} />
+      <Icon className="h-[25px] w-[25px]" style={{ color: type.color }} />
       <span
         className={`text-xs font-semibold leading-tight ${
           selected ? "text-primary-dark" : "text-body"
@@ -117,10 +117,10 @@ export function TypePicker() {
   const [selected, setSelected] = useState("website");
 
   return (
-    <div className="flex flex-col gap-8 p-6 md:p-8 lg:flex-row lg:items-start lg:gap-10">
+    <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-start">
       {/* Type selection */}
       <div className="min-w-0 flex-1">
-        <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-[34px] sm:leading-tight">
           What do you want to create?
         </h1>
         <p className="mt-2 text-muted">
@@ -159,9 +159,9 @@ export function TypePicker() {
           ))}
           <button
             type="button"
-            className="flex cursor-pointer flex-col items-center justify-start gap-2 rounded-xl border border-line/80 bg-white px-2 py-3.5 text-center transition-colors hover:border-line hover:bg-bg-alt/40"
+            className="flex cursor-pointer flex-col items-center justify-start gap-2 rounded-xl border border-line/80 bg-white px-[5px] py-[13px] text-center transition-colors hover:border-line hover:bg-bg-alt/40"
           >
-            <MoreHorizontal className="h-5 w-5 text-faint" />
+            <MoreHorizontal className="h-[25px] w-[25px] text-faint" />
             <span className="text-xs font-semibold leading-tight text-body">
               See All
             </span>

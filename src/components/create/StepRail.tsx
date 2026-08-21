@@ -9,7 +9,7 @@ const steps: { icon: LucideIcon; step: string; title: string }[] = [
 
 export function StepRail({ current = 1 }: { current?: number }) {
   return (
-    <ol className="flex items-center gap-3 border-b border-line/80 px-6 py-4 md:px-8">
+    <ol className="flex items-center gap-3 border-b border-line/80 px-6 pb-[18px] pt-[17px]">
       {steps.map(({ icon: Icon, step, title }, i) => {
         const active = i + 1 === current;
         const last = i === steps.length - 1;
