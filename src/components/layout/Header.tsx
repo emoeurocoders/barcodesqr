@@ -13,8 +13,9 @@ const navLinks = [
   { href: "/help", label: "Help" },
 ];
 
-export function Header() {
+export function Header({ user }: { user?: { name?: string | null } | null }) {
   const [open, setOpen] = useState(false);
+  const signedIn = Boolean(user);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
@@ -29,8 +30,8 @@ export function Header() {
         </Link>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link href="/login">
-            <Button variant="ghost">Log in</Button>
+          <Link href={signedIn ? "/dashboard" : "/login"}>
+            <Button variant="ghost">{signedIn ? "Dashboard" : "Log in"}</Button>
           </Link>
           <Link href="/create">
             <Button>
@@ -75,9 +76,12 @@ export function Header() {
               </Link>
             ))}
             <div className="mt-3 flex flex-col gap-2 border-t border-line pt-4">
-              <Link href="/login" onClick={() => setOpen(false)}>
+              <Link
+                href={signedIn ? "/dashboard" : "/login"}
+                onClick={() => setOpen(false)}
+              >
                 <Button variant="outline" size="lg" fullWidth>
-                  Log in
+                  {signedIn ? "Dashboard" : "Log in"}
                 </Button>
               </Link>
               <Link href="/create" onClick={() => setOpen(false)}>

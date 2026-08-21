@@ -52,3 +52,34 @@ translate it:
   designer's SVG when it is genuinely custom (logos, illustrations).
 - Vendor scripts (jQuery et al.) are deliberately not synced and never ported —
   behaviour belongs in React state.
+
+## Auth and database
+
+Accounts are email + password, matching what the product's login page offers.
+Auth.js v5 handles sessions; Drizzle talks to Neon.
+
+```bash
+npm run db:generate   # write a migration from schema changes
+npm run db:migrate    # apply pending migrations
+npm run db:studio     # browse the data
+```
+
+Config lives in `.env.local` — see `.env.example`. `AUTH_SECRET` must be set or
+Auth.js refuses to start, and each environment should have its own value:
+rotating it signs everyone out.
+
+Things worth knowing before changing any of it:
+
+- **Sessions are JWT, not database rows.** Auth.js only supports the database
+  strategy for providers that go through the adapter, and Credentials
+  deliberately does not. The adapter is still wired up so users live in Neon and
+  an OAuth provider can be added later without a migration.
+- **Passwords are bcrypt, cost 12,** in `user.password_hash`. The column is
+  nullable so an OAuth-only account is a real, answerable state.
+- **`authorize` compares against a dummy hash when the account is missing,** so
+  response time doesn't reveal which emails are registered. Signup's duplicate
+  case returns the same message as a validation failure for the same reason.
+  Keep both if you touch that code.
+- **Migrations run over `DATABASE_URL_UNPOOLED`.** The pooler rejects some DDL.
+- Pages guard themselves with `await auth()` server-side rather than via
+  middleware, which keeps bcrypt out of the Edge bundle.

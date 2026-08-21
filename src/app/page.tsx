@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
@@ -10,10 +11,12 @@ import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
 import { ReadyCta } from "@/components/sections/ReadyCta";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
   return (
     <>
-      <Header />
+      <Header user={session?.user} />
       <main>
         <Hero />
         <TrustBar />
