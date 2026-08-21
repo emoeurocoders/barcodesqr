@@ -28,7 +28,7 @@ import { dirname, join, posix } from 'node:path';
 const ROOT = 'html_files';
 
 /** Third-party libraries — ours never diverge, and they are large. */
-const VENDOR = /(^|\/)(jquery|remodal\.min|jquery\.validate|bootstrap|slick)/i;
+const VENDOR = /(^|\/)(jquery|remodal\.min|jquery\.validate|bootstrap|slick|chart\.umd|chart\.min)/i;
 
 /** Stale duplicates designers leave lying around. */
 const IGNORED = /- ?Copy\.|^_tmp|\.DS_Store$/i;

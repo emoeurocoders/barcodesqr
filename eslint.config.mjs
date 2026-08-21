@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Read-only mirror of the designer's output — their vendored bundles are
+    // not ours to lint.
+    "html_files/**",
   ]),
 ]);
 
