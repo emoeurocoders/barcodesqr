@@ -53,50 +53,65 @@ export function CreateWizard() {
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-line/80 bg-white shadow-soft">
+    <div className="rounded-2xl border border-line/80 bg-white shadow-soft">
       <StepRail current={step} />
 
-      <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-start">
-        {step === 1 && (
-          <TypePicker selected={type} onSelect={chooseType} />
-        )}
+      {/* Step 1 runs full width; steps 2 and 3 sit in a narrower centred
+          column, which is what makes the form read as a card rather than a
+          sheet. Both match the live creator. */}
+      {step === 1 ? (
+        <div className="px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+            <TypePicker selected={type} onSelect={chooseType} />
+            <PreviewPanel />
+          </div>
+        </div>
+      ) : (
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="rounded-2xl border border-line bg-white p-6 shadow-soft">
+              {step === 2 ? (
+                <StepContent
+                  type={type}
+                  values={values}
+                  setValues={setValues}
+                  name={name}
+                  setName={setName}
+                />
+              ) : (
+                <StepCustomize
+                  style={style}
+                  setStyle={setStyle}
+                  password={password}
+                  setPassword={setPassword}
+                />
+              )}
+            </div>
 
-        {step === 2 && (
-          <>
-            <StepContent
-              type={type}
-              values={values}
-              setValues={setValues}
-              name={name}
-              setName={setName}
-            />
-            <ContentPreview type={type} values={values} qrValue={qrValue} style={style} />
-          </>
-        )}
-
-        {step === 3 && (
-          <>
-            <StepCustomize
-              style={style}
-              setStyle={setStyle}
-              password={password}
-              setPassword={setPassword}
-            />
-            <SidePreview
-              qrValue={qrValue}
-              style={style}
-              onReady={(fn) => {
-                downloadRef.current = fn;
-              }}
-            />
-          </>
-        )}
-
-        {step === 1 && <PreviewPanel />}
-      </div>
+            <aside className="order-first lg:order-none lg:sticky lg:top-[89px] lg:self-start">
+              {step === 2 ? (
+                <ContentPreview
+                  type={type}
+                  values={values}
+                  qrValue={qrValue}
+                  style={style}
+                />
+              ) : (
+                <SidePreview
+                  qrValue={qrValue}
+                  style={style}
+                  onReady={(fn) => {
+                    downloadRef.current = fn;
+                  }}
+                />
+              )}
+            </aside>
+          </div>
+        </div>
+      )}
 
       {/* Footer actions */}
-      <div className="flex items-center justify-between gap-4 border-t border-line/80 bg-[#fbfcfd] px-5 py-4">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         {step === 1 ? (
           <Link href="/">
             <Button variant="outline">Cancel</Button>
@@ -150,13 +165,7 @@ function ContentPreview({
   qrValue: string;
   style: QrStyle;
 }) {
-  if (type === "vcard") {
-    return (
-      <aside className="h-fit shrink-0 lg:sticky lg:top-24 lg:w-[330px]">
-        <VCardPreview values={values} />
-      </aside>
-    );
-  }
+  if (type === "vcard") return <VCardPreview values={values} />;
   return <SidePreview qrValue={qrValue} style={style} />;
 }
 
@@ -173,7 +182,7 @@ function SidePreview({
   const framed = style.frame !== null;
 
   return (
-    <aside className="h-fit shrink-0 rounded-2xl border border-line/80 bg-white p-5 text-center lg:sticky lg:top-24 lg:w-[330px]">
+    <aside className="rounded-2xl border border-line bg-white p-5 text-center shadow-soft">
       <div
         className={`mx-auto w-fit ${
           framed ? "rounded-2xl border-2 p-3" : ""
