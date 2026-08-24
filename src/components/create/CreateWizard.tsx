@@ -8,6 +8,7 @@ import { TypePicker } from "./TypePicker";
 import { StepContent } from "./StepContent";
 import { StepCustomize } from "./StepCustomize";
 import { PreviewPanel } from "./PreviewPanel";
+import { VCardPreview } from "./VCardPreview";
 import { QrPreview, defaultQrStyle } from "./QrPreview";
 import type { QrStyle } from "./QrPreview";
 import { fieldSchema } from "./fieldSchema";
@@ -41,10 +42,14 @@ export function CreateWizard() {
   const qrValue = useMemo(() => encodeQr(type, values), [type, values]);
   const complete = isComplete(type, values);
 
+  // Choosing a type advances immediately — on the live creator one click on a
+  // format takes you into its form. Selecting and then hunting for a Next
+  // button below a 23-card grid is how you end up unable to build anything.
   const chooseType = (next: string) => {
     setType(next);
     setValues({});
     setName(defaultName(next));
+    setStep(2);
   };
 
   return (
@@ -65,7 +70,7 @@ export function CreateWizard() {
               name={name}
               setName={setName}
             />
-            <SidePreview qrValue={qrValue} style={style} />
+            <ContentPreview type={type} values={values} qrValue={qrValue} style={style} />
           </>
         )}
 
@@ -103,12 +108,10 @@ export function CreateWizard() {
           </Button>
         )}
 
-        {step < 3 ? (
-          <Button
-            size="lg"
-            disabled={step === 2 && !complete}
-            onClick={() => setStep(step + 1)}
-          >
+        {step === 1 ? (
+          <span />
+        ) : step === 2 ? (
+          <Button size="lg" disabled={!complete} onClick={() => setStep(3)}>
             Next
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -130,6 +133,31 @@ export function CreateWizard() {
       </div>
     </div>
   );
+}
+
+/**
+ * Step 2's right-hand panel. Types with a designed preview show it filling in
+ * as you type; the rest fall back to the live QR until their preview is built.
+ */
+function ContentPreview({
+  type,
+  values,
+  qrValue,
+  style,
+}: {
+  type: string;
+  values: Record<string, string>;
+  qrValue: string;
+  style: QrStyle;
+}) {
+  if (type === "vcard") {
+    return (
+      <aside className="h-fit shrink-0 lg:sticky lg:top-24 lg:w-[330px]">
+        <VCardPreview values={values} />
+      </aside>
+    );
+  }
+  return <SidePreview qrValue={qrValue} style={style} />;
 }
 
 /** Live QR alongside steps 2 and 3, framed the way the customiser asks. */

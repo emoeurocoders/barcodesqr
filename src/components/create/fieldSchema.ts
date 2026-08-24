@@ -125,18 +125,48 @@ export const fieldLabels: Record<string, string> = {
   "linkUrl": "URL"
 };
 
-/** Section headings used to group longer forms. */
-export const sectionTitles: Record<string, string> = {
-  "personal": "Personal information",
-  "photo": "Profile picture",
-  "contact": "Contact details",
-  "company": "Company information",
-  "address": "Address",
-  "social": "Social media",
-  "info": "Information",
-  "basic": "Basic information",
-  "links": "Your links",
-  "image": "Image"
+/** Section headings and their sub-labels, used to group longer forms. */
+export const sections: Record<string, { title: string; desc: string }> = {
+  "personal": {
+    "title": "Personal information",
+    "desc": "Fill in your name"
+  },
+  "photo": {
+    "title": "Profile picture",
+    "desc": "Add a profile photo"
+  },
+  "contact": {
+    "title": "Contact details",
+    "desc": "Phone, mobile and more"
+  },
+  "company": {
+    "title": "Company information",
+    "desc": "Where you work"
+  },
+  "address": {
+    "title": "Address",
+    "desc": "Your location"
+  },
+  "social": {
+    "title": "Social media",
+    "desc": "Add your social channels"
+  },
+  "info": {
+    "title": "Information",
+    "desc": "The basics"
+  },
+  "basic": {
+    "title": "Basic information",
+    "desc": "Name and description"
+  },
+  "links": {
+    "title": "Your links",
+    "desc": "Add your custom links below"
+  },
+  "image": {
+    "title": "Image",
+    "desc": "Upload a cover image"
+  }
 };
 
 export const fieldSchema: Record<string, Field[]> = {
