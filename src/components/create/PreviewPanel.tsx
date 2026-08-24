@@ -26,7 +26,7 @@ const benefits: { icon: LucideIcon; title: string; desc: string }[] = [
 
 export function PreviewPanel() {
   return (
-    <aside className="h-fit rounded-2xl border border-line bg-white p-5 text-center lg:sticky lg:top-[89px]">
+    <aside className="h-fit rounded-2xl border border-line bg-white p-5 text-center lg:sticky lg:top-6">
       <div className="grid place-items-center rounded-2xl border border-line/60 p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

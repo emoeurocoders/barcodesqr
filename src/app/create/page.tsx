@@ -1,7 +1,4 @@
 import type { Metadata } from "next";
-import { auth } from "@/auth";
-import { Header } from "@/components/layout/Header";
-import { SlimFooter } from "@/components/layout/SlimFooter";
 import { CreateWizard } from "@/components/create/CreateWizard";
 
 export const metadata: Metadata = {
@@ -10,18 +7,15 @@ export const metadata: Metadata = {
     "Choose a QR code type and create a dynamic, editable QR code in seconds.",
 };
 
-export default async function CreatePage() {
-  const session = await auth();
-
+/**
+ * The creator is a full-screen app, not a marketing page: no site header or
+ * footer, the shell is exactly viewport height, and the form area scrolls
+ * inside the card rather than the window.
+ */
+export default function CreatePage() {
   return (
-    <>
-      <Header user={session?.user} />
-      <main className="flex-1 bg-[#f5f7f9]">
-        <div className="mx-auto w-full max-w-[1280px] px-5 py-8 md:py-10">
-          <CreateWizard />
-        </div>
-      </main>
-      <SlimFooter />
-    </>
+    <div className="flex h-dvh flex-col bg-bg-alt p-2.5 sm:p-4">
+      <CreateWizard />
+    </div>
   );
 }

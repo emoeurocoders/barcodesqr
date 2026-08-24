@@ -53,9 +53,10 @@ export function CreateWizard() {
   };
 
   return (
-    <div className="rounded-2xl border border-line/80 bg-white shadow-soft">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-line bg-white">
       <StepRail current={step} />
 
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
       {/* Step 1 runs full width; steps 2 and 3 sit in a narrower centred
           column, which is what makes the form read as a card rather than a
           sheet. Both match the live creator. */}
@@ -88,7 +89,7 @@ export function CreateWizard() {
               )}
             </div>
 
-            <aside className="order-first lg:order-none lg:sticky lg:top-[89px] lg:self-start">
+            <aside className="order-first lg:order-none lg:sticky lg:top-6 lg:self-start">
               {step === 2 ? (
                 <ContentPreview
                   type={type}
@@ -109,9 +110,10 @@ export function CreateWizard() {
           </div>
         </div>
       )}
+      </main>
 
-      {/* Footer actions */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      {/* Footer actions — pinned to the bottom of the shell */}
+      <div className="flex shrink-0 items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-6 lg:px-8">
         {step === 1 ? (
           <Link href="/">
             <Button variant="outline">Cancel</Button>
