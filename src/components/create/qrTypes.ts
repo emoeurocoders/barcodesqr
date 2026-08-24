@@ -131,7 +131,7 @@ export const primaryTypes: CreateQrType[] = [
     icon: ReviewIcon,
   },
   {
-    value: "maps",
+    value: "location",
     label: "Google Maps",
     desc: "Share a location",
     color: "#EA4335",
@@ -165,7 +165,7 @@ export const secondaryTypes: CreateQrType[] = [
     color: "#7C3AED",
     icon: CreditCard,
   },
-  { value: "audio", label: "Audio", desc: "", color: "#F59E0B", icon: Music },
+  { value: "mp3", label: "Audio", desc: "", color: "#F59E0B", icon: Music },
   {
     value: "coupon",
     label: "Coupon",

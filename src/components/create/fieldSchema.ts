@@ -41,6 +41,9 @@ export type Field = {
 
 /** Human labels for each field key. */
 export const fieldLabels: Record<string, string> = {
+  "reviewUrl": "Google review link",
+  "businessName": "Business name",
+  "reviewPrompt": "Message shown to customers",
   "websiteUrl": "Enter your website",
   "websiteUrlHint": "The link people land on when they scan your code.",
   "required": "Required",
@@ -137,6 +140,30 @@ export const sectionTitles: Record<string, string> = {
 };
 
 export const fieldSchema: Record<string, Field[]> = {
+  "review": [
+    {
+      "name": "reviewUrl",
+      "labelKey": "reviewUrl",
+      "type": "url",
+      "required": true,
+      "placeholder": "https://g.page/r/.../review",
+      "tip": "reviewUrl"
+    },
+    {
+      "name": "businessName",
+      "labelKey": "businessName",
+      "type": "text",
+      "maxLength": 40,
+      "placeholder": "The Matcha Den"
+    },
+    {
+      "name": "reviewPrompt",
+      "labelKey": "reviewPrompt",
+      "type": "textarea",
+      "maxLength": 200,
+      "placeholder": "Enjoyed your visit? A quick review helps us a lot."
+    }
+  ],
   "website": [
     {
       "name": "url",

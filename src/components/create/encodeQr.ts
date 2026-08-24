@@ -23,8 +23,6 @@ const dynamicTypes = new Set([
   "multilink",
   "payment",
   "applink",
-  "review",
-  "maps",
 ]);
 
 const esc = (s: string) => s.replace(/([\\;,:"])/g, "\\$1");
@@ -106,6 +104,9 @@ export function encodeQr(
       const hidden = v.hidden === "true" ? "H:true;" : "";
       return `WIFI:T:${enc};S:${esc(v.ssid)};${pass}${hidden};`;
     }
+
+    case "review":
+      return v.reviewUrl ?? "";
 
     case "location": {
       if (!v.address) return "";
