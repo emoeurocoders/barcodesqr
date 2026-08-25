@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BarcodesQR</title>
+<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+<link rel="stylesheet" type="text/css" href="assets/css/theme.css">
+<link rel="stylesheet" type="text/css" href="assets/css/modals.css">
+<script type="text/javascript" src="assets/scripts/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="assets/scripts/remodal.min.js"></script>
+<script type="text/javascript" src="assets/scripts/jquery.validate.min.js"></script>
+<script type="text/javascript" src="assets/scripts/main.js"></script>
+</head>
+
+<body>
+<div id="lboxCont">
+<!--mainLogin-->
+<div id="modalJoin">
+	<!--modal-->
+	<div class="modal">
+		<div class="modalCont"> <a class="close" href="#" data-remodal-action="close">
+			<svg width="20" height="20" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M14 4L4 14M4 4l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+			</svg>
+			</a>
+			<!--body-->
+			<div class="body">
+				<!--mainPay-->
+			<!--crd-->
+			<div class="crd"> 
+				<!--lft-->
+				<div class="lft"> 
+					<!--logo-->
+					<div class="logo"><img src="assets/images/main_logo.svg" alt="BarcodesQR"></div>
+					<!--end logo-->
+					<!--pnl-->
+					<div class="pnl">
+						<div class="cap">
+							<h4 class="ln1">Your QR Code is Ready!</h4>
+							<p class="ln2">You're one step away from downloading your QR code and accessing your account.</p>
+						</div>
+						<!--qr-->
+						<div class="qr">
+							<div class="tmb"><img src="assets/images/main_pay_qr_tmb.svg" alt="Your QR code"></div>
+							<p class="ln2">QR Preview</p>
+						</div>
+						<!--end qr--> 
+						<!--lst-->
+						<ul class="lst">
+							<li class="itm"><img class="ico" src="assets/images/main_pay_ico_secure.svg" alt="Secure Checkout">
+								<p class="txt">Secure<br>
+									Checkout</p>
+							</li>
+							<li class="itm"><img class="ico" src="assets/images/main_pay_ico_instant.svg" alt="Instant Download">
+								<p class="txt">Instant<br>
+									Download</p>
+							</li>
+							<li class="itm"><img class="ico" src="assets/images/main_pay_ico_support.svg" alt="24/7 Support">
+								<p class="txt">24/7<br>
+									Support</p>
+							</li>
+						</ul>
+						<!--end lst--> 
+					</div>
+					<!--end pnl--> 
+				</div>
+				<!--end lft--> 
+				<!--rgt-->
+				<div class="rgt">
+					<h4 class="ln1">Download Your QR Code</h4>
+					<!--lst-->
+					<ul class="lst">
+						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Download your QR code in PNG, JPG, or SVG</li>
+						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Edit your QR code anytime, even after printing</li>
+						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Create unlimited QR codes</li>
+						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Track scans, devices &amp; locations with analytics</li>
+						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Customize with colors, logos &amp; frames</li>
+					</ul>
+					<!--end lst--> 
+					<!--tot-->
+					<div class="tot">
+						<p class="ln2">Total due today</p>
+						<p class="prc">$1.00</p>
+					</div>
+					<!--end tot--> 
+					<!--pays-->
+					<div class="pays"> <a class="pp" href="#">Pay<span>Pal</span></a> <a class="gp" href="#"><img src="assets/images/main_pay_ico_googlepay.svg" alt="Google Pay"></a> <a class="ap" href="#"><img src="assets/images/main_pay_ico_applepay.svg" alt="Apple Pay"></a> <a class="cc" href="#"><img src="assets/images/main_pay_ico_card.svg" alt="Card"><span class="txt">Credit or<br>
+						Debit Card</span></a> </div>
+					<!--end pays--> 
+					<!--sep-->
+					<div class="sep"><span class="txt">Or pay with card</span></div>
+					<!--end sep--> 
+					<!--frm-->
+					<form class="frm validate" id="payFrm" method="post" action="#" data-confirm="modal_login.html" >
+						<!--cardForm-->
+						<div class="cardForm">
+							<p class="ln3 lbl">Card number</p>
+							<!--inputWrap-->
+							<div class="inputWrap ElmBrdBox card">
+								<input type="tel"  name="ccnumber" class="cc-number input"   placeholder="1234-1234-1234-1234"   autocomplete="cc-number" data-rule-creditcard="true" required data-msg-required="Enter Your Card Number" >
+								<!--cardIcons-->
+								<div class="cardIcons">
+									<svg width="32" xmlns="http://www.w3.org/2000/svg" version="1.1"  viewBox="0 0 32 20">
+										<g>
+											<path d="M28.4.7H3.6C1.8.7.4,2.1.4,3.8v12.4c0,1.7,1.4,3.1,3.1,3.1h24.9c1.7,0,3.1-1.4,3.1-3.1V3.8c0-1.7-1.4-3.1-3.1-3.1Z" style="fill: #fff; stroke: #e2e8f0; stroke-width: .9px;"/>
+											<g style="clip-path: url(#clippath-1proUp);">
+												<path d="M13.1,6.3l-3.1,7.5h-2.1l-1.5-6c0-.4-.2-.5-.5-.7-.5-.3-1.2-.5-1.9-.6v-.2h3.3c.2,0,.4,0,.6.2.2.1.3.3.3.5l.8,4.3,2-5.1h2ZM21.1,11.3c0-2-2.7-2.1-2.7-3,0-.3.3-.6.8-.6.7,0,1.3,0,1.9.3l.3-1.6c-.6-.2-1.2-.3-1.8-.3-1.9,0-3.3,1-3.3,2.5,0,1.1,1,1.7,1.7,2,.8.4,1,.6,1,.9,0,.5-.6.7-1.2.7-1,0-1.5-.3-2-.5l-.4,1.6c.5.2,1.3.4,2.2.4,2,0,3.4-1,3.4-2.6ZM26.2,13.8h1.8l-1.6-7.5h-1.7c-.2,0-.4,0-.5.1-.1,0-.3.2-.3.4l-2.9,6.9h2l.4-1.1h2.5l.2,1.1ZM24,11.1l1-2.8.6,2.8h-1.6ZM15.9,6.3l-1.6,7.5h-1.9l1.6-7.5h1.9Z" style="fill: #1a1f71;"/>
+											</g>
+										</g>
+									</svg>
+									<svg width="32" height="20" viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<rect x=".5" y=".5" width="31" height="19" rx="3" fill="#fff" stroke="#e5e7eb"/>
+										<circle cx="13" cy="10" r="5" fill="#eb001b"/>
+										<circle cx="19" cy="10" r="5" fill="#f79e1b"/>
+										<path d="M16 6a5 5 0 010 8 5 5 0 000-8z" fill="#ff5f00"/>
+									</svg>
+								</div>
+								<!--end cardIcons--> 
+							</div>
+							<!--end inputWrap--> 
+							<!--row-->
+							<div class="row"> 
+								<!--col-->
+								<div class="col">
+									<p class="ln3 lbl">Expiry date</p>
+									<div class="inputWrap ElmBrdBox">
+										<input  type="tel"  name="ccexp" class="cc-exp input"  placeholder="MM/YY"  required data-msg-required="Required"  autocomplete="cc-exp"  >
+									</div>
+								</div>
+								<!--end col--> 
+								<!--col-->
+								<div class="col">
+									<p class="ln3 lbl">CVC</p>
+									<!--inputWrap-->
+									<div class="inputWrap ElmBrdBox cvv">
+										<input type="tel"  class="input cc-cvc" name="cvv" placeholder="(Back of card)" required  data-msg-required="Required" data-rule-minlength="3"  data-rule-maxlength="5"  data-msg-minlength="3 to 5 characters" data-msg-maxlength="3 to 5 characters"  onKeyUp="if (this.value.length >= 5) { this.value = this.value.substr(0,5); }"  autocomplete="cc-csc"  >
+										<div class="cvcIco">
+											<svg xmlns="http://www.w3.org/2000/svg" width="34" height="24" viewBox="0 0 34 24" fill="none">
+												<path d="M22.9 4H3.1C1.66406 4 0.5 5.16406 0.5 6.6V18.4C0.5 19.8359 1.66406 21 3.1 21H22.9C24.3359 21 25.5 19.8359 25.5 18.4V6.6C25.5 5.16406 24.3359 4 22.9 4Z" fill="#D5D9DF"/>
+												<path d="M25.5 7.4H0.5V11H25.5V7.4Z" fill="#A5ABB5"/>
+												<path d="M15.1 13.2H3.9C3.40294 13.2 3 13.6029 3 14.1V15.7C3 16.1971 3.40294 16.6 3.9 16.6H15.1C15.5971 16.6 16 16.1971 16 15.7V14.1C16 13.6029 15.5971 13.2 15.1 13.2Z" fill="white"/>
+												<path d="M26.5 16C30.6421 16 34 12.6421 34 8.5C34 4.35786 30.6421 1 26.5 1C22.3579 1 19 4.35786 19 8.5C19 12.6421 22.3579 16 26.5 16Z" fill="#5B6472"/>
+												<text x="26.5" y="10.8" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="6.4" font-weight="700" letter-spacing="-0.128" fill="#ffffff">123</text>
+											</svg>
+										</div>
+									</div>
+									<!--end inputWrap--> 
+								</div>
+								<!--end col--> 
+							</div>
+							<!--end row--> 
+							<!--row-->
+							<div class="row"> 
+								<!--col-->
+								<div class="col">
+									<p class="ln3 lbl">Name on Card</p>
+									<div class="inputWrap ElmBrdBox">
+										<input type="text"  name="name-first" class="form-control"  placeholder="Full name" autocomplete="cc-name" required data-rule-minlength="2" >
+									</div>
+								</div>
+								<!--end col--> 
+							</div>
+							<!--end row--> 
+						</div>
+						<!--end cardForm--> 
+						<!--btn-->
+						<div class="btnWrp">
+							<button type="submit" class="btn genBtn4 btnC3 btnFull"><img src="assets/images/main_pay_ico_lock.svg" alt="Lock">Pay $1.00</button>
+						</div>
+						<!--end btn-->
+						
+					</form>
+					<!--end frm--> 
+					<!--ftr-->
+					<p class="tos">7-day trial for $1.00. Renews at $39.95/month until canceled.</p>
+					<!--end ftr--> 
+					<p class="scr"><img src="assets/images/main_pay_ico_lock2.svg" alt="Secure">Your payment is secure and encrypted</p>
+					<ul class="smFtr"><!--<li>&copy; <script>document.write(new Date().getFullYear());</script> BarcodesQR&nbsp;&nbsp;&bull;&nbsp;&nbsp;</li>--><li><a href="#">Terms of Service</a>&nbsp;&nbsp;&bull;&nbsp;&nbsp;</li><li><a href="#">Privacy Policy</a>&nbsp;&nbsp;&bull;&nbsp;&nbsp;</li><li><a href="#">Support</a></li></ul>
+				</div>
+				<!--end rgt--> 
+			</div>
+			<!--end crd--> 
+			</div>
+			<!--end body-->
+		</div>
+	</div>
+	<!--end modal-->
+</div>
+<!--end mainLogin-->
+</div>
+</body>
+</html>
