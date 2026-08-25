@@ -54,7 +54,7 @@
  * queries actually fire here.
  */
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -95,6 +95,7 @@ function parseArgs() {
     console.error('usage: design-skel <file.html|url> --root <selector> [--click <text>]');
     console.error('                   [--session <token>] [--width 1440] [--wait 2500]');
     console.error('                   [--classes] [--styles] [--click-exact <text>]');
+    console.error('                   [--setup <file.js>]  run JS in the page before capturing');
     process.exit(1);
   }
   const flag = (name) => {
@@ -105,6 +106,7 @@ function parseArgs() {
     source,
     root: flag('root') ?? 'body',
     click: flag('click'),
+    setup: flag('setup'),
     clickExact: flag('click-exact'),
     session: flag('session'),
     width: Number(flag('width') ?? 1440),
@@ -270,6 +272,17 @@ async function main() {
   }
   await send('Page.navigate', { url });
   await new Promise((r) => setTimeout(r, args.wait));
+
+  // Arbitrary setup, for UI that sits behind more than one click. The file
+  // is read from disk and evaluated in the page; it may await.
+  if (args.setup) {
+    const source = readFileSync(resolve(args.setup), 'utf8');
+    const result = await evaluate(`(async () => { ${source} })()`);
+    if (result && String(result).startsWith('ERR')) {
+      console.error(`--setup "${args.setup}": ${result}`);
+      process.exitCode = 2;
+    }
+  }
 
   if (args.click || args.clickExact) {
     const hit = await evaluate(`(() => {

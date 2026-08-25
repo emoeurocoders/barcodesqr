@@ -1,5 +1,5 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
@@ -59,6 +59,60 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const ok = await bcrypt.compare(password, hash);
 
         if (!ok || !user?.passwordHash) return null;
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        };
+      },
+    }),
+
+    /**
+     * Single-use token sign-in, used only by the paywall's "Continue with
+     * Email" step. Kept separate from the password provider so the password
+     * path is never weakened: this one accepts no email and no password, only
+     * a token this server minted and stored moments earlier.
+     *
+     * The token is deleted as it is spent, so a replay buys nothing, and the
+     * identifier carries the user id so a token cannot be redirected at a
+     * different account.
+     */
+    Credentials({
+      id: "paywall-token",
+      name: "Paywall",
+      credentials: { token: { label: "Token", type: "text" } },
+      async authorize(raw) {
+        const token = String(raw?.token ?? "");
+        if (!token) return null;
+
+        const [row] = await db
+          .select()
+          .from(verificationTokens)
+          .where(
+            and(
+              eq(verificationTokens.token, token),
+              gt(verificationTokens.expires, new Date()),
+            ),
+          )
+          .limit(1);
+
+        if (!row?.identifier.startsWith("paywall:")) return null;
+
+        // Spend it, whatever happens next.
+        await db
+          .delete(verificationTokens)
+          .where(eq(verificationTokens.token, token));
+
+        const userId = row.identifier.slice("paywall:".length);
+        const [user] = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, userId))
+          .limit(1);
+
+        if (!user) return null;
 
         return {
           id: user.id,

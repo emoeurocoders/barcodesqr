@@ -40,7 +40,13 @@
  *   one side has content the other lacks, which is a finding, not noise.
  */
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -73,6 +79,8 @@ function parseArgs() {
     click: flag('click'),
     clickExact: flag('click-exact'),
     clickPort: flag('click-port'),
+    setup: flag('setup'),
+    setupPort: flag('setup-port'),
     out: flag('out') ?? '/tmp/design-diff',
     wait: Number(flag('wait') ?? 2500),
   };
@@ -132,6 +140,15 @@ async function capture(send, evaluate, url, args, applySession) {
   // The port may label the same thing differently from the design — a format
   // the mockup calls "Plain Text" and the product calls "Text". --click-port
   // names the port's wording so both sides still land on the same screen.
+  // Arbitrary setup, for UI that sits behind more than one click. `--setup`
+  // runs on both sides; `--setup-port` replaces it on the port when the two
+  // need different paths to the same screen.
+  const setupFile = applySession ? (args.setupPort ?? args.setup) : args.setup;
+  if (setupFile) {
+    const source = readFileSync(resolve(setupFile), 'utf8');
+    await evaluate(`(async () => { ${source} })()`);
+  }
+
   const exact = applySession ? (args.clickPort ?? args.clickExact) : args.clickExact;
   const loose = applySession ? (args.clickPort ?? args.click) : args.click;
   if (loose || exact) {

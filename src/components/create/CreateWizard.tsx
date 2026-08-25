@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Lock } from "lucide-react";
 import { StepRail } from "./StepRail";
 import { TypePicker } from "./TypePicker";
 import { StepContent } from "./StepContent";
@@ -36,6 +36,8 @@ import { fieldSchema } from "./fieldSchema";
 import { allTypes } from "./qrTypes";
 import { encodeQr } from "./encodeQr";
 import { Button } from "@/components/ui/Button";
+import { Paywall } from "@/components/paywall/Paywall";
+import { usePaywall } from "@/components/paywall/usePaywall";
 
 type Values = Record<string, string>;
 
@@ -53,19 +55,34 @@ function isComplete(type: string, values: Values) {
   return required.every((f) => (values[f.name] ?? "").trim().length > 0);
 }
 
-export function CreateWizard() {
+export function CreateWizard({ entitled }: { entitled: boolean }) {
   const [step, setStep] = useState(1);
   const [type, setType] = useState("website");
   const [values, setValues] = useState<Values>({});
   const [name, setName] = useState(defaultName("website"));
   const [style, setStyle] = useState<QrStyle>(defaultQrStyle);
   const [password, setPassword] = useState("");
-  const downloadRef = useRef<((ext: "png" | "jpeg" | "svg") => void) | null>(
-    null,
-  );
+  /**
+   * The exporter handed up by the QR renderer once it has a canvas to read.
+   * State rather than a ref: the download buttons' behaviour depends on
+   * whether it has arrived, and that is exactly what state is for.
+   */
+  const [download, setDownload] = useState<
+    ((ext: "png" | "jpeg" | "svg") => void) | null
+  >(null);
 
   const qrValue = useMemo(() => encodeQr(type, values), [type, values]);
   const complete = isComplete(type, values);
+
+  /**
+   * Downloading is the moment the code is finished, so that is where the
+   * paywall belongs — not on step 1's Continue, where the mockup could only
+   * put it because a static page has nowhere else to go.
+   */
+  const paywall = usePaywall();
+  useEffect(() => {
+    if (entitled) paywall.forgetPaid();
+  }, [entitled, paywall]);
 
   // Choosing a type advances immediately — on the live creator one click on a
   // format takes you into its form. Selecting and then hunting for a Next
@@ -126,9 +143,9 @@ export function CreateWizard() {
                 <SidePreview
                   qrValue={qrValue}
                   style={style}
-                  onReady={(fn) => {
-                    downloadRef.current = fn;
-                  }}
+                  // Wrapped: a bare function passed to a setter is read as
+                  // an updater, and React would call it with the old value.
+                  onReady={(fn) => setDownload(() => fn)}
                 />
               )}
             </aside>
@@ -165,20 +182,42 @@ export function CreateWizard() {
           </Button>
         ) : (
           <div className="flex flex-wrap items-center justify-end gap-2">
-            {(["png", "jpeg", "svg"] as const).map((ext) => (
+            {/* Paid but no account yet: the code is theirs, it is just locked
+                until they finish. Say so instead of showing dead buttons. */}
+            {paywall.paidAwaitingAccount && (
+              <span className="mr-1 text-sm text-muted">
+                Your QR code is saved and locked.
+              </span>
+            )}
+            {paywall.paidAwaitingAccount ? (
+              <Button size="lg" onClick={paywall.open}>
+                <Lock className="h-4 w-4" />
+                Complete Your Account
+              </Button>
+            ) : (
+              (["png", "jpeg", "svg"] as const).map((ext) => (
               <Button
                 key={ext}
                 size="lg"
                 variant={ext === "png" ? "primary" : "outline"}
-                onClick={() => downloadRef.current?.(ext)}
+                onClick={entitled ? () => download?.(ext) : paywall.open}
               >
                 <Download className="h-4 w-4" />
                 {ext.toUpperCase()}
               </Button>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>
+
+      <Paywall
+        stage={paywall.stage}
+        qrValue={qrValue}
+        qrStyle={style}
+        onClose={paywall.close}
+        onPaid={paywall.markPaid}
+      />
     </div>
   );
 }
