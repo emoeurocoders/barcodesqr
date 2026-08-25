@@ -102,10 +102,14 @@ async function capture(send, evaluate, url, args, applySession) {
   await send('Page.navigate', { url });
   await new Promise((r) => setTimeout(r, args.wait));
 
-  if (args.click && applySession) {
+  // Both sides, not just the port: --click exists to open interaction-gated
+  // UI, and the design side is exactly the side that needs opening. Gating it
+  // on `applySession` (i.e. "is this the port?") silently diffed the design's
+  // closed state against the port's open one.
+  if (args.click) {
     await evaluate(`(() => {
       const needle = ${JSON.stringify(args.click ?? '')}.toLowerCase();
-      const el = [...document.querySelectorAll('a, button, [role=button]')]
+      const el = [...document.querySelectorAll('a, button, [role=button], label, .itm, .nav-item')]
         .find((n) => n.textContent.trim().toLowerCase().includes(needle));
       if (el) el.click();
     })()`);

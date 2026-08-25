@@ -9,6 +9,8 @@ import { StepContent } from "./StepContent";
 import { StepCustomize } from "./StepCustomize";
 import { PreviewPanel } from "./PreviewPanel";
 import { VCardPreview } from "./VCardPreview";
+import { MultiLinkPreview } from "./MultiLinkPreview";
+import { SocialPreview } from "./SocialPreview";
 import { QrPreview, defaultQrStyle } from "./QrPreview";
 import type { QrStyle } from "./QrPreview";
 import { fieldSchema } from "./fieldSchema";
@@ -116,10 +118,16 @@ export function CreateWizard() {
       <div className="flex shrink-0 items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-6 lg:px-8">
         {step === 1 ? (
           <Link href="/">
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" size="md">
+              Cancel
+            </Button>
           </Link>
         ) : (
-          <Button variant="outline" onClick={() => setStep(step - 1)}>
+          <Button
+            variant="outline-primary"
+            size="md"
+            onClick={() => setStep(step - 1)}
+          >
             <ChevronLeft className="h-4 w-4" />
             Back
           </Button>
@@ -168,6 +176,8 @@ function ContentPreview({
   style: QrStyle;
 }) {
   if (type === "vcard") return <VCardPreview values={values} />;
+  if (type === "multilink") return <MultiLinkPreview values={values} />;
+  if (type === "social") return <SocialPreview values={values} />;
   return <SidePreview qrValue={qrValue} style={style} />;
 }
 

@@ -232,7 +232,7 @@ async function main() {
   if (args.click) {
     const hit = await evaluate(`(() => {
       const needle = ${JSON.stringify(args.click)}.toLowerCase();
-      const el = [...document.querySelectorAll('a, button, [role=button]')]
+      const el = [...document.querySelectorAll('a, button, [role=button], label, .itm, .nav-item')]
         .find((n) => n.textContent.trim().toLowerCase().includes(needle));
       if (!el) return 'MISS';
       el.click();

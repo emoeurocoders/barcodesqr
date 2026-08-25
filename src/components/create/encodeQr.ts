@@ -128,3 +128,14 @@ export function encodeQr(
 export function isDynamic(type: string) {
   return dynamicTypes.has(type);
 }
+
+/**
+ * Types the creator advertises as tracked and editable in step 2.
+ *
+ * vCard is one of them: the creator serves it as a hosted contact page, which
+ * is what its step-2 preview shows. Our encoder still writes a plain VCARD so
+ * a scan works without that service, so this deliberately is not `isDynamic`.
+ */
+export function hasTracking(type: string) {
+  return dynamicTypes.has(type) || type === "vcard";
+}

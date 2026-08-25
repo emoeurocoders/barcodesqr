@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   Upload,
   Info,
+  Pencil,
   ChevronDown,
   Contact,
   Image as ImageIcon,
@@ -12,14 +13,14 @@ import {
   Building2,
   MapPin,
   Share2,
-  FileText,
   Link as LinkIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { fieldSchema, fieldLabels, sections as sectionMeta } from "./fieldSchema";
 import type { Field } from "./fieldSchema";
 import { allTypes } from "./qrTypes";
-import { isDynamic } from "./encodeQr";
+import { hasTracking } from "./encodeQr";
+import { InfoTip } from "./InfoTip";
 
 type Values = Record<string, string>;
 
@@ -32,14 +33,39 @@ const sectionIcons: Record<string, LucideIcon> = {
   company: Building2,
   address: MapPin,
   social: Share2,
-  info: Info,
-  basic: FileText,
+  info: Pencil,
+  basic: Pencil,
   links: LinkIcon,
   image: ImageIcon,
 };
 
+// 16px below `md`, as on the creator: anything smaller makes iOS Safari zoom
+// the page on focus. Back to 14px once there is room for it.
 const inputClass =
-  "w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink placeholder:text-faint focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-base text-ink placeholder:text-faint shadow-soft transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 md:text-sm";
+
+/** The teal pill above the first section of every tracked format. */
+const TRACKING_TIP =
+  "This is a dynamic QR code — you can edit where it points anytime (even after printing) and track every scan.";
+
+function TrackingBadge() {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-brand/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-brand">
+      <BadgeCheck className="h-4 w-4" />
+      Smart Tracking &amp; Editing Included
+      <InfoTip label={TRACKING_TIP} />
+    </div>
+  );
+}
+
+/** Right-aligned character count, which sits under its control. */
+function Counter({ value, max }: { value: string; max: number }) {
+  return (
+    <div className="mt-1 text-right text-xs text-faint">
+      {value.length}/{max}
+    </div>
+  );
+}
 
 /** Fields whose `showIf` condition is not met are hidden entirely. */
 function visible(f: Field, values: Values) {
@@ -77,7 +103,10 @@ function FieldControl({
   switch (field.type) {
     case "textarea":
       return (
-        <textarea {...common} rows={4} className={`${inputClass} resize-y`} />
+        <textarea
+          {...common}
+          className={`${inputClass} min-h-[88px] resize-y`}
+        />
       );
 
     case "select":
@@ -193,30 +222,26 @@ function FieldRow({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const span = field.half ? "sm:col-span-1" : "col-span-full";
+
   if (field.type === "info" || field.type === "checkbox") {
     return (
-      <div className={field.half ? "sm:col-span-1" : "sm:col-span-2"}>
+      <div className={span}>
         <FieldControl field={field} value={value} onChange={onChange} />
       </div>
     );
   }
 
   return (
-    <div className={field.half ? "sm:col-span-1" : "sm:col-span-2"}>
-      <div className="flex items-baseline justify-between gap-2">
+    <div className={span}>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
         <label htmlFor={field.name} className="text-sm font-medium text-ink">
           {label(field)}
           {field.required && <span className="ml-0.5 text-danger">*</span>}
         </label>
-        {field.maxLength && (
-          <span className="text-[11px] text-faint">
-            {value.length}/{field.maxLength}
-          </span>
-        )}
       </div>
-      <div className="mt-1.5">
-        <FieldControl field={field} value={value} onChange={onChange} />
-      </div>
+      <FieldControl field={field} value={value} onChange={onChange} />
+      {field.maxLength && <Counter value={value} max={field.maxLength} />}
     </div>
   );
 }
@@ -242,46 +267,45 @@ function Section({
   const Icon = sectionIcons[sectionKey] ?? Info;
 
   return (
-    <section className="overflow-hidden rounded-xl border border-line/80 bg-white">
+    <section className="overflow-hidden rounded-xl border border-line bg-white">
       <button
         type="button"
         aria-expanded={open}
         onClick={onToggle}
-        className="flex w-full cursor-pointer items-center gap-3 px-4 py-3.5 text-left"
+        className="flex w-full cursor-pointer items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-bg-alt/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       >
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-bg-alt/70 text-body">
-          <Icon className="h-5 w-5" />
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-bg-alt text-ink">
+          <Icon className="h-4 w-4" />
         </span>
-        <span className="flex-1">
-          <span className="block text-sm font-bold text-ink">
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold text-ink">
             {meta?.title ?? sectionKey}
           </span>
-          <span className="block text-xs text-muted">{meta?.desc}</span>
+          <span className="block truncate text-xs text-muted">
+            {meta?.desc}
+          </span>
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted transition-transform ${
+          className={`h-4 w-4 shrink-0 text-faint transition-transform ${
             open ? "rotate-180" : ""
           }`}
         />
       </button>
 
       {open && (
-        <div className="border-t border-line/80 px-4 py-4">
-          {showTrackingBadge && (
-            <p className="mb-4 inline-flex items-center gap-2 rounded-lg border border-brand/30 bg-brand-soft/60 px-3 py-2 text-sm font-semibold text-brand-dark">
-              <BadgeCheck className="h-4 w-4" />
-              Smart Tracking &amp; Editing Included
-            </p>
-          )}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {fields.map((f) => (
-              <FieldRow
-                key={f.name}
-                field={f}
-                value={values[f.name] ?? ""}
-                onChange={(v) => set(f.name, v)}
-              />
-            ))}
+        <div className="border-t border-line px-4 py-4">
+          <div className="space-y-4">
+            {showTrackingBadge && <TrackingBadge />}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {fields.map((f) => (
+                <FieldRow
+                  key={f.name}
+                  field={f}
+                  value={values[f.name] ?? ""}
+                  onChange={(v) => set(f.name, v)}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -304,7 +328,9 @@ export function StepContent({
 }) {
   const meta = allTypes.find((t) => t.value === type);
   const fields = (fieldSchema[type] ?? []).filter((f) => visible(f, values));
-  const Icon = meta?.icon;
+  // The creator introduces a couple of formats with a different glyph here
+  // than in step 1's list; fall back to the list icon when it does not.
+  const Icon = meta?.stepIcon ?? meta?.icon;
 
   // Preserve the schema's order while collecting each section's fields.
   const groups: { key: string; fields: Field[] }[] = [];
@@ -329,73 +355,76 @@ export function StepContent({
   const set = (k: string, v: string) => setValues({ ...values, [k]: v });
 
   return (
-    <div className="min-w-0 flex-1">
-      {/* Type header */}
-      <div className="flex items-center gap-3 border-b border-line/80 pb-4">
+    <>
+      {/* Type header. The glyph is neutral here — the colour in step 1's list
+          is what tells the formats apart; by step 2 you have already chosen. */}
+      <div className="mb-5 flex items-center gap-3 border-b border-line pb-4">
+        {/* No `shrink-0` on the tile: the creator lets it squeeze at narrow
+            widths rather than steal room from the title. */}
         {Icon && (
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-bg-alt/70">
-            <Icon className="h-6 w-6" style={{ color: meta?.color }} />
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-bg-alt text-ink">
+            <Icon className="h-5 w-5" />
           </span>
         )}
         <div>
-          <h1 className="text-xl font-bold text-ink">{meta?.label ?? type}</h1>
-          <p className="text-sm text-muted">{meta?.desc}</p>
+          <h2 className="text-lg font-semibold tracking-heading text-ink">
+            {meta?.label ?? type}
+          </h2>
+          <p className="text-sm text-muted">{meta?.stepDesc ?? meta?.desc}</p>
         </div>
       </div>
 
-      <div className="mt-5 space-y-3">
-        {/* Types without sections show their fields directly. */}
-        {loose && (
-          <div>
-            {isDynamic(type) && (
-              <p className="mb-4 inline-flex items-center gap-2 rounded-lg border border-brand/30 bg-brand-soft/60 px-3 py-2 text-sm font-semibold text-brand-dark">
-                <BadgeCheck className="h-4 w-4" />
-                Smart Tracking &amp; Editing Included
-              </p>
-            )}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {loose.fields.map((f) => (
-                <FieldRow
-                  key={f.name}
-                  field={f}
-                  value={values[f.name] ?? ""}
-                  onChange={(v) => set(f.name, v)}
-                />
-              ))}
+      <div className="space-y-4">
+        <div className="space-y-3">
+          {/* Types without sections show their fields directly. */}
+          {loose && (
+            <div className="space-y-4">
+              {hasTracking(type) && <TrackingBadge />}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {loose.fields.map((f) => (
+                  <FieldRow
+                    key={f.name}
+                    field={f}
+                    value={values[f.name] ?? ""}
+                    onChange={(v) => set(f.name, v)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {sectioned.map((g, i) => (
-          <Section
-            key={g.key}
-            sectionKey={g.key}
-            fields={g.fields}
-            values={values}
-            set={set}
-            open={openKey === g.key}
-            onToggle={() => setOpenKey(openKey === g.key ? null : g.key)}
-            showTrackingBadge={i === 0 && !loose && isDynamic(type)}
-          />
-        ))}
+          {sectioned.map((g, i) => (
+            <Section
+              key={g.key}
+              sectionKey={g.key}
+              fields={g.fields}
+              values={values}
+              set={set}
+              open={openKey === g.key}
+              onToggle={() => setOpenKey(openKey === g.key ? null : g.key)}
+              showTrackingBadge={i === 0 && !loose && hasTracking(type)}
+            />
+          ))}
+        </div>
 
         {/* Name is common to every type */}
-        <div className="border-t border-line/80 pt-5">
-          <div className="flex items-baseline justify-between gap-2">
+        <div className="border-t border-line pt-5">
+          <div className="mb-1.5 flex items-center justify-between gap-2">
             <label htmlFor="qrName" className="text-sm font-medium text-ink">
               Name your QR Code
             </label>
-            <span className="text-[11px] text-faint">{name.length}/40</span>
+            <InfoTip label="Only you can see this — it helps you find the code later." />
           </div>
           <input
             id="qrName"
-            className={`${inputClass} mt-1.5`}
+            className={inputClass}
             maxLength={40}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+          <Counter value={name} max={40} />
         </div>
       </div>
-    </div>
+    </>
   );
 }

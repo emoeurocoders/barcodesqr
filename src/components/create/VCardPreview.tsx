@@ -1,15 +1,14 @@
 "use client";
 
-import {
-  QrCode,
-  Share2,
-  Plus,
-  Phone,
-  Globe,
-  MapPin,
-  ChevronDown,
-} from "lucide-react";
+import { Phone, Globe, MapPin, ChevronDown } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import {
+  PhoneFrame,
+  PhoneQrChip,
+  PhoneShareChip,
+  phoneInk,
+  socialColors,
+} from "./PhonePreview";
 
 type Values = Record<string, string>;
 
@@ -22,7 +21,12 @@ const sample = {
     "Designing thoughtful, human-centered products — pairing research and craft to turn rough ideas into polished experiences.",
 };
 
-const socialDots = ["#e0447c", "#3b82f6", "#1d4ed8", "#ef4444"];
+const socialDots = [
+  socialColors.instagram,
+  socialColors.facebook,
+  socialColors.linkedin,
+  socialColors.youtube,
+];
 
 const rows: { icon: LucideIcon; label: string }[] = [
   { icon: Phone, label: "Contact" },
@@ -43,74 +47,96 @@ export function VCardPreview({ values }: { values: Values }) {
   const summary = values.summary?.trim() || sample.summary;
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-card">
-      {/* Cover */}
-      <div className="relative h-[132px] bg-[#c3d5d2]">
-        <svg
-          viewBox="0 0 330 132"
-          className="absolute inset-0 h-full w-full"
-          aria-hidden="true"
-        >
-          <circle cx="60" cy="20" r="70" fill="#ffffff" opacity="0.16" />
-          <circle cx="250" cy="110" r="90" fill="#ffffff" opacity="0.12" />
-        </svg>
-
-        <span className="absolute left-3 top-3 grid h-8 w-8 place-items-center rounded-lg bg-white/90 text-brand-dark">
-          <QrCode className="h-4 w-4" />
-        </span>
-
-        <div className="absolute right-3 top-3 flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-white/90 text-ink">
-            <Share2 className="h-4 w-4" />
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#0f5c52] px-3 py-1.5 text-xs font-semibold text-white">
-            <Plus className="h-3 w-3" />
-            Add contact
-          </span>
-        </div>
-      </div>
-
-      {/* Card body */}
-      <div className="relative -mt-12 rounded-t-2xl bg-white px-5 pb-5 pt-14 text-center">
+    <PhoneFrame>
+      <div className="flex h-full flex-col bg-white">
+        {/* Cover */}
         <div
-          role="img"
-          aria-label={`${first} ${last}`}
-          className="absolute left-1/2 top-0 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-cover bg-center shadow-sm"
-          style={{ backgroundImage: "url(/previews/portrait.jpg)" }}
-        />
+          className="relative h-[27%] shrink-0 overflow-hidden"
+          style={{ background: "#b8cdd5" }}
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full"
+            style={{ border: "26px solid #d1dfdf" }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -left-10 top-16 h-32 w-32 rounded-full"
+            style={{ border: "16px solid rgba(209, 223, 223, 0.5)" }}
+          />
 
-        <p className="text-lg font-bold text-ink">
-          {first} {last}
-        </p>
-        <p className="mt-0.5 text-sm text-muted">{role}</p>
-
-        <div className="mt-3 flex items-center justify-center gap-2">
-          {socialDots.map((c) => (
-            <span
-              key={c}
-              className="h-3.5 w-3.5 rounded-full"
-              style={{ background: c }}
-            />
-          ))}
+          <div className="relative flex items-start justify-between px-3 pt-3">
+            <PhoneQrChip variant="round" />
+            <div className="flex items-center gap-1.5">
+              <PhoneShareChip />
+              <span className="flex items-center rounded-full bg-brand-darker px-3 py-1.5 text-[10px] font-semibold text-white shadow-sm">
+                Add contact
+              </span>
+            </div>
+          </div>
         </div>
 
-        <p className="mt-3 text-xs leading-relaxed text-muted">{summary}</p>
+        {/* Card body */}
+        <div className="relative -mt-5 flex-1 rounded-t-3xl bg-white">
+          <div className="absolute -top-14 left-1/2 h-[100px] w-[100px] -translate-x-1/2 overflow-hidden rounded-full shadow-soft ring-4 ring-white">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/previews/portrait.jpg"
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full"
+              style={{ objectFit: "cover", objectPosition: "50% 50%" }}
+            />
+          </div>
 
-        <div className="mt-4 space-y-2 text-left">
-          {rows.map(({ icon: Icon, label }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2.5 rounded-xl bg-bg-alt/70 px-3 py-2.5"
+          <div className="px-4 pt-[52px] text-center">
+            <h2
+              className="text-base font-bold leading-tight tracking-heading"
+              style={{ color: "#323232" }}
             >
-              <Icon className="h-4 w-4 shrink-0 text-body" />
-              <span className="flex-1 text-sm font-semibold text-ink">
-                {label}
-              </span>
-              <ChevronDown className="h-4 w-4 shrink-0 text-muted" />
+              {first} {last}
+            </h2>
+            <p className="mt-0.5 text-[11px]" style={{ color: "#494949" }}>
+              {role}
+            </p>
+
+            <div className="mt-2.5 flex justify-center gap-2.5">
+              {socialDots.map((c) => (
+                <span
+                  key={c}
+                  className="inline-block h-5 w-5 shrink-0 rounded-full"
+                  style={{ background: c }}
+                />
+              ))}
             </div>
-          ))}
+
+            <p className="mt-2.5 line-clamp-3 text-[10px] leading-relaxed text-muted">
+              {summary}
+            </p>
+          </div>
+
+          <div className="mt-3 space-y-2 px-4">
+            {rows.map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2.5 rounded-2xl px-3 py-2.5"
+                style={{ background: "#f2f2f7" }}
+              >
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white shadow-sm">
+                  <Icon className="h-3.5 w-3.5 text-ink" />
+                </span>
+                <span
+                  className="flex-1 text-xs font-semibold"
+                  style={{ color: phoneInk.rowLabel }}
+                >
+                  {label}
+                </span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-muted" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </PhoneFrame>
   );
 }

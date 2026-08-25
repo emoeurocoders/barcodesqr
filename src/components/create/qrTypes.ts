@@ -1,5 +1,6 @@
 import {
   Globe,
+  Briefcase,
   Contact,
   Link as LinkIcon,
   Share2,
@@ -34,6 +35,13 @@ export type CreateQrType = {
   color: string;
   icon: QrTypeIcon;
   tag?: string;
+  /**
+   * Step 2 introduces a few formats differently from the step-1 list — the
+   * list sells the format, the form describes what you are about to fill in.
+   * Only set where the creator's wording actually diverges.
+   */
+  stepDesc?: string;
+  stepIcon?: QrTypeIcon;
 };
 
 /**
@@ -66,6 +74,8 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Share several links at once",
     color: "#7C3AED",
     icon: LinkIcon,
+    stepDesc: "Promote your business, service or profile",
+    stepIcon: Briefcase,
   },
   {
     value: "social",
@@ -73,6 +83,7 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Share all your social profiles",
     color: "#EC4899",
     icon: Share2,
+    stepDesc: "Share your profiles and grow your audience",
   },
   {
     value: "applink",
