@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Download, Lock } from "lucide-react";
+import { useRouter } from "next/navigation";
+// `Download` is shelved with step 3.
+import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
 import { StepRail } from "./StepRail";
 import { TypePicker } from "./TypePicker";
 import { StepContent } from "./StepContent";
-import { StepCustomize } from "./StepCustomize";
+// Shelved with step 3: import { StepCustomize } from "./StepCustomize";
 import { PreviewPanel } from "./PreviewPanel";
 import { VCardPreview } from "./VCardPreview";
 import { MultiLinkPreview } from "./MultiLinkPreview";
@@ -56,20 +58,28 @@ function isComplete(type: string, values: Values) {
 }
 
 export function CreateWizard({ entitled }: { entitled: boolean }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [type, setType] = useState("website");
   const [values, setValues] = useState<Values>({});
   const [name, setName] = useState(defaultName("website"));
-  const [style, setStyle] = useState<QrStyle>(defaultQrStyle);
-  const [password, setPassword] = useState("");
-  /**
-   * The exporter handed up by the QR renderer once it has a canvas to read.
-   * State rather than a ref: the download buttons' behaviour depends on
-   * whether it has arrived, and that is exactly what state is for.
-   */
-  const [download, setDownload] = useState<
-    ((ext: "png" | "jpeg" | "svg") => void) | null
-  >(null);
+  // The style is still read by step 2's preview; only the customiser wrote to
+  // it, so the setter is shelved with step 3.
+  const [style] = useState<QrStyle>(defaultQrStyle);
+
+  /* --- STEP 3 STATE — SHELVED ---------------------------------------------
+     Restore alongside the two blocks below.
+
+     const [style, setStyle] = useState<QrStyle>(defaultQrStyle);
+     const [password, setPassword] = useState("");
+
+     // The exporter handed up by the QR renderer once it has a canvas to
+     // read. State rather than a ref: the download buttons' behaviour
+     // depends on whether it has arrived, and that is what state is for.
+     const [download, setDownload] = useState<
+       ((ext: "png" | "jpeg" | "svg") => void) | null
+     >(null);
+  ----------------------------------------------------------------------- */
 
   const qrValue = useMemo(() => encodeQr(type, values), [type, values]);
   const complete = isComplete(type, values);
@@ -83,6 +93,20 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
   useEffect(() => {
     if (entitled) paywall.forgetPaid();
   }, [entitled, paywall]);
+
+  /**
+   * Step 2's Next is the gate. The code is fully described by this point, so
+   * it is the last moment that is honest to ask for money — later, and we
+   * have let someone customise something they cannot have.
+   *
+   * With step 3 shelved there is nowhere further to send someone who has
+   * already paid, so they go to the dashboard, which is where their codes
+   * live and where checkout drops them anyway.
+   */
+  const finishStepTwo = () => {
+    if (entitled) router.push("/dashboard");
+    else paywall.open();
+  };
 
   // Choosing a type advances immediately — on the live creator one click on a
   // format takes you into its form. Selecting and then hunting for a Next
@@ -113,41 +137,45 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="rounded-2xl border border-line bg-white p-6 shadow-soft">
-              {step === 2 ? (
-                <StepContent
-                  type={type}
-                  values={values}
-                  setValues={setValues}
-                  name={name}
-                  setName={setName}
-                />
-              ) : (
-                <StepCustomize
-                  style={style}
-                  setStyle={setStyle}
-                  password={password}
-                  setPassword={setPassword}
-                />
-              )}
+              <StepContent
+                type={type}
+                values={values}
+                setValues={setValues}
+                name={name}
+                setName={setName}
+              />
+              {/* --- STEP 3 — SHELVED ------------------------------------
+                  Customise & Protect, kept whole against the PM changing
+                  their mind. Restore this and the footer block below, put
+                  the `step === 2 ?` ternaries back around both, and point
+                  `finishStepTwo` at setStep(3) again.
+
+                  <StepCustomize
+                    style={style}
+                    setStyle={setStyle}
+                    password={password}
+                    setPassword={setPassword}
+                  />
+              --------------------------------------------------------- */}
             </div>
 
             <aside className="order-first lg:order-none lg:sticky lg:top-6 lg:self-start">
-              {step === 2 ? (
-                <ContentPreview
-                  type={type}
-                  values={values}
-                  qrValue={qrValue}
-                  style={style}
-                />
-              ) : (
-                <SidePreview
-                  qrValue={qrValue}
-                  style={style}
-                  // Wrapped: a bare function passed to a setter is read as
-                  // an updater, and React would call it with the old value.
-                  onReady={(fn) => setDownload(() => fn)}
-                />
-              )}
+              <ContentPreview
+                type={type}
+                values={values}
+                qrValue={qrValue}
+                style={style}
+              />
+              {/* --- STEP 3 PREVIEW — SHELVED ----------------------------
+                  <SidePreview
+                    qrValue={qrValue}
+                    style={style}
+                    // Wrapped: a bare function passed to a setter is read
+                    // as an updater, and React would call it with the old
+                    // value.
+                    onReady={(fn) => setDownload(() => fn)}
+                  />
+              --------------------------------------------------------- */}
             </aside>
           </div>
         </div>
@@ -175,40 +203,48 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
 
         {step === 1 ? (
           <span />
-        ) : step === 2 ? (
-          <Button size="lg" disabled={!complete} onClick={() => setStep(3)}>
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
         ) : (
           <div className="flex flex-wrap items-center justify-end gap-2">
             {/* Paid but no account yet: the code is theirs, it is just locked
-                until they finish. Say so instead of showing dead buttons. */}
+                until they finish. Say so instead of showing a dead Next. */}
             {paywall.paidAwaitingAccount && (
               <span className="mr-1 text-sm text-muted">
                 Your QR code is saved and locked.
               </span>
             )}
+
             {paywall.paidAwaitingAccount ? (
               <Button size="lg" onClick={paywall.open}>
                 <Lock className="h-4 w-4" />
                 Complete Your Account
               </Button>
             ) : (
-              (["png", "jpeg", "svg"] as const).map((ext) => (
-              <Button
-                key={ext}
-                size="lg"
-                variant={ext === "png" ? "primary" : "outline"}
-                onClick={entitled ? () => download?.(ext) : paywall.open}
-              >
-                <Download className="h-4 w-4" />
-                {ext.toUpperCase()}
+              <Button size="lg" disabled={!complete} onClick={finishStepTwo}>
+                Next
+                <ChevronRight className="h-4 w-4" />
               </Button>
-              ))
             )}
           </div>
         )}
+
+        {/* --- STEP 3 FOOTER — SHELVED ------------------------------------
+            Kept against the PM changing their mind about dropping the
+            customise step. Restore alongside the step-3 branch in <main>.
+
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {(["png", "jpeg", "svg"] as const).map((ext) => (
+                <Button
+                  key={ext}
+                  size="lg"
+                  variant={ext === "png" ? "primary" : "outline"}
+                  onClick={entitled ? () => download?.(ext) : paywall.open}
+                >
+                  <Download className="h-4 w-4" />
+                  {ext.toUpperCase()}
+                </Button>
+              ))}
+            </div>
+        ------------------------------------------------------------------ */}
       </div>
 
       <Paywall
