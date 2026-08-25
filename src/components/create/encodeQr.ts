@@ -25,6 +25,18 @@ const dynamicTypes = new Set([
   "applink",
 ]);
 
+/**
+ * Joins a phone field with the dial code chosen beside it. The picker stores
+ * `+1-CA` and friends so two countries can share a code without the select
+ * collapsing them; only the digits before the dash are dialled.
+ */
+function intlPhone(v: Record<string, string>) {
+  const code = (v.phoneCountry ?? "").split("-")[0];
+  const number = (v.phone ?? "").trim();
+  if (!number) return "";
+  return number.startsWith("+") ? number : `${code}${number}`;
+}
+
 const esc = (s: string) => s.replace(/([\\;,:"])/g, "\\$1");
 
 function vcard(v: Record<string, string>) {
@@ -88,11 +100,11 @@ export function encodeQr(
     }
 
     case "sms":
-      return v.phone ? `SMSTO:${v.phone}:${v.message ?? ""}` : "";
+      return v.phone ? `SMSTO:${intlPhone(v)}:${v.message ?? ""}` : "";
 
     case "whatsapp": {
       if (!v.phone) return "";
-      const digits = v.phone.replace(/[^\d]/g, "");
+      const digits = intlPhone(v).replace(/[^\d]/g, "");
       const text = v.message ? `?text=${encodeURIComponent(v.message)}` : "";
       return `https://wa.me/${digits}${text}`;
     }
@@ -130,12 +142,19 @@ export function isDynamic(type: string) {
 }
 
 /**
+ * The five formats the creator does NOT badge as tracked, because they encode
+ * their content straight into the code and there is no hosted page to edit or
+ * count scans on.
+ */
+const untrackedTypes = new Set(["wifi", "email", "sms", "whatsapp", "phone"]);
+
+/**
  * Types the creator advertises as tracked and editable in step 2.
  *
- * vCard is one of them: the creator serves it as a hosted contact page, which
- * is what its step-2 preview shows. Our encoder still writes a plain VCARD so
- * a scan works without that service, so this deliberately is not `isDynamic`.
+ * Deliberately not `isDynamic`: the creator serves vCard, Website, Location
+ * and Text as hosted pages, while our encoder still writes their content
+ * directly so a scan works without that service existing yet.
  */
 export function hasTracking(type: string) {
-  return dynamicTypes.has(type) || type === "vcard";
+  return !untrackedTypes.has(type);
 }

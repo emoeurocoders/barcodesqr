@@ -36,7 +36,8 @@
  * Text is the element's OWN text, trimmed and collapsed — enough to catch
  * reworded copy without every ancestor of a change also lighting up. `@d` is
  * truncated to 24 characters, plenty to tell two icons apart. Inputs carry
- * `@placeholder`, links `@href`, images `@src`.
+ * `@placeholder`, links `@href`, images `@src`. Any element carrying an
+ * `@aria-label` prints it — it is copy a screen reader reads aloud.
  *
  * Both sides render in a real headless Chrome, so this compares what the
  * browser built — after React — not what the source file says.
@@ -62,13 +63,38 @@ import WebSocket from 'ws';
 const CHROME =
   process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
+/**
+ * The click-target finder, stringified into the page.
+ *
+ * `--click` matches loosely, which is enough to open a disclosure but picks
+ * the wrong row when one label contains another ("Text" inside "Plain Text").
+ * `--click-exact` matches a LEAF whose own text is exactly the needle and
+ * clicks its nearest clickable ancestor, which is how a list of similarly
+ * named items gets addressed unambiguously.
+ */
+const CLICK_FINDER = `
+  const CLICKABLE = 'a, button, [role=button], label, .itm, .nav-item';
+  const find = (needle, exact) => {
+    if (exact) {
+      return [...document.querySelectorAll('*')]
+        .filter((n) => !n.children.length && n.textContent.trim() === needle)
+        .map((n) => n.closest(CLICKABLE))
+        .find(Boolean);
+    }
+    const lower = needle.toLowerCase();
+    return [...document.querySelectorAll(CLICKABLE)].find((n) =>
+      n.textContent.trim().toLowerCase().includes(lower),
+    );
+  };
+`;
+
 function parseArgs() {
   const argv = process.argv.slice(2);
   const source = argv[0];
   if (!source || source.startsWith('-')) {
     console.error('usage: design-skel <file.html|url> --root <selector> [--click <text>]');
     console.error('                   [--session <token>] [--width 1440] [--wait 2500]');
-    console.error('                   [--classes] [--styles]');
+    console.error('                   [--classes] [--styles] [--click-exact <text>]');
     process.exit(1);
   }
   const flag = (name) => {
@@ -79,6 +105,7 @@ function parseArgs() {
     source,
     root: flag('root') ?? 'body',
     click: flag('click'),
+    clickExact: flag('click-exact'),
     session: flag('session'),
     width: Number(flag('width') ?? 1440),
     wait: Number(flag('wait') ?? 2500),
@@ -110,11 +137,16 @@ function walkerFor(root, { classes, styles }) {
         : [];
       // Own text only — a parent must not inherit its children's copy, or
       // every ancestor of a changed string shows up in the diff as well.
+      // Concatenate first, collapse second. Trimming each node and joining
+      // with a space invented whitespace that never rendered: {n}/{max} came
+      // out as "18 / 40" on one side and "18 /40" on the other, so every
+      // character counter looked like a diff.
       const own = [...el.childNodes]
         .filter((n) => n.nodeType === 3)
-        .map((n) => n.textContent.replace(/\\s+/g, ' ').trim())
-        .filter(Boolean)
-        .join(' ');
+        .map((n) => n.textContent)
+        .join('')
+        .replace(/\\s+/g, ' ')
+        .trim();
       const attr = NOTE[tag];
       const val = attr ? el.getAttribute(attr) : null;
       // The properties a translated port has to reproduce by hand. A wrong
@@ -136,12 +168,17 @@ function walkerFor(root, { classes, styles }) {
           ].join(' ') +
           '}';
       }
+      // aria-label is copy too: it is what a screen reader says in place of
+      // the missing text, so a port that drops or rewords it has changed
+      // what the page communicates just as surely as a reworded <p>.
+      const aria = el.getAttribute('aria-label');
       out.push(
         '  '.repeat(depth) +
           tag +
           cls.map((c) => '.' + c).join('') +
           (own ? '  "' + own + '"' : '') +
           (val ? '  @' + attr + '=' + val.replace(/\\s+/g, ' ').slice(0, 24) : '') +
+          (aria ? '  @aria-label=' + aria.replace(/\\s+/g, ' ') : '') +
           styleNote,
       );
       for (const child of el.children) walk(child, depth + 1);
@@ -229,17 +266,20 @@ async function main() {
   await send('Page.navigate', { url });
   await new Promise((r) => setTimeout(r, args.wait));
 
-  if (args.click) {
+  if (args.click || args.clickExact) {
     const hit = await evaluate(`(() => {
-      const needle = ${JSON.stringify(args.click)}.toLowerCase();
-      const el = [...document.querySelectorAll('a, button, [role=button], label, .itm, .nav-item')]
-        .find((n) => n.textContent.trim().toLowerCase().includes(needle));
+      ${CLICK_FINDER}
+      const el = find(${JSON.stringify(args.clickExact ?? args.click)}, ${Boolean(
+        args.clickExact,
+      )});
       if (!el) return 'MISS';
       el.click();
       return 'HIT ' + el.textContent.trim().slice(0, 40);
     })()`);
     if (String(hit).startsWith('MISS')) {
-      console.error(`--click "${args.click}": nothing matched`);
+      console.error(
+        `--click${args.clickExact ? '-exact' : ''} "${args.clickExact ?? args.click}": nothing matched`,
+      );
       process.exitCode = 2;
     }
     await new Promise((r) => setTimeout(r, 1200));

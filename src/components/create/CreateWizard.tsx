@@ -20,8 +20,12 @@ import { Button } from "@/components/ui/Button";
 
 type Values = Record<string, string>;
 
-const defaultName = (type: string) =>
-  `My ${allTypes.find((t) => t.value === type)?.label ?? "QR"} QR Code`;
+const defaultName = (type: string) => {
+  const meta = allTypes.find((t) => t.value === type);
+  // The creator names the code after what step 2 calls the format, not what
+  // step 1's list calls it — "My Location QR Code", never "My Google Maps…".
+  return `My ${meta?.stepLabel ?? meta?.label ?? "QR"} QR Code`;
+};
 
 /** Every required field for the type must be filled before moving on. */
 function isComplete(type: string, values: Values) {

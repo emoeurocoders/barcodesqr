@@ -11,6 +11,7 @@ import {
   Wifi,
   MessageCircle,
   Utensils,
+  UtensilsCrossed,
   MapPin,
   CalendarDays,
   Mail,
@@ -37,9 +38,11 @@ export type CreateQrType = {
   tag?: string;
   /**
    * Step 2 introduces a few formats differently from the step-1 list — the
-   * list sells the format, the form describes what you are about to fill in.
-   * Only set where the creator's wording actually diverges.
+   * list sells the format, the form describes what you are about to fill in,
+   * and three formats are named differently once you are inside them. Only
+   * set where the creator's wording actually diverges from the mockup's.
    */
+  stepLabel?: string;
   stepDesc?: string;
   stepIcon?: QrTypeIcon;
 };
@@ -98,6 +101,7 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Open or download a PDF file",
     color: "#DC2626",
     icon: FileText,
+    stepDesc: "Open or download a PDF document",
   },
   {
     value: "image",
@@ -126,6 +130,7 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Start a WhatsApp chat",
     color: "#25D366",
     icon: MessageCircle,
+    stepDesc: "Start a WhatsApp chat instantly",
   },
   {
     value: "menu",
@@ -133,6 +138,8 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Share your digital menu",
     color: "#F97316",
     icon: Utensils,
+    stepDesc: "Show a digital restaurant menu",
+    stepIcon: UtensilsCrossed,
   },
   {
     value: "review",
@@ -147,6 +154,8 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Share a location",
     color: "#EA4335",
     icon: MapPin,
+    stepLabel: "Location",
+    stepDesc: "Open a location on the map",
   },
   {
     value: "event",
@@ -154,6 +163,7 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Promote your event",
     color: "#3B82F6",
     icon: CalendarDays,
+    stepDesc: "Add an event to the calendar",
   },
   {
     value: "email",
@@ -161,36 +171,77 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Send an email message",
     color: "#8B5CF6",
     icon: Mail,
+    stepDesc: "Open a pre-filled email",
   },
 ];
 
 /** Formats shown as compact tiles under the "More QR Types" link. */
 export const secondaryTypes: CreateQrType[] = [
-  { value: "sms", label: "SMS", desc: "", color: "#2563EB", icon: MessageSquare },
-  { value: "phone", label: "Phone", desc: "", color: "#16A34A", icon: Phone },
-  { value: "text", label: "Plain Text", desc: "", color: "#6B7280", icon: Type },
+  {
+    value: "sms",
+    label: "SMS",
+    desc: "",
+    color: "#2563EB",
+    icon: MessageSquare,
+    stepDesc: "Send a text message instantly",
+  },
+  {
+    value: "phone",
+    label: "Phone",
+    desc: "",
+    color: "#16A34A",
+    icon: Phone,
+    stepDesc: "Call a phone number",
+  },
+  {
+    value: "text",
+    label: "Plain Text",
+    desc: "",
+    color: "#6B7280",
+    icon: Type,
+    stepLabel: "Text",
+    stepDesc: "Show a plain text message",
+  },
   {
     value: "payment",
     label: "Payment",
     desc: "",
     color: "#7C3AED",
     icon: CreditCard,
+    stepDesc: "Accept payments with a scan",
   },
-  { value: "mp3", label: "Audio", desc: "", color: "#F59E0B", icon: Music },
+  {
+    value: "mp3",
+    label: "Audio",
+    desc: "",
+    color: "#F59E0B",
+    icon: Music,
+    stepDesc: "Play an audio clip",
+  },
   {
     value: "coupon",
     label: "Coupon",
     desc: "",
     color: "#EF4444",
     icon: TicketPercent,
+    stepDesc: "Share a redeemable coupon",
   },
-  { value: "feedback", label: "Feedback", desc: "", color: "#F59E0B", icon: Star },
+  {
+    value: "feedback",
+    label: "Feedback",
+    desc: "",
+    color: "#F59E0B",
+    icon: Star,
+    stepDesc: "Collect ratings and feedback",
+  },
   {
     value: "business",
     label: "Business",
     desc: "",
     color: "#2563EB",
     icon: Building2,
+    stepLabel: "Business Page",
+    stepDesc: "A mini landing page for your business",
   },
 ];
 

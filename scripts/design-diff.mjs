@@ -71,6 +71,7 @@ function parseArgs() {
     width: Number(flag('width') ?? 1440),
     session: flag('session'),
     click: flag('click'),
+    clickExact: flag('click-exact'),
     out: flag('out') ?? '/tmp/design-diff',
     wait: Number(flag('wait') ?? 2500),
   };
@@ -79,6 +80,27 @@ function parseArgs() {
 function toUrl(source) {
   return /^https?:\/\//.test(source) ? source : `file://${resolve(process.cwd(), source)}`;
 }
+
+/**
+ * The click-target finder, stringified into the page. `--click-exact` matches
+ * a LEAF whose own text is exactly the needle and clicks its nearest clickable
+ * ancestor, so "Text" no longer selects "Plain Text".
+ */
+const CLICK_FINDER = `
+  const CLICKABLE = 'a, button, [role=button], label, .itm, .nav-item';
+  const find = (needle, exact) => {
+    if (exact) {
+      return [...document.querySelectorAll('*')]
+        .filter((n) => !n.children.length && n.textContent.trim() === needle)
+        .map((n) => n.closest(CLICKABLE))
+        .find(Boolean);
+    }
+    const lower = needle.toLowerCase();
+    return [...document.querySelectorAll(CLICKABLE)].find((n) =>
+      n.textContent.trim().toLowerCase().includes(lower),
+    );
+  };
+`;
 
 async function capture(send, evaluate, url, args, applySession) {
   // Reset the viewport before every navigation — the previous capture grew it
@@ -106,11 +128,12 @@ async function capture(send, evaluate, url, args, applySession) {
   // UI, and the design side is exactly the side that needs opening. Gating it
   // on `applySession` (i.e. "is this the port?") silently diffed the design's
   // closed state against the port's open one.
-  if (args.click) {
+  if (args.click || args.clickExact) {
     await evaluate(`(() => {
-      const needle = ${JSON.stringify(args.click ?? '')}.toLowerCase();
-      const el = [...document.querySelectorAll('a, button, [role=button], label, .itm, .nav-item')]
-        .find((n) => n.textContent.trim().toLowerCase().includes(needle));
+      ${CLICK_FINDER}
+      const el = find(${JSON.stringify(args.clickExact ?? args.click ?? '')}, ${Boolean(
+        args.clickExact,
+      )});
       if (el) el.click();
     })()`);
     await new Promise((r) => setTimeout(r, 1200));

@@ -67,6 +67,10 @@ function TypeCard({
         value={type.value}
         checked={selected}
         onChange={onSelect}
+        // Also on click: the pre-selected row (Website) fires no change event
+        // when you click it again, which left the most-used format unable to
+        // start a QR at all. Firing twice on a fresh pick is harmless.
+        onClick={onSelect}
         className="sr-only"
       />
     </label>
@@ -105,6 +109,10 @@ function TypeTile({
         value={type.value}
         checked={selected}
         onChange={onSelect}
+        // Also on click: the pre-selected row (Website) fires no change event
+        // when you click it again, which left the most-used format unable to
+        // start a QR at all. Firing twice on a fresh pick is harmless.
+        onClick={onSelect}
         className="sr-only"
       />
     </label>

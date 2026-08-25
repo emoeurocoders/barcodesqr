@@ -45,7 +45,9 @@ export const fieldLabels: Record<string, string> = {
   "businessName": "Business name",
   "reviewPrompt": "Message shown to customers",
   "websiteUrl": "Enter your website",
-  "websiteUrlHint": "The link people land on when they scan your code.",
+  "wifiRouter": "Can't find these details? Check the sticker on your router — it usually lists the network name, password, and security type.",
+  "feedbackRedirect": "Scanning sends people straight to your link — a survey, review page, or any feedback form.",
+  "paymentRedirect": "Payments are handled by your chosen provider. BarcodesQR simply sends scanners to your payment page.",
   "required": "Required",
   "firstName": "First name",
   "lastName": "Last name",
@@ -126,6 +128,73 @@ export const fieldLabels: Record<string, string> = {
 };
 
 /** Section headings and their sub-labels, used to group longer forms. */
+/**
+ * The copy behind each field's ⓘ. Keyed by a field's `tip`, which is a
+ * separate namespace from `labelKey` — several fields point both at the same
+ * key, and the label and the explanation are not the same sentence.
+ */
+export const fieldTips: Record<string, string> = {
+  "websiteUrl": "The link people open when they scan your code.",
+  "wifiSsid": "Your network name (SSID) — usually printed on the router.",
+  "wifiSecurity": "Most modern routers use WPA/WPA2 — pick that if unsure.",
+  "wifiPassword": "Scanners connect automatically using this password.",
+  "emailTo": "The address that receives the email when scanned.",
+  "emailSubject": "A preset subject line. Optional — the scanner can change it.",
+  "emailBody": "A pre-written message. Optional — the scanner can edit it.",
+  "smsPhone": "The number people text after scanning.",
+  "smsMessage": "Pre-filled message text — the scanner can edit before sending.",
+  "waPhone": "The number people message on WhatsApp after scanning.",
+  "waMessage": "Pre-filled chat text — the scanner just taps send.",
+  "phoneDial": "The number people call after scanning.",
+  "iosUrl": "Where iPhone users are sent — your Apple App Store page.",
+  "androidUrl": "Where Android users are sent — your Google Play page.",
+  "fallbackUrl": "Where everyone else lands (desktop and other devices).",
+  "paymentProvider": "The payment service you use to collect money.",
+  "paymentLink": "Your provider's checkout or payment page — we just redirect to it.",
+  "feedbackUrl": "Your survey, review, or form link — scanners go straight there.",
+  "locationAddress": "The place that opens in Google Maps when scanned.",
+};
+
+/** Copy shown as small print under a field, keyed by its `hintKey`. */
+export const fieldHints: Record<string, string> = {
+  "paymentLink":
+    "Paste your payment link — payments are completed on your provider's page.",
+};
+
+/** Dial codes offered beside every international phone field. */
+export const dialCodes: { value: string; label: string }[] = [
+  { value: "+1", label: "\uD83C\uDDFA\uD83C\uDDF8 +1" },
+  { value: "+1-CA", label: "\uD83C\uDDE8\uD83C\uDDE6 +1" },
+  { value: "+44", label: "\uD83C\uDDEC\uD83C\uDDE7 +44" },
+  { value: "+353", label: "\uD83C\uDDEE\uD83C\uDDEA +353" },
+  { value: "+61", label: "\uD83C\uDDE6\uD83C\uDDFA +61" },
+  { value: "+64", label: "\uD83C\uDDF3\uD83C\uDDFF +64" },
+  { value: "+49", label: "\uD83C\uDDE9\uD83C\uDDEA +49" },
+  { value: "+33", label: "\uD83C\uDDEB\uD83C\uDDF7 +33" },
+  { value: "+34", label: "\uD83C\uDDEA\uD83C\uDDF8 +34" },
+  { value: "+351", label: "\uD83C\uDDF5\uD83C\uDDF9 +351" },
+  { value: "+39", label: "\uD83C\uDDEE\uD83C\uDDF9 +39" },
+  { value: "+31", label: "\uD83C\uDDF3\uD83C\uDDF1 +31" },
+  { value: "+32", label: "\uD83C\uDDE7\uD83C\uDDEA +32" },
+  { value: "+41", label: "\uD83C\uDDE8\uD83C\uDDED +41" },
+  { value: "+43", label: "\uD83C\uDDE6\uD83C\uDDF9 +43" },
+  { value: "+46", label: "\uD83C\uDDF8\uD83C\uDDEA +46" },
+  { value: "+47", label: "\uD83C\uDDF3\uD83C\uDDF4 +47" },
+  { value: "+45", label: "\uD83C\uDDE9\uD83C\uDDF0 +45" },
+  { value: "+358", label: "\uD83C\uDDEB\uD83C\uDDEE +358" },
+  { value: "+48", label: "\uD83C\uDDF5\uD83C\uDDF1 +48" },
+  { value: "+91", label: "\uD83C\uDDEE\uD83C\uDDF3 +91" },
+  { value: "+65", label: "\uD83C\uDDF8\uD83C\uDDEC +65" },
+  { value: "+81", label: "\uD83C\uDDEF\uD83C\uDDF5 +81" },
+  { value: "+82", label: "\uD83C\uDDF0\uD83C\uDDF7 +82" },
+  { value: "+86", label: "\uD83C\uDDE8\uD83C\uDDF3 +86" },
+  { value: "+971", label: "\uD83C\uDDE6\uD83C\uDDEA +971" },
+  { value: "+27", label: "\uD83C\uDDFF\uD83C\uDDE6 +27" },
+  { value: "+55", label: "\uD83C\uDDE7\uD83C\uDDF7 +55" },
+  { value: "+52", label: "\uD83C\uDDF2\uD83C\uDDFD +52" },
+  { value: "+54", label: "\uD83C\uDDE6\uD83C\uDDF7 +54" },
+];
+
 export const sections: Record<string, { title: string; desc: string }> = {
   "personal": {
     "title": "Personal information",
@@ -261,6 +330,7 @@ export const fieldSchema: Record<string, Field[]> = {
       "labelKey": "phone",
       "type": "phone-intl",
       "required": true,
+      "placeholder": "+1",
       "tip": "smsPhone"
     },
     {
@@ -278,6 +348,7 @@ export const fieldSchema: Record<string, Field[]> = {
       "labelKey": "waNumber",
       "type": "phone-intl",
       "required": true,
+      "placeholder": "+1",
       "tip": "waPhone"
     },
     {

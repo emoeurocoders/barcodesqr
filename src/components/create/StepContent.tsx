@@ -16,7 +16,14 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { fieldSchema, fieldLabels, sections as sectionMeta } from "./fieldSchema";
+import {
+  fieldSchema,
+  fieldLabels,
+  fieldTips,
+  fieldHints,
+  dialCodes,
+  sections as sectionMeta,
+} from "./fieldSchema";
 import type { Field } from "./fieldSchema";
 import { allTypes } from "./qrTypes";
 import { hasTracking } from "./encodeQr";
@@ -67,30 +74,52 @@ function Counter({ value, max }: { value: string; max: number }) {
   );
 }
 
-/** Fields whose `showIf` condition is not met are hidden entirely. */
+/**
+ * Fields whose `showIf` condition is not met are hidden entirely.
+ *
+ * Every condition in the schema is written as `{ field, equals | notEquals }`.
+ * Reading it as a plain field->value map instead — which is what this did —
+ * matched nothing, so vCard's address block and WiFi's password were
+ * unreachable rather than conditional.
+ */
 function visible(f: Field, values: Values) {
-  if (!f.showIf) return true;
-  return Object.entries(f.showIf).every(([k, expected]) => {
-    const actual = values[k] ?? "";
-    if (Array.isArray(expected)) return expected.includes(actual);
-    if (typeof expected === "boolean") return (actual === "true") === expected;
-    return actual === expected;
-  });
+  const cond = f.showIf as
+    | { field?: string; equals?: unknown; notEquals?: unknown }
+    | undefined;
+  if (!cond?.field) return true;
+
+  const actual = values[cond.field] ?? "";
+  if ("equals" in cond) return actual === cond.equals;
+  if ("notEquals" in cond) return actual !== cond.notEquals;
+  return true;
 }
 
 function FieldControl({
   field,
   value,
+  values,
   onChange,
+  dial,
+  onDialChange,
 }: {
   field: Field;
   value: string;
+  values: Values;
   onChange: (v: string) => void;
+  dial: string;
+  onDialChange: (v: string) => void;
 }) {
+  // `placeholderFrom` makes the example follow another field — the payment
+  // link shows a PayPal shape once PayPal is the provider.
+  const from = field.placeholderFrom;
+  const placeholder = from
+    ? (from.map[values[from.field] ?? ""] ?? from.fallback ?? field.placeholder)
+    : field.placeholder;
+
   const common = {
     id: field.name,
     className: inputClass,
-    placeholder: field.placeholder,
+    placeholder,
     maxLength: field.maxLength,
     value,
     onChange: (
@@ -112,12 +141,38 @@ function FieldControl({
     case "select":
       return (
         <select {...common} className={`${inputClass} cursor-pointer`}>
+          {field.placeholder && (
+            <option value="" disabled>
+              {field.placeholder}
+            </option>
+          )}
           {field.options?.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
           ))}
         </select>
+      );
+
+    // A dial-code picker welded to the number, so the country is never
+    // guessed from whatever the user happened to type.
+    case "phone-intl":
+      return (
+        <div className="flex gap-2">
+          <select
+            aria-label="Country code"
+            className={`${inputClass} w-[104px] shrink-0 cursor-pointer px-2 text-sm`}
+            value={dial}
+            onChange={(e) => onDialChange(e.target.value)}
+          >
+            {dialCodes.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <input {...common} type="tel" />
+        </div>
       );
 
     case "segment":
@@ -167,18 +222,15 @@ function FieldControl({
             Max size: {field.maxSizeMb ?? 5} MB •{" "}
             {field.formats ?? "PNG, JPG, JPEG, etc."}
           </p>
-          <p className="mt-2 text-[11px] text-faint">
-            Uploads arrive with the hosting service.
-          </p>
         </div>
       );
 
     case "info":
       return (
-        <p className="flex items-start gap-2 rounded-lg bg-bg-alt/60 px-3 py-2.5 text-xs leading-relaxed text-muted">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-faint" />
+        <div className="flex items-start gap-2.5 rounded-xl border border-line bg-bg px-4 py-3 text-sm text-muted">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
           {label(field)}
-        </p>
+        </div>
       );
 
     case "links":
@@ -202,7 +254,7 @@ function FieldControl({
               ? field.type
               : field.type === "email"
                 ? "email"
-                : field.type === "tel" || field.type === "phone-intl"
+                : field.type === "tel"
                   ? "tel"
                   : field.type === "url"
                     ? "url"
@@ -216,21 +268,36 @@ function FieldControl({
 function FieldRow({
   field,
   value,
+  values,
   onChange,
+  dial,
+  onDialChange,
 }: {
   field: Field;
   value: string;
+  values: Values;
   onChange: (v: string) => void;
+  dial: string;
+  onDialChange: (v: string) => void;
 }) {
   const span = field.half ? "sm:col-span-1" : "col-span-full";
+  const control = (
+    <FieldControl
+      field={field}
+      value={value}
+      values={values}
+      onChange={onChange}
+      dial={dial}
+      onDialChange={onDialChange}
+    />
+  );
+  const hint = field.hintKey ? fieldHints[field.hintKey] : undefined;
 
   if (field.type === "info" || field.type === "checkbox") {
-    return (
-      <div className={span}>
-        <FieldControl field={field} value={value} onChange={onChange} />
-      </div>
-    );
+    return <div className={span}>{control}</div>;
   }
+
+  const tip = field.tip ? fieldTips[field.tip] : undefined;
 
   return (
     <div className={span}>
@@ -239,8 +306,10 @@ function FieldRow({
           {label(field)}
           {field.required && <span className="ml-0.5 text-danger">*</span>}
         </label>
+        {tip && <InfoTip label={tip} />}
       </div>
-      <FieldControl field={field} value={value} onChange={onChange} />
+      {control}
+      {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
       {field.maxLength && <Counter value={value} max={field.maxLength} />}
     </div>
   );
@@ -302,7 +371,10 @@ function Section({
                   key={f.name}
                   field={f}
                   value={values[f.name] ?? ""}
+                  values={values}
                   onChange={(v) => set(f.name, v)}
+                  dial={values[`${f.name}Country`] ?? dialCodes[0].value}
+                  onDialChange={(v) => set(`${f.name}Country`, v)}
                 />
               ))}
             </div>
@@ -368,7 +440,7 @@ export function StepContent({
         )}
         <div>
           <h2 className="text-lg font-semibold tracking-heading text-ink">
-            {meta?.label ?? type}
+            {meta?.stepLabel ?? meta?.label ?? type}
           </h2>
           <p className="text-sm text-muted">{meta?.stepDesc ?? meta?.desc}</p>
         </div>
@@ -386,7 +458,10 @@ export function StepContent({
                     key={f.name}
                     field={f}
                     value={values[f.name] ?? ""}
+                    values={values}
                     onChange={(v) => set(f.name, v)}
+                    dial={values[`${f.name}Country`] ?? dialCodes[0].value}
+                    onDialChange={(v) => set(`${f.name}Country`, v)}
                   />
                 ))}
               </div>
