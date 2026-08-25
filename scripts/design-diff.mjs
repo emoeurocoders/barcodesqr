@@ -72,6 +72,7 @@ function parseArgs() {
     session: flag('session'),
     click: flag('click'),
     clickExact: flag('click-exact'),
+    clickPort: flag('click-port'),
     out: flag('out') ?? '/tmp/design-diff',
     wait: Number(flag('wait') ?? 2500),
   };
@@ -128,12 +129,15 @@ async function capture(send, evaluate, url, args, applySession) {
   // UI, and the design side is exactly the side that needs opening. Gating it
   // on `applySession` (i.e. "is this the port?") silently diffed the design's
   // closed state against the port's open one.
-  if (args.click || args.clickExact) {
+  // The port may label the same thing differently from the design — a format
+  // the mockup calls "Plain Text" and the product calls "Text". --click-port
+  // names the port's wording so both sides still land on the same screen.
+  const exact = applySession ? (args.clickPort ?? args.clickExact) : args.clickExact;
+  const loose = applySession ? (args.clickPort ?? args.click) : args.click;
+  if (loose || exact) {
     await evaluate(`(() => {
       ${CLICK_FINDER}
-      const el = find(${JSON.stringify(args.clickExact ?? args.click ?? '')}, ${Boolean(
-        args.clickExact,
-      )});
+      const el = find(${JSON.stringify(exact ?? loose ?? '')}, ${Boolean(exact)});
       if (el) el.click();
     })()`);
     await new Promise((r) => setTimeout(r, 1200));

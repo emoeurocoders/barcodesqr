@@ -1,7 +1,6 @@
 import {
   Globe,
   Briefcase,
-  Contact,
   Link as LinkIcon,
   Share2,
   Smartphone,
@@ -13,21 +12,24 @@ import {
   Utensils,
   UtensilsCrossed,
   MapPin,
-  CalendarDays,
   Mail,
   MessageSquare,
   Phone,
   Type,
   CreditCard,
   Music,
-  TicketPercent,
+  Ticket,
   Star,
   Building2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ReviewIcon } from "@/components/ui/ReviewIcon";
+import {
+  ContactIcon,
+  CalendarDaysIcon,
+} from "@/components/ui/CreatorIcons";
 
-export type QrTypeIcon = LucideIcon | typeof ReviewIcon;
+export type QrTypeIcon = LucideIcon | typeof ReviewIcon | typeof ContactIcon;
 
 export type CreateQrType = {
   value: string;
@@ -69,7 +71,7 @@ export const primaryTypes: CreateQrType[] = [
     label: "vCard",
     desc: "Share a digital business card",
     color: "#2563EB",
-    icon: Contact,
+    icon: ContactIcon,
   },
   {
     value: "multilink",
@@ -162,7 +164,7 @@ export const primaryTypes: CreateQrType[] = [
     label: "Event",
     desc: "Promote your event",
     color: "#3B82F6",
-    icon: CalendarDays,
+    icon: CalendarDaysIcon,
     stepDesc: "Add an event to the calendar",
   },
   {
@@ -223,7 +225,7 @@ export const secondaryTypes: CreateQrType[] = [
     label: "Coupon",
     desc: "",
     color: "#EF4444",
-    icon: TicketPercent,
+    icon: Ticket,
     stepDesc: "Share a redeemable coupon",
   },
   {

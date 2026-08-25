@@ -3,11 +3,10 @@
 import { useState } from "react";
 import {
   BadgeCheck,
-  Upload,
+  CloudUpload,
   Info,
   Pencil,
   ChevronDown,
-  Contact,
   Image as ImageIcon,
   Phone,
   Building2,
@@ -15,7 +14,6 @@ import {
   Share2,
   Link as LinkIcon,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import {
   fieldSchema,
   fieldLabels,
@@ -26,15 +24,18 @@ import {
 } from "./fieldSchema";
 import type { Field } from "./fieldSchema";
 import { allTypes } from "./qrTypes";
+import type { QrTypeIcon } from "./qrTypes";
 import { hasTracking } from "./encodeQr";
 import { InfoTip } from "./InfoTip";
+import { ContactIcon } from "@/components/ui/CreatorIcons";
 
 type Values = Record<string, string>;
 
 const label = (f: Field) => fieldLabels[f.labelKey] ?? f.labelKey;
 
-const sectionIcons: Record<string, LucideIcon> = {
-  personal: Contact,
+/** Section glyphs. Not all are lucide — see `CreatorIcons`. */
+const sectionIcons: Record<string, QrTypeIcon> = {
+  personal: ContactIcon,
   photo: ImageIcon,
   contact: Phone,
   company: Building2,
@@ -200,12 +201,12 @@ function FieldControl({
 
     case "checkbox":
       return (
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-body">
+        <label className="flex items-center gap-2.5 py-1 text-sm text-ink">
           <input
             type="checkbox"
             checked={value === "true"}
             onChange={(e) => onChange(String(e.target.checked))}
-            className="h-4 w-4 accent-primary"
+            className="h-4 w-4 rounded border-line text-primary focus:ring-primary/30"
           />
           {label(field)}
         </label>
@@ -213,23 +214,24 @@ function FieldControl({
 
     case "file":
       return (
-        <div className="rounded-lg border border-dashed border-line bg-bg-alt/40 px-4 py-8 text-center">
-          <Upload className="mx-auto h-5 w-5 text-primary" />
-          <p className="mt-2 text-sm font-medium text-ink">
+        <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line bg-bg px-4 py-8 text-center transition-colors hover:border-primary/50">
+          <CloudUpload className="h-7 w-7 text-primary" />
+          <span className="text-sm font-medium text-ink">
             Click to upload or drag &amp; drop your {label(field)}
-          </p>
-          <p className="mt-1 text-xs text-muted">
+          </span>
+          <span className="text-xs text-muted">
             Max size: {field.maxSizeMb ?? 5} MB •{" "}
             {field.formats ?? "PNG, JPG, JPEG, etc."}
-          </p>
-        </div>
+          </span>
+          <input type="file" accept={field.accept} className="hidden" />
+        </label>
       );
 
     case "info":
       return (
         <div className="flex items-start gap-2.5 rounded-xl border border-line bg-bg px-4 py-3 text-sm text-muted">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
-          {label(field)}
+          <span>{label(field)}</span>
         </div>
       );
 

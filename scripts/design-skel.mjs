@@ -162,8 +162,13 @@ function walkerFor(root, { classes, styles }) {
             'box:' + Math.round(r.width) + 'x' + Math.round(r.height),
             'font:' + cs.fontFamily.split(',')[0].replace(/"/g, '') + '/' + cs.fontSize + '/' + cs.fontWeight,
             'pad:' + cs.padding,
-            'border:' + cs.borderTopWidth + ' ' + cs.borderTopStyle,
+            'border:' + cs.borderTopWidth + ' ' + cs.borderTopStyle + ' ' + cs.borderTopColor,
             'bg:' + cs.backgroundColor,
+            // Gradients live in background-image, not backgroundColor: without
+            // this a gradient-filled panel reads as transparent.
+            ...(cs.backgroundImage && cs.backgroundImage !== 'none'
+              ? ['bgimg:' + cs.backgroundImage.replace(/\\s+/g, ' ')]
+              : []),
             'color:' + cs.color,
           ].join(' ') +
           '}';
