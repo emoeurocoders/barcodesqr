@@ -31,6 +31,9 @@
   --color-success: #11b1a7;
   --color-warning: #ffb846;
   --color-danger: #ef4444;
+  /* Form validation red. Darker than `danger`, which marks required fields —
+     the designer uses this one for every error message and invalid border. */
+  --color-error: #cc0000;
 
   /* Radius */
   --radius-btn: 0.75rem;

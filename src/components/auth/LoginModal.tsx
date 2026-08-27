@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import Link from "next/link";
 import { Lock, Mail } from "lucide-react";
 
@@ -17,9 +17,30 @@ import { PaywallShell } from "@/components/paywall/PaywallShell";
  */
 export function LoginModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState("");
-  const [state, action, pending] = useActionState(requestSignInLink, undefined);
+  const [emailError, setEmailError] = useState<string>();
+  const [state, runSignIn] = useActionState(requestSignInLink, undefined);
+  const [pending, startTransition] = useTransition();
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  /**
+   * The button is never disabled before it is pressed. The designer's
+   * `.btnDisabled` only changes the cursor — the dimming is commented out —
+   * so it reads as live, and pressing it is what surfaces the error. Greying
+   * it out instead leaves people with nothing to click and no explanation.
+   */
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const value = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setEmailError("Enter Your Email");
+      return;
+    }
+    setEmailError(undefined);
+    const payload = new FormData();
+    payload.set("email", value);
+    startTransition(() => runSignIn(payload));
+  };
+
+  const invalid = !!(emailError || state?.error);
 
   return (
     <PaywallShell onClose={onClose} maxWidth="max-w-[480px]">
@@ -79,7 +100,7 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
               <span className="flex-1 border-t border-[#e2e6ec]" />
             </div>
 
-            <form action={action} className="mt-3">
+            <form onSubmit={submit} noValidate className="mt-3">
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-faint" />
                 <input
@@ -91,25 +112,25 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  aria-invalid={!!state?.error}
-                  className="h-14 w-full rounded-xl border border-line bg-white pl-11 pr-4 text-[15px] leading-[normal] text-ink placeholder:text-faint focus:border-primary focus:outline-none"
+                  aria-invalid={invalid}
+                  className={`h-14 w-full rounded-xl border bg-white pl-11 pr-4 text-[15px] leading-[normal] text-ink placeholder:text-faint focus:outline-none ${
+                    invalid
+                      ? "border-error focus:border-error"
+                      : "border-line focus:border-primary"
+                  }`}
                 />
               </div>
 
-              {state?.error && (
-                <small className="block pt-1 text-xs text-danger">
-                  {state.error}
+              {invalid && (
+                <small className="block pt-[0.2em] text-left text-xs text-error">
+                  {emailError ?? state?.error}
                 </small>
               )}
 
               <button
                 type="submit"
-                disabled={!emailValid || pending}
-                className={`mt-1.5 flex h-14 w-full items-center justify-center rounded-xl border text-[17px] font-bold text-white transition-colors ${
-                  emailValid && !pending
-                    ? "cursor-pointer border-primary bg-primary hover:border-primary-dark hover:bg-primary-dark"
-                    : "cursor-not-allowed border-primary/45 bg-primary/45"
-                }`}
+                disabled={pending}
+                className="mt-1.5 flex h-14 w-full cursor-pointer items-center justify-center rounded-xl border border-primary bg-primary text-[17px] font-bold text-white transition-colors hover:border-primary-dark hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {pending ? "Sending…" : "Continue with Email"}
               </button>

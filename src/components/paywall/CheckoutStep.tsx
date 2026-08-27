@@ -38,8 +38,15 @@ const features: {
   },
 ];
 
-const inputClass =
-  "block h-[41px] w-full rounded-[9px] border border-line bg-white px-[11px] text-[15px] leading-[normal] text-ink placeholder:text-faint focus:border-primary focus:outline-none";
+const inputBase =
+  "block h-[41px] w-full rounded-[9px] border bg-white px-[11px] text-[15px] leading-[normal] text-ink placeholder:text-faint focus:outline-none";
+
+/** Invalid fields take the designer's error red on the border too. */
+const ring = (invalid?: boolean) =>
+  invalid
+    ? "border-error focus:border-error"
+    : "border-line focus:border-primary";
+
 
 function Field({
   label,
@@ -55,7 +62,9 @@ function Field({
       <p className="text-[13.5px] font-medium text-body">{label}</p>
       <div className="relative mt-[5px]">{children}</div>
       {error && (
-        <small className="block pt-1 text-xs text-danger">{error}</small>
+        <small className="block pt-[0.2em] text-left text-xs text-error">
+          {error}
+        </small>
       )}
     </div>
   );
@@ -227,10 +236,10 @@ export function CheckoutStep({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               aria-invalid={!!(emailError || state?.error)}
-              className={`${inputClass} pl-11`}
+              className={`${inputBase} ${ring(!!(emailError || state?.error))} pl-11`}
             />
             {(emailError || state?.error) && (
-              <small className="block pt-1 text-xs text-danger">
+              <small className="block pt-[0.2em] text-left text-xs text-error">
                 {emailError ?? state?.error}
               </small>
             )}
@@ -279,11 +288,11 @@ export function CheckoutStep({
                 type="tel"
                 inputMode="numeric"
                 autoComplete="cc-number"
-                name="ccnumber"
+name="ccnumber"
                 placeholder="1234-1234-1234-1234"
                 value={fields.number}
                 onChange={(e) => set("number", formatCardNumber(e.target.value))}
-                className={`${inputClass} pr-[88px]`}
+                className={`${inputBase} ${ring(!!errors.number)} pr-[88px]`}
                 aria-invalid={!!errors.number}
               />
               <span className="pointer-events-none absolute right-[11px] top-0 flex h-[41px] items-center gap-[5px]">
@@ -298,11 +307,11 @@ export function CheckoutStep({
                   type="tel"
                   inputMode="numeric"
                   autoComplete="cc-exp"
-                  name="ccexp"
+  name="ccexp"
                   placeholder="MM/YY"
                   value={fields.expiry}
                   onChange={(e) => set("expiry", formatExpiry(e.target.value))}
-                  className={inputClass}
+                  className={`${inputBase} ${ring(!!errors.expiry)}`}
                   aria-invalid={!!errors.expiry}
                 />
               </Field>
@@ -312,11 +321,11 @@ export function CheckoutStep({
                   type="tel"
                   inputMode="numeric"
                   autoComplete="cc-csc"
-                  name="cvv"
+  name="cvv"
                   placeholder="(Back of card)"
                   value={fields.cvc}
                   onChange={(e) => set("cvc", formatCvc(e.target.value))}
-                  className={`${inputClass} pr-[53px]`}
+                  className={`${inputBase} ${ring(!!errors.cvc)} pr-[53px]`}
                   aria-invalid={!!errors.cvc}
                 />
                 <span className="pointer-events-none absolute right-[11px] top-0 flex h-[41px] items-center">
@@ -330,11 +339,11 @@ export function CheckoutStep({
                 <input
                   type="text"
                   autoComplete="cc-name"
-                  name="name-first"
+  name="name-first"
                   placeholder="Full name"
                   value={fields.name}
                   onChange={(e) => set("name", e.target.value)}
-                  className={inputClass}
+                  className={`${inputBase} ${ring(!!errors.name)}`}
                   aria-invalid={!!errors.name}
                 />
               </Field>
