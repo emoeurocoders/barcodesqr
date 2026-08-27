@@ -1,25 +1,44 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 
 /**
- * The lightbox both paywall steps sit in.
+ * The lightbox the paywall and the login modal sit in.
  *
  * The mockup uses remodal; vendor scripts are never ported, so this is the
- * same box driven by React — one panel, 976px at most, Escape and
- * click-outside to close, and the page behind it locked so a long modal does
- * not scroll the create flow underneath it.
+ * same box driven by React — Escape and click-outside to close, and the page
+ * behind it locked so a long modal does not scroll what is underneath.
+ *
+ * Rendered through a portal on purpose. `position: fixed` is resolved against
+ * the nearest ancestor with a filter, transform or backdrop-filter rather
+ * than the viewport, and the site header has `backdrop-blur` — mounting the
+ * login modal inside it clipped the whole dialog to a 64px strip. A portal
+ * puts it on <body> wherever it is called from.
  */
+/** The "am I hydrated" store never changes, so it never notifies. */
+const subscribeNever = () => () => {};
+
 export function PaywallShell({
   onClose,
   closeLabel = "Close",
+  maxWidth = "max-w-[976px]",
   children,
 }: {
   onClose: () => void;
   closeLabel?: string;
+  /** The login modal is a narrower box in the same frame. */
+  maxWidth?: string;
   children: React.ReactNode;
 }) {
   const panel = useRef<HTMLDivElement>(null);
+  // `document` only exists in the browser, so there is nothing to portal into
+  // until hydration. Read as an external store rather than set in an effect.
+  const mounted = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -43,7 +62,9 @@ export function PaywallShell({
     };
   }, [onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/60 p-5"
       onMouseDown={(e) => {
@@ -59,7 +80,7 @@ export function PaywallShell({
         // line-height on paragraphs, so they fall back to the font's own,
         // where Tailwind's preflight would impose 1.5 and stretch the modal.
         // Anything the designer DOES specify is set explicitly inside.
-        className="relative my-auto max-h-[calc(100vh-40px)] w-full max-w-[976px] overflow-y-auto rounded-[20px] bg-white leading-[normal] shadow-modal outline-none"
+        className={`relative my-auto max-h-[calc(100vh-40px)] w-full ${maxWidth} overflow-y-auto rounded-[20px] bg-white leading-[normal] shadow-modal outline-none`}
       >
         <button
           type="button"
@@ -85,6 +106,7 @@ export function PaywallShell({
 
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

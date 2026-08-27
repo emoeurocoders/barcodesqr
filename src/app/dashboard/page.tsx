@@ -16,7 +16,8 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  // Sign-in lives in a modal now, so send them home with it open.
+  if (!session?.user) redirect("/?signin=1");
 
   // Saving codes to an account lands next; until then there is nothing to
   // list. Point this at the query when it exists — the table below already

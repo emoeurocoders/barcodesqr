@@ -11,12 +11,19 @@ import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
 import { ReadyCta } from "@/components/sections/ReadyCta";
 
-export default async function Home() {
-  const session = await auth();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ signin?: string }>;
+}) {
+  const [session, { signin }] = await Promise.all([auth(), searchParams]);
 
   return (
     <>
-      <Header user={session?.user} />
+      {/* `?signin=` is how a signed-out visit to a protected page, or a stale
+          sign-in link, arrives here. Read on the server so the header does
+          not need `useSearchParams` and the page can still be prerendered. */}
+      <Header user={session?.user} openLogin={!!signin && !session?.user} />
       <main>
         <Hero />
         <TrustBar />

@@ -29,4 +29,34 @@ export const env = {
   get AUTH_SECRET() {
     return required("AUTH_SECRET");
   },
+
+  /** Resend API key. Absent means sign-in links cannot be delivered. */
+  get RESEND_API_KEY() {
+    return process.env.RESEND_API_KEY ?? "";
+  },
+
+  /** Sender for the sign-in link. Its domain must be verified in Resend. */
+  get EMAIL_FROM() {
+    return process.env.EMAIL_FROM ?? "";
+  },
+
+  /**
+   * Canonical origin the sign-in link points at.
+   *
+   * Deliberately configured rather than read from the request's Host header:
+   * an attacker who can set Host would otherwise redirect the link — and the
+   * token inside it — to a domain they control.
+   */
+  get APP_URL() {
+    return (process.env.APP_URL ?? "").replace(/\/$/, "");
+  },
+
+  /** True once all three are present and links can actually be sent. */
+  get emailConfigured() {
+    return !!(
+      process.env.RESEND_API_KEY &&
+      process.env.EMAIL_FROM &&
+      process.env.APP_URL
+    );
+  },
 };

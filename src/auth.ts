@@ -138,6 +138,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   pages: {
-    signIn: "/login",
+    // There is no sign-in page any more — the modal on the home page is the
+    // only way in, because an account cannot exist until a QR code is paid
+    // for. `?signin=1` tells the home page to open it.
+    signIn: "/?signin=1",
   },
 });

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, X, QrCode } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
+import { LoginModal } from "@/components/auth/LoginModal";
 
 const navLinks = [
   { href: "/#features", label: "Features" },
@@ -13,8 +14,16 @@ const navLinks = [
   { href: "/help", label: "Help" },
 ];
 
-export function Header({ user }: { user?: { name?: string | null } | null }) {
+export function Header({
+  user,
+  openLogin = false,
+}: {
+  user?: { name?: string | null } | null;
+  /** Start with the login modal open — see the home page. */
+  openLogin?: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const [login, setLogin] = useState(openLogin);
   const signedIn = Boolean(user);
 
   return (
@@ -30,9 +39,15 @@ export function Header({ user }: { user?: { name?: string | null } | null }) {
         </Link>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link href={signedIn ? "/dashboard" : "/login"}>
-            <Button variant="ghost">{signedIn ? "Dashboard" : "Log in"}</Button>
-          </Link>
+          {signedIn ? (
+            <Link href="/dashboard">
+              <Button variant="ghost">Dashboard</Button>
+            </Link>
+          ) : (
+            <Button variant="ghost" onClick={() => setLogin(true)}>
+              Log in
+            </Button>
+          )}
           <Link href="/create">
             <Button>
               <QrCode className="h-4 w-4" aria-hidden="true" />
@@ -76,14 +91,25 @@ export function Header({ user }: { user?: { name?: string | null } | null }) {
               </Link>
             ))}
             <div className="mt-3 flex flex-col gap-2 border-t border-line pt-4">
-              <Link
-                href={signedIn ? "/dashboard" : "/login"}
-                onClick={() => setOpen(false)}
-              >
-                <Button variant="outline" size="lg" fullWidth>
-                  {signedIn ? "Dashboard" : "Log in"}
+              {signedIn ? (
+                <Link href="/dashboard" onClick={() => setOpen(false)}>
+                  <Button variant="outline" size="lg" fullWidth>
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  fullWidth
+                  onClick={() => {
+                    setOpen(false);
+                    setLogin(true);
+                  }}
+                >
+                  Log in
                 </Button>
-              </Link>
+              )}
               <Link href="/create" onClick={() => setOpen(false)}>
                 <Button size="lg" fullWidth>
                   <QrCode className="h-4 w-4" aria-hidden="true" />
@@ -94,6 +120,7 @@ export function Header({ user }: { user?: { name?: string | null } | null }) {
           </nav>
         </div>
       )}
+      {login && <LoginModal onClose={() => setLogin(false)} />}
     </header>
   );
 }
