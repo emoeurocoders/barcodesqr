@@ -12,7 +12,13 @@ export type PaywallFormState = { error?: string } | undefined;
 const TOKEN_TTL_MS = 10 * 60 * 1000;
 
 /**
- * Claim the account after checkout, from the email typed into the paywall.
+ * Claim the account at checkout.
+ *
+ * Email and card are collected on one screen now, so this runs once, at the
+ * end. It receives ONLY the email: the caller builds the payload by hand
+ * rather than letting the form serialise itself, precisely so the card
+ * fields sitting in the same <form> never cross the network. Check
+ * `CheckoutStep` before changing how this is called.
  *
  * SECURITY — read before changing:
  *
@@ -29,7 +35,7 @@ const TOKEN_TTL_MS = 10 * 60 * 1000;
  * of payment) plus an emailed link (proof of address); this comment should be
  * deleted the day either lands.
  */
-export async function completeAccount(
+export async function checkout(
   _prev: PaywallFormState,
   formData: FormData,
 ): Promise<PaywallFormState> {

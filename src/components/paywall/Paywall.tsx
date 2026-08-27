@@ -2,45 +2,30 @@
 
 import type { QrStyle } from "@/components/create/QrPreview";
 import { PaywallShell } from "./PaywallShell";
-import { PayStep } from "./PayStep";
-import { AccountStep } from "./AccountStep";
-import type { PaywallStage } from "./usePaywall";
+import { CheckoutStep } from "./CheckoutStep";
 
 /**
- * The paywall lightbox: checkout, then account.
+ * The paywall lightbox.
  *
  * Rendered by whoever owns the state so the QR being bought is the one on
  * screen, not a stand-in.
  */
 export function Paywall({
-  stage,
+  open,
   qrValue,
   qrStyle,
   onClose,
-  onPaid,
 }: {
-  stage: PaywallStage;
+  open: boolean;
   qrValue: string;
   qrStyle: QrStyle;
   onClose: () => void;
-  onPaid: () => void;
 }) {
-  if (!stage) return null;
+  if (!open) return null;
 
   return (
-    <PaywallShell
-      onClose={onClose}
-      closeLabel={
-        stage === "account"
-          ? "Close — your QR code stays saved until you finish"
-          : "Close"
-      }
-    >
-      {stage === "pay" ? (
-        <PayStep qrValue={qrValue} qrStyle={qrStyle} onPaid={onPaid} />
-      ) : (
-        <AccountStep qrValue={qrValue} qrStyle={qrStyle} />
-      )}
+    <PaywallShell onClose={onClose}>
+      <CheckoutStep qrValue={qrValue} qrStyle={qrStyle} />
     </PaywallShell>
   );
 }

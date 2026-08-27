@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 // `Download` is shelved with step 3.
-import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StepRail } from "./StepRail";
 import { TypePicker } from "./TypePicker";
 import { StepContent } from "./StepContent";
@@ -90,9 +90,6 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
    * put it because a static page has nowhere else to go.
    */
   const paywall = usePaywall();
-  useEffect(() => {
-    if (entitled) paywall.forgetPaid();
-  }, [entitled, paywall]);
 
   /**
    * Step 2's Next is the gate. The code is fully described by this point, so
@@ -105,7 +102,7 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
    */
   const finishStepTwo = () => {
     if (entitled) router.push("/dashboard");
-    else paywall.open();
+    else paywall.show();
   };
 
   // Choosing a type advances immediately — on the live creator one click on a
@@ -204,27 +201,10 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
         {step === 1 ? (
           <span />
         ) : (
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            {/* Paid but no account yet: the code is theirs, it is just locked
-                until they finish. Say so instead of showing a dead Next. */}
-            {paywall.paidAwaitingAccount && (
-              <span className="mr-1 text-sm text-muted">
-                Your QR code is saved and locked.
-              </span>
-            )}
-
-            {paywall.paidAwaitingAccount ? (
-              <Button size="lg" onClick={paywall.open}>
-                <Lock className="h-4 w-4" />
-                Complete Your Account
-              </Button>
-            ) : (
-              <Button size="lg" disabled={!complete} onClick={finishStepTwo}>
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+          <Button size="lg" disabled={!complete} onClick={finishStepTwo}>
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         )}
 
         {/* --- STEP 3 FOOTER — SHELVED ------------------------------------
@@ -248,11 +228,10 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
       </div>
 
       <Paywall
-        stage={paywall.stage}
+        open={paywall.open}
         qrValue={qrValue}
         qrStyle={style}
         onClose={paywall.close}
-        onPaid={paywall.markPaid}
       />
     </div>
   );
