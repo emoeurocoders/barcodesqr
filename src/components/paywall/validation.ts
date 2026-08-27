@@ -1,5 +1,5 @@
 /**
- * Card-field formatting and validation for the paywall form.
+ * Field formatting and validation for the two modals.
  *
  * NOTHING here talks to a payment processor, and no value it touches is
  * persisted, logged, or sent anywhere — the numbers live in React state for
@@ -94,4 +94,19 @@ export function validateCard(fields: CardFields): CardErrors {
   if (fields.name.trim().length < 2) errors.name = "Required";
 
   return errors;
+}
+
+/**
+ * Email messages, split the way the designer's validator splits them: the
+ * `data-msg-required` copy when the field is empty, and jQuery Validate's
+ * own `email` message when something was typed that is not an address.
+ * Saying "Enter Your Email" at someone who plainly has is just confusing.
+ */
+export function validateEmail(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "Enter Your Email";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    return "Please enter a valid email address.";
+  }
+  return undefined;
 }

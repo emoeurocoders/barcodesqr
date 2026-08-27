@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Lock, Mail } from "lucide-react";
 
 import { requestSignInLink } from "@/app/actions/signin";
+import { validateEmail } from "@/components/paywall/validation";
 import { GoogleMark, AppleMark } from "@/components/paywall/BrandMarks";
 import { PaywallShell } from "@/components/paywall/PaywallShell";
 
@@ -18,6 +19,10 @@ import { PaywallShell } from "@/components/paywall/PaywallShell";
 export function LoginModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string>();
+  // Mirrors the designer's `errorListen`: a field says nothing while it is
+  // being filled in for the first time, but once it has complained it keeps
+  // up with every keystroke rather than waiting for another submit.
+  const [listening, setListening] = useState(false);
   const [state, runSignIn] = useActionState(requestSignInLink, undefined);
   const [pending, startTransition] = useTransition();
 
@@ -27,16 +32,19 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
    * so it reads as live, and pressing it is what surfaces the error. Greying
    * it out instead leaves people with nothing to click and no explanation.
    */
+  const check = (value: string) => {
+    const message = validateEmail(value);
+    setEmailError(message);
+    if (message) setListening(true);
+    return message;
+  };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const value = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      setEmailError("Enter Your Email");
-      return;
-    }
-    setEmailError(undefined);
+    if (check(email)) return;
+
     const payload = new FormData();
-    payload.set("email", value);
+    payload.set("email", email.trim());
     startTransition(() => runSignIn(payload));
   };
 
@@ -111,7 +119,11 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
                   required
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (listening) check(e.target.value);
+                  }}
+                  onBlur={(e) => check(e.target.value)}
                   aria-invalid={invalid}
                   className={`h-14 w-full rounded-xl border bg-white pl-11 pr-4 text-[15px] leading-[normal] text-ink placeholder:text-faint focus:outline-none ${
                     invalid

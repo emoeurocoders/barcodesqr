@@ -11,8 +11,9 @@ import {
   formatExpiry,
   formatCvc,
   validateCard,
-} from "./cardValidation";
-import type { CardErrors, CardFields } from "./cardValidation";
+  validateEmail,
+} from "./validation";
+import type { CardErrors, CardFields } from "./validation";
 import { VisaMark, MastercardMark, CvcMark, CardMark } from "./PaymentMarks";
 import { GoogleMark, AppleMark, TrackBarsIcon } from "./BrandMarks";
 
@@ -105,9 +106,7 @@ export function CheckoutStep({
     e.preventDefault();
 
     const cardErrors = validateCard(fields);
-    const badEmail = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-      ? "Enter Your Email"
-      : undefined;
+    const badEmail = validateEmail(email);
 
     setErrors(cardErrors);
     setEmailError(badEmail);
