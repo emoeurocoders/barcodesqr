@@ -15,7 +15,7 @@
 <body>
 <div id="lboxCont">
 <!--mainLogin-->
-<div id="modalJoin">
+<div id="modalJoin2">
 	<!--modal-->
 	<div class="modal">
 		<div class="modalCont"> <a class="close" href="#" data-remodal-action="close">
@@ -29,54 +29,75 @@
 			<!--crd-->
 			<div class="crd"> 
 				<!--lft-->
-				<div class="lft"> 
+				<div class="lft">
 					<!--logo-->
 					<div class="logo"><img src="assets/images/main_logo.svg" alt="BarcodesQR"></div>
 					<!--end logo-->
-					<!--pnl-->
-					<div class="pnl">
-						<div class="cap">
-							<h4 class="ln1">Your QR Code is Ready!</h4>
-							<p class="ln2">You're one step away from downloading your QR code and accessing your account.</p>
+					<h4 class="head ln1">Your QR Code Is Ready</h4>
+					<p class="desc ln2">One last step: enter your email or continue with Google or Apple to unlock your download, receipt, and QR dashboard.</p>
+					<!--qr-->
+					<div class="qr"> <img class="tmb" src="assets/images/main_pay_qr_tmb.svg" alt="Your QR code"> <span class="lock"><img src="assets/images/modal_login_ico_lock.svg" alt="Locked"></span> </div>
+					<!--end qr-->
+					<!--feats-->
+					<div class="feats">
+						<!--itm-->
+						<div class="itm">
+							<div class="ico"><img src="assets/images/modal_login_ico_download.svg" alt="Instant download"></div>
+							<div class="txt">
+								<h5 class="ln1">Instant download</h5>
+								<p class="ln3">Get your QR code right away.</p>
+							</div>
 						</div>
-						<!--qr-->
-						<div class="qr">
-							<div class="tmb"><img src="assets/images/main_pay_qr_tmb.svg" alt="Your QR code"></div>
-							<p class="ln2">QR Preview</p>
+						<!--end itm-->
+						<!--itm-->
+						<div class="itm">
+							<div class="ico"><img src="assets/images/modal_login_ico_edit.svg" alt="Edit anytime"></div>
+							<div class="txt">
+								<h5 class="ln1">Edit anytime</h5>
+								<p class="ln3">Update content whenever you need.</p>
+							</div>
 						</div>
-						<!--end qr--> 
-						<!--lst-->
-						<ul class="lst">
-							<li class="itm"><img class="ico" src="assets/images/main_pay_ico_secure.svg" alt="Secure Checkout">
-								<p class="txt">Secure<br>
-									Checkout</p>
-							</li>
-							<li class="itm"><img class="ico" src="assets/images/main_pay_ico_instant.svg" alt="Instant Download">
-								<p class="txt">Instant<br>
-									Download</p>
-							</li>
-							<li class="itm"><img class="ico" src="assets/images/main_pay_ico_support.svg" alt="24/7 Support">
-								<p class="txt">24/7<br>
-									Support</p>
-							</li>
-						</ul>
-						<!--end lst--> 
+						<!--end itm-->
+						<!--itm-->
+						<div class="itm">
+							<div class="ico"><img src="assets/images/modal_login_ico_track.svg" alt="Track scans"></div>
+							<div class="txt">
+								<h5 class="ln1">Track scans</h5>
+								<p class="ln3">See real-time scan analytics.</p>
+							</div>
+						</div>
+						<!--end itm-->
 					</div>
-					<!--end pnl--> 
+					<!--end feats-->
 				</div>
-				<!--end lft--> 
+				<!--end lft-->
 				<!--rgt-->
 				<div class="rgt">
-					<h4 class="ln1">Download Your QR Code</h4>
-					<!--lst-->
-					<ul class="lst">
-						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Download your QR code in PNG, JPG, or SVG</li>
-						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Edit your QR code anytime, even after printing</li>
-						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Create unlimited QR codes</li>
-						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Track scans, devices &amp; locations with analytics</li>
-						<li class="itm"><img src="assets/images/main_pay_ico_check.svg" alt="Check">Customize with colors, logos &amp; frames</li>
-					</ul>
-					<!--end lst--> 
+					<form class=" validate" method="post" action="#" >
+					<h4 class="ln1">Download your QR code</h4>
+					<p class="desc2 ln2">Save your QR code and receipt with Google, Apple, or email.
+						No password required.</p>
+					<!--acts-->
+					<div class="acts"> <a class="btn" href="#" ><span class="ico">
+						<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<path d="M21.6 12.2c0-.64-.06-1.25-.16-1.84H12v3.49h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.24c1.9-1.75 2.98-4.33 2.98-7.17Z" fill="#4285F4"/>
+							<path d="M12 22c2.7 0 4.96-.9 6.62-2.43l-3.24-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.76-5.58-4.12H3.06v2.58A10 10 0 0 0 12 22Z" fill="#34A853"/>
+							<path d="M6.42 13.91a6 6 0 0 1 0-3.82V7.51H3.06a10 10 0 0 0 0 8.98l3.36-2.58Z" fill="#FBBC05"/>
+							<path d="M12 5.98c1.47 0 2.79.5 3.83 1.5l2.87-2.87C16.95 2.99 14.69 2 12 2A10 10 0 0 0 3.06 7.51l3.36 2.58C7.2 7.74 9.4 5.98 12 5.98Z" fill="#EA4335"/>
+						</svg>
+						</span><span class="lbl">Continue with Google</span></a> <a class="btn"  href="#" ><span class="ico">
+						<svg width="20" height="24" viewBox="0 0 24 24" fill="#0b0c0f" xmlns="http://www.w3.org/2000/svg">
+							<path d="M17.05 12.5c-.03-2.6 2.12-3.85 2.22-3.91-1.21-1.77-3.1-2.01-3.77-2.04-1.6-.16-3.13.94-3.94.94-.81 0-2.07-.92-3.4-.9-1.75.03-3.36 1.02-4.26 2.58-1.82 3.15-.47 7.82 1.3 10.38.86 1.25 1.89 2.66 3.24 2.6 1.3-.05 1.79-.84 3.36-.84 1.57 0 2.01.84 3.39.81 1.4-.02 2.28-1.27 3.13-2.53.98-1.45 1.39-2.85 1.41-2.92-.03-.01-2.71-1.04-2.74-4.13ZM14.6 4.84c.72-.87 1.2-2.08 1.07-3.28-1.03.04-2.28.69-3.02 1.55-.66.77-1.24 2-1.08 3.18 1.15.09 2.32-.58 3.03-1.45Z"/>
+						</svg>
+						</span><span class="lbl">Continue with Apple</span></a></div>
+					<!--end acts-->
+					<!--or-->
+					<div class="or"><span class="ln3">or</span></div>
+					<!--end or-->
+			        <div class="emailRow inputWrap">
+					<p class="fullCol"><input  id="inputEmail"  class="inputEmail" type="email" name="email"   placeholder="Enter your email" autocomplete="email" required="" data-msg-required="Enter Your Email" data-rule-email="true" value=""  > </p>
+					<p class="hint ln3">We&rsquo;ll send your receipt and a secure sign-in link.</p>
+				</div>
 					<!--tot-->
 					<div class="tot">
 						<p class="ln2">Total due today</p>
@@ -86,12 +107,9 @@
 					<!--pays-->
 					<div class="pays"> <a class="pp" href="#">Pay<span>Pal</span></a> <a class="gp" href="#"><img src="assets/images/main_pay_ico_googlepay.svg" alt="Google Pay"></a> <a class="ap" href="#"><img src="assets/images/main_pay_ico_applepay.svg" alt="Apple Pay"></a> <a class="cc" href="#"><img src="assets/images/main_pay_ico_card.svg" alt="Card"><span class="txt">Credit or<br>
 						Debit Card</span></a> </div>
-					<!--end pays--> 
-					<!--sep-->
-					<div class="sep"><span class="txt">Or pay with card</span></div>
-					<!--end sep--> 
+					<!--end pays-->
 					<!--frm-->
-					<form class="frm validate" id="payFrm" method="post" action="#" data-confirm="modal_login.html" >
+					<div class="frm" id="payFrm" >
 						<!--cardForm-->
 						<div class="cardForm">
 							<p class="ln3 lbl">Card number</p>
@@ -168,9 +186,9 @@
 							<button type="submit" class="btn genBtn4 btnC3 btnFull"><img src="assets/images/main_pay_ico_lock.svg" alt="Lock">Pay $1.00</button>
 						</div>
 						<!--end btn-->
-						
+					</div>
+					<!--end frm-->
 					</form>
-					<!--end frm--> 
 					<!--ftr-->
 					<p class="tos">7-day trial for $1.00. Renews at $39.95/month until canceled.</p>
 					<!--end ftr--> 

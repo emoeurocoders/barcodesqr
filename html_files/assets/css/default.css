@@ -579,7 +579,7 @@ svg path,svg shape,svg lineargradient { shape-rendering: geometricPrecision; }
 #mainCreate .top .chv { display: none; }
 #mainCreate .stp .ico { width: 4.4em; height: 4.4em; background: #f1f3f5; display: flex; align-items: center; justify-content: center; }
 #mainCreate .stp .ico svg { display: block; width: 2.1em; height: 2.1em; }
-#mainCreate .stp.on .ico { background: #11b1a7; }
+#mainCreate .stp.on .ico { background: #2563eb; }
 #mainCreate .stp .txt { padding-left: 0.9em; }
 #mainCreate .stp .ln2 { font-size: 1.3em; color: #9ca3af; padding: 0; }
 #mainCreate .stp .ln1 { font-size: 1.55em; font-weight: 700; color: #6b7280; margin-top: 0.13em; }

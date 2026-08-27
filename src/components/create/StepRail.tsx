@@ -13,6 +13,12 @@ const steps: { icon: LucideIcon; step: string; title: string }[] = [
  * Measured against the live creator rather than `html_files/create.html`: the
  * mockup only ever draws step 1, and its 80px rail would push every step-2 row
  * 15px below where the product puts it. Agreed with the PM, 2026-08-25.
+ *
+ * The filled circle is `primary`, not `brand`: the designer moved it from
+ * teal to #2563eb on 2026-08-27, which is the blue already on this page. The
+ * live creator has not caught up, so this is the one part of the rail that
+ * deliberately follows the mockup instead. Steps still to come keep the pale
+ * grey circle and muted label they already had.
  */
 export function StepRail({ current = 1 }: { current?: number }) {
   return (
@@ -34,7 +40,7 @@ export function StepRail({ current = 1 }: { current?: number }) {
                   <span
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${
                       active || done
-                        ? "bg-brand text-white"
+                        ? "bg-primary text-white"
                         : "bg-bg-alt text-faint"
                     }`}
                   >

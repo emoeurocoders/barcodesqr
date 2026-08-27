@@ -1,6 +1,6 @@
 /* Input Font
 --------------------------------------------------------------*/ 
-input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt, select { font-family:"Roboto","Helvetica Neue", Arial, "Nimbus Sans L", "FreeSans;"; font-weight: 400; }
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt, select { font-family:"Inter","Helvetica Neue", Arial, "Nimbus Sans L", "FreeSans;"; font-weight: 400; }
 /* Input Metrics (mobile first 16px fixed till reaching 16px scaling breakpoint)
 --------------------------------------------------------------*/   
 select { padding-top: 0px!important; padding-bottom: 0px!important; background-position: calc(100% - 1.8rem) center!important; background-position: 97% center; line-height: 1.5em; height: 3.6em; background-size: 2.1rem 1.4rem; }

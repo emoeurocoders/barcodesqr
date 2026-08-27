@@ -247,3 +247,183 @@ small.error  { display: block; font-size: 11px; padding: 2px 0 0 0;  color: #cc0
 @media (max-width: 364px){
 #modalJoin .crd .pays {font-size: 8.5px; }
 }
+
+
+
+/* Login
+--------------------------------------------------------------*/
+#modalJoin2 {  display: flex; justify-content: center; font-size: 10px; }
+#modalJoin2 .modal {  padding: 0;  max-width: 976px; }
+#modalJoin2 .modalCont { max-width: 976px; flex-direction: column; }
+/* section
+-----------------------------*/
+/*#modalJoin2 .crd { background: #f5f7f9; padding: 2rem 0 0 0; font-size: 10px; box-shadow: 0 4000px 0 4000px  #f5f7f9; }*/
+#modalJoin2 .crd { display: flex; align-items: stretch; ; overflow: hidden; }
+#modalJoin2 .crd .lft { flex: 497 0 0; min-width: 0; display: flex; flex-direction: column; box-sizing: border-box; border-right: 1px solid #e7eaef; padding: 2.4em 3.4em 2.4em 3.4em; }
+#modalJoin2 .crd .lft .logo img { display: block; width: 196px; }
+#modalJoin2 .crd .lft .head { font-size: 31px; font-weight: 700; color: #000000; line-height: 1.14em; letter-spacing: -0.025em; margin-top: 14px; padding: 0; }
+#modalJoin2 .crd .lft .desc { font-size: 1.35em; font-weight: 400; color: #6b7280; line-height: 1.6em; max-width: 24em; margin-top: 14px; padding: 0; }
+#modalJoin2 .crd .lft .qr { position: relative; width: max-content; background: #ffffff; border: 1px solid #dae0e8; border-radius: 14px; padding: 11px; margin: 15px auto 0 auto; }
+#modalJoin2 .crd .lft .qr .tmb { display: block; width: 165px; height: 165px; margin: 0 auto; }
+#modalJoin2 .crd .lft .qr .lock { position: absolute; left: 33%; top: 33%; width: 34%; height: 34%; display: flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 100px; box-shadow: 0 4px 10px rgba(14,19,17,0.25); }
+#modalJoin2 .crd .lft .qr .lock img { width: 37%; }
+#modalJoin2 .crd .lft .feats { margin-top: 20px; }
+#modalJoin2 .crd .lft .feats .itm { display: flex; align-items: flex-start; }
+#modalJoin2 .crd .lft .feats .itm + .itm { margin-top: 2.2rem; }
+#modalJoin2 .crd .lft .feats .itm .ico { width: 4.4em; height: 4.4em; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #e9f0fb; border-radius: 12px; }
+#modalJoin2 .crd .lft .feats .itm .ico img { width: 2.2em; }
+#modalJoin2 .crd .lft .feats .itm .txt { padding-left: 1.1em; }
+#modalJoin2 .crd .lft .feats .itm .txt .ln1 { font-size: 1.65em; font-weight: 700; color: #0e1311; line-height: 1.2em; padding: 0; }
+#modalJoin2 .crd .lft .feats .itm .txt .ln3 { font-size: 1.45em; font-weight: 400; color: #6b7280; line-height: 1.25em; margin-top: 4px; padding: 0; }
+#modalJoin2 .crd .rgt { flex: 567 0 0; min-width: 0; box-sizing: border-box; padding: 2.4em 3.4em; }
+#modalJoin2 .crd .rgt .formWrp { flex-direction: column; display: flex; }
+#modalJoin2 .crd .rgt .ln1 { font-size: 2.4em; font-weight: 700; letter-spacing: -0.02em; }
+#modalJoin2 .crd .rgt .desc2 { font-size: 1.4em; font-weight: 400; color: #6b7280; line-height: 1.4em; margin-top: 0.2em; padding: 0; max-width: 29em; }
+#modalJoin2 .crd .rgt .acts { display: flex; gap: 12px; margin-top: 0.9em; }
+#modalJoin2 .crd .acts .btn { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; height: 3.286em; background: #ffffff; border: 1px solid #d1d5db; border-radius: 12px; font-family: inherit; letter-spacing: 0; text-decoration: none; cursor: pointer; font-size: 14px;  }
+#modalJoin2 .crd .acts .btn:after { display: none; }
+#modalJoin2 .crd .acts .btn .ico { display: flex; flex-shrink: 0; width: auto; height: auto; top: 0; margin: 0; }
+#modalJoin2 .crd .acts .btn .ico svg { display: block; width: 1.57em; height: 1.57em; }
+#modalJoin2 .crd .acts .btn .lbl { font-size: 1em; font-weight: 700; color: #0e1311; line-height: 1.2em; padding-left: 0.66em; white-space: nowrap; }
+#modalJoin2 .crd .rgt .or { display: flex; align-items: center; margin-top: 0.7em; }
+#modalJoin2 .crd .rgt .or::before, #modalJoin2 .crd .rgt .or::after { content: ""; flex: 1; border-top: 1px solid #e2e6ec; }
+#modalJoin2 .crd .rgt .or .ln3 { padding: 0 14px; font-size: 14px; font-weight: 400; color: #6b7280; }
+#modalJoin2 .crd .rgt .emailRow { margin-top: 0.9em; }
+#modalJoin2 .crd .rgt .fullCol { margin: 0; font-size: 15px; }
+#modalJoin2 .crd .rgt .emailRow input { height: 41px; }
+#modalJoin2 .crd .rgt .inputEmail { padding-left: 44px!important; background: no-repeat 12px center;  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none'%3E%3Crect x='3' y='5.5' width='18' height='13' rx='2' stroke='%239ca3af' stroke-width='1.7'/%3E%3Cpath d='M4 7l8 5.5L20 7' stroke='%239ca3af' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;    }
+#modalJoin2 .crd .rgt .hint { font-size: 1.3em; font-weight: 400; color: #6b7280; margin-top: 0.3em; padding: 0; }
+#modalJoin2 .crd .tot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #dae0e8; margin-top: 1em; padding-top: 0.75em; padding-bottom: 0.75em;  }
+#modalJoin2 .crd .tot .ln2 { font-size: 1.6em; font-weight: 600; color: #374151; padding: 0; }
+#modalJoin2 .crd .tot .prc { font-size: 1.9em; font-weight: 700; letter-spacing: -0.02em; padding: 0; }
+#modalJoin2 .crd .pays { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 0; font-size: 10px; }
+#modalJoin2 .crd .pays a { height: 4em; display: flex; align-items: center; justify-content: center; border-radius: 1rem; box-sizing: border-box; }
+#modalJoin2 .crd .pays .pp { background: #ffc439; font-size: 2.1em; font-weight: 800; font-style: italic; color: #253b80; letter-spacing: -0.01em; height: 1.905em; }
+#modalJoin2 .crd .pays .pp span { color: #179bd7; }
+#modalJoin2 .crd .pays .gp, #modalJoin2 .crd .pays .ap { background: #0e1311; }
+#modalJoin2 .crd .pays .gp img { width: 4.7em; }
+#modalJoin2 .crd .pays .ap img { width: 4.4em; }
+#modalJoin2 .crd .pays .cc { background: #ffffff; border: 1px solid #2563eb; }
+#modalJoin2 .crd .pays .cc img { width: 1.9em; flex: 0 0 auto; }
+#modalJoin2 .crd .pays .cc .txt { font-size: 12.5px; font-weight: 600; color: #2563eb; line-height: 1.15em; padding-left: 6px; }
+#modalJoin2 .crd .frm { margin-top: 1.1em; }
+#modalJoin2 .crd .cardForm .lbl { font-size: 13.5px; font-weight: 500; color: #374151; padding: 0; }
+#modalJoin2 .crd .inputWrap { position: relative; margin-top: 5px; }
+#modalJoin2 .crd .inputWrap input { display: block; width: 100%; height: 41px; box-sizing: border-box; background: #ffffff; border: 1px solid #d1d5db; border-radius: 9px; box-shadow: none; font-family: "Inter", "Helvetica Neue", Arial, "Nimbus Sans L", FreeSans; font-size: 15px; line-height: normal; letter-spacing: 0; color: #0e1311; padding: 0 11px; outline: none; }
+#modalJoin2 .crd .inputWrap input::placeholder { color: #9ca3af; }
+#modalJoin2 .crd .inputWrap label.error, #modalJoin2 .crd .inputWrap small.error { display: block; font-size: 12px; color: #cc0000; font-weight: 400; top: 0; padding: 4px 0 0 0; }
+#modalJoin2 .crd .cardIcons, #modalJoin2 .crd .cvcIco { position: absolute; right: 11px; top: 0; height: 41px; display: flex; align-items: center; pointer-events: none; }
+#modalJoin2 .crd .card input { padding-right: 88px; }
+#modalJoin2 .crd .cardIcons svg { display: block; width: 32px; height: 20px; }
+#modalJoin2 .crd .cardIcons svg + svg { margin-left: 5px; }
+#modalJoin2 .crd .cvv input { padding-right: 53px; }
+#modalJoin2 .crd .cvcIco svg { display: block; width: 34px; height: 24px; }
+#modalJoin2 .crd .frm .row { display: flex; align-items: flex-start; margin-top: 10px; }
+#modalJoin2 .crd .frm .row .col { flex: 1 0 0; min-width: 0; }
+#modalJoin2 .crd .frm .row .col + .col { margin-left: 2rem; }
+#modalJoin2 .crd .frm .btnWrp { margin-top: 14px; }
+#modalJoin2 .crd .frm .btn { display: flex; align-items: center; justify-content: center; gap: 0.6em; width: 100%; padding-top: 1.05em; padding-bottom: 1.05em; cursor: pointer; font-size: 16px!important; }
+#modalJoin2 .crd .frm .btn img { width: 1.06em; }
+#modalJoin2 .crd .scr { display: flex; align-items: center; justify-content: center; font-size: 1.3em; color: #878c97; padding: 1px 0 11px 0;   }
+#modalJoin2 .crd .scr img { width: 1.5em; margin-right: 6px; flex: 0 0 auto; }
+#modalJoin2 .crd .rgt .tos { font-size: 1.3em; color: #4b5563; line-height: 1.6em;  padding: 8px 0 0 0; text-align: center; }
+#modalJoin2 .crd .rgt .tos b { font-weight: 700; }
+#modalJoin2 .crd .rgt .smFtr { font-size: 1.3em; color: #6b7280; line-height: 1.1em; display: flex; justify-content: center;  border-top: solid 1px #e7eaef;  padding-top: 11px; }
+#modalJoin2 .crd .rgt .smFtr a { color: #6b7280; }
+#modalJoin2 .crd .rgt .smFtr a:hover { color: #374151; }
+@media (min-width: 1000px){
+#modalJoin2 .crd .acts .btn:hover { border-color: #9ca3af; }
+}
+@media (max-width: 999px){
+#modalJoin2 .crd .acts .btn:active { border-color: #9ca3af; }
+}
+@media (max-width: 992px){
+#modalJoin2 .modal { max-width: 400px; }
+#modalJoin2 .crd  { flex-direction: column; font-size: 9.5px; }
+#modalJoin2 .crd .lft { border-right: 0; border-bottom: 1px solid #e7eaef;  padding: 2.2rem 2rem; }
+#modalJoin2 .crd .lft .logo img { width: 162px; max-width: 39vw;}
+#modalJoin2 .crd .lft .head { font-size: 3.1em; }
+#modalJoin2 .crd .rgt { padding: 2.2rem 2rem; }
+#modalJoin2 .crd .inputWrap input { font-size: 16px; }
+#modalJoin2 .crd .rgt .acts { flex-direction: column; gap: 10px; }
+#modalJoin2 .crd .acts .btn { flex: 0 0 auto; }
+#modalJoin2 .crd .pays { font-size: 9px; }
+#modalJoin2 .crd .pays .cc .txt { font-size: 9.6px;  letter-spacing: -0.02em;}
+
+}
+@media (max-width: 576px){
+#modalJoin2 .crd .pays { font-size: 9px; }
+#modalJoin2 .crd .rgt .tos { font-weight: 500; }
+#modalJoin2 .crd .frm .btn { font-size: 15px!important; }
+}
+@media (max-width: 480px){
+#modalJoin2 .crd .pays { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 420px){
+#modalJoin2 .crd { font-size: 2.24vw; }
+#modalJoin2 .crd .lft .qr .tmb { width: 39.28vw; }
+}
+@media (max-width: 364px){
+#modalJoin2 .crd .acts .btn { font-size: 3.8vw; min-height: 44px; }
+#modalJoin2 .crd .pays {font-size: 8.5px; }
+}
+
+/* User Login
+--------------------------------------------------------------*/
+#mainUserLogin { display: flex; justify-content: center; font-size: 10px; }
+#mainUserLogin  .modal { max-width: 480px; width: 100%; padding: 24px 28px 28px 28px; }
+#mainUserLogin .modalCont { max-width: 480px; flex-direction: column; }
+#mainUserLogin .body { display: flex; flex-direction: column; font-size: 10px; }
+#mainUserLogin .logo img { display: block; width: 162px; }
+#mainUserLogin .head { font-size: 31px; font-weight: 700; color: #000000; line-height: 1.14em; letter-spacing: -0.025em; margin-top: 16px; padding: 0; }
+#mainUserLogin .desc { font-size: 1.3em; font-weight: 400; color: #6b7280; line-height: 1.6em; margin-top: 10px; padding: 0; }
+#mainUserLogin .acts { margin-top: 19px; }
+#mainUserLogin .btn { width: 100%; display: flex; align-items: center; justify-content: center; height: 56px; background: #ffffff; border: 1px solid #d1d5db; border-radius: 12px; font-family: inherit; letter-spacing: 0; text-decoration: none; cursor: pointer; }
+#mainUserLogin .btn:after { display: none; }
+#mainUserLogin .acts .btn + .btn { margin-top: 16px; }
+#mainUserLogin .btn .ico { display: flex; flex-shrink: 0; width: auto; height: auto; top: 0; margin: 0; }
+#mainUserLogin .btn .ico svg { display: block; width: 22px; height: 22px; }
+#mainUserLogin .btn .lbl { font-size: 16.5px; font-weight: 700; color: #0e1311; line-height: 1.2em; padding-left: 12px; }
+#mainUserLogin .acts .btn { font-size: 16.5px; height: 3.394em; }
+#mainUserLogin .acts .btn .ico svg { width: 1.33em; height: 1.33em; }
+#mainUserLogin .acts .btn .lbl { font-size: 1em; padding-left: 0.73em; white-space: nowrap; }
+#mainUserLogin .or { display: flex; align-items: center; margin-top: 12px; }
+#mainUserLogin .or::before, #mainUserLogin .or::after { content: ""; flex: 1; border-top: 1px solid #e2e6ec; }
+#mainUserLogin .or .ln3 { padding: 0 14px; font-size: 14px; font-weight: 400; color: #6b7280; }
+#mainUserLogin .formWrp { margin-top: 12px; }
+#mainUserLogin .fullCol { margin-bottom: 1.05em; font-size: 15px;  }
+#mainUserLogin .inputEmail { padding-left: 44px!important; background: no-repeat 12px center;  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none'%3E%3Crect x='3' y='5.5' width='18' height='13' rx='2' stroke='%239ca3af' stroke-width='1.7'/%3E%3Cpath d='M4 7l8 5.5L20 7' stroke='%239ca3af' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;   }
+#mainUserLogin .btnContinue { margin-top: 6px; background: #2563eb; border-color: #2563eb; }
+#mainUserLogin .btnContinue .lbl { font-size: 17px; color: #ffffff; padding: 0; }
+#mainUserLogin .btnDisabled { cursor: not-allowed; }
+#mainUserLogin .btnEnabled { opacity: 1; }
+#mainUserLogin .nopass { display: flex; align-items: center; justify-content: center; font-size: 1.15em; font-weight: 400; color: #6b7280; margin-top: 1.4em 0; padding: 0; }
+#mainUserLogin .nopass img { width: 1.11em; margin-right: 6px; }
+#mainUserLogin .new { display: flex; align-items: center; justify-content: center; font-size: 1.4em; font-weight: 400; color: #6b7280; border-top: solid 1px #e7eaef; margin-top: 0; padding: 1.4em 0 0 0; }
+#mainUserLogin .lnk { display: inline-flex; align-items: center; color: #2563eb; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap; }
+#mainUserLogin .lnk svg { display: block; margin-left: 0.4em; }
+@media (min-width: 1000px) {
+#mainUserLogin .btn:hover { border-color: #9ca3af; }
+#mainUserLogin .btnContinue:hover, #mainUserLogin .btnContinue:active { background: #1d4ed8; border-color: #1d4ed8; }
+}
+@media (max-width: 999px) {
+#mainUserLogin .btn:active { border-color: #9ca3af; }
+#mainUserLogin .btnContinue:active { background: #1d4ed8; border-color: #1d4ed8; }
+}
+@media (max-width: 479px) {
+#mainUserLogin .modal { padding: 2.2em 1.6em; }
+#mainUserLogin .head { font-size: 2.8em; }
+#mainUserLogin .btn { height: 50px; }
+#mainUserLogin .btn .lbl { font-size: 15px; }
+#mainUserLogin .acts .btn { font-size: 15px; }
+#mainUserLogin .btnContinue .lbl { font-size: 15.5px; }
+#mainUserLogin .fullCol { font-size: 1.5em; }
+}
+@media (max-width: 420px){
+#mainUserLogin .body { font-size:2.38vw; }
+}
+
+@media (max-width: 364px) {
+#mainUserLogin .acts .btn { font-size: 4.1vw; min-height: 44px; }
+}
+
