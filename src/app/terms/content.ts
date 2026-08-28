@@ -296,8 +296,8 @@ export const sections: Section[] = [
         "cards": [
           {
             "shapes": [
-              "<rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\">",
-              "<path d=\"M7 11V7a5 5 0 0 1 10 0v4\">"
+              "<rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" />",
+              "<path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />"
             ],
             "title": "Static QR Codes",
             "paras": [
@@ -320,10 +320,10 @@ export const sections: Section[] = [
           },
           {
             "shapes": [
-              "<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\">",
-              "<path d=\"M21 3v5h-5\">",
-              "<path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\">",
-              "<path d=\"M8 16H3v5\">"
+              "<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\" />",
+              "<path d=\"M21 3v5h-5\" />",
+              "<path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\" />",
+              "<path d=\"M8 16H3v5\" />"
             ],
             "title": "Dynamic QR Codes",
             "paras": [

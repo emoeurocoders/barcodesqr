@@ -133,7 +133,13 @@ function parseSection(sec) {
       blocks.push({
         kind: 'cards',
         cards: [...m[1].matchAll(/<div class="card">([\s\S]*?)<!--end card-->/g)].map(([, card]) => ({
-          shapes: [...card.matchAll(/<(?:path|rect|circle|line|polyline)\b[^>]*?\/?>/g)].map((x) => x[0]),
+          // Normalised to self-closing. The designer writes `<rect ...></rect>`,
+          // and matching only the opening tag drops the slash — the joined
+          // string then nests every later shape INSIDE the first one, where
+          // SVG does not render it. One icon, one visible shape, silently.
+          shapes: [...card.matchAll(/<(?:path|rect|circle|line|polyline)\b[^>]*?\/?>/g)].map((x) =>
+            x[0].replace(/\s*\/?>$/, ' />'),
+          ),
           title: pick(card, /<h3>(.*?)<\/h3>/s),
           paras: [...card.matchAll(/<p>(.*?)<\/p>/gis)].map(([, p]) => inline(p)),
         })),

@@ -3,7 +3,7 @@
 @theme {
   /* Brand */
   --color-brand: #11b1a7;
-  --color-brand-dark: #0e8f87;
+  --color-brand-dark: #0d8a82;
   --color-brand-darker: #006666;
   --color-brand-soft: #e6f7f5;
 
@@ -15,6 +15,9 @@
   /* Text */
   --color-ink: #0e1311;
   --color-body: #374151;
+  /* Long-form copy. Lighter than --color-body, which the mockup keeps
+     for <strong> inside that copy. */
+  --color-prose: #4b5563;
   --color-muted: #6b7280;
   --color-faint: #9ca3af;
 
@@ -107,11 +110,37 @@
  * moved the landing page's diff the wrong way, so the correct one lives here
  * and gets used by new work; unifying them is a job with a re-check attached.
  */
+/*
+ * The designer's breakpoints, inclusive.
+ *
+ * `max-[768px]:` in Tailwind v4 compiles to `width < 768px`, so at exactly
+ * 768 their `@media (max-width: 768px)` rules apply and ours do not — one
+ * pixel wide, but it moved the terms page 49px off at that width.
+ */
+@custom-variant to-992 (@media (max-width: 992px));
+@custom-variant to-768 (@media (max-width: 768px));
+@custom-variant to-576 (@media (max-width: 576px));
+@custom-variant to-480 (@media (max-width: 480px));
+
 @utility container-frm {
   width: 100%;
   max-width: 1240px;
   margin-inline: auto;
   padding-inline: 20px;
+
+  /*
+   * The mockup writes this padding as `2rem` over a root font-size that
+   * shrinks below 640px. Measured across eleven widths from 640 down to 320,
+   * their computed gutter is exactly viewport/32 at every one of them —
+   * 20px at 640, 12.1875px at 390, 10px at 320 — so 3.125vw reproduces it
+   * outright, and meets the fixed 20px continuously at 640.
+   *
+   * We cannot adopt their scaling root: Tailwind sizes everything in rem
+   * against 16px, so rescaling it would shrink the whole app.
+   */
+  @media (max-width: 640px) {
+    padding-inline: 3.125vw;
+  }
 }
 
 @utility marquee-mask {

@@ -14,30 +14,30 @@ import { ChevronDownIcon } from "./TermsIcons";
  * If the active state is wanted, the styling is already written and this is
  * where the observer would go.
  *
- * The collapse below 992px is the designer's: ten entries behind a
- * "Show all 31 sections" toggle, whose copy their handler swaps for
- * "Show fewer sections".
+ * Sizes are `em` against the 10px root that `page.tsx` sets, which is how the
+ * designer wrote them and what lets the whole page scale with `2.1vw` below
+ * 480px. The breakpoints are theirs too (992/576), not Tailwind's neighbours.
  */
 export function TermsToc() {
   const [open, setOpen] = useState(false);
 
   return (
-    <aside className="box-border rounded-[14px] border border-[#e8eaef] bg-[#fbfcfd] p-5 shadow-[0_1px_2px_rgba(14,19,17,0.04)] max-md:px-[22px]">
-      <h2 className="text-base font-bold leading-[normal] text-ink">
+    <aside className="box-border rounded-[1.4em] border border-[#e8eaef] bg-[#fbfcfd] p-[2em] shadow-[0_1px_2px_rgba(14,19,17,0.04)] to-768:px-[2.2em]">
+      <h5 className="text-[1.6em] font-bold leading-[normal] text-ink">
         On This Page
-      </h2>
+      </h5>
 
-      <ol className="mt-2.5 grid list-decimal pl-5 max-lg:grid-cols-2 max-lg:gap-x-[26px]">
+      <ol className="mt-[1em] list-decimal pl-[2em] to-992:grid to-992:grid-cols-2 to-992:gap-x-[2.6em] to-576:grid-cols-1">
         {toc.map(({ id, label }, i) => (
           <li
             key={id}
-            className={`mt-[6.3px] text-sm leading-[1.4em] marker:text-body ${
-              !open && i >= 10 ? "max-lg:hidden" : ""
+            className={`mt-[0.45em] text-[1.4em] leading-[1.4em] marker:text-prose to-576:font-medium ${
+              !open && i >= 10 ? "to-992:hidden" : ""
             }`}
           >
             <a
               href={`#${id}`}
-              className="-ml-[0.2em] rounded-[0.5em] px-[0.5em] py-[0.2em] text-body [box-decoration-break:clone] hover:text-primary"
+              className="-ml-[0.2em] rounded-[0.5em] px-[0.5em] py-[0.2em] text-prose [box-decoration-break:clone] hover:text-primary"
             >
               {label}
             </a>
@@ -45,20 +45,29 @@ export function TermsToc() {
         ))}
       </ol>
 
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="mt-3 hidden cursor-pointer items-center text-sm font-semibold text-primary max-lg:inline-flex"
+      {/*
+        An <a href="#">, because that is what the designer wrote. It behaves as
+        a button and would be better as one — raised in the handover rather
+        than quietly changed here, since swapping it changes what a screen
+        reader announces.
+      */}
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen((v) => !v);
+        }}
+        className="mt-[1.2em] hidden cursor-pointer items-center text-[1.4em] font-semibold text-primary to-992:inline-flex"
       >
         <span>
           {open ? "Show fewer sections" : `Show all ${toc.length} sections`}
         </span>
         <ChevronDownIcon
-          className={`ml-[0.4em] h-[1.1em] w-[1.1em] transition-transform duration-[250ms] ease-out ${
+          className={`ml-[0.4em] h-[1.1em] w-[1.1em] shrink-0 transition-transform duration-[250ms] ease-out ${
             open ? "rotate-180" : ""
           }`}
         />
-      </button>
+      </a>
     </aside>
   );
 }
