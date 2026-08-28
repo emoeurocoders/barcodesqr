@@ -43,8 +43,9 @@ const columns: { title: string; links: FooterLink[] }[] = [
     title: "Legal",
     links: [
       { href: "/legal/privacy", label: "Privacy Policy" },
-      { href: "/legal/terms", label: "Terms & Conditions" },
-      { href: "/legal/terms#refunds", label: "Refund Policy" },
+      { href: "/terms", label: "Terms & Conditions" },
+      // Section 9 of the Terms is the refund policy; there is no separate page.
+      { href: "/terms#trmSec9", label: "Refund Policy" },
     ],
   },
 ];

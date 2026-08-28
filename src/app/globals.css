@@ -98,6 +98,22 @@
   padding-inline: 1.25rem;
 }
 
+/**
+ * The designer's `.FrmCtr`, to its own numbers: max-width 1240 with 2rem of
+ * padding, where the mockup's `rem` is 10px — so 1200px of content.
+ *
+ * `container-page` above gives 1160, forty pixels narrower, and every page
+ * built before this one was measured against it. Swapping them wholesale
+ * moved the landing page's diff the wrong way, so the correct one lives here
+ * and gets used by new work; unifying them is a job with a re-check attached.
+ */
+@utility container-frm {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
 @utility marquee-mask {
   -webkit-mask-image: linear-gradient(
     90deg,
