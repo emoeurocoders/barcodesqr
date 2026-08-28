@@ -32,6 +32,7 @@ import { PaymentPreview } from "./previews/PaymentPreview";
 import { EventPreview } from "./previews/EventPreview";
 import { BusinessPreview } from "./previews/BusinessPreview";
 import { WifiPreview } from "./previews/WifiPreview";
+import { GoogleReviewPreview } from "./previews/GoogleReviewPreview";
 import { QrPreview, defaultQrStyle } from "./QrPreview";
 import type { QrStyle } from "./QrPreview";
 import { fieldSchema } from "./fieldSchema";
@@ -274,6 +275,7 @@ function ContentPreview({
   if (type === "event") return <EventPreview values={values} />;
   if (type === "business") return <BusinessPreview values={values} />;
   if (type === "wifi") return <WifiPreview values={values} />;
+  if (type === "review") return <GoogleReviewPreview />;
   return <SidePreview qrValue={qrValue} style={style} />;
 }
 

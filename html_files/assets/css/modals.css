@@ -397,7 +397,7 @@ small.error  { display: block; font-size: 11px; padding: 2px 0 0 0;  color: #cc0
 #mainUserLogin .btnContinue .lbl { font-size: 17px; color: #ffffff; padding: 0; }
 #mainUserLogin .btnDisabled { cursor: not-allowed; }
 #mainUserLogin .btnEnabled { opacity: 1; }
-#mainUserLogin .nopass { display: flex; align-items: center; justify-content: center; font-size: 1.15em; font-weight: 400; color: #6b7280; margin-top: 1.4em 0; padding: 0; }
+#mainUserLogin .nopass { display: flex; align-items: center; justify-content: center; font-size: 1.15em; font-weight: 400; color: #6b7280; margin: 1.4em 0; padding: 0; }
 #mainUserLogin .nopass img { width: 1.11em; margin-right: 6px; }
 #mainUserLogin .new { display: flex; align-items: center; justify-content: center; font-size: 1.4em; font-weight: 400; color: #6b7280; border-top: solid 1px #e7eaef; margin-top: 0; padding: 1.4em 0 0 0; }
 #mainUserLogin .lnk { display: inline-flex; align-items: center; color: #2563eb; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap; }

@@ -147,7 +147,9 @@ export const primaryTypes: CreateQrType[] = [
     value: "review",
     label: "Google Review",
     desc: "Get more reviews on Google",
-    color: "#6366F1",
+    // The glyph carries its own colour; this keeps anything else that reads
+    // the type in step with it.
+    color: "#dc3c2a",
     icon: ReviewIcon,
   },
   {

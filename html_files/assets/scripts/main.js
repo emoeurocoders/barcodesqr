@@ -30,6 +30,22 @@ jQuery(document).ready(function($) {
 		var on = $(this).toggleClass('on').hasClass('on');
 		$(this).next('.ln2').text(on ? 'On' : 'Off');
 	});
+
+	//review link https:// prefill
+	$('#reviewLink').on('focus', function() {
+		if ($(this).val() === '') {
+			$(this).val('https://');
+		}
+	}).on('focusout', function() {
+		if ($(this).val() === 'https://') {
+			$(this).val('');
+		}
+	});
+
+	//qr name character counter
+	$('#qrName').on('input', function() {
+		$(this).closest('.fld').find('.cnt').text($(this).val().length + '/' + $(this).attr('maxlength'));
+	}).trigger('input');
 	
 	 //validate
     function validateForm(el) {
@@ -237,5 +253,10 @@ jQuery(document).ready(function($) {
 			});
 		});
 	}
-
+	//terms toggle
+	$('#mainTerms .toc .tgl').on('click', function (e) {
+		e.preventDefault();
+		var open = $(this).closest('.toc').toggleClass('open').hasClass('open');
+		$(this).find('.txt').text(open ? 'Show fewer sections' : 'Show all 31 sections');
+	});
 });

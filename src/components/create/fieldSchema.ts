@@ -41,10 +41,11 @@ export type Field = {
 
 /** Human labels for each field key. */
 export const fieldLabels: Record<string, string> = {
-  "reviewUrl": "Google review link",
+  "reviewUrl": "Enter your Google review link",
   "businessName": "Business name",
   "reviewPrompt": "Message shown to customers",
   "websiteUrl": "Enter your website",
+  "reviewRedirect": "Scanning sends customers directly to your Google review page so they can leave a rating and review.",
   "wifiRouter": "Can't find these details? Check the sticker on your router — it usually lists the network name, password, and security type.",
   "feedbackRedirect": "Scanning sends people straight to your link — a survey, review page, or any feedback form.",
   "paymentRedirect": "Payments are handled by your chosen provider. BarcodesQR simply sends scanners to your payment page.",
@@ -135,6 +136,7 @@ export const fieldLabels: Record<string, string> = {
  */
 export const fieldTips: Record<string, string> = {
   "websiteUrl": "The link people open when they scan your code.",
+  "reviewUrl": "Paste the review link from your Google Business Profile.",
   "wifiSsid": "Your network name (SSID) — usually printed on the router.",
   "wifiSecurity": "Most modern routers use WPA/WPA2 — pick that if unsure.",
   "wifiPassword": "Scanners connect automatically using this password.",
@@ -245,22 +247,13 @@ export const fieldSchema: Record<string, Field[]> = {
       "labelKey": "reviewUrl",
       "type": "url",
       "required": true,
-      "placeholder": "https://g.page/r/.../review",
+      "placeholder": "https://",
       "tip": "reviewUrl"
     },
     {
-      "name": "businessName",
-      "labelKey": "businessName",
-      "type": "text",
-      "maxLength": 40,
-      "placeholder": "The Matcha Den"
-    },
-    {
-      "name": "reviewPrompt",
-      "labelKey": "reviewPrompt",
-      "type": "textarea",
-      "maxLength": 200,
-      "placeholder": "Enjoyed your visit? A quick review helps us a lot."
+      "name": "reviewInfo",
+      "labelKey": "reviewRedirect",
+      "type": "info"
     }
   ],
   "website": [

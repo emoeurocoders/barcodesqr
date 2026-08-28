@@ -39,5 +39,7 @@ button.genBtn1 { -webkit-appearance: none; background: none; border: none; outli
 .btnC4:after { background: #ffffff!important; border: 1px solid #d7dde2; }
 .btnC5 { color: #374151!important; }
 .btnC5:after { background: #ffffff!important; border: 1px solid #d7dde2; }
+.btnC6 { color: #2563eb!important; }
+.btnC6:after { background: #ffffff!important; border: 1px solid #2563eb; }
 
 
