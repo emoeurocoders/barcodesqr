@@ -26,8 +26,15 @@ export function Header({
   const [login, setLogin] = useState(openLogin);
   const signedIn = Boolean(user);
 
+  // Static and opaque: the mockup's #mainHdr sets no `position` on any page,
+  // and its background is a flat #fff. We had it sticky and translucent,
+  // neither of which is theirs.
+  //
+  // It also explains their `scroll-margin-top: 2em` on the terms sections —
+  // 20px only clears a heading if nothing is pinned over it. Under a sticky
+  // header every anchor jump landed behind it.
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
+    <header className="border-b border-line bg-white">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link aria-label="BarcodesQR home" href="/">
           <span className="inline-flex items-center gap-2">
