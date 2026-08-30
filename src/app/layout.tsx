@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Anton, Caveat } from "next/font/google";
 import "./globals.css";
+import { CrispChat } from "@/components/support/CrispChat";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-bg text-body antialiased">
         {children}
+        <CrispChat />
       </body>
     </html>
   );

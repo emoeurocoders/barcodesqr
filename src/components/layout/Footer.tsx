@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { MessageCircle, ArrowRight, Globe, ChevronDown } from "lucide-react";
+import { ArrowRight, Globe, ChevronDown } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { LiveHelpLink } from "@/components/support/LiveHelpLink";
 
 type FooterLink = { href: string; label: string };
 
@@ -98,13 +99,7 @@ export function Footer() {
               <ul className="mt-4 space-y-2.5">
                 {col.title === "Support" && (
                   <li>
-                    <Link
-                      href="/help"
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink transition-colors hover:text-primary"
-                    >
-                      Live Help
-                      <MessageCircle className="h-4 w-4 text-primary" />
-                    </Link>
+                    <LiveHelpLink className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink transition-colors hover:text-primary" />
                   </li>
                 )}
                 {col.links.map((link) => (

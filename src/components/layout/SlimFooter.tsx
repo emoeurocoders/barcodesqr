@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
+import { LiveHelpLink } from "@/components/support/LiveHelpLink";
 
 const links = [
   { href: "/legal/privacy", label: "Privacy Policy" },
@@ -22,13 +22,7 @@ export function SlimFooter() {
             {link.label}
           </Link>
         ))}
-        <Link
-          href="/help"
-          className="inline-flex items-center gap-1.5 font-semibold text-ink transition-colors hover:text-primary"
-        >
-          Live Help
-          <MessageCircle className="h-4 w-4 text-primary" />
-        </Link>
+        <LiveHelpLink className="inline-flex items-center gap-1.5 font-semibold text-ink transition-colors hover:text-primary" />
       </div>
     </footer>
   );
