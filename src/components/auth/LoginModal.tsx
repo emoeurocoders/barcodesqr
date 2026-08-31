@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Lock, Mail } from "lucide-react";
 
 import { requestSignInLink } from "@/app/actions/signin";
+import { signInWithGoogle } from "@/app/actions/auth";
 import { validateEmail } from "@/components/paywall/validation";
 import { GoogleMark, AppleMark } from "@/components/paywall/BrandMarks";
 import { PaywallShell } from "@/components/paywall/PaywallShell";
@@ -25,6 +26,16 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
   const [listening, setListening] = useState(false);
   const [state, runSignIn] = useActionState(requestSignInLink, undefined);
   const [pending, startTransition] = useTransition();
+
+  // Google is a full-page round trip: on success the action throws a redirect
+  // and this modal never renders again, so only the refusal needs state.
+  const [googleError, setGoogleError] = useState<string>();
+  const [googlePending, startGoogle] = useTransition();
+  const google = () =>
+    startGoogle(async () => {
+      const result = await signInWithGoogle();
+      if (result?.error) setGoogleError(result.error);
+    });
 
   /**
    * The button is never disabled before it is pressed. The designer's
@@ -77,28 +88,42 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
         ) : (
           <>
             <div className="mt-[19px]">
-              {[
-                { key: "google", node: <GoogleMark />, label: "Continue with Google" },
-                { key: "apple", node: <AppleMark />, label: "Continue with Apple" },
-              ].map(({ key, node, label }, i) => (
-                <button
-                  key={key}
-                  type="button"
-                  disabled
-                  title="Not connected yet — use your email below"
-                  className={`flex h-14 w-full cursor-not-allowed items-center justify-center rounded-xl border border-line bg-white opacity-55 ${
-                    i > 0 ? "mt-4" : ""
-                  }`}
-                >
-                  <span className="flex shrink-0">{node}</span>
-                  <span className="whitespace-nowrap pl-3 text-[16.5px] font-bold leading-[1.2em] text-ink">
-                    {label}
-                  </span>
-                </button>
-              ))}
+              {/* The designer's hover is border-color #9ca3af — the faint token. */}
+              <button
+                type="button"
+                onClick={google}
+                disabled={googlePending}
+                className="flex h-14 w-full cursor-pointer items-center justify-center rounded-xl border border-line bg-white transition-colors hover:border-faint disabled:cursor-progress disabled:opacity-70"
+              >
+                <span className="flex shrink-0">
+                  <GoogleMark />
+                </span>
+                <span className="whitespace-nowrap pl-3 text-[16.5px] font-bold leading-[1.2em] text-ink">
+                  {googlePending ? "Opening Google…" : "Continue with Google"}
+                </span>
+              </button>
+              {googleError && (
+                <small className="block pt-[0.2em] text-center text-xs text-error">
+                  {googleError}
+                </small>
+              )}
+
+              <button
+                type="button"
+                disabled
+                title="Not connected yet — use your email below"
+                className="mt-4 flex h-14 w-full cursor-not-allowed items-center justify-center rounded-xl border border-line bg-white opacity-55"
+              >
+                <span className="flex shrink-0">
+                  <AppleMark />
+                </span>
+                <span className="whitespace-nowrap pl-3 text-[16.5px] font-bold leading-[1.2em] text-ink">
+                  Continue with Apple
+                </span>
+              </button>
               {/* Not in the mockup — see the paywall for the same reasoning. */}
               <p className="mt-1.5 text-center text-xs text-faint">
-                Google and Apple sign-in are not connected yet.
+                Apple sign-in is not connected yet.
               </p>
             </div>
 

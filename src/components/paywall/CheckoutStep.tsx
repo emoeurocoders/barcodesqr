@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Download, SquarePen, Lock, Mail } from "lucide-react";
 import { QrPreview } from "@/components/create/QrPreview";
 import type { QrStyle } from "@/components/create/QrPreview";
-import { checkout } from "@/app/actions/paywall";
+import { checkout, checkoutWithGoogle } from "@/app/actions/paywall";
 import {
   formatCardNumber,
   formatExpiry,
@@ -99,6 +99,15 @@ export function CheckoutStep({
   const [state, runCheckout] = useActionState(checkout, undefined);
   const [pending, startTransition] = useTransition();
 
+  // Google leaves the page for the OAuth round trip; only a refusal returns.
+  const [googleError, setGoogleError] = useState<string>();
+  const [googlePending, startGoogle] = useTransition();
+  const google = () =>
+    startGoogle(async () => {
+      const result = await checkoutWithGoogle();
+      if (result?.error) setGoogleError(result.error);
+    });
+
   const set = (k: keyof CardFields, v: string) =>
     setFields((f) => ({ ...f, [k]: v }));
 
@@ -190,31 +199,45 @@ export function CheckoutStep({
             password required.
           </p>
 
-          {/* Wallets and social sign-in are drawn as designed but inert —
-              none of the four has an app or SDK configured yet. */}
           <div className="mt-[9px] flex gap-3">
-            {[
-              { key: "google", node: <GoogleMark />, label: "Continue with Google" },
-              { key: "apple", node: <AppleMark />, label: "Continue with Apple" },
-            ].map(({ key, node, label }) => (
-              <button
-                key={key}
-                type="button"
-                disabled
-                title="Not connected yet — use your email below"
-                className="flex h-[46px] min-w-0 flex-1 cursor-not-allowed items-center justify-center rounded-xl border border-line bg-white opacity-55"
-              >
-                <span className="flex shrink-0">{node}</span>
-                <span className="whitespace-nowrap pl-[9px] text-sm font-bold leading-[1.2em] text-ink">
-                  {label}
-                </span>
-              </button>
-            ))}
+            {/* The designer's hover is border-color #9ca3af — the faint token. */}
+            <button
+              type="button"
+              onClick={google}
+              disabled={googlePending}
+              className="flex h-[46px] min-w-0 flex-1 cursor-pointer items-center justify-center rounded-xl border border-line bg-white transition-colors hover:border-faint disabled:cursor-progress disabled:opacity-70"
+            >
+              <span className="flex shrink-0">
+                <GoogleMark />
+              </span>
+              <span className="whitespace-nowrap pl-[9px] text-sm font-bold leading-[1.2em] text-ink">
+                {googlePending ? "Opening Google…" : "Continue with Google"}
+              </span>
+            </button>
+            {/* Apple is drawn as designed but inert — no app configured yet. */}
+            <button
+              type="button"
+              disabled
+              title="Not connected yet — use your email below"
+              className="flex h-[46px] min-w-0 flex-1 cursor-not-allowed items-center justify-center rounded-xl border border-line bg-white opacity-55"
+            >
+              <span className="flex shrink-0">
+                <AppleMark />
+              </span>
+              <span className="whitespace-nowrap pl-[9px] text-sm font-bold leading-[1.2em] text-ink">
+                Continue with Apple
+              </span>
+            </button>
           </div>
-          {/* Not in the mockup. Two prominent buttons that do nothing need a
+          {googleError && (
+            <small className="block pt-[0.2em] text-center text-xs text-error">
+              {googleError}
+            </small>
+          )}
+          {/* Not in the mockup. A prominent button that does nothing needs a
               reason attached, and `title` only reaches a hovering mouse. */}
           <p className="mt-1.5 text-center text-xs text-faint">
-            Google and Apple sign-in are not connected yet.
+            Apple sign-in is not connected yet.
           </p>
 
           <div className="mt-[7px] flex items-center">

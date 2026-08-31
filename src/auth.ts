@@ -2,6 +2,7 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { and, eq, gt } from "drizzle-orm";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 
 import { db } from "@/db";
@@ -33,6 +34,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: env.AUTH_SECRET,
 
   providers: [
+    /**
+     * "Continue with Google". Included only when the keys exist, so local dev
+     * without them still boots and the button can honestly say it is off.
+     *
+     * Email linking is on: accounts here are usually created at checkout with
+     * only an email address, so a returning customer pressing the Google
+     * button MUST land in that account rather than an OAuthAccountNotLinked
+     * error. That is safe for Google specifically because the signIn callback
+     * below refuses any Google profile whose email Google has not verified —
+     * without that check, linking by email would let anyone who can register
+     * an unverified address at a Google Workspace hijack the matching account.
+     */
+    ...(env.googleConfigured
+      ? [
+          Google({
+            clientId: env.AUTH_GOOGLE_ID,
+            clientSecret: env.AUTH_GOOGLE_SECRET,
+            allowDangerousEmailAccountLinking: true,
+          }),
+        ]
+      : []),
+
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -125,6 +148,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
+    // The precondition for `allowDangerousEmailAccountLinking` above.
+    async signIn({ account, profile }) {
+      if (account?.provider === "google") {
+        return profile?.email_verified === true;
+      }
+      return true;
+    },
+
     // With JWT sessions the token is the only thing carried between requests,
     // so the user id has to be stashed on it to reach the session.
     async jwt({ token, user }) {

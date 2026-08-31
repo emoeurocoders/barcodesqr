@@ -30,6 +30,19 @@ export const env = {
     return required("AUTH_SECRET");
   },
 
+  /** Google OAuth client. Absent means "Continue with Google" stays off. */
+  get AUTH_GOOGLE_ID() {
+    return process.env.AUTH_GOOGLE_ID ?? "";
+  },
+  get AUTH_GOOGLE_SECRET() {
+    return process.env.AUTH_GOOGLE_SECRET ?? "";
+  },
+
+  /** True once Google sign-in can actually run. */
+  get googleConfigured() {
+    return !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
+  },
+
   /** Resend API key. Absent means sign-in links cannot be delivered. */
   get RESEND_API_KEY() {
     return process.env.RESEND_API_KEY ?? "";

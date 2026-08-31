@@ -7,6 +7,7 @@ import { AuthError } from "next-auth";
 import { signIn, signOut } from "@/auth";
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import { env } from "@/lib/env";
 
 const BCRYPT_ROUNDS = 12;
 const MIN_PASSWORD = 8;
@@ -101,6 +102,24 @@ export async function loginUser(
     throw error;
   }
 
+  return undefined;
+}
+
+/**
+ * Kick off the Google OAuth round trip.
+ *
+ * Throws a redirect (to Google, then back to the dashboard) on the happy
+ * path, so a normal return is always a refusal. When the keys are missing —
+ * local dev, usually — it says so instead of bouncing through a provider
+ * that is not there.
+ */
+export async function signInWithGoogle(): Promise<AuthFormState> {
+  if (!env.googleConfigured) {
+    return {
+      error: "Google sign-in isn't available yet. Please use your email.",
+    };
+  }
+  await signIn("google", { redirectTo: "/dashboard" });
   return undefined;
 }
 

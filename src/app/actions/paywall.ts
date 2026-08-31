@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { signIn } from "@/auth";
 import { db } from "@/db";
 import { users, verificationTokens } from "@/db/schema";
+import { env } from "@/lib/env";
 
 export type PaywallFormState = { error?: string } | undefined;
 
@@ -85,5 +86,27 @@ export async function checkout(
 
   // Throws a redirect on success, so anything below is the failure path.
   await signIn("paywall-token", { token, redirectTo: "/dashboard" });
+  return undefined;
+}
+
+/**
+ * Claim the account at checkout via Google instead of an email address.
+ *
+ * The OAuth round trip replaces both proofs the email path fakes: Google
+ * vouches for the address, and signing into an EXISTING account is fine here
+ * — unlike `checkout` above, identity has actually been proven. What it does
+ * NOT prove is payment: there is still no processor, so the completion route
+ * this lands on grants the same unpaid trial the email path grants, and the
+ * card step is skipped entirely. That is a deliberate, documented state —
+ * see the SECURITY comment on `checkout`; both paths get honest the day a
+ * processor webhook lands.
+ */
+export async function checkoutWithGoogle(): Promise<PaywallFormState> {
+  if (!env.googleConfigured) {
+    return {
+      error: "Google sign-in isn't available yet. Please use your email.",
+    };
+  }
+  await signIn("google", { redirectTo: "/auth/paywall-complete" });
   return undefined;
 }
