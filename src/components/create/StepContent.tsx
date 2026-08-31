@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   BadgeCheck,
   CloudUpload,
+  File as FileIcon,
   Info,
   Pencil,
   ChevronDown,
@@ -11,8 +12,11 @@ import {
   Phone,
   Building2,
   MapPin,
+  Plus,
   Share2,
+  Trash2,
   Link as LinkIcon,
+  X,
 } from "lucide-react";
 import {
   fieldSchema,
@@ -28,6 +32,12 @@ import type { QrTypeIcon } from "./qrTypes";
 import { hasTracking } from "./encodeQr";
 import { InfoTip } from "./InfoTip";
 import { ContactIcon } from "@/components/ui/CreatorIcons";
+import { fieldError, isValidUrl, errorCopy, visible } from "./validate";
+import {
+  parseStoredFile,
+  parseLinks,
+  type StoredLink,
+} from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -52,6 +62,14 @@ const sectionIcons: Record<string, QrTypeIcon> = {
 const inputClass =
   "w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-base text-ink placeholder:text-faint shadow-soft transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 md:text-sm";
 
+/** The same control once its value has failed validation. */
+const invalidInputClass =
+  "w-full rounded-lg border border-error bg-white px-3.5 py-2.5 text-base text-ink placeholder:text-faint shadow-soft transition-colors focus:border-error focus:outline-none focus:ring-2 focus:ring-error/20 disabled:opacity-50 md:text-sm";
+
+function ErrorText({ children }: { children: React.ReactNode }) {
+  return <p className="mt-1 text-xs font-medium text-error">{children}</p>;
+}
+
 /** The teal pill above the first section of every tracked format. */
 const TRACKING_TIP =
   "This is a dynamic QR code — you can edit where it points anytime (even after printing) and track every scan.";
@@ -75,24 +93,293 @@ function Counter({ value, max }: { value: string; max: number }) {
   );
 }
 
-/**
- * Fields whose `showIf` condition is not met are hidden entirely.
- *
- * Every condition in the schema is written as `{ field, equals | notEquals }`.
- * Reading it as a plain field->value map instead — which is what this did —
- * matched nothing, so vCard's address block and WiFi's password were
- * unreachable rather than conditional.
- */
-function visible(f: Field, values: Values) {
-  const cond = f.showIf as
-    | { field?: string; equals?: unknown; notEquals?: unknown }
-    | undefined;
-  if (!cond?.field) return true;
+// `visible` moved to validate.ts — the wizard's Next gate needs the same
+// answer to what is on screen as the renderer.
 
-  const actual = values[cond.field] ?? "";
-  if ("equals" in cond) return actual === cond.equals;
-  if ("notEquals" in cond) return actual !== cond.notEquals;
-  return true;
+/** Does a picked/dropped file satisfy the field's `accept` list? */
+function matchesAccept(file: File, accept?: string) {
+  const wanted = (accept ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (!wanted.length) return true;
+
+  const name = file.name.toLowerCase();
+  const type = file.type.toLowerCase();
+  return wanted.some((a) =>
+    a.startsWith(".")
+      ? name.endsWith(a)
+      : a.endsWith("/*")
+        ? type.startsWith(a.slice(0, -1))
+        : type === a,
+  );
+}
+
+function humanSize(bytes: number) {
+  return bytes >= 1024 * 1024
+    ? `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+/** Reads a file into the JSON shape `storedValues` defines. */
+function readFileValue(file: File, onDone: (json: string) => void) {
+  const meta = { name: file.name, size: file.size };
+  if (!file.type.toLowerCase().startsWith("image/")) {
+    onDone(JSON.stringify(meta));
+    return;
+  }
+  // Images carry a data URL so the phone preview can actually show them.
+  const reader = new FileReader();
+  reader.onload = () =>
+    onDone(JSON.stringify({ ...meta, dataUrl: reader.result }));
+  reader.onerror = () => onDone(JSON.stringify(meta));
+  reader.readAsDataURL(file);
+}
+
+/**
+ * Click-to-upload and drag & drop, with the type and size limits from the
+ * schema enforced on the way in. The file stays in memory (see storedValues) —
+ * pushing it to storage is save-time work once R2 exists.
+ */
+function FileControl({
+  field,
+  value,
+  onChange,
+}: {
+  field: Field;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+
+  const stored = parseStoredFile(value);
+  const maxMb = field.maxSizeMb ?? 5;
+
+  const take = (file: File | undefined | null) => {
+    if (!file) return;
+    if (!matchesAccept(file, field.accept)) {
+      setError(
+        `That file type isn't supported — use ${field.formats ?? "a supported format"}.`,
+      );
+      return;
+    }
+    if (file.size > maxMb * 1024 * 1024) {
+      setError(`This file is too large — the maximum size is ${maxMb} MB.`);
+      return;
+    }
+    setError(null);
+    readFileValue(file, onChange);
+  };
+
+  const clear = (e: React.MouseEvent) => {
+    // Inside a <label>: without preventDefault the click would also re-open
+    // the file picker.
+    e.preventDefault();
+    e.stopPropagation();
+    onChange("");
+    setError(null);
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  return (
+    <>
+      <label
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          take(e.dataTransfer.files?.[0]);
+        }}
+        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors ${
+          dragOver
+            ? "border-primary bg-primary-soft/30"
+            : error
+              ? "border-error bg-bg hover:border-error"
+              : "border-line bg-bg hover:border-primary/50"
+        }`}
+      >
+        {stored ? (
+          <div className="flex w-full items-center gap-3 text-left">
+            {stored.dataUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={stored.dataUrl}
+                alt=""
+                className="h-14 w-14 shrink-0 rounded-lg border border-line object-cover"
+              />
+            ) : (
+              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-lg border border-line bg-white">
+                <FileIcon className="h-6 w-6 text-primary" />
+              </span>
+            )}
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-medium text-ink">
+                {stored.name}
+              </span>
+              <span className="block text-xs text-muted">
+                {humanSize(stored.size)} • Click or drop a file to replace
+              </span>
+            </span>
+            <button
+              type="button"
+              onClick={clear}
+              aria-label="Remove file"
+              className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg text-muted transition-colors hover:bg-bg-alt hover:text-ink"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <>
+            <CloudUpload className="h-7 w-7 text-primary" />
+            <span className="text-sm font-medium text-ink">
+              Click to upload or drag &amp; drop your {label(field)}
+            </span>
+            <span className="text-xs text-muted">
+              Max size: {maxMb} MB •{" "}
+              {field.formats ?? "PNG, JPG, JPEG, etc."}
+            </span>
+          </>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept={field.accept}
+          className="hidden"
+          onChange={(e) => {
+            take(e.currentTarget.files?.[0]);
+            // Reset so picking the same file again still fires onChange.
+            e.currentTarget.value = "";
+          }}
+        />
+      </label>
+      {error && <ErrorText>{error}</ErrorText>}
+    </>
+  );
+}
+
+const emptyLink: StoredLink = { name: "", url: "" };
+
+/**
+ * The multi-link editor: any number of rows, each an optional logo, a name
+ * and a URL, serialised back into the flat values map as JSON.
+ */
+function LinksControl({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const parsed = parseLinks(value);
+  const rows = parsed.length ? parsed : [emptyLink];
+  const [touched, setTouched] = useState<Record<number, boolean>>({});
+  const [logoError, setLogoError] = useState<string | null>(null);
+
+  const write = (next: StoredLink[]) => onChange(JSON.stringify(next));
+  const update = (i: number, patch: Partial<StoredLink>) =>
+    write(rows.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+
+  const takeLogo = (i: number, file: File | undefined | null) => {
+    if (!file) return;
+    if (!file.type.toLowerCase().startsWith("image/")) {
+      setLogoError("Logos must be images — PNG, JPG, JPEG, etc.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoError("This logo is too large — the maximum size is 2 MB.");
+      return;
+    }
+    setLogoError(null);
+    const reader = new FileReader();
+    reader.onload = () => update(i, { logo: String(reader.result) });
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="space-y-3">
+      {rows.map((row, i) => {
+        const urlBad =
+          touched[i] && row.url.trim() !== "" && !isValidUrl(row.url);
+        return (
+          <div key={i} className="rounded-xl border border-line bg-bg p-3">
+            <div className="flex items-start gap-3">
+              <label
+                title={fieldLabels.linkLogo}
+                className="grid h-[42px] w-[42px] shrink-0 cursor-pointer place-items-center overflow-hidden rounded-lg border border-dashed border-line bg-white transition-colors hover:border-primary/50"
+              >
+                {row.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={row.logo}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ImageIcon className="h-4 w-4 text-faint" />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    takeLogo(i, e.currentTarget.files?.[0]);
+                    e.currentTarget.value = "";
+                  }}
+                />
+              </label>
+
+              <div className="min-w-0 flex-1 space-y-2">
+                <input
+                  className={inputClass}
+                  placeholder={fieldLabels.linkName}
+                  maxLength={40}
+                  value={row.name}
+                  onChange={(e) => update(i, { name: e.target.value })}
+                />
+                <input
+                  type="url"
+                  className={urlBad ? invalidInputClass : inputClass}
+                  placeholder="https://example.com"
+                  maxLength={200}
+                  value={row.url}
+                  onChange={(e) => update(i, { url: e.target.value })}
+                  onBlur={() => setTouched((t) => ({ ...t, [i]: true }))}
+                />
+                {urlBad && <ErrorText>{errorCopy.url}</ErrorText>}
+              </div>
+
+              <button
+                type="button"
+                aria-label={fieldLabels.removeLink}
+                onClick={() => write(rows.filter((_, j) => j !== i))}
+                className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg text-muted transition-colors hover:bg-bg-alt hover:text-error"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        );
+      })}
+
+      {logoError && <ErrorText>{logoError}</ErrorText>}
+
+      <button
+        type="button"
+        onClick={() => write([...rows, emptyLink])}
+        className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-line py-2.5 text-sm font-semibold text-primary transition-colors hover:border-primary/50 hover:bg-primary-soft/20"
+      >
+        <Plus className="h-4 w-4" />
+        {fieldLabels.addLink}
+      </button>
+    </div>
+  );
 }
 
 function FieldControl({
@@ -102,6 +389,7 @@ function FieldControl({
   onChange,
   dial,
   onDialChange,
+  invalid,
 }: {
   field: Field;
   value: string;
@@ -109,6 +397,7 @@ function FieldControl({
   onChange: (v: string) => void;
   dial: string;
   onDialChange: (v: string) => void;
+  invalid?: boolean;
 }) {
   // `placeholderFrom` makes the example follow another field — the payment
   // link shows a PayPal shape once PayPal is the provider.
@@ -117,9 +406,11 @@ function FieldControl({
     ? (from.map[values[from.field] ?? ""] ?? from.fallback ?? field.placeholder)
     : field.placeholder;
 
+  const baseClass = invalid ? invalidInputClass : inputClass;
+
   const common = {
     id: field.name,
-    className: inputClass,
+    className: baseClass,
     placeholder,
     maxLength: field.maxLength,
     value,
@@ -135,13 +426,13 @@ function FieldControl({
       return (
         <textarea
           {...common}
-          className={`${inputClass} min-h-[88px] resize-y`}
+          className={`${baseClass} min-h-[88px] resize-y`}
         />
       );
 
     case "select":
       return (
-        <select {...common} className={`${inputClass} cursor-pointer`}>
+        <select {...common} className={`${baseClass} cursor-pointer`}>
           {field.placeholder && (
             <option value="" disabled>
               {field.placeholder}
@@ -213,19 +504,7 @@ function FieldControl({
       );
 
     case "file":
-      return (
-        <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line bg-bg px-4 py-8 text-center transition-colors hover:border-primary/50">
-          <CloudUpload className="h-7 w-7 text-primary" />
-          <span className="text-sm font-medium text-ink">
-            Click to upload or drag &amp; drop your {label(field)}
-          </span>
-          <span className="text-xs text-muted">
-            Max size: {field.maxSizeMb ?? 5} MB •{" "}
-            {field.formats ?? "PNG, JPG, JPEG, etc."}
-          </span>
-          <input type="file" accept={field.accept} className="hidden" />
-        </label>
-      );
+      return <FileControl field={field} value={value} onChange={onChange} />;
 
     case "info":
       return (
@@ -236,16 +515,7 @@ function FieldControl({
       );
 
     case "links":
-      return (
-        <div className="space-y-2">
-          <input
-            className={inputClass}
-            placeholder="https://example.com"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-          />
-        </div>
-      );
+      return <LinksControl value={value} onChange={onChange} />;
 
     default:
       return (
@@ -283,6 +553,13 @@ function FieldRow({
   onDialChange: (v: string) => void;
 }) {
   const span = field.half ? "sm:col-span-1" : "col-span-full";
+
+  // Errors wait for the first blur — nobody wants "invalid URL" while still
+  // typing "htt". The file and links controls surface their own messages.
+  const [touched, setTouched] = useState(false);
+  const selfReporting = field.type === "file" || field.type === "links";
+  const error = touched && !selfReporting ? fieldError(field, value) : null;
+
   const control = (
     <FieldControl
       field={field}
@@ -291,6 +568,7 @@ function FieldRow({
       onChange={onChange}
       dial={dial}
       onDialChange={onDialChange}
+      invalid={!!error}
     />
   );
   const hint = field.hintKey ? fieldHints[field.hintKey] : undefined;
@@ -302,7 +580,7 @@ function FieldRow({
   const tip = field.tip ? fieldTips[field.tip] : undefined;
 
   return (
-    <div className={span}>
+    <div className={span} onBlur={() => setTouched(true)}>
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <label htmlFor={field.name} className="text-sm font-medium text-ink">
           {label(field)}
@@ -311,6 +589,7 @@ function FieldRow({
         {tip && <InfoTip label={tip} />}
       </div>
       {control}
+      {error && <ErrorText>{error}</ErrorText>}
       {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
       {field.maxLength && <Counter value={value} max={field.maxLength} />}
     </div>

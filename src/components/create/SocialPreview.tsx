@@ -4,9 +4,12 @@ import { BadgeCheck, Share2 } from "lucide-react";
 import {
   PhoneFrame,
   PhoneQrChip,
+  PhoneLinkRow,
   PhoneSocialRow,
+  filledSocials,
   socialColors,
 } from "./PhonePreview";
+import { filledLinks, linkCaption, parseStoredFile } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -17,7 +20,7 @@ const sample = {
     "Designing little things that make people smile — sharing process notes, playlists, and works in progress from my studio in Portland.",
 };
 
-const socials: { color: string; label: string }[] = [
+const sampleSocials: { color: string; label: string }[] = [
   { color: socialColors.instagram, label: "Instagram" },
   { color: socialColors.whatsapp, label: "WhatsApp" },
   { color: socialColors.reddit, label: "Reddit" },
@@ -30,6 +33,10 @@ const socials: { color: string; label: string }[] = [
 export function SocialPreview({ values }: { values: Values }) {
   const headline = values.headline?.trim() || sample.headline;
   const description = values.description?.trim() || sample.description;
+  const photo = parseStoredFile(values.photo)?.dataUrl;
+  const filled = filledSocials(values);
+  const socials = filled.length ? filled : sampleSocials;
+  const links = filledLinks(values.links);
 
   return (
     <PhoneFrame>
@@ -61,11 +68,14 @@ export function SocialPreview({ values }: { values: Values }) {
           <div className="h-[92px] w-[92px] overflow-hidden rounded-full shadow-soft ring-4 ring-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/previews/portrait.jpg"
+              src={photo ?? "/previews/portrait.jpg"}
               alt=""
               aria-hidden="true"
               className="h-full w-full"
-              style={{ objectFit: "cover", objectPosition: "50% 25%" }}
+              style={{
+                objectFit: "cover",
+                objectPosition: photo ? "50% 50%" : "50% 25%",
+              }}
             />
           </div>
         </div>
@@ -114,6 +124,9 @@ export function SocialPreview({ values }: { values: Values }) {
         <div className="relative mt-2 space-y-2 px-3.5">
           {socials.map((s) => (
             <PhoneSocialRow key={s.label} color={s.color} label={s.label} />
+          ))}
+          {links.map((l, i) => (
+            <PhoneLinkRow key={i} logo={l.logo} label={linkCaption(l)} />
           ))}
         </div>
       </div>

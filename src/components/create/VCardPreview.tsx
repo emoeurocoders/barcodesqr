@@ -6,9 +6,11 @@ import {
   PhoneFrame,
   PhoneQrChip,
   PhoneShareChip,
+  filledSocials,
   phoneInk,
   socialColors,
 } from "./PhonePreview";
+import { parseStoredFile } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -45,6 +47,12 @@ export function VCardPreview({ values }: { values: Values }) {
   const last = values.lastName?.trim() || sample.lastName;
   const role = values.jobTitle?.trim() || values.role?.trim() || sample.jobTitle;
   const summary = values.summary?.trim() || sample.summary;
+  const photo = parseStoredFile(values.photo)?.dataUrl;
+  const filled = filledSocials(values);
+  // The card shows channels as bare dots; four fit the row the sample drew.
+  const dots = filled.length
+    ? filled.slice(0, 4).map((s) => s.color)
+    : socialDots;
 
   return (
     <PhoneFrame>
@@ -81,7 +89,7 @@ export function VCardPreview({ values }: { values: Values }) {
           <div className="absolute -top-14 left-1/2 h-[100px] w-[100px] -translate-x-1/2 overflow-hidden rounded-full shadow-soft ring-4 ring-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/previews/portrait.jpg"
+              src={photo ?? "/previews/portrait.jpg"}
               alt=""
               aria-hidden="true"
               className="h-full w-full"
@@ -101,9 +109,9 @@ export function VCardPreview({ values }: { values: Values }) {
             </p>
 
             <div className="mt-2.5 flex justify-center gap-2.5">
-              {socialDots.map((c) => (
+              {dots.map((c, i) => (
                 <span
-                  key={c}
+                  key={`${c}-${i}`}
                   className="inline-block h-5 w-5 shrink-0 rounded-full"
                   style={{ background: c }}
                 />

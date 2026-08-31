@@ -35,9 +35,9 @@ import { WifiPreview } from "./previews/WifiPreview";
 import { GoogleReviewPreview } from "./previews/GoogleReviewPreview";
 import { QrPreview, defaultQrStyle } from "./QrPreview";
 import type { QrStyle } from "./QrPreview";
-import { fieldSchema } from "./fieldSchema";
 import { allTypes } from "./qrTypes";
 import { encodeQr } from "./encodeQr";
+import { isComplete } from "./validate";
 import { Button } from "@/components/ui/Button";
 import { Paywall } from "@/components/paywall/Paywall";
 import { usePaywall } from "@/components/paywall/usePaywall";
@@ -51,12 +51,8 @@ const defaultName = (type: string) => {
   return `My ${meta?.stepLabel ?? meta?.label ?? "QR"} QR Code`;
 };
 
-/** Every required field for the type must be filled before moving on. */
-function isComplete(type: string, values: Values) {
-  const required = (fieldSchema[type] ?? []).filter((f) => f.required);
-  if (!required.length) return true;
-  return required.every((f) => (values[f.name] ?? "").trim().length > 0);
-}
+// Completion lives in validate.ts now: every *visible* required field filled,
+// and nothing filled-but-malformed — so a URL without a TLD blocks Next.
 
 export function CreateWizard({ entitled }: { entitled: boolean }) {
   const router = useRouter();

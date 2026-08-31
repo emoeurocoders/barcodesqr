@@ -39,6 +39,17 @@ function intlPhone(v: Record<string, string>) {
 
 const esc = (s: string) => s.replace(/([\\;,:"])/g, "\\$1");
 
+/**
+ * "mysite.com" is a fine thing to type but a useless thing to encode — a
+ * scanner treats a bare host as text. Filled-in URLs get https:// on the way
+ * into the code; validation has already insisted on a real hostname.
+ */
+const withScheme = (u?: string) => {
+  const v = (u ?? "").trim();
+  if (!v) return "";
+  return /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : `https://${v}`;
+};
+
 function vcard(v: Record<string, string>) {
   const lines = [
     "BEGIN:VCARD",
@@ -82,7 +93,7 @@ export function encodeQr(
 
   switch (type) {
     case "website":
-      return v.url ?? "";
+      return withScheme(v.url);
 
     case "text":
       return [v.title, v.text].filter(Boolean).join("\n");
@@ -118,7 +129,7 @@ export function encodeQr(
     }
 
     case "review":
-      return v.reviewUrl ?? "";
+      return withScheme(v.reviewUrl);
 
     case "location": {
       if (!v.address) return "";
@@ -132,7 +143,7 @@ export function encodeQr(
       return calendar(v);
 
     default:
-      return dynamicTypes.has(type) ? DYNAMIC_PLACEHOLDER : (v.url ?? "");
+      return dynamicTypes.has(type) ? DYNAMIC_PLACEHOLDER : withScheme(v.url);
   }
 }
 

@@ -1,5 +1,6 @@
-import { QrCode, Share2, ChevronRight } from "lucide-react";
+import { QrCode, Share2, ChevronRight, Link as LinkIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { fieldLabels } from "./fieldSchema";
 
 /**
  * The pieces the step-2 previews share.
@@ -14,7 +15,7 @@ export const phoneInk = {
   rowLabel: "#1f2937",
 } as const;
 
-/** Brand colours for the sample social rows and dots. */
+/** Brand colours for the social rows and dots. */
 export const socialColors = {
   instagram: "#e1306c",
   facebook: "#1877f2",
@@ -23,7 +24,48 @@ export const socialColors = {
   tiktok: "#000000",
   whatsapp: "#25d366",
   reddit: "#ff4500",
+  messenger: "#0084ff",
+  snapchat: "#f7c600",
+  x: "#000000",
+  pinterest: "#e60023",
+  telegram: "#26a5e4",
+  wechat: "#07c160",
+  viber: "#7360f2",
+  line: "#06c755",
 } as const;
+
+/** The schema's social fields, in the order the form shows them. */
+const socialOrder = [
+  "facebook",
+  "whatsapp",
+  "instagram",
+  "youtube",
+  "tiktok",
+  "messenger",
+  "snapchat",
+  "linkedin",
+  "x",
+  "reddit",
+  "pinterest",
+  "telegram",
+  "wechat",
+  "viber",
+  "line",
+] as const;
+
+/**
+ * The channels the person has actually filled in, ready to render — the
+ * previews fall back to their sample rows only while this is empty.
+ */
+export function filledSocials(values: Record<string, string>) {
+  return socialOrder
+    .filter((k) => values[k]?.trim())
+    .map((k) => ({
+      key: k,
+      label: fieldLabels[k] ?? k,
+      color: socialColors[k],
+    }));
+}
 
 /** The device the preview is drawn inside. */
 export function PhoneFrame({ children }: { children: React.ReactNode }) {
@@ -68,18 +110,28 @@ export function PhoneShareChip() {
   );
 }
 
-/** A tappable row with a bordered glyph — the custom links list. */
+/**
+ * A tappable row — the custom links list. A real uploaded logo takes the
+ * glyph's place when there is one.
+ */
 export function PhoneLinkRow({
-  icon: Icon,
+  icon: Icon = LinkIcon,
+  logo,
   label,
 }: {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  logo?: string;
   label: string;
 }) {
   return (
     <div className="flex items-center gap-2.5 rounded-full bg-white px-3 py-2 shadow-sm">
-      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-line">
-        <Icon className="h-3 w-3 text-ink" />
+      <span className="grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-full border border-line">
+        {logo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logo} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <Icon className="h-3 w-3 text-ink" />
+        )}
       </span>
       <span
         className="flex-1 truncate text-xs font-semibold"

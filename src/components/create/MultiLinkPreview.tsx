@@ -8,8 +8,10 @@ import {
   PhoneShareChip,
   PhoneLinkRow,
   PhoneSocialRow,
+  filledSocials,
   socialColors,
 } from "./PhonePreview";
+import { filledLinks, linkCaption, parseStoredFile } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -20,13 +22,13 @@ const sample = {
     "A cozy matcha bar pouring comforting, Japanese-inspired drinks all day long.",
 };
 
-const links: { icon: LucideIcon; label: string }[] = [
+const sampleLinks: { icon: LucideIcon; label: string }[] = [
   { icon: Tag, label: "Prices" },
   { icon: MapPin, label: "Location" },
   { icon: Phone, label: "Order now" },
 ];
 
-const socials: { color: string; label: string }[] = [
+const sampleSocials: { color: string; label: string }[] = [
   { color: socialColors.instagram, label: "Instagram" },
   { color: socialColors.tiktok, label: "TikTok" },
 ];
@@ -38,6 +40,9 @@ const socials: { color: string; label: string }[] = [
 export function MultiLinkPreview({ values }: { values: Values }) {
   const title = values.title?.trim() || sample.title;
   const description = values.description?.trim() || sample.description;
+  const cover = parseStoredFile(values.image)?.dataUrl;
+  const links = filledLinks(values.links);
+  const socials = filledSocials(values);
 
   return (
     <PhoneFrame>
@@ -53,7 +58,7 @@ export function MultiLinkPreview({ values }: { values: Values }) {
           <div className="absolute inset-0 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/previews/cafe.jpg"
+              src={cover ?? "/previews/cafe.jpg"}
               alt=""
               aria-hidden="true"
               className="h-full w-full"
@@ -79,14 +84,18 @@ export function MultiLinkPreview({ values }: { values: Values }) {
         </div>
 
         <div className="mt-3 space-y-2 px-3.5">
-          {links.map((l) => (
-            <PhoneLinkRow key={l.label} icon={l.icon} label={l.label} />
-          ))}
+          {links.length
+            ? links.map((l, i) => (
+                <PhoneLinkRow key={i} logo={l.logo} label={linkCaption(l)} />
+              ))
+            : sampleLinks.map((l) => (
+                <PhoneLinkRow key={l.label} icon={l.icon} label={l.label} />
+              ))}
         </div>
 
         <div className="mt-3 px-4 text-xs font-bold text-ink">Find me on</div>
         <div className="mt-2 space-y-2 px-3.5">
-          {socials.map((s) => (
+          {(socials.length ? socials : sampleSocials).map((s) => (
             <PhoneSocialRow key={s.label} color={s.color} label={s.label} />
           ))}
         </div>
