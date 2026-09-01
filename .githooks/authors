@@ -1,0 +1,30 @@
+# Commit-author addresses that Vercel will build for this project.
+#
+# One address per line. This is the list `.githooks/pre-commit` checks against,
+# and it must mirror the Vercel TEAM MEMBERSHIP for the barcodesqr project — the
+# hook cannot see Vercel, so an address here that is not on the team simply
+# moves the failure from a local refusal to a blocked deployment.
+#
+# Adding somebody: put them on the Vercel team FIRST, then add the address they
+# actually commit with. That is their git `user.email`, which is often not the
+# address they log into GitHub with — check `git log --format='%ae'` rather than
+# guessing.
+
+# GitHub's noreply address for emoeurocoders. Every one of this repo's 37
+# non-merge commits uses it, and 0f6a61b (2026-09-01) is confirmed to have
+# deployed: the Vercel commit status came back "Deployment has completed".
+86349030+emoeurocoders@users.noreply.github.com
+
+# tyanke3, from the PR merge in cc6a07f.
+64476682+tyanke3@users.noreply.github.com
+
+# DELIBERATELY ABSENT: venelinkochev@gmail.com, which is the identity in this
+# machine's global ~/.gitconfig and is NOT on the Vercel team. Commit 2c71ef8
+# was authored with it on 2026-09-01 and the deploy was blocked; the fix was an
+# author rewrite and a force-push of an already-published commit. Do not add it
+# here to make the hook quiet — that re-creates exactly that failure.
+#
+# NOTE: the sibling OrbisIQ project commits as emoeurcoders@protonmail.com
+# (emoeur-, no second "o"). That address is NOT listed here, because Vercel
+# team membership is per-project and it has never authored a commit in this
+# repo. Verify it against the barcodesqr Vercel team before adding it.

@@ -1,0 +1,73 @@
+#!/bin/sh
+#
+# Refuse a commit whose author is not on the Vercel team.
+#
+# WHY THIS EXISTS. Vercel's Git integration attributes each deployment to the
+# COMMIT AUTHOR, and refuses to build when that author is not a member of the
+# team. It does not warn and it does not fall back to whoever pushed: the
+# deployment is simply "blocked", so `main` goes stale while every local check
+# still passes. On 2026-09-01 commit 2c71ef8 landed authored from this machine's
+# global ~/.gitconfig identity (venelinkochev@gmail.com), which is not on the
+# team. Recovering it took an author rewrite and a force-push of a commit that
+# had already been published.
+#
+# The trap is that pushing works fine. GitHub authenticates the PUSHER (`gh auth
+# status` said emoeurocoders, correctly), while Vercel reads the AUTHOR baked
+# into the commit object. Those are two different identities, and nothing
+# between `git commit` and a red check in the GitHub UI mentions the difference.
+#
+# So the check happens here, before the commit exists, where the fix is free.
+#
+# ENABLING IT. Hooks are not cloned. Every checkout has to opt in once:
+#
+#     git config core.hooksPath .githooks
+#
+# A clone that forgets it is not protected — this is a guardrail, not a gate.
+# The real gate is Vercel, and it is the one that costs an afternoon.
+
+authors_file="$(git rev-parse --show-toplevel)/.githooks/authors"
+email="$(git config user.email)"
+name="$(git config user.name)"
+
+if [ -z "$email" ]; then
+  echo "commit refused: no git user.email is configured." >&2
+  echo >&2
+  echo "  git config --local user.email <an address on the Vercel team>" >&2
+  exit 1
+fi
+
+# Fail open if the allowlist is missing rather than blocking every commit in a
+# checkout that has the hook but not the list. A guardrail that breaks the repo
+# is worse than the problem it guards against.
+[ -f "$authors_file" ] || exit 0
+
+# Comments and blank lines are skipped; matching is exact and case-insensitive,
+# because git preserves the case you typed and Vercel does not care.
+lower_email="$(printf '%s' "$email" | tr '[:upper:]' '[:lower:]')"
+if grep -v '^[[:space:]]*#' "$authors_file" |
+  grep -v '^[[:space:]]*$' |
+  tr '[:upper:]' '[:lower:]' |
+  grep -qx "$lower_email"; then
+  exit 0
+fi
+
+cat >&2 <<EOF
+commit refused: "$name <$email>" is not on the Vercel team.
+
+Vercel attributes a deployment to the COMMIT AUTHOR and blocks the build when
+that author is not a team member. Pushing would succeed — GitHub authenticates
+whoever pushes — and then main would sit undeployed behind a red check.
+
+Fix it for this repo, once:
+
+  git config --local user.name  "emoeurocoders"
+  git config --local user.email "86349030+emoeurocoders@users.noreply.github.com"
+
+Then re-run the commit. If this address SHOULD be able to deploy, add the person
+to the Vercel team first and then add the address to .githooks/authors — in that
+order, or the next commit is blocked at Vercel instead of here.
+
+Authors currently allowed:
+EOF
+grep -v '^[[:space:]]*#' "$authors_file" | grep -v '^[[:space:]]*$' | sed 's/^/  /' >&2
+exit 1

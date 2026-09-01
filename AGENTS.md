@@ -14,6 +14,54 @@ Deliberately unfinished work — the things that must be resolved or consciously
 accepted before launch — is tracked in `LAUNCH.md`. Add to it rather than
 leaving a limitation in a commit message.
 
+## Commits and deploys
+
+**Commit as a Vercel team member, or the deploy is blocked.** Vercel attributes
+a deployment to the COMMIT AUTHOR and refuses to build when that author is not
+on the team. It does not warn and it does not fall back to whoever pushed — the
+check just goes red and `main` sits undeployed. On 2026-09-01 commit `2c71ef8`
+landed authored from this machine's global `~/.gitconfig` identity
+(`venelinkochev@gmail.com`, not on the team) and was blocked; recovering it took
+an author rewrite and a force-push of an already-published commit.
+
+The trap is that **pushing works fine**: GitHub authenticates the PUSHER (`gh
+auth status` correctly said `emoeurocoders`), while Vercel reads the AUTHOR
+baked into the commit object. Two different identities, and nothing between
+`git commit` and a red check mentions the difference. So set the identity per
+repo rather than trusting the global one:
+
+```bash
+git config --local user.name  "emoeurocoders"
+git config --local user.email "86349030+emoeurocoders@users.noreply.github.com"
+git config --local core.hooksPath .githooks   # refuses a wrong-author commit
+```
+
+Note the address: this repo commits with GitHub's **noreply** address, which all
+37 of its non-merge commits use. The sibling OrbisIQ project commits as
+`emoeurcoders@protonmail.com` instead — do not copy that one across, Vercel team
+membership is per-project.
+
+`.githooks/pre-commit` checks the author against `.githooks/authors` and fails
+with the fix in the message. **Hooks are not cloned** — that third line is a
+per-checkout opt-in, so a fresh clone is unprotected until someone runs it. Add
+an address to `.githooks/authors` only AFTER putting the person on the Vercel
+team, or the failure just moves from a local refusal to a blocked deploy.
+
+**Commits go straight to `main`.** It is what auto-deploys; a branch means the
+change is not actually deployed. No feature branches or PRs unless asked.
+
+`.claude/auto-commit.sh` commits and pushes from a Stop hook, passing the
+identity explicitly so authorship cannot drift even if the local config is
+cleared. It refuses to push on a wrong author, a failing typecheck, the wrong
+`gh` account or the wrong remote, and refuses to commit at all if an env file
+or a credential-shaped string is staged. It is machine-local and gitignored,
+along with its kill switch:
+
+```bash
+touch .claude/no-auto-commit   # pause it
+rm .claude/no-auto-commit      # resume
+```
+
 ## Design sync
 
 The visual design arrives as a static HTML/CSS/JS mockup on the designer's

@@ -33,3 +33,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code, machine-local. The auto-commit hook and its kill switch are
+# per-checkout choices, not repo policy — unlike .githooks/, which IS committed
+# so the wrong-author guard travels with the repo.
+.claude/settings.local.json
+.claude/auto-commit.sh
+.claude/no-auto-commit
