@@ -10,6 +10,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # BarcodesQR
 
+Deliberately unfinished work — the things that must be resolved or consciously
+accepted before launch — is tracked in `LAUNCH.md`. Add to it rather than
+leaving a limitation in a commit message.
+
 ## Design sync
 
 The visual design arrives as a static HTML/CSS/JS mockup on the designer's
@@ -179,6 +183,46 @@ to the other.
 - [ ] Handover lists every visible difference from the mockup and why,
       including anything unbuildable — the PM should never be the one to
       spot it
+
+## File uploads
+
+Everything a visitor uploads in the creator — PDF, image, video, audio, and
+the per-link logos — goes to Cloudflare R2, over its S3-compatible API.
+Config lives in `.env.local`; see `.env.example` for what each variable is.
+
+```bash
+npm run storage:check   # credentials, read, write, CORS, public read, cleanup
+```
+
+Run that first whenever uploads misbehave. It answers "is the bucket wrong or
+is the app wrong?" in one step, and it is the only way to see the CORS and
+public-read state — both live on the bucket, not in this repo.
+
+- **The bytes never pass through the app.** The browser POSTs a description of
+  the file to `/api/uploads`, gets back a signed URL, and PUTs straight to R2.
+  A request that goes through a serverless function is capped at 4.5 MB on
+  Vercel, and the schema allows a 50 MB video — proxying would pass locally
+  and fail in production, for the largest files only.
+- **The signed URL binds the content type AND the byte count.** `signableHeaders`
+  REPLACES the signer's defaults rather than adding to them, so naming only
+  `content-length` silently unsigns the type — and an unsigned type on a public
+  bucket means a file can be stored as `text/html` and served as a page from
+  our own origin. Keep both in that set.
+- **Limits live in `src/lib/uploads.ts`, read from the field schema,** so the
+  route handler and the form reach the same verdict. A limit enforced only in
+  the client is not a limit.
+- **`/api/uploads` is deliberately open to signed-out visitors,** because the
+  creator is usable before the paywall. The validation in that route is
+  therefore the only thing between the bucket and the internet. There is no
+  rate limiting yet.
+- **Uploads happen when the file is picked, not at save time.** The field stays
+  empty until the upload lands, which is what keeps step 2's Next from
+  advancing past a file still in flight.
+- **`STORAGE_PUBLIC_BASE_URL` is the read path and is separate from the S3
+  endpoint** — that one is credentialed and private. It currently points at the
+  bucket's `r2.dev` address, which Cloudflare rate-limits and does not support
+  for production traffic. Attaching a custom domain before launch is a change
+  to that one variable.
 
 ## Auth and database
 

@@ -3,22 +3,32 @@
  * multi-link list don't fit a bare string, so they are stored as JSON in the
  * same map — these helpers are the single place that shape is read or written.
  *
- * Files stay client-side for now: images carry a data URL so the live preview
- * can show them; heavier media (PDF, video, audio) keep only name and size.
- * Uploading to storage happens at save time once R2 is wired up.
+ * Files are uploaded to R2 as soon as they are picked, so what is stored is
+ * the name and size for the UI plus the key and public URL of the object —
+ * never the bytes. `dataUrl` survives only to read values written before the
+ * bucket existed; nothing sets it any more.
  */
 
 export type StoredFile = {
   name: string;
   size: number;
-  /** Present for images only — feeds the phone preview. */
+  /** Object key in the bucket. */
+  key?: string;
+  /** Public URL the file is served from. */
+  url?: string;
+  /** Legacy: an inline data URL, from before uploads had anywhere to go. */
   dataUrl?: string;
 };
+
+/** Where to point an <img>/<video> at a stored file, whichever era wrote it. */
+export function fileSrc(f: StoredFile | null | undefined) {
+  return f?.url ?? f?.dataUrl;
+}
 
 export type StoredLink = {
   name: string;
   url: string;
-  /** Data URL of the optional per-link logo. */
+  /** Public URL of the optional per-link logo (a data URL on old values). */
   logo?: string;
 };
 

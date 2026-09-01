@@ -253,7 +253,7 @@ function ContentPreview({
   if (type === "multilink") return <MultiLinkPreview values={values} />;
   if (type === "social") return <SocialPreview values={values} />;
   if (type === "pdf") return <PdfPreview />;
-  if (type === "image") return <ImagePreview />;
+  if (type === "image") return <ImagePreview values={values} />;
   if (type === "video") return <VideoPreview />;
   if (type === "mp3") return <AudioPreview />;
   if (type === "website") return <WebsitePreview values={values} />;

@@ -11,7 +11,7 @@ import {
   filledSocials,
   socialColors,
 } from "./PhonePreview";
-import { filledLinks, linkCaption, parseStoredFile } from "./storedValues";
+import { fileSrc, filledLinks, linkCaption, parseStoredFile } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -40,7 +40,7 @@ const sampleSocials: { color: string; label: string }[] = [
 export function MultiLinkPreview({ values }: { values: Values }) {
   const title = values.title?.trim() || sample.title;
   const description = values.description?.trim() || sample.description;
-  const cover = parseStoredFile(values.image)?.dataUrl;
+  const cover = fileSrc(parseStoredFile(values.image));
   const links = filledLinks(values.links);
   const socials = filledSocials(values);
 

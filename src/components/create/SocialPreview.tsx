@@ -9,7 +9,7 @@ import {
   filledSocials,
   socialColors,
 } from "./PhonePreview";
-import { filledLinks, linkCaption, parseStoredFile } from "./storedValues";
+import { fileSrc, filledLinks, linkCaption, parseStoredFile } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -33,7 +33,7 @@ const sampleSocials: { color: string; label: string }[] = [
 export function SocialPreview({ values }: { values: Values }) {
   const headline = values.headline?.trim() || sample.headline;
   const description = values.description?.trim() || sample.description;
-  const photo = parseStoredFile(values.photo)?.dataUrl;
+  const photo = fileSrc(parseStoredFile(values.photo));
   const filled = filledSocials(values);
   const socials = filled.length ? filled : sampleSocials;
   const links = filledLinks(values.links);

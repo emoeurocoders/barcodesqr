@@ -72,4 +72,51 @@ export const env = {
       process.env.APP_URL
     );
   },
+
+  /* --- Cloudflare R2, over its S3-compatible API ------------------------ */
+
+  /** Account-level S3 endpoint, without the bucket. */
+  get STORAGE_ENDPOINT() {
+    return required("STORAGE_ENDPOINT");
+  },
+  get STORAGE_BUCKET() {
+    return required("STORAGE_BUCKET");
+  },
+  get STORAGE_ACCESS_KEY_ID() {
+    return required("STORAGE_ACCESS_KEY_ID");
+  },
+  get STORAGE_SECRET_ACCESS_KEY() {
+    return required("STORAGE_SECRET_ACCESS_KEY");
+  },
+  /** R2 ignores the region but the S3 signer insists on one. */
+  get STORAGE_REGION() {
+    return process.env.STORAGE_REGION || "auto";
+  },
+  /**
+   * Bucket in the path rather than the host. Off for R2, whose endpoint
+   * resolves as bucket.account.r2.cloudflarestorage.com; on for a MinIO or
+   * localstack style host, where the bucket cannot be a subdomain.
+   */
+  get STORAGE_FORCE_PATH_STYLE() {
+    return process.env.STORAGE_FORCE_PATH_STYLE === "true";
+  },
+  /**
+   * Origin uploaded files are read back from, no trailing slash. Separate
+   * from the S3 endpoint: that one is credentialed and private, this one is
+   * what a scanner's phone opens.
+   */
+  get STORAGE_PUBLIC_BASE_URL() {
+    return required("STORAGE_PUBLIC_BASE_URL").replace(/\/$/, "");
+  },
+
+  /** True once a file picked in the creator has somewhere to go. */
+  get storageConfigured() {
+    return !!(
+      process.env.STORAGE_ENDPOINT &&
+      process.env.STORAGE_BUCKET &&
+      process.env.STORAGE_ACCESS_KEY_ID &&
+      process.env.STORAGE_SECRET_ACCESS_KEY &&
+      process.env.STORAGE_PUBLIC_BASE_URL
+    );
+  },
 };

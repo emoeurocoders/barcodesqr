@@ -3,6 +3,11 @@
 Marketing site for [BarcodesQR](https://www.barcodesqr.com) — a dynamic QR code
 generator. Rebuilt on our own infrastructure with Next.js, deployed on Vercel.
 
+## Status
+
+Pre-launch. Known gaps and everything that must be settled before going live
+are tracked in [LAUNCH.md](LAUNCH.md).
+
 ## Stack
 
 | | |

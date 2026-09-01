@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   BadgeCheck,
   CloudUpload,
@@ -16,6 +16,7 @@ import {
   Share2,
   Trash2,
   Link as LinkIcon,
+  Loader2,
   X,
 } from "lucide-react";
 import {
@@ -34,10 +35,14 @@ import { InfoTip } from "./InfoTip";
 import { ContactIcon } from "@/components/ui/CreatorIcons";
 import { fieldError, isValidUrl, errorCopy, visible } from "./validate";
 import {
+  fileSrc,
   parseStoredFile,
   parseLinks,
+  type StoredFile,
   type StoredLink,
 } from "./storedValues";
+import { LINK_LOGO_FIELD, matchesAccept, uploadTarget } from "@/lib/uploads";
+import { UploadError, uploadFile } from "./uploadFile";
 
 type Values = Record<string, string>;
 
@@ -96,24 +101,8 @@ function Counter({ value, max }: { value: string; max: number }) {
 // `visible` moved to validate.ts — the wizard's Next gate needs the same
 // answer to what is on screen as the renderer.
 
-/** Does a picked/dropped file satisfy the field's `accept` list? */
-function matchesAccept(file: File, accept?: string) {
-  const wanted = (accept ?? "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-  if (!wanted.length) return true;
-
-  const name = file.name.toLowerCase();
-  const type = file.type.toLowerCase();
-  return wanted.some((a) =>
-    a.startsWith(".")
-      ? name.endsWith(a)
-      : a.endsWith("/*")
-        ? type.startsWith(a.slice(0, -1))
-        : type === a,
-  );
-}
+// `matchesAccept` moved to lib/uploads.ts — the route handler has to reach
+// the same verdict as this form, so it cannot live inside a client component.
 
 function humanSize(bytes: number) {
   return bytes >= 1024 * 1024
@@ -121,25 +110,23 @@ function humanSize(bytes: number) {
     : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
-/** Reads a file into the JSON shape `storedValues` defines. */
-function readFileValue(file: File, onDone: (json: string) => void) {
-  const meta = { name: file.name, size: file.size };
-  if (!file.type.toLowerCase().startsWith("image/")) {
-    onDone(JSON.stringify(meta));
-    return;
-  }
-  // Images carry a data URL so the phone preview can actually show them.
-  const reader = new FileReader();
-  reader.onload = () =>
-    onDone(JSON.stringify({ ...meta, dataUrl: reader.result }));
-  reader.onerror = () => onDone(JSON.stringify(meta));
-  reader.readAsDataURL(file);
-}
+/**
+ * Which QR type the open form belongs to.
+ *
+ * The upload API validates a file against `fieldSchema[type][field]`, so the
+ * file controls need the type. Context rather than four more props threaded
+ * through FieldRow, Section and FieldControl, none of which otherwise care.
+ */
+const QrTypeContext = createContext("");
 
 /**
  * Click-to-upload and drag & drop, with the type and size limits from the
- * schema enforced on the way in. The file stays in memory (see storedValues) —
- * pushing it to storage is save-time work once R2 exists.
+ * schema enforced on the way in.
+ *
+ * Picking a file uploads it immediately rather than at save time: the bytes
+ * go straight to R2 and only the resulting URL is kept in the values map. The
+ * field stays empty until that finishes, which is what keeps step 2's Next
+ * from advancing past a file that is still in flight.
  */
 function FileControl({
   field,
@@ -150,16 +137,26 @@ function FileControl({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const type = useContext(QrTypeContext);
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  /** Percent while a file is in flight, null when nothing is uploading. */
+  const [progress, setProgress] = useState<number | null>(null);
+  /** Local preview of the in-flight file, so the box isn't blank while it uploads. */
+  const [pending, setPending] = useState<{ name: string; size: number; src?: string } | null>(null);
+
+  // Only the newest pick may finish: replacing a file mid-upload must not let
+  // the abandoned one land afterwards and overwrite it.
+  const inFlight = useRef<AbortController | null>(null);
+  useEffect(() => () => inFlight.current?.abort(), []);
 
   const stored = parseStoredFile(value);
   const maxMb = field.maxSizeMb ?? 5;
 
-  const take = (file: File | undefined | null) => {
+  const take = async (file: File | undefined | null) => {
     if (!file) return;
-    if (!matchesAccept(file, field.accept)) {
+    if (!matchesAccept(file.name, file.type, field.accept)) {
       setError(
         `That file type isn't supported — use ${field.formats ?? "a supported format"}.`,
       );
@@ -169,8 +166,41 @@ function FileControl({
       setError(`This file is too large — the maximum size is ${maxMb} MB.`);
       return;
     }
+
+    inFlight.current?.abort();
+    const ctrl = new AbortController();
+    inFlight.current = ctrl;
+
     setError(null);
-    readFileValue(file, onChange);
+    onChange("");
+    const src = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+    setPending({ name: file.name, size: file.size, src });
+    setProgress(0);
+
+    try {
+      const { key, url } = await uploadFile({
+        type,
+        field: field.name,
+        file,
+        onProgress: setProgress,
+        signal: ctrl.signal,
+      });
+      onChange(JSON.stringify({ name: file.name, size: file.size, key, url }));
+    } catch (e) {
+      if ((e as Error)?.name === "AbortError") return;
+      setError(
+        e instanceof UploadError
+          ? e.message
+          : "The upload failed. Please try again.",
+      );
+    } finally {
+      if (inFlight.current === ctrl) {
+        inFlight.current = null;
+        setProgress(null);
+        setPending(null);
+      }
+      if (src) URL.revokeObjectURL(src);
+    }
   };
 
   const clear = (e: React.MouseEvent) => {
@@ -178,10 +208,19 @@ function FileControl({
     // the file picker.
     e.preventDefault();
     e.stopPropagation();
+    inFlight.current?.abort();
+    inFlight.current = null;
+    setProgress(null);
+    setPending(null);
     onChange("");
     setError(null);
     if (inputRef.current) inputRef.current.value = "";
   };
+
+  const uploading = progress !== null;
+  // One row describes whichever file the box is showing — the one uploading,
+  // or the one that landed.
+  const shown = pending ?? stored;
 
   return (
     <>
@@ -204,12 +243,12 @@ function FileControl({
               : "border-line bg-bg hover:border-primary/50"
         }`}
       >
-        {stored ? (
+        {shown ? (
           <div className="flex w-full items-center gap-3 text-left">
-            {stored.dataUrl ? (
+            {thumbSrc(shown, stored) ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={stored.dataUrl}
+                src={thumbSrc(shown, stored)}
                 alt=""
                 className="h-14 w-14 shrink-0 rounded-lg border border-line object-cover"
               />
@@ -220,16 +259,33 @@ function FileControl({
             )}
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-medium text-ink">
-                {stored.name}
+                {shown.name}
               </span>
               <span className="block text-xs text-muted">
-                {humanSize(stored.size)} • Click or drop a file to replace
+                {uploading
+                  ? `${humanSize(shown.size)} • Uploading… ${progress}%`
+                  : `${humanSize(shown.size)} • Click or drop a file to replace`}
               </span>
+              {uploading && (
+                <span
+                  role="progressbar"
+                  aria-valuenow={progress ?? 0}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`Uploading ${shown.name}`}
+                  className="mt-1.5 block h-1 w-full overflow-hidden rounded-full bg-line"
+                >
+                  <span
+                    className="block h-full rounded-full bg-primary transition-[width] duration-200"
+                    style={{ width: `${progress}%` }}
+                  />
+                </span>
+              )}
             </span>
             <button
               type="button"
               onClick={clear}
-              aria-label="Remove file"
+              aria-label={uploading ? "Cancel upload" : "Remove file"}
               className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg text-muted transition-colors hover:bg-bg-alt hover:text-ink"
             >
               <X className="h-4 w-4" />
@@ -264,6 +320,14 @@ function FileControl({
   );
 }
 
+/** The in-flight object URL while uploading, the stored one once it lands. */
+function thumbSrc(
+  shown: { src?: string } | StoredFile,
+  stored: StoredFile | null,
+) {
+  return ("src" in shown ? shown.src : undefined) ?? fileSrc(stored);
+}
+
 const emptyLink: StoredLink = { name: "", url: "" };
 
 /**
@@ -281,25 +345,52 @@ function LinksControl({
   const rows = parsed.length ? parsed : [emptyLink];
   const [touched, setTouched] = useState<Record<number, boolean>>({});
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState<number | null>(null);
+  const type = useContext(QrTypeContext);
+
+  // Read on the far side of a logo upload, where `value` would otherwise be
+  // the stale one captured when the picker opened. Synced in an effect, not
+  // during render, which React forbids.
+  const valueRef = useRef(value);
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
 
   const write = (next: StoredLink[]) => onChange(JSON.stringify(next));
   const update = (i: number, patch: Partial<StoredLink>) =>
     write(rows.map((l, j) => (j === i ? { ...l, ...patch } : l)));
 
-  const takeLogo = (i: number, file: File | undefined | null) => {
+  const takeLogo = async (i: number, file: File | undefined | null) => {
     if (!file) return;
-    if (!file.type.toLowerCase().startsWith("image/")) {
+    const limits = uploadTarget(type, LINK_LOGO_FIELD)!;
+    if (!matchesAccept(file.name, file.type, limits.accept)) {
       setLogoError("Logos must be images — PNG, JPG, JPEG, etc.");
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      setLogoError("This logo is too large — the maximum size is 2 MB.");
+    if (file.size > limits.maxSizeMb * 1024 * 1024) {
+      setLogoError(`This logo is too large — the maximum size is ${limits.maxSizeMb} MB.`);
       return;
     }
     setLogoError(null);
-    const reader = new FileReader();
-    reader.onload = () => update(i, { logo: String(reader.result) });
-    reader.readAsDataURL(file);
+    setUploadingLogo(i);
+    try {
+      const { url } = await uploadFile({ type, field: LINK_LOGO_FIELD, file });
+      // Read the rows again on the way out: the visitor may have typed into
+      // another row while this was uploading, and `rows` is a stale closure.
+      onChange(
+        JSON.stringify(
+          parseLinks(valueRef.current).map((l, j) =>
+            j === i ? { ...l, logo: url } : l,
+          ),
+        ),
+      );
+    } catch (e) {
+      setLogoError(
+        e instanceof UploadError ? e.message : "That logo could not be uploaded.",
+      );
+    } finally {
+      setUploadingLogo((cur) => (cur === i ? null : cur));
+    }
   };
 
   return (
@@ -314,7 +405,9 @@ function LinksControl({
                 title={fieldLabels.linkLogo}
                 className="grid h-[42px] w-[42px] shrink-0 cursor-pointer place-items-center overflow-hidden rounded-lg border border-dashed border-line bg-white transition-colors hover:border-primary/50"
               >
-                {row.logo ? (
+                {uploadingLogo === i ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                ) : row.logo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={row.logo}
@@ -708,7 +801,7 @@ export function StepContent({
   const set = (k: string, v: string) => setValues({ ...values, [k]: v });
 
   return (
-    <>
+    <QrTypeContext.Provider value={type}>
       {/* Type header. The glyph is neutral here — the colour in step 1's list
           is what tells the formats apart; by step 2 you have already chosen. */}
       <div className="mb-5 flex items-center gap-3 border-b border-line pb-4">
@@ -781,6 +874,6 @@ export function StepContent({
           <Counter value={name} max={40} />
         </div>
       </div>
-    </>
+    </QrTypeContext.Provider>
   );
 }

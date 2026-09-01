@@ -1,13 +1,16 @@
 import { PhoneFrame } from "../PhonePreview";
+import { fileSrc, parseStoredFile } from "../storedValues";
 
 /** The pale disc colour scattered behind the photo. */
 const BLOB = "#eceff2";
 
 /**
  * Step-2 preview for the Image type: the uploaded photo as a printed snap,
- * pegged to the wall. Sample imagery until an upload exists to show.
+ * pegged to the wall. Falls back to the designer's sample until a photo has
+ * been uploaded, so the empty state still matches the mockup.
  */
-export function ImagePreview() {
+export function ImagePreview({ values }: { values: Record<string, string> }) {
+  const uploaded = fileSrc(parseStoredFile(values.file));
   return (
     <PhoneFrame>
       <div className="relative flex h-full flex-col items-center overflow-hidden bg-white">
@@ -63,7 +66,7 @@ export function ImagePreview() {
             <div className="h-44 w-full overflow-hidden rounded-[2px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/previews/sunset-hearts.jpg"
+                src={uploaded ?? "/previews/sunset-hearts.jpg"}
                 alt=""
                 aria-hidden="true"
                 className="h-full w-full"
