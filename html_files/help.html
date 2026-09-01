@@ -1,0 +1,490 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BarcodesQR</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="cleartype" content="on">
+<meta name="HandheldFriendly" content="true">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<meta name="description" content="">
+<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+<link rel="stylesheet" type="text/css" href="assets/css/default.css">
+<link rel="stylesheet" type="text/css" href="assets/css/remodal.css">
+<link rel="stylesheet" type="text/css" href="assets/css/modals.css">
+<script type="text/javascript" src="assets/scripts/jquery-3.6.0.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/remodal.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/jquery.validate.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/main.js"></script>
+</head>
+
+<body>
+<div id="fullWrp" style="overflow: hidden;"> 
+	<!--header-->
+	<header id="mainHdr"  >
+		<div class="ctr"><!--<a href="#" class="nav-hamburger"><span></span></a>--> 
+			<!--logo-->
+			<h1 id="mainLogo"><a href="/">BarcodesQR</a></h1>
+			<!--end logo--> 
+			<!--nav
+			<nav id="mainNav">
+				<ul class="site-nav">
+					<li><a href="#" >Nav Itm</a></li>
+				</ul>
+			</nav> nav--> 
+			<!--nav-->
+			<nav id="mainLoginNav">
+				<ul class="site-nav">
+					<li><a href="register.html"  class="btn genBtn1 btnC0" data-lbox="modal_user_login.html" >Log In</a></li>
+					<li><a href="#" class="btn genBtn1 btnC1" >
+						<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-qr-code h-4 w-4" aria-hidden="true">
+							<rect width="5" height="5" x="3" y="3" rx="1"></rect>
+							<rect width="5" height="5" x="16" y="3" rx="1"></rect>
+							<rect width="5" height="5" x="3" y="16" rx="1"></rect>
+							<path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+							<path d="M21 21v.01"></path>
+							<path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+							<path d="M3 12h.01"></path>
+							<path d="M12 3h.01"></path>
+							<path d="M12 16v.01"></path>
+							<path d="M16 12h1"></path>
+							<path d="M21 12v.01"></path>
+							<path d="M12 21v-1"></path>
+						</svg>
+						Create QR Code</a></li>
+				</ul>
+			</nav>
+			<!--end nav--> 
+		</div>
+	</header>
+	<!--end header--> 
+	
+	<!--mainHelpHero-->
+	<section id="mainHelpHero"> 
+		<!--art--> 
+		<span class="art art1">
+		<svg viewBox="0 0 96 150" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+			<path fill-rule="evenodd" d="M0 0h28v28H0zM5 5h18v18H5z"/>
+			<rect x="9" y="9" width="10" height="10"/>
+			<path fill-rule="evenodd" d="M68 0h28v28H68zM73 5h18v18H73z"/>
+			<rect x="77" y="9" width="10" height="10"/>
+			<path fill-rule="evenodd" d="M0 68h28v28H0zM5 73h18v18H5z"/>
+			<rect x="9" y="77" width="10" height="10"/>
+			<rect x="36" y="0" width="8" height="8"/>
+			<rect x="52" y="4" width="8" height="8"/>
+			<rect x="36" y="20" width="8" height="8"/>
+			<rect x="60" y="20" width="8" height="8"/>
+			<rect x="44" y="32" width="8" height="8"/>
+			<rect x="56" y="36" width="8" height="8"/>
+			<rect x="80" y="36" width="8" height="8"/>
+			<rect x="36" y="48" width="8" height="8"/>
+			<rect x="68" y="48" width="8" height="8"/>
+			<rect x="88" y="52" width="8" height="8"/>
+			<rect x="48" y="60" width="8" height="8"/>
+			<rect x="60" y="68" width="8" height="8"/>
+			<rect x="80" y="64" width="8" height="8"/>
+			<rect x="36" y="80" width="8" height="8"/>
+			<rect x="52" y="88" width="8" height="8"/>
+			<rect x="72" y="84" width="8" height="8"/>
+			<rect x="88" y="88" width="8" height="8"/>
+			<circle cx="4" cy="118" r="3"/>
+			<circle cx="18" cy="118" r="3"/>
+			<circle cx="32" cy="118" r="3"/>
+			<circle cx="46" cy="118" r="3"/>
+			<circle cx="60" cy="118" r="3"/>
+			<circle cx="4" cy="132" r="3"/>
+			<circle cx="18" cy="132" r="3"/>
+			<circle cx="32" cy="132" r="3"/>
+			<circle cx="46" cy="132" r="3"/>
+			<circle cx="60" cy="132" r="3"/>
+			<circle cx="4" cy="146" r="3"/>
+			<circle cx="18" cy="146" r="3"/>
+			<circle cx="32" cy="146" r="3"/>
+			<circle cx="46" cy="146" r="3"/>
+			<circle cx="60" cy="146" r="3"/>
+		</svg>
+		</span> <span class="art art2">
+		<svg viewBox="0 0 240 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<circle cx="205" cy="75" r="85" stroke="currentColor" stroke-width="2"/>
+			<rect x="150" y="128" width="30" height="30" rx="7" stroke="currentColor" stroke-width="2.5"/>
+			<rect x="88" y="52" width="22" height="22" rx="5" stroke="currentColor" stroke-width="2.5"/>
+			<rect x="196" y="30" width="26" height="26" rx="6" fill="currentColor"/>
+			<g fill="currentColor">
+				<circle cx="8" cy="8" r="3"/>
+				<circle cx="24" cy="8" r="3"/>
+				<circle cx="40" cy="8" r="3"/>
+				<circle cx="56" cy="8" r="3"/>
+				<circle cx="8" cy="24" r="3"/>
+				<circle cx="24" cy="24" r="3"/>
+				<circle cx="40" cy="24" r="3"/>
+				<circle cx="56" cy="24" r="3"/>
+				<circle cx="8" cy="40" r="3"/>
+				<circle cx="24" cy="40" r="3"/>
+				<circle cx="40" cy="40" r="3"/>
+				<circle cx="56" cy="40" r="3"/>
+				<circle cx="8" cy="56" r="3"/>
+				<circle cx="24" cy="56" r="3"/>
+				<circle cx="40" cy="56" r="3"/>
+				<circle cx="56" cy="56" r="3"/>
+			</g>
+		</svg>
+		</span> 
+		<!--end art--> 
+		<!--FrmCtr-->
+		<div class="FrmCtr">
+			<h2 class="ln1">Help Center</h2>
+			<p class="ln2">Find answers about creating QR codes, managing your account, scan analytics, subscriptions, and more.</p>
+			<!--srch-->
+			<form class="srch" action="#" method="get">
+				<span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8"></circle>
+					<path d="m21 21-4.3-4.3"></path>
+				</svg>
+				</span>
+				<input type="search" name="q" placeholder="Search the Help Center">
+			</form>
+			<!--end srch--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainHelpHero--> 
+	
+	<!--mainHelpArticles-->
+	<section id="mainHelpArticles"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--cap-->
+			<div class="cap"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+				</svg>
+				</span>
+				<h3 class="ln1">Popular Articles</h3>
+			</div>
+			<!--end cap--> 
+			<!--lst-->
+			<div class="lst"> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
+					<path d="M20 3v4"></path>
+					<path d="M22 5h-4"></path>
+				</svg>
+				</span> <span class="ln2">How to create your first QR code</span> <span class="chv">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="m9 18 6-6-6-6"></path>
+				</svg>
+				</span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+					<polyline points="7 10 12 15 17 10"></polyline>
+					<line x1="12" x2="12" y1="15" y2="3"></line>
+				</svg>
+				</span> <span class="ln2">How to download and test your QR code</span> <span class="chv">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="m9 18 6-6-6-6"></path>
+				</svg>
+				</span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
+					<path d="m15 5 4 4"></path>
+				</svg>
+				</span> <span class="ln2">Can I edit a QR code after creating it?</span> <span class="chv">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="m9 18 6-6-6-6"></path>
+				</svg>
+				</span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="10"></circle>
+					<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+					<path d="M12 17h.01"></path>
+				</svg>
+				</span> <span class="ln2">Why isn&rsquo;t my QR code scanning?</span> <span class="chv">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="m9 18 6-6-6-6"></path>
+				</svg>
+				</span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="10"></circle>
+					<circle cx="12" cy="10" r="3"></circle>
+					<path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path>
+				</svg>
+				</span> <span class="ln2">How do I log in to my BarcodesQR account?</span> <span class="chv">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="m9 18 6-6-6-6"></path>
+				</svg>
+				</span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<rect width="20" height="14" x="2" y="5" rx="2"></rect>
+					<line x1="2" x2="22" y1="10" y2="10"></line>
+				</svg>
+				</span> <span class="ln2">How do I cancel my subscription?</span> <span class="chv">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="m9 18 6-6-6-6"></path>
+				</svg>
+				</span> </a> 
+				<!--end itm--> 
+			</div>
+			<!--end lst--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainHelpArticles--> 
+	
+	<!--mainHelpTopics-->
+	<section id="mainHelpTopics"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--cap-->
+			<div class="cap"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M12 7v14"></path>
+					<path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>
+				</svg>
+				</span>
+				<h3 class="ln1">Browse Help Topics</h3>
+			</div>
+			<!--end cap--> 
+			<!--lst-->
+			<div class="lst"> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+					<path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+					<path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+					<path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+				</svg>
+				</span> <span class="txt"> <span class="ln1">Getting Started</span>
+				<p class="ln2">Create, customize, and download your first QR code.</p>
+				<span class="tag">5 articles</span> </span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<rect width="5" height="5" x="3" y="3" rx="1"></rect>
+					<rect width="5" height="5" x="16" y="3" rx="1"></rect>
+					<rect width="5" height="5" x="3" y="16" rx="1"></rect>
+					<path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+					<path d="M21 21v.01"></path>
+					<path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+					<path d="M3 12h.01"></path>
+					<path d="M12 3h.01"></path>
+					<path d="M12 16v.01"></path>
+					<path d="M16 12h1"></path>
+					<path d="M21 12v.01"></path>
+					<path d="M12 21v-1"></path>
+				</svg>
+				</span> <span class="txt"> <span class="ln1">Creating &amp; Managing QR Codes</span>
+				<p class="ln2">Edit, organize, and manage your saved QR codes.</p>
+				<span class="tag">5 articles</span> </span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M3 3v16a2 2 0 0 0 2 2h16"></path>
+					<path d="M18 17V9"></path>
+					<path d="M13 17V5"></path>
+					<path d="M8 17v-3"></path>
+				</svg>
+				</span> <span class="txt"> <span class="ln1">Analytics &amp; Scans</span>
+				<p class="ln2">Understand scan activity and performance insights.</p>
+				<span class="tag">4 articles</span> </span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+					<circle cx="12" cy="7" r="4"></circle>
+				</svg>
+				</span> <span class="txt"> <span class="ln1">Account &amp; Login</span>
+				<p class="ln2">Access your account and manage login issues.</p>
+				<span class="tag">4 articles</span> </span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>
+					<path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
+				</svg>
+				</span> <span class="txt"> <span class="ln1">Plans &amp; Billing</span>
+				<p class="ln2">Trials, renewals, cancellations, and payment questions.</p>
+				<span class="tag">6 articles</span> </span> </a> 
+				<!--end itm--> 
+				<!--itm--> 
+				<a class="itm" href="#"> <span class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+				</svg>
+				</span> <span class="txt"> <span class="ln1">Troubleshooting</span>
+				<p class="ln2">Fix common QR code, download, and account problems.</p>
+				<span class="tag">5 articles</span> </span> </a> 
+				<!--end itm--> 
+			</div>
+			<!--end lst--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainHelpTopics--> 
+	
+	<!--mainHelpMore-->
+	<section id="mainHelpMore"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--row-->
+			<div class="row"> <span class="ico">
+				<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path>
+				</svg>
+				</span> 
+				<!--txt-->
+				<div class="txt">
+					<h3 class="ln1">Still Need Help?</h3>
+					<p class="ln2">Can&rsquo;t find what you&rsquo;re looking for? Our support team is available 24/7 to help with your QR codes, account, billing, or technical questions.</p>
+				</div>
+				<!--end txt--> 
+				<!--btnWrp-->
+				<div class="btnWrp"> <a href="#" class="btn genBtn4  btnC3">Contact Support</a> <a href="#" class="btn genBtn4  btnC6">Browse All Articles</a> </div>
+				<!--end btnWrp--> 
+				<!--art--> 
+				<span class="art">
+				<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 200 140">
+					<path d="M30,132c-12-6-19-19-16-35" style="fill: none; stroke: #b7cbea; stroke-linecap: round; stroke-width: 2.5px;"/>
+					<ellipse cx="14" cy="92" rx="6" ry="11" transform="translate(-36.2 13.6) rotate(-24)" style="fill: #c9d8f1;"/>
+					<ellipse cx="26" cy="110" rx="9" ry="5" transform="translate(-83.3 81.3) rotate(-62)" style="fill: #c9d8f1;"/>
+					<g>
+						<rect x="50" y="30" width="72" height="80" rx="10" ry="10" transform="translate(-8.9 12.7) rotate(-8)" style="fill: #fff; stroke: #dbe2ec; stroke-miterlimit: 4; stroke-width: 2px;"/>
+						<g>
+							<path d="M58.6,47.6l15.8-2.2,2.2,15.8-15.8,2.2-2.2-15.8ZM63.1,51l7.9-1.1,1.1,7.9-7.9,1.1-1.1-7.9Z" style="fill: #1f2937; fill-rule: evenodd;"/>
+							<path d="M90.3,43.1l15.8-2.2,2.2,15.8-15.8,2.2-2.2-15.8ZM94.8,46.5l7.9-1.1,1.1,7.9-7.9,1.1-1.1-7.9Z" style="fill: #1f2937; fill-rule: evenodd;"/>
+							<path d="M63.1,79.3l15.8-2.2,2.2,15.8-15.8,2.2-2.2-15.8ZM67.6,82.7l7.9-1.1,1.1,7.9-7.9,1.1-1.1-7.9Z" style="fill: #1f2937; fill-rule: evenodd;"/>
+							<rect x="95.1" y="74.4" width="6" height="6" transform="translate(-9.8 14.4) rotate(-8)" style="fill: #1f2937;"/>
+							<rect x="105.9" y="78.9" width="6" height="6" transform="translate(-10.3 16) rotate(-8)" style="fill: #1f2937;"/>
+							<rect x="97.1" y="88.2" width="6" height="6" transform="translate(-11.7 14.8) rotate(-8)" style="fill: #1f2937;"/>
+							<rect x="83.6" y="63.9" width="6" height="6" transform="translate(-8.5 12.7) rotate(-8)" style="fill: #1f2937;"/>
+							<rect x="70.2" y="98.1" width="6" height="6" transform="translate(-13.4 11.2) rotate(-8)" style="fill: #1f2937;"/>
+							<rect x="82.1" y="96.4" width="6" height="6" transform="translate(-13 12.8) rotate(-8)" style="fill: #1f2937;"/>
+						</g>
+					</g>
+					<rect x="138" y="8" width="52" height="38" rx="12" ry="12" style="fill: #11b1a7;"/>
+					<path d="M151,41l-5,12,14-7-9-5Z" style="fill: #11b1a7;"/>
+					<circle cx="153" cy="27" r="3.2" style="fill: #fff;"/>
+					<circle cx="164" cy="27" r="3.2" style="fill: #fff;"/>
+					<circle cx="175" cy="27" r="3.2" style="fill: #fff;"/>
+					<rect x="146" y="88" width="48" height="34" rx="6" ry="6" style="fill: #fff; stroke: #9db1d1; stroke-width: 2.5px;"/>
+					<path d="M148,92l22,15,22-15" style="fill: none; stroke: #9db1d1; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5px;"/>
+				</svg>
+				</span> 
+				<!--end art--> 
+			</div>
+			<!--end row--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainHelpMore--> 
+	
+	<!--mainFooter-->
+	<section id="mainFooter"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--top-->
+			<div class="top"> 
+				<!--lgo-->
+				<div class="lgo">
+					<div class="cap"> <img src="assets/images/main_footer_ico_logo.svg" alt="BarcodesQR"> <span class="txt">Barcodes<b>QR</b></span> </div>
+					<p class="ln2">Create, customize and manage QR codes for web, print and business.</p>
+				</div>
+				<!--end lgo--> 
+				<!--cols-->
+				<div class="cols"> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">QR Code Types</h5>
+						<a href="#">Website QR</a> <a href="#">PDF QR</a> <a href="#">vCard QR</a> <a href="#">WiFi QR</a> <a href="#">Menu QR</a> <a href="#" class="all">View All QR Types
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M5 12h14"></path>
+							<path d="m12 5 7 7-7 7"></path>
+						</svg>
+						</a> </div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Use Cases</h5>
+						<a href="#">Restaurants</a> <a href="#">Business Cards</a> <a href="#">Packaging</a> <a href="#">Events</a> <a href="#">Real Estate</a></div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Support</h5>
+						<a class="footLive" href="#">Live Help<span class="genC1">
+						<svg fill="none"  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path>
+						</svg>
+						</span></a> <a href="#">Help Center</a> <a href="#">Cancel Subscription</a> </div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Company</h5>
+						<a href="#">Pricing</a> <a href="#">Media</a> </div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Legal</h5>
+						<a href="#">Privacy Policy</a> <a href="#">Terms &amp; Conditions</a> <a href="#">Refund Policy</a> </div>
+					<!--end col--> 
+				</div>
+				<!--end cols--> 
+			</div>
+			<!--end top--> 
+			<!--btm-->
+			<div class="btm">
+				<p class="cpy">© 2026 BarcodesQR. All rights reserved.</p>
+				<!--lst-->
+				<ul class="lst">
+					<li class="itm"><img src="assets/images/main_footer_ico_visa.svg" alt="Visa"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_mastercard.svg" alt="Mastercard"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_amex.svg" alt="American Express"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_applepay.svg" alt="Apple Pay"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_googlepay.svg" alt="Google Pay"></li>
+				</ul>
+				<!--end lst--> 
+				<!--lng-->
+				<div class="lng">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"></circle>
+						<path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+						<path d="M2 12h20"></path>
+					</svg>
+					<span class="txt">English</span>
+					<svg class="ico2" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="m6 9 6 6 6-6"></path>
+					</svg>
+				</div>
+				<!--end lng--> 
+			</div>
+			<!--end btm--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainFooter--> 
+</div>
+</body>
+</html>

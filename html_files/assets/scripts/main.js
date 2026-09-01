@@ -253,6 +253,39 @@ jQuery(document).ready(function($) {
 			});
 		});
 	}
+	//press logos infinite scroller
+	if ($('#mainPressScroll .lst').length) {
+		var $pressWrap = $('#mainPressScroll .scrl');
+		var $pressTrack = $('#mainPressScroll .lst');
+		var pressSet = $pressTrack.children();
+		var pressSetWidth = 0;
+		var pressX = 0;
+		var pressLast = null;
+		var pressPaused = false;
+		var pressSpeed = 40; //px per second
+		$pressTrack.append(pressSet.clone());
+		function pressMeasure() {
+			pressSetWidth = $pressTrack.children().eq(pressSet.length)[0].offsetLeft - pressSet[0].offsetLeft;
+			while ($pressTrack[0].scrollWidth < $pressWrap.width() + pressSetWidth * 2) {
+				$pressTrack.append(pressSet.clone());
+			}
+			pressX = pressX % pressSetWidth;
+		}
+		pressMeasure();
+		$(window).on('resize', pressMeasure);
+		$pressWrap.on('mouseenter', function() { pressPaused = true; }).on('mouseleave', function() { pressPaused = false; });
+		function pressStep(ts) {
+			if (pressLast !== null && !pressPaused) {
+				pressX -= pressSpeed * (ts - pressLast) / 1000;
+				if (pressX <= -pressSetWidth) { pressX += pressSetWidth; }
+				$pressTrack.css('transform', 'translateX(' + pressX + 'px)');
+			}
+			pressLast = ts;
+			requestAnimationFrame(pressStep);
+		}
+		requestAnimationFrame(pressStep);
+	}
+
 	//terms toggle
 	$('#mainTerms .toc .tgl').on('click', function (e) {
 		e.preventDefault();

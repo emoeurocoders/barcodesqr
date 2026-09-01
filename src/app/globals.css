@@ -11,6 +11,9 @@
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;
   --color-primary-soft: #d9e7ff;
+  /* The pressed/hover fill on the mockup's filled buttons. Close to
+     `primary-dark` but a distinct value in their CSS. */
+  --color-primary-press: #1855db;
 
   /* Text */
   --color-ink: #0e1311;
@@ -37,6 +40,24 @@
   /* Form validation red. Darker than `danger`, which marks required fields —
      the designer uses this one for every error message and invalid border. */
   --color-error: #cc0000;
+
+  /* Help Center. The designer introduces a cooler, greyer set of surfaces and
+     borders here than the marketing pages use — close enough to `line` and
+     `bg` to look like a mistake if written as raw hex, far enough that
+     substituting the existing tokens is visibly wrong. */
+  --color-hero-tint: #fbfcfd;
+  --color-hero-line: #eceef2;
+  --color-help-input-line: #dfe3ea;
+  --color-help-art: #e0e8f3;
+  --color-help-card-line: #e8eaef;
+  --color-help-tile: #e9f0fb;
+  --color-help-panel: #f7f8fb;
+  --color-help-panel-line: #e3e7ec;
+  --color-help-crumbs: #eff4fb;
+  --color-help-crumbs-line: #e2e9f4;
+  /* The article-count pill: brand-tinted, not primary. */
+  --color-help-tag: #e2f4f1;
+  --color-help-tag-line: #b4e1de;
 
   /* Radius */
   --radius-btn: 0.75rem;
@@ -117,6 +138,10 @@
  * 768 their `@media (max-width: 768px)` rules apply and ours do not — one
  * pixel wide, but it moved the terms page 49px off at that width.
  */
+/* The Help Center reaches for three widths the marketing pages never used. */
+@custom-variant to-1240 (@media (max-width: 1240px));
+@custom-variant to-1123 (@media (max-width: 1123px));
+@custom-variant to-1080 (@media (max-width: 1080px));
 @custom-variant to-992 (@media (max-width: 992px));
 @custom-variant to-768 (@media (max-width: 768px));
 @custom-variant to-576 (@media (max-width: 576px));

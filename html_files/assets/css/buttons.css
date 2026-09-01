@@ -1,8 +1,8 @@
 /* Global Buttons and colors
 --------------------------------------------------------------*/
 .btn, .btn:active, .btn:focus { border: 0; display: -moz-inline-stack; display: inline-block; zoom: 1; *display:inline;
--webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; position: relative; -webkit-tap-highlight-color: rgba(0,0,0,0); z-index: 3; text-align: center; color: #fff; letter-spacing: 0.05em; background: rgba(0,0,0,0); font-family: "Inter", "Helvetica Neue", Arial, "Nimbus Sans L", FreeSans; }
-.btn:after { content: ' ';  position: absolute; left: 0; top: 0; bottom: 0; right: 0; display: block; z-index: -2; background: #000000; -webkit-background-clip: padding-box;   background-clip:  padding-box; -webkit-border-radius: 0.7em; -moz-border-radius: 0.7em; border-radius: 0.7em; }
+-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; position: relative; -webkit-tap-highlight-color: rgba(0,0,0,0); z-index: 3; text-align: center; color: #fff; letter-spacing: 0.05em; background: rgba(0,0,0,0); font-family: "Inter", "Helvetica Neue", Arial, "Nimbus Sans L", FreeSans; transition-property: all; transition-duration: 150ms; transition-timing-function: ease;}
+.btn:after { content: ' ';  position: absolute; left: 0; top: 0; bottom: 0; right: 0; display: block; z-index: -2; background: #000000; -webkit-background-clip: padding-box;   background-clip:  padding-box; -webkit-border-radius: 0.7em; -moz-border-radius: 0.7em; border-radius: 0.7em;   transition-property: all; transition-duration: 150ms; transition-timing-function: ease; }
 .btn:active:after, .btn:active:before  { left: 1.3px; top: 1.3px; bottom: 1.3px; right: 1.3px; }
 .btnFull { display:block; width: 100%;  }
 .btn .ico { width: 1em; height: 1.2em; vertical-align: top; top: -0.2em; position: relative; margin-bottom: -0.2em;  }
@@ -32,14 +32,22 @@ button.genBtn1 { -webkit-appearance: none; background: none; border: none; outli
 .btnC0 { color: #000!important; }
 .btnC0:after {  background: none!important;}
 .btnC1 { color: #fff!important; }
-.btnC1:after {  background: #2563eb!important; } 
+.btnC1:after {  background: #2563eb!important; }
+.btnC1:hover:after, .btnC1:active:after {  background: #1855db!important; } 
 .btnC3 { color: #fff!important; }
 .btnC3:after { background: #2563eb!important; }
-.btnC4 { color: #374151!important; }
-.btnC4:after { background: #ffffff!important; border: 1px solid #d7dde2; }
+.btnC3:hover:after, .btnC3:active:after {  background: #1855db!important; } 
+.btnC4 { color: #000!important; }
+.btnC4:after { background: #ffffff!important; border: 1px solid #2563eb; }
+.btnC4:hover, .btnC4:active { color: #fff!important; }
+.btnC4:hover:after, .btnC4:active:after { background: #2563eb!important; border: 1px solid #2563eb; }
 .btnC5 { color: #374151!important; }
 .btnC5:after { background: #ffffff!important; border: 1px solid #d7dde2; }
+.btnC5:hover, .btnC5:active { color: #fff!important; }
+.btnC5:hover:after, .btnC5:active:after { background: #2563eb!important; border: 1px solid #2563eb; }
 .btnC6 { color: #2563eb!important; }
+.btnC6:hover, .btnC6:active { color: #fff!important; }
 .btnC6:after { background: #ffffff!important; border: 1px solid #2563eb; }
+.btnC6:hover:after, .btnC6:active:after { background: #2563eb!important; border: 1px solid #2563eb; }
 
 
