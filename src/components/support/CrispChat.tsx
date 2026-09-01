@@ -21,7 +21,7 @@ export function CrispChat() {
       {`
         window.$crisp = [];
         window.CRISP_WEBSITE_ID = ${JSON.stringify(CRISP_WEBSITE_ID)};
-        window.$crisp.push(["config", "color:theme", ["black"]]);
+        window.$crisp.push(["config", "color:theme", ["blue_grey"]]);
         window.$crisp.push(["do", "chat:hide"]);
         window.$crisp.push(["on", "chat:closed", function () {
           window.$crisp.push(["do", "chat:hide"]);
