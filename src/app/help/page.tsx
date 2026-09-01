@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ChevronRight, CircleQuestionMark, CircleUser, CreditCard, QrCode, ChartColumn, User } from "lucide-react";
 
 import { auth } from "@/auth";
 import { Header } from "@/components/layout/Header";
@@ -12,22 +10,16 @@ import {
   stillNeedHelp,
   topics,
   topicsHeading,
-  type IconKey,
 } from "./content";
+import { ChevronRight, MaybeLink, icons } from "./HelpChrome";
 import {
   BookOpenIcon,
-  DownloadIcon,
   HeroArtLeft,
   HeroArtRight,
   LightbulbIcon,
   MessageIcon,
-  PencilIcon,
-  RocketIcon,
   SearchIcon,
-  SparklesIcon,
   SupportArt,
-  WalletIcon,
-  WrenchIcon,
 } from "./icons";
 
 export const metadata: Metadata = {
@@ -35,59 +27,6 @@ export const metadata: Metadata = {
   description:
     "Find answers about creating QR codes, managing your account, scan analytics, subscriptions, and more.",
 };
-
-/**
- * Their icons, half of them ours.
- *
- * Every glyph here was matched against lucide-react's own definitions shape by
- * shape: the ones that came back identical are imported from the package, the
- * ones the designer draws from an older Lucide release live in ./icons.tsx as
- * verbatim copies. Neither set was chosen by eye.
- */
-const icons: Record<IconKey, React.ComponentType<{ className?: string }>> = {
-  sparkles: SparklesIcon,
-  download: DownloadIcon,
-  pencil: PencilIcon,
-  "circle-question": CircleQuestionMark,
-  "circle-user": CircleUser,
-  "credit-card": CreditCard,
-  rocket: RocketIcon,
-  "qr-code": QrCode,
-  chart: ChartColumn,
-  user: User,
-  wallet: WalletIcon,
-  wrench: WrenchIcon,
-};
-
-/**
- * A row/card whose destination does not exist yet.
- *
- * The mockup writes every one of these as `href="#"`. Rather than invent
- * routes or silently drop the markup, the anchor is kept exactly where the
- * designer put it and left inert — the handover lists which ones they are.
- */
-function MaybeLink({
-  href,
-  className,
-  children,
-}: {
-  href: string | null;
-  className: string;
-  children: React.ReactNode;
-}) {
-  if (!href) {
-    return (
-      <a href="#" className={className}>
-        {children}
-      </a>
-    );
-  }
-  return (
-    <Link href={href} className={className}>
-      {children}
-    </Link>
-  );
-}
 
 export default async function HelpPage() {
   const session = await auth();

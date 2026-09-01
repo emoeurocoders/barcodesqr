@@ -272,3 +272,132 @@ export function SupportArt({ className }: IconProps) {
     </svg>
   );
 }
+
+/* ---------------------------------------------------------------------------
+ * Category and article pages. Same rule as above: these five differ from
+ * lucide-react v1.31, so they are the designer's own path data.
+ * ------------------------------------------------------------------------- */
+
+/** Breadcrumb home. */
+export function HomeIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+      <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    </svg>
+  );
+}
+
+/** The "5 articles" count beside a category title. */
+export function FileTextIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+      <path d="M10 9H8" />
+      <path d="M16 13H8" />
+      <path d="M16 17H8" />
+    </svg>
+  );
+}
+
+/** "24/7 Email Support". */
+export function MailIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  );
+}
+
+/** "We’re Here to Help". */
+export function HeartHandshakeIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </svg>
+  );
+}
+
+/** The article's "last updated" date. */
+export function CalendarIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <path d="M8 2v4" />
+      <path d="M16 2v4" />
+      <path d="M3 10h18" />
+    </svg>
+  );
+}
+
+/**
+ * The small chat vignette in the sidebar's "Need more help?" card. Their
+ * hardcoded blues, not currentColor.
+ */
+export function SupportArtSmall({ className }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      version="1.1"
+      viewBox="0 0 65.2 53.2"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect y="12.2" width="46" height="34" rx="10" ry="10" style={{ fill: "#2563eb" }} />
+      <path d="M12,41.2l-4,12,13-7-9-5Z" style={{ fill: "#2563eb" }} />
+      <circle cx="14" cy="29.2" r="3" style={{ fill: "#fff" }} />
+      <circle cx="23" cy="29.2" r="3" style={{ fill: "#fff" }} />
+      <circle cx="32" cy="29.2" r="3" style={{ fill: "#fff" }} />
+      <path d="M53,12.2l5-6" style={{ fill: "none", stroke: "#2563eb", strokeLinecap: "round", strokeWidth: "2.5px" }} />
+      <path d="M56,20.2h8" style={{ fill: "none", stroke: "#2563eb", strokeLinecap: "round", strokeWidth: "2.5px" }} />
+      <path d="M50,6.2l1-5" style={{ fill: "none", stroke: "#2563eb", strokeLinecap: "round", strokeWidth: "2.5px" }} />
+    </svg>
+  );
+}
+
+/** "3 min read". */
+export function ClockIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+/** "Was this article helpful?" — Yes. */
+export function ThumbsUpIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <path d="M7 10v12" />
+      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" />
+    </svg>
+  );
+}
+
+/** "Was this article helpful?" — No. */
+export function ThumbsDownIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <path d="M17 14V2" />
+      <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z" />
+    </svg>
+  );
+}
+
+/**
+ * "Static vs. dynamic QR codes" — two stacked squares.
+ *
+ * NOT lucide's `copy-minus`, which adds a <line> through the front square that
+ * the designer's glyph does not have. The skeleton diff caught it.
+ */
+export function CopyIcon({ className }: IconProps) {
+  return (
+    <svg {...stroke} className={className} aria-hidden="true">
+      <rect width="14" height="14" x="8" y="8" rx="2" />
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+    </svg>
+  );
+}

@@ -107,6 +107,31 @@ listed. These are the current ones, all from wiring uploads.
 
 ---
 
+## Help Center
+
+Three pages ported from the designer: `/help`, `/help/getting-started`, and
+`/help/getting-started/download-and-test`.
+
+**Most links have no destination.** The mockup writes them as `href="#"` and
+only two pages exist behind the six topics and eleven article titles. Every
+such anchor is kept exactly where the designer put it and left inert. Wire them
+as the articles get written; the data lives in `src/app/help/content.ts` where
+`href: null` marks each one.
+
+**Search does nothing.** The hero and both sidebars render the designer's
+search form, but there is no search backend, so submitting it does not
+navigate. Their form has no action either.
+
+**"Contact Support", "Browse All Articles" and the article's Yes/No vote are
+inert.** No support routing or feedback store exists yet.
+
+**The mockup has no webfont.** `help*.html` links no font and vendors no Inter,
+so a headless capture of it falls back to Helvetica/Arial while the app renders
+real Inter via `next/font`. Text blocks therefore wrap differently between the
+two, which is why pixel diffs of these pages sit near 4% and why the sidebar's
+support paragraph is 3 lines in the mockup and 2 in the port. Compare box
+geometry, not text height, when checking these pages.
+
 ## Verification gaps
 
 - **`npm run skel` and `npm run diff:design` were not run** against the upload

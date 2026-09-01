@@ -55,6 +55,8 @@
   --color-help-panel-line: #e3e7ec;
   --color-help-crumbs: #eff4fb;
   --color-help-crumbs-line: #e2e9f4;
+  /* The category/article CTA band, which reuses the crumbs blue with its own border. */
+  --color-help-cta-line: #dde7f6;
   /* The article-count pill: brand-tinted, not primary. */
   --color-help-tag: #e2f4f1;
   --color-help-tag-line: #b4e1de;
