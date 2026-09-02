@@ -2,9 +2,10 @@ import { auth } from "@/auth";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
-import { TrustBar } from "@/components/sections/TrustBar";
+import { PressScroll } from "@/components/sections/PressScroll";
 import { Steps } from "@/components/sections/Steps";
 import { Showcase } from "@/components/sections/Showcase";
+import { WhyChoose } from "@/components/sections/WhyChoose";
 import { WhyBarcodesQR } from "@/components/sections/WhyBarcodesQR";
 import { Reviews } from "@/components/sections/Reviews";
 import { Pricing } from "@/components/sections/Pricing";
@@ -26,9 +27,10 @@ export default async function Home({
       <Header user={session?.user} openLogin={!!signin && !session?.user} />
       <main>
         <Hero />
-        <TrustBar />
+        <PressScroll />
         <Steps />
         <Showcase />
+        <WhyChoose />
         <WhyBarcodesQR />
         <Reviews />
         <Pricing />

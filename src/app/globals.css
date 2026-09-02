@@ -89,6 +89,9 @@
 
   /* Animation */
   --animate-marquee: marquee 40s linear infinite;
+  /* 1148px of logos+gaps at 40px/s; 1068px below 768px where the gap tightens. */
+  --animate-press-scroll: marquee 28.7s linear infinite;
+  --animate-press-scroll-sm: marquee 26.7s linear infinite;
 }
 
 @keyframes marquee {
@@ -141,13 +144,16 @@
  * pixel wide, but it moved the terms page 49px off at that width.
  */
 /* The Help Center reaches for three widths the marketing pages never used. */
+@custom-variant to-1400 (@media (max-width: 1400px));
 @custom-variant to-1240 (@media (max-width: 1240px));
+@custom-variant to-1180 (@media (max-width: 1180px));
 @custom-variant to-1123 (@media (max-width: 1123px));
 @custom-variant to-1080 (@media (max-width: 1080px));
 @custom-variant to-992 (@media (max-width: 992px));
 @custom-variant to-768 (@media (max-width: 768px));
 @custom-variant to-576 (@media (max-width: 576px));
 @custom-variant to-480 (@media (max-width: 480px));
+@custom-variant to-440 (@media (max-width: 440px));
 
 @utility container-frm {
   width: 100%;

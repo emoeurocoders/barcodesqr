@@ -132,6 +132,31 @@ two, which is why pixel diffs of these pages sit near 4% and why the sidebar's
 support paragraph is 3 lines in the mockup and 2 in the port. Compare box
 geometry, not text height, when checking these pages.
 
+## Homepage drift from the mockup
+
+The two sections ported on 2026-09-02 — the press-logo scroller and "Why choose
+BarcodesQR" — match the mockup exactly at 1440 (245px and 627px, card 384x165).
+Measuring them turned up how far the REST of the homepage has drifted, none of
+it touched by that work:
+
+| Section | Mockup | Port | Delta |
+| ------- | ------ | ---- | ----- |
+| Showcase (`#mainTypes`) | 456 | 939 | **+483** |
+| Reviews | not in the mockup at all | 578 | **+578** |
+| Footer | 349 | 458 | +109 |
+| Steps | 512 | 598 | +86 |
+| Pricing (`#mainPlans`) | 726 | 791 | +65 |
+| Ready (`#mainReady`) | 299 | 322 | +23 |
+| Header | 83 | 65 | −18 |
+| Hero | 629 | 620 | −9 |
+| Why (`#mainWhy`) | 866 | 829 | −37 |
+
+Those deltas sum to the +1272px the page-level pixel diff reports, so the 5.61%
+figure is entirely them. **Reviews is the one to decide first**: the current
+main.html has no reviews section, so either the designer dropped it and the
+component should go, or it belongs on /reviews only. Showcase's +483 is the
+next largest and is a real layout divergence in the QR-type grid.
+
 ## Verification gaps
 
 - **`npm run skel` and `npm run diff:design` were not run** against the upload
