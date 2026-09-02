@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, CircleCheck, Info } from "lucide-react";
 
@@ -10,7 +11,6 @@ import {
   articleSections,
   articleSidebar,
   bestPractices,
-  gettingStarted,
   relatedArticles,
   sidebarPopular,
   vote,
@@ -23,19 +23,40 @@ import {
   ThumbsUpIcon,
 } from "../../icons";
 import { HelpCrumbs, HelpCtaBand, HelpSidebar } from "../../HelpChrome";
+import { bySlug } from "../../categories";
 
 export const metadata: Metadata = {
   title: `${article.title} — Help Center — BarcodesQR`,
   description: article.intro,
 };
 
-export default async function ArticlePage() {
+/** The one category this article belongs to. */
+const CATEGORY = "getting-started";
+
+export function generateStaticParams() {
+  return [{ category: CATEGORY }];
+}
+
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  // The segment is dynamic, so /help/troubleshooting/download-and-test would
+  // otherwise render this article under someone else's breadcrumb.
+  if ((await params).category !== CATEGORY) notFound();
+
   const session = await auth();
+  const category = bySlug(CATEGORY)!;
 
   return (
     <>
       <Header user={session?.user} />
-      <HelpCrumbs current={gettingStarted.title} />
+      <HelpCrumbs
+        category={category.title}
+        categoryHref={`/help/${category.slug}`}
+        article={article.title}
+      />
 
       <section className="bg-white pb-[46px] pt-[40px] text-[10px] to-480:text-[2.1vw]">
         <div className="container-frm flex items-start to-992:flex-col">
@@ -171,7 +192,7 @@ export default async function ArticlePage() {
 
           {/* The article's sidebar swaps "Other categories" for a table of
               contents and a popular-articles list. */}
-          <HelpSidebar>
+          <HelpSidebar currentSlug={category.slug}>
             <div className="mt-[2em] box-border rounded-[14px] border border-help-card-line bg-white px-[2em] py-[1.8em] shadow-[0_1px_2px_rgba(14,19,17,0.04)]">
               <h5 className="text-[1.6em] font-bold leading-[normal] text-ink">
                 {articleSidebar.tocHeading}

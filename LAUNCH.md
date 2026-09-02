@@ -112,11 +112,32 @@ listed. These are the current ones, all from wiring uploads.
 Three pages ported from the designer: `/help`, `/help/getting-started`, and
 `/help/getting-started/download-and-test`.
 
-**Most links have no destination.** The mockup writes them as `href="#"` and
-only two pages exist behind the six topics and eleven article titles. Every
-such anchor is kept exactly where the designer put it and left inert. Wire them
-as the articles get written; the data lives in `src/app/help/content.ts` where
-`href: null` marks each one.
+All six categories exist and are linked from the Help Center's topic grid:
+`getting-started`, `creating-managing`, `analytics-scans`, `account-login`,
+`plans-billing`, `troubleshooting`. They share one template,
+`src/app/help/[category]/page.tsx`, driven by `categories.ts`.
+
+**Individual articles mostly do not.** Of the 27 article rows across the six
+categories, exactly one has a page — Getting Started's "How to download and
+test your QR code". The rest keep the mockup's inert anchor. `href: null` in
+`categories.ts` marks each one; wiring them is filling in data, not new code.
+
+**Two things in the designer's category files look like template artefacts.**
+Both are reproduced rather than corrected, and both are worth raising:
+
+  1. Every category reuses the SAME icon sequence for its article rows
+     (qr-code, circle-question, copy-minus, pencil, download), so "How to log
+     in to your account" carries a QR-code glyph and "What to do if you can't
+     access your account" carries two stacked squares.
+  2. Three different rows — Getting Started's "How to download and test your QR
+     code", Creating & Managing's "How to archive or delete a QR code", and
+     Plans & Billing's "How to cancel your subscription" — all point at
+     `help_article.html`, the single article that exists. Only the first
+     actually matches that page's content, so only it is linked. The other two
+     are left inert rather than opening an article about something else.
+  3. On the Analytics & Scans and Account & Login pages, the Troubleshooting
+     card under "Explore more help topics" repeats its own wrench glyph in the
+     trailing arrow slot, where every other card has an arrow.
 
 **Search does nothing.** The hero and both sidebars render the designer's
 search form, but there is no search backend, so submitting it does not

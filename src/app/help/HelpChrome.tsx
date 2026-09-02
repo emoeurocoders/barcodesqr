@@ -11,13 +11,8 @@ import {
   UserRound,
 } from "lucide-react";
 
-import {
-  helpCta,
-  otherCategories,
-  sidebar,
-  supportPoints,
-  type IconKey,
-} from "./content";
+import { helpCta, sidebar, supportPoints, type IconKey } from "./content";
+import { otherThan } from "./categories";
 import {
   CopyIcon,
   DownloadIcon,
@@ -95,33 +90,82 @@ export function MaybeLink({
   );
 }
 
-/** Home / Help Center / <current>. */
-export function HelpCrumbs({ current }: { current: string }) {
+/** The glyph the Help Center's topic grid gives each category. */
+const categoryIcon: Record<string, IconKey> = {
+  "getting-started": "rocket",
+  "creating-managing": "qr-code",
+  "analytics-scans": "chart",
+  "account-login": "user",
+  "plans-billing": "credit-card",
+  troubleshooting: "wrench",
+};
+
+/**
+ * Home / Help Center / <category> [ / <article> ].
+ *
+ * On a category page the category is the last crumb and the designer writes it
+ * as `<a class="cat" href="#">`. On an article page it becomes a real link to
+ * the category and a fourth crumb follows, which is a `<span class="cur">`
+ * rather than an anchor — it truncates with an ellipsis instead of wrapping.
+ */
+export function HelpCrumbs({
+  category,
+  categoryHref,
+  article,
+}: {
+  category: string;
+  /** Set on an article page, where the category crumb navigates. */
+  categoryHref?: string;
+  /** The article title, when one is being read. */
+  article?: string;
+}) {
+  const sep = <span className="shrink-0 px-[10px] text-faint">/</span>;
+
   return (
     <section className="border-b border-help-crumbs-line bg-help-crumbs text-[10px] to-480:text-[2.1vw]">
       <div className="container-frm flex items-center py-[1.4em] text-[1.35em]">
         <Link href="/" className="flex shrink-0 text-muted hover:text-primary">
           <HomeIcon className="h-[1.6em] w-[1.6em]" />
         </Link>
-        <span className="shrink-0 px-[10px] text-faint">/</span>
+        {sep}
         <Link href="/help" className="shrink-0 text-muted hover:text-primary">
           Help Center
         </Link>
-        <span className="shrink-0 px-[10px] text-faint">/</span>
-        {/*
-          The current crumb is an <a href="#"> in their markup, not a span —
-          kept as an anchor so the structure matches.
-        */}
-        <a href="#" className="shrink-0 font-semibold text-primary">
-          {current}
-        </a>
+        {sep}
+        {categoryHref ? (
+          <Link
+            href={categoryHref}
+            className="shrink-0 font-semibold text-primary"
+          >
+            {category}
+          </Link>
+        ) : (
+          <a href="#" className="shrink-0 font-semibold text-primary">
+            {category}
+          </a>
+        )}
+        {article && (
+          <>
+            {sep}
+            <span className="min-w-0 flex-auto truncate font-medium text-body">
+              {article}
+            </span>
+          </>
+        )}
       </div>
     </section>
   );
 }
 
 /** Search, other categories, and the support card. */
-export function HelpSidebar({ children }: { children?: React.ReactNode }) {
+export function HelpSidebar({
+  currentSlug,
+  children,
+}: {
+  /** Omit the category being read from "Other categories". */
+  currentSlug?: string;
+  children?: React.ReactNode;
+}) {
   const points = [MailIcon, UserRound, HeartHandshakeIcon];
 
   return (
@@ -144,12 +188,12 @@ export function HelpSidebar({ children }: { children?: React.ReactNode }) {
           {sidebar.categoriesHeading}
         </h5>
         <div className="mt-[0.4em]">
-          {otherCategories.map((c) => {
-            const Icon = icons[c.icon];
+          {otherThan(currentSlug ?? "").map((c) => {
+            const Icon = icons[categoryIcon[c.slug]];
             return (
-              <a
-                key={c.title}
-                href="#"
+              <Link
+                key={c.slug}
+                href={`/help/${c.slug}`}
                 className="mt-[1em] flex items-center text-[1.4em] font-medium leading-[normal] text-body hover:text-primary to-576:font-medium"
               >
                 <span className="mr-[0.7em] block h-[1.29em] w-[1.29em] shrink-0 text-primary">
@@ -159,7 +203,7 @@ export function HelpSidebar({ children }: { children?: React.ReactNode }) {
                 <span className="ml-auto block h-[1.15em] w-[1.15em] shrink-0 text-faint">
                   <ChevronRight className="block h-full w-full" />
                 </span>
-              </a>
+              </Link>
             );
           })}
         </div>

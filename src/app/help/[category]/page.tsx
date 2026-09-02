@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import {
-  exploreHeading,
-  exploreTopics,
-  gettingStarted,
-  gettingStartedArticles,
-} from "../content";
+import { bySlug, categories } from "../categories";
+import { exploreHeading } from "../content";
 import { FileTextIcon } from "../icons";
 import {
   ArrowRight,
@@ -20,43 +17,70 @@ import {
   icons,
 } from "../HelpChrome";
 
-export const metadata: Metadata = {
-  title: "Getting Started — Help Center — BarcodesQR",
-  description: gettingStarted.intro,
-};
+/**
+ * One template for all six categories.
+ *
+ * The designer ships them as six near-identical files
+ * (help_category-*.html) that differ only in their copy, so the markup lives
+ * here once and the strings live in categories.ts.
+ */
 
-export default async function GettingStartedPage() {
+export function generateStaticParams() {
+  return categories.map((c) => ({ category: c.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}): Promise<Metadata> {
+  const cat = bySlug((await params).category);
+  if (!cat) return {};
+  return {
+    title: `${cat.title} — Help Center — BarcodesQR`,
+    description: cat.intro,
+  };
+}
+
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const { category } = await params;
+  const cat = bySlug(category);
+  if (!cat) notFound();
+
   const session = await auth();
 
   return (
     <>
       <Header user={session?.user} />
-      <HelpCrumbs current={gettingStarted.title} />
+      <HelpCrumbs category={cat.title} />
 
       {/* 10px base and `em` throughout, as their #mainHelpCat is written. */}
       <section className="bg-white pb-[46px] pt-[40px] text-[10px] to-480:text-[2.1vw]">
         <div className="container-frm flex items-start to-992:flex-col">
           <div className="min-w-0 flex-1">
             <span className="inline-block rounded-full border border-help-tag-line bg-help-tag px-[1.1em] py-[0.45em] text-[1.15em] font-bold uppercase leading-[normal] tracking-[0.07em] text-brand-dark">
-              {gettingStarted.tag}
+              {cat.tag}
             </span>
 
             <h2 className="mt-[0.4em] text-[4.2em] font-extrabold leading-[1.15em] tracking-heading text-black to-992:text-[3.6em]">
-              {gettingStarted.title}
+              {cat.title}
             </h2>
 
             <p className="mt-[0.8em] max-w-[30em] p-0 text-[1.6em] leading-[1.6em] text-prose to-576:font-medium">
-              {gettingStarted.intro}
+              {cat.intro}
             </p>
 
-            <div className="mt-[1.4em] flex items-center text-[1.35em] text-muted">
+            <div className="mt-[1.4em] flex items-center text-[1.35em] leading-[normal] text-muted">
               <FileTextIcon className="mr-[0.5em] h-[1.11em] w-[1.11em] shrink-0" />
-              {gettingStarted.count}
+              {cat.count}
             </div>
 
-            {/* The five articles in this category. */}
             <div className="mt-[2em]">
-              {gettingStartedArticles.map((a, i) => {
+              {cat.articles.map((a, i) => {
                 const Icon = icons[a.icon];
                 return (
                   <MaybeLink
@@ -85,14 +109,16 @@ export default async function GettingStartedPage() {
               })}
             </div>
 
-            {/* Explore more help topics */}
             <div className="mt-[3em]">
               <h3 className="text-[1.7em] font-bold leading-[normal] text-ink">
                 {exploreHeading}
               </h3>
               <div className="mt-[1.4em] grid grid-cols-3 gap-[1.6em] to-768:grid-cols-1 to-768:gap-[1.2em]">
-                {exploreTopics.map((t) => {
+                {cat.explore.map((t) => {
                   const Icon = icons[t.icon];
+                  // Their trailing arrow, except where the designer repeated
+                  // the card's own glyph instead — see categories.ts.
+                  const Trailing = t.trailing ? icons[t.trailing] : ArrowRight;
                   return (
                     <MaybeLink
                       key={t.title}
@@ -111,7 +137,7 @@ export default async function GettingStartedPage() {
                         </p>
                       </span>
                       <span className="block h-[1.5em] w-[1.5em] shrink-0 self-center text-primary">
-                        <ArrowRight className="block h-full w-full" />
+                        <Trailing className="block h-full w-full" />
                       </span>
                     </MaybeLink>
                   );
@@ -120,7 +146,7 @@ export default async function GettingStartedPage() {
             </div>
           </div>
 
-          <HelpSidebar />
+          <HelpSidebar currentSlug={cat.slug} />
         </div>
       </section>
 
