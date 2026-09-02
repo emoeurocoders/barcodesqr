@@ -10,7 +10,7 @@ import {
   phoneInk,
   socialColors,
 } from "./PhonePreview";
-import { fileSrc, parseStoredFile } from "./storedValues";
+import { cropStyle, fileSrc, parseStoredFile } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -47,7 +47,8 @@ export function VCardPreview({ values }: { values: Values }) {
   const last = values.lastName?.trim() || sample.lastName;
   const role = values.jobTitle?.trim() || values.role?.trim() || sample.jobTitle;
   const summary = values.summary?.trim() || sample.summary;
-  const photo = fileSrc(parseStoredFile(values.photo));
+  const photoFile = parseStoredFile(values.photo);
+  const photo = fileSrc(photoFile);
   const filled = filledSocials(values);
   // The card shows channels as bare dots; four fit the row the sample drew.
   const dots = filled.length
@@ -93,7 +94,7 @@ export function VCardPreview({ values }: { values: Values }) {
               alt=""
               aria-hidden="true"
               className="h-full w-full"
-              style={{ objectFit: "cover", objectPosition: "50% 50%" }}
+              style={photoFile ? cropStyle(photoFile) : { objectFit: "cover", objectPosition: "50% 50%" }}
             />
           </div>
 

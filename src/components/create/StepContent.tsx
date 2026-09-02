@@ -35,14 +35,17 @@ import { InfoTip } from "./InfoTip";
 import { ContactIcon } from "@/components/ui/CreatorIcons";
 import { fieldError, isValidUrl, errorCopy, visible } from "./validate";
 import {
+  cropStyle,
   fileSrc,
   parseStoredFile,
   parseLinks,
+  type Crop,
   type StoredFile,
   type StoredLink,
 } from "./storedValues";
 import { LINK_LOGO_FIELD, matchesAccept, uploadTarget } from "@/lib/uploads";
 import { UploadError, uploadFile } from "./uploadFile";
+import { ImageAdjuster } from "./ImageAdjuster";
 
 type Values = Record<string, string>;
 
@@ -250,7 +253,8 @@ function FileControl({
               <img
                 src={thumbSrc(shown, stored)}
                 alt=""
-                className="h-14 w-14 shrink-0 rounded-lg border border-line object-cover"
+                className="h-14 w-14 shrink-0 rounded-lg border border-line"
+                style={cropStyle(stored)}
               />
             ) : (
               <span className="grid h-14 w-14 shrink-0 place-items-center rounded-lg border border-line bg-white">
@@ -316,6 +320,22 @@ function FileControl({
         />
       </label>
       {error && <ErrorText>{error}</ErrorText>}
+
+      {/*
+        Reposition/zoom, for the fields the schema marks `adjustable`. Only once
+        the upload has landed — there is nothing stable to frame while the
+        bytes are still moving.
+      */}
+      {field.adjustable && stored && fileSrc(stored) && !uploading && (
+        <ImageAdjuster
+          shape={field.adjustable}
+          stored={stored}
+          src={fileSrc(stored)!}
+          onChange={(crop: Crop) =>
+            onChange(JSON.stringify({ ...stored, crop }))
+          }
+        />
+      )}
     </>
   );
 }

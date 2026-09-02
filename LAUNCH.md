@@ -181,6 +181,26 @@ no such route exists, so both 404. `Reviews.tsx` is kept unreferenced for
 exactly that page rather than deleted; either build the route or drop the two
 nav entries and the component together.
 
+## Image adjuster
+
+The fields the schema marks `adjustable` — vCard and Social profile photos
+(`circle`) and the multi-link cover (`wide`) — can now be repositioned and
+zoomed after upload, matching what the live creator at barcodesqr.com offers.
+`adjustable` had sat unread in `fieldSchema.ts` since the schema was generated;
+the control was never built here, and the PM spotted it missing.
+
+**The designer has never mocked it.** The layout follows the live product — a
+drag hint, a zoom slider and a reset — drawn with this app's own tokens rather
+than copied pixel for pixel, because there is nothing to copy. If a mockup
+arrives later, expect to redo the styling.
+
+Framing is stored as three numbers (`crop: {x, y, zoom}`) beside the file and
+replayed through `cropStyle`, so nothing is written to the image, re-framing
+never re-uploads, and the adjuster and the phone previews cannot drift apart.
+**It is not baked into the file**, so anything that later renders these images
+outside React — a hosted landing page, a PDF, an export — has to apply the same
+transform or it will show the uncropped original.
+
 ## Verification gaps
 
 - **`npm run skel` and `npm run diff:design` were not run** against the upload

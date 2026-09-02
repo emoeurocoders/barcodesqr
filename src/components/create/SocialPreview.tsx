@@ -9,7 +9,7 @@ import {
   filledSocials,
   socialColors,
 } from "./PhonePreview";
-import { fileSrc, filledLinks, linkCaption, parseStoredFile } from "./storedValues";
+import { cropStyle, fileSrc, filledLinks, linkCaption, parseStoredFile } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -33,7 +33,8 @@ const sampleSocials: { color: string; label: string }[] = [
 export function SocialPreview({ values }: { values: Values }) {
   const headline = values.headline?.trim() || sample.headline;
   const description = values.description?.trim() || sample.description;
-  const photo = fileSrc(parseStoredFile(values.photo));
+  const photoFile = parseStoredFile(values.photo);
+  const photo = fileSrc(photoFile);
   const filled = filledSocials(values);
   const socials = filled.length ? filled : sampleSocials;
   const links = filledLinks(values.links);
@@ -72,10 +73,13 @@ export function SocialPreview({ values }: { values: Values }) {
               alt=""
               aria-hidden="true"
               className="h-full w-full"
-              style={{
-                objectFit: "cover",
-                objectPosition: photo ? "50% 50%" : "50% 25%",
-              }}
+              style={
+                photoFile
+                  ? cropStyle(photoFile)
+                  : // The sample portrait sits high in its frame; a real upload
+                    // is centred unless the adjuster says otherwise.
+                    { objectFit: "cover", objectPosition: "50% 25%" }
+              }
             />
           </div>
         </div>

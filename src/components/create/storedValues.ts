@@ -9,6 +9,8 @@
  * bucket existed; nothing sets it any more.
  */
 
+import type { CSSProperties } from "react";
+
 export type StoredFile = {
   name: string;
   size: number;
@@ -18,7 +20,34 @@ export type StoredFile = {
   url?: string;
   /** Legacy: an inline data URL, from before uploads had anywhere to go. */
   dataUrl?: string;
+  /**
+   * How the image sits inside its frame, for the fields the schema marks
+   * `adjustable`. `x`/`y` are the CSS object-position percentages and `zoom` is
+   * a scale factor, so the same three numbers position the picture in the
+   * adjuster and in every preview without cropping the file itself.
+   */
+  crop?: Crop;
 };
+
+export type Crop = { x: number; y: number; zoom: number };
+
+/** Centred and unzoomed — what an untouched upload looks like. */
+export const defaultCrop: Crop = { x: 50, y: 50, zoom: 1 };
+
+/**
+ * The style that renders a stored image at its chosen framing.
+ *
+ * Kept here rather than in each preview so the adjuster and the phone mockups
+ * cannot drift: what you nudge on the left is what you see on the right.
+ */
+export function cropStyle(f: StoredFile | null | undefined): CSSProperties {
+  const c = f?.crop ?? defaultCrop;
+  return {
+    objectFit: "cover",
+    objectPosition: `${c.x}% ${c.y}%`,
+    ...(c.zoom > 1 ? { transform: `scale(${c.zoom})` } : null),
+  };
+}
 
 /** Where to point an <img>/<video> at a stored file, whichever era wrote it. */
 export function fileSrc(f: StoredFile | null | undefined) {

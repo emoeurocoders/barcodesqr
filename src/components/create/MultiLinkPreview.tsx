@@ -11,7 +11,7 @@ import {
   filledSocials,
   socialColors,
 } from "./PhonePreview";
-import { fileSrc, filledLinks, linkCaption, parseStoredFile } from "./storedValues";
+import { cropStyle, fileSrc, filledLinks, linkCaption, parseStoredFile } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -40,7 +40,8 @@ const sampleSocials: { color: string; label: string }[] = [
 export function MultiLinkPreview({ values }: { values: Values }) {
   const title = values.title?.trim() || sample.title;
   const description = values.description?.trim() || sample.description;
-  const cover = fileSrc(parseStoredFile(values.image));
+  const coverFile = parseStoredFile(values.image);
+  const cover = fileSrc(coverFile);
   const links = filledLinks(values.links);
   const socials = filledSocials(values);
 
@@ -62,7 +63,11 @@ export function MultiLinkPreview({ values }: { values: Values }) {
               alt=""
               aria-hidden="true"
               className="h-full w-full"
-              style={{ objectFit: "cover", objectPosition: "50% 50%" }}
+              style={
+                coverFile
+                  ? cropStyle(coverFile)
+                  : { objectFit: "cover", objectPosition: "50% 50%" }
+              }
             />
           </div>
           <div className="absolute inset-x-2.5 top-2.5 flex items-start justify-between">
