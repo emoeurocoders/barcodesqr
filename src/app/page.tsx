@@ -7,7 +7,6 @@ import { Steps } from "@/components/sections/Steps";
 import { Showcase } from "@/components/sections/Showcase";
 import { WhyChoose } from "@/components/sections/WhyChoose";
 import { WhyBarcodesQR } from "@/components/sections/WhyBarcodesQR";
-import { Reviews } from "@/components/sections/Reviews";
 import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
 import { ReadyCta } from "@/components/sections/ReadyCta";
@@ -32,7 +31,13 @@ export default async function Home({
         <Showcase />
         <WhyChoose />
         <WhyBarcodesQR />
-        <Reviews />
+        {/*
+          Reviews is deliberately NOT here. The designer's current main.html has
+          no reviews section, so it was removed from the homepage on 2026-09-02.
+          Reviews.tsx is kept rather than deleted because the header and footer
+          both link to /reviews, which is the page it belongs on once that route
+          exists — see LAUNCH.md.
+        */}
         <Pricing />
         <Faq />
         <ReadyCta />
