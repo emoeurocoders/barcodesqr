@@ -37,7 +37,7 @@ svg path,svg shape,svg lineargradient { shape-rendering: geometricPrecision; }
 /* Main Header
 --------------------------------------------------------------*/
 
-#mainHdr { z-index: 12; background: #fff; border-bottom: solid 1px #e5e7eb; font-family: "Inter", "Helvetica Neue", Arial, "Nimbus Sans L", FreeSans;  }
+#mainHdr { z-index: 12; background: #fff; border-bottom: solid 1px #e5e7eb; font-family: "Inter", "Helvetica Neue", Arial, "Nimbus Sans L", FreeSans;   position: fixed; width: 100%; left: 0; top: 0; }
 .introHeader {position: absolute; left: 0; top: 0;  width: 100%; background: #0B0B45f2!important; }
 #mainHdr  .ctr { padding: 0 20px; margin: 0 auto; position: relative; display: flex; justify-content: space-between; align-items: center;   }
 #mainHdr { padding: 1px  0;  }
@@ -46,7 +46,7 @@ svg path,svg shape,svg lineargradient { shape-rendering: geometricPrecision; }
 #mainLogo { margin: 0; display: block; float: left; position: relative;  z-index:  10; ;  }
 #mainLoginNav { display: block; margin: 0 ; float: right;  margin-right: 0; margin-left: 0;  }
 #mainLoginNav .site-nav { display: flex; justify-items: flex-start; padding: 18px 0 18px 0;     align-items: center;  }
-#mainLoginNav .site-nav li { display: inline; white-space: nowrap;  font-size: 14px;  line-height: 44px; padding: 0 5px; font-weight: 400;  letter-spacing: 0;  }
+#mainLoginNav .site-nav li { display: inline-flex; white-space: nowrap;  font-size: 14px;  line-height: 44px; padding: 0 5px; font-weight: 400;  letter-spacing: 0;  }
 #mainLoginNav .site-nav li:first-child { padding-left: 0; }
 #mainLoginNav .site-nav li:last-child { padding-right: 0; }
 #mainLoginNav .site-nav li a { color: #fff; position:relative; display:-moz-inline-stack; display:inline-block; zoom:1; *display:inline;  letter-spacing: 0; text-transform: capitalize;   font-size: 1em!important;  font-family: "Inter", "Helvetica Neue", Arial, "Nimbus Sans L", FreeSans;}
@@ -69,7 +69,7 @@ svg path,svg shape,svg lineargradient { shape-rendering: geometricPrecision; }
 #mainHdr .hdrTxt { display: none; }
 }
 @media (max-width: 572px) {
-#mainLoginNav .site-nav { padding-top: 13px; }
+#mainLoginNav .site-nav { padding-top: 10px; }
 #mainLoginNav .site-nav li { font-size: 10.5px; padding: 0px 5px 0 0; line-height: 31px; }
 }
 @media (max-width: 364px) {
@@ -151,7 +151,7 @@ svg path,svg shape,svg lineargradient { shape-rendering: geometricPrecision; }
 
 /* Main Hero
 --------------------------------------------------------------*/
-#mainHero { background: linear-gradient(180deg, #ffffff, #f5f8fb); }
+#mainHero { background: linear-gradient(180deg, #ffffff, #f5f8fb); padding-top: 83px; }
 #mainHero .row { display: flex; align-items: center; padding: 4.5em 0 5em 0; }
 #mainHero .lft { flex: 0 0 44%; }
 #mainHero .bdg { display: inline-flex; align-items: center; font-size: 13.5px; font-weight: 500; color: #374151; background: #ffffff; border: 1px solid #e3e7ec; padding: 0.45em 1.1em; }
@@ -161,6 +161,7 @@ svg path,svg shape,svg lineargradient { shape-rendering: geometricPrecision; }
 #mainHero .rgt { flex: 1 1 auto; margin-left: 2.5em; max-width: 664.5px; }
 #mainHero .rgt img { width: 100%; }
 @media (max-width: 992px){
+#mainHero { padding-top: 71px; }
 #mainHero .row { flex-direction: column; padding: 3em 0 3.5em 0; }
 #mainHero .lft { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
 #mainHero .ln1 { font-size: 42px;  max-width: 10em; }

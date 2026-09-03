@@ -26,15 +26,22 @@ export function Header({
   const [login, setLogin] = useState(openLogin);
   const signedIn = Boolean(user);
 
-  // Static and opaque: the mockup's #mainHdr sets no `position` on any page,
-  // and its background is a flat #fff. We had it sticky and translucent,
-  // neither of which is theirs.
+  // Pinned, as of the designer's 2026-09-03 sync: #mainHdr gained
+  // `position: fixed; width: 100%; left: 0; top: 0`, reversing the earlier
+  // decision this port followed when it unpinned the header.
   //
-  // It also explains their `scroll-margin-top: 2em` on the terms sections —
-  // 20px only clears a heading if nothing is pinned over it. Under a sticky
-  // header every anchor jump landed behind it.
+  // The spacer below is ours. Their file compensates with `padding-top: 83px`
+  // on #mainHero alone, so on help.html and terms.html the first section slides
+  // under the header — verified, and reported upstream. Pushing the page down
+  // from inside the component means every page that renders a Header clears it
+  // and none can be forgotten.
+  //
+  // It also reinstates the reason for their `scroll-margin-top: 2em` on the
+  // terms sections: under a pinned header an anchor jump lands behind it.
   return (
-    <header className="border-b border-line bg-white">
+    <>
+      <div aria-hidden="true" className="h-[65px]" />
+      <header className="fixed left-0 top-0 z-[12] w-full border-b border-line bg-white">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link aria-label="BarcodesQR home" href="/">
           <span className="inline-flex items-center gap-2">
@@ -129,5 +136,6 @@ export function Header({
       )}
       {login && <LoginModal onClose={() => setLogin(false)} />}
     </header>
+    </>
   );
 }

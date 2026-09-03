@@ -33,7 +33,7 @@ const benefits: Benefit[] = [
 export function WhyBarcodesQR() {
   return (
     <section id="features" className="scroll-mt-20 bg-white">
-      <div className="container-page py-16 md:py-20">
+      <div className="container-page pb-16 pt-10 md:pb-20 md:pt-10">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Copy */}
           <div>

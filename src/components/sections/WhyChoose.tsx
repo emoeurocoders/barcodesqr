@@ -57,7 +57,14 @@ const features = [
 export function WhyChoose() {
   return (
     <section className="border-b border-hero-line bg-white">
-      <div className="container-frm py-[76px]">
+      {/*
+        The designer gives both this section and #mainWhy a full genPad1
+        (76px top and bottom), so the two stack into a ~152px trough. The PM
+        asked for it tightened, so the bottom half is cut to 40px here and the
+        top of WhyBarcodesQR matches. A deliberate divergence from the mockup,
+        recorded in LAUNCH.md so the next sync does not read it as drift.
+      */}
+      <div className="container-frm pb-[40px] pt-[76px]">
         <div className="text-center">
           {/* Their <h4>, kept — the page's heading levels are the designer's. */}
           <h4 className="mx-auto text-[40px] font-extrabold leading-[normal] tracking-heading text-black to-768:text-[36px] to-480:text-[7.5vw]">

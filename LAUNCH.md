@@ -153,6 +153,31 @@ two, which is why pixel diffs of these pages sit near 4% and why the sidebar's
 support paragraph is 3 lines in the mockup and 2 in the port. Compare box
 geometry, not text height, when checking these pages.
 
+## Header is pinned, and the designer's own pages do not clear it
+
+As of the 2026-09-03 sync the designer's `#mainHdr` gained `position: fixed`,
+reversing the earlier decision this port followed when it unpinned the header.
+Ported.
+
+**Their file only compensates on the homepage.** `#mainHero` gained
+`padding-top: 83px`, but `help.html` and `terms.html` got nothing, so in the
+mockup the first section of those pages sits under the fixed header — verified
+by measuring: an 83px overlap on every page. Worth reporting upstream.
+
+Here the offset lives in the `Header` component itself, as a spacer rendered
+above the fixed bar, so every page that renders a Header clears it and none can
+be forgotten. It is 65px because that is our header's height; the designer's
+83/71px are theirs, and the difference is the pre-existing header divergence
+already tracked below.
+
+## Trial price: $1 or $1.00?
+
+The designer's plan card prints `1.00` while the button directly under it reads
+"Start $1 Trial" — inconsistent within the same file. The button copy is
+reproduced as theirs. The PM asked for "Start $1.00 Trial", which matches the
+card rather than the button. One of the two should change; it is a one-word
+edit either way.
+
 ## Homepage drift from the mockup
 
 The two sections ported on 2026-09-02 — the press-logo scroller and "Why choose
@@ -170,6 +195,11 @@ it touched by that work:
 | Header | 83 | 65 | −18 |
 | Hero | 629 | 620 | −9 |
 | Why (`#mainWhy`) | 866 | 829 | −37 |
+
+The gap between "Why choose BarcodesQR" and #mainWhy was tightened from ~156px
+to ~81px at the PM's request on 2026-09-03. That is a deliberate divergence:
+the designer gives both sections a full 76px pad and has not changed it, so a
+future sync will not "fix" this and it should not be read as drift.
 
 Reviews was the largest of these at +578px and has since been removed from the
 homepage, which is what the mockup asks for. The rest still stand and sum to the

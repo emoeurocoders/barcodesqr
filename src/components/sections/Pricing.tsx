@@ -11,6 +11,15 @@ type Plan = {
   /** Optional discount pill shown between the price and the terms. */
   save?: string;
   href: string;
+  /**
+   * The button's own words. Their file gives each plan a different call to
+   * action rather than one shared "Get Started".
+   *
+   * Note the trial reads "$1 Trial" while the card above it prints 1.00 — the
+   * designer is inconsistent within their own markup. Theirs is reproduced;
+   * raised in the handover.
+   */
+  cta: string;
   features: string[];
   highlighted?: boolean;
   badge?: string;
@@ -23,6 +32,7 @@ const plans: Plan[] = [
     period: "/ 7 days",
     terms: "then $39.95 / month",
     href: "/checkout?plan=trial",
+    cta: "Start $1 Trial",
     highlighted: true,
     features: [
       "Unlimited QR codes",
@@ -38,6 +48,7 @@ const plans: Plan[] = [
     save: "Save 25%",
     terms: "billed quarterly $89.85",
     href: "/checkout?plan=quarterly",
+    cta: "Start Quarterly Plan",
     features: [
       "Everything in trial",
       "Priority support",
@@ -52,6 +63,7 @@ const plans: Plan[] = [
     save: "Save 50%",
     terms: "billed bi-annually $119.70",
     href: "/checkout?plan=biannual",
+    cta: "Start Bi-Annual Plan",
     badge: "Most popular",
     features: [
       "Everything in quarterly",
@@ -137,7 +149,7 @@ export function Pricing() {
                   size="lg"
                   fullWidth
                 >
-                  Get Started
+                  {plan.cta}
                 </Button>
               </Link>
             </div>

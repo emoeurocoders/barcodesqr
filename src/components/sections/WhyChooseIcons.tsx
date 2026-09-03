@@ -54,8 +54,8 @@ export function AnalyticsIcon({ className }: IconProps) {
     <svg className={className} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <defs>
       <linearGradient id="mainChooseGrad1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2563eb" />
-      <stop offset="1" stop-color="#11b1a7" />
+      <stop offset="0" stopColor="#2563eb" />
+      <stop offset="1" stopColor="#11b1a7" />
       </linearGradient>
       </defs>
       <rect x="3" y="13.5" width="3.1" height="7.5" rx="0.7" fill="url(#mainChooseGrad1)" stroke="none" />
