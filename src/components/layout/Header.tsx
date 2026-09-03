@@ -38,10 +38,18 @@ export function Header({
   //
   // It also reinstates the reason for their `scroll-margin-top: 2em` on the
   // terms sections: under a pinned header an anchor jump lands behind it.
+  //
+  // z-40, not their z-index: 12. Nothing in their page climbs above 12, but
+  // this port's hero was built on Tailwind's scale and floats its dashboard
+  // cards at z-20 and z-30 — at 12 those scrolled straight over the header.
+  // 40 also clears the login modal, which renders inside this element: a fixed
+  // header with a z-index opens a stacking context, so at 12 the z-50 modal
+  // was trapped beneath those same z-30 cards. It stays below the create
+  // flow's own z-50 overlay, which is outside this context.
   return (
     <>
       <div aria-hidden="true" className="h-[65px]" />
-      <header className="fixed left-0 top-0 z-[12] w-full border-b border-line bg-white">
+      <header className="fixed left-0 top-0 z-40 w-full border-b border-line bg-white">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link aria-label="BarcodesQR home" href="/">
           <span className="inline-flex items-center gap-2">

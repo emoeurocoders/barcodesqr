@@ -170,6 +170,15 @@ be forgotten. It is 65px because that is our header's height; the designer's
 83/71px are theirs, and the difference is the pre-existing header divergence
 already tracked below.
 
+**The header sits at `z-40`, not the designer's `z-index: 12`.** Nothing in
+their page climbs above 12, but this port's hero was built on Tailwind's scale
+and floats its dashboard cards at `z-20`/`z-30`; at 12 those scrolled straight
+over the nav. 40 also matters for the login modal, which renders inside the
+header: a fixed element with a z-index opens a stacking context, so at 12 the
+modal's own `z-50` was trapped beneath those same cards. Anything added to a
+page above `z-30` will punch through the header again — keep page content below
+it, and full-screen overlays at `z-50`.
+
 ## Trial price: $1 or $1.00?
 
 The designer's plan card prints `1.00` while the button directly under it reads
