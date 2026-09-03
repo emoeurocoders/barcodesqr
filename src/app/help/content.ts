@@ -43,7 +43,7 @@ export const popular: HelpLink[] = [
   {
     label: "How to create your first QR code",
     icon: "sparkles",
-    href: null,
+    href: "/help/getting-started/create-your-first-qr-code",
   },
   {
     // The one article that exists — see /help/getting-started/download-and-test.
@@ -54,22 +54,22 @@ export const popular: HelpLink[] = [
   {
     label: "Can I edit a QR code after creating it?",
     icon: "pencil",
-    href: null,
+    href: "/help/creating-managing/edit-after-creating",
   },
   {
     label: "Why isn’t my QR code scanning?",
     icon: "circle-question",
-    href: null,
+    href: "/help/troubleshooting/not-scanning",
   },
   {
     label: "How do I log in to my BarcodesQR account?",
     icon: "circle-user",
-    href: null,
+    href: "/help/account-login/logging-in",
   },
   {
     label: "How do I cancel my subscription?",
     icon: "credit-card",
-    href: null,
+    href: "/help/plans-billing/cancel-subscription",
   },
 ];
 
@@ -157,7 +157,7 @@ export const gettingStartedArticles: Article[] = [
     title: "How to create your first QR code",
     desc: "Learn how to create a QR code in just a few simple steps.",
     icon: "qr-code",
-    href: null,
+    href: "/help/getting-started/create-your-first-qr-code",
   },
   {
     title: "Which QR code type should I choose?",
@@ -320,6 +320,7 @@ export const vote = {
 
 export const articleSidebar = {
   tocHeading: "In this article",
+  relatedHeading: "Related articles",
   popularHeading: "Popular articles",
   viewAll: "View all articles",
 } as const;

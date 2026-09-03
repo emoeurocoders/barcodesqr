@@ -11,12 +11,10 @@
  *  1. Every category reuses the SAME icon sequence for its article rows
  *     (qr-code, circle-question, copy-minus, pencil, download), so "How to log
  *     in to your account" is marked with a QR-code glyph.
- *  2. Three different rows across three categories point at help_article.html,
- *     the single article that exists. Only Getting Started's "How to download
- *     and test your QR code" actually matches that page's content, so it is the
- *     only one linked; "How to archive or delete a QR code" and "How to cancel
- *     your subscription" are left inert rather than opening an article about
- *     something else.
+ *  2. Creating & Managing's "How to archive or delete a QR code" still points
+ *     at the retired help_article.html, whose content is "How to download and
+ *     test your QR code". A stale link to a mismatched page, so it is left
+ *     inert rather than opening an article about something else.
  */
 
 import type { IconKey } from "./content";
@@ -59,7 +57,7 @@ export const categories: Category[] = [
         title: "How to create your first QR code",
         desc: "Learn how to create a QR code in just a few simple steps.",
         icon: "qr-code",
-        href: null,
+        href: "/help/getting-started/create-your-first-qr-code",
       },
       {
         title: "Which QR code type should I choose?",
@@ -234,7 +232,7 @@ export const categories: Category[] = [
         title: "How to log in to your BarcodesQR account",
         desc: "Access your saved QR codes, analytics, billing, and account settings.",
         icon: "qr-code",
-        href: null,
+        href: "/help/account-login/logging-in",
       },
       {
         title: "How your BarcodesQR account is created",
@@ -313,7 +311,7 @@ export const categories: Category[] = [
         title: "How to cancel your subscription",
         desc: "Learn how to cancel your subscription and what happens to your account afterward.",
         icon: "download",
-        href: null,
+        href: "/help/plans-billing/cancel-subscription",
       },
     ],
     explore: [
@@ -349,7 +347,7 @@ export const categories: Category[] = [
         title: "Why isn’t my QR code scanning?",
         desc: "Check the most common reasons a QR code may be difficult to scan and how to fix them.",
         icon: "qr-code",
-        href: null,
+        href: "/help/troubleshooting/not-scanning",
       },
       {
         title: "Why isn’t my QR code opening the correct destination?",

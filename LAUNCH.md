@@ -117,10 +117,20 @@ All six categories exist and are linked from the Help Center's topic grid:
 `plans-billing`, `troubleshooting`. They share one template,
 `src/app/help/[category]/page.tsx`, driven by `categories.ts`.
 
-**Individual articles mostly do not.** Of the 27 article rows across the six
-categories, exactly one has a page — Getting Started's "How to download and
-test your QR code". The rest keep the mockup's inert anchor. `href: null` in
-`categories.ts` marks each one; wiring them is filling in data, not new code.
+**Six articles exist**, at `/help/[category]/[article]`, sharing one template
+driven by `articles.ts`. All six are linked from the Help Center's Popular
+Articles list, and five are reachable from their category's article rows.
+
+**The other 21 article rows are still inert.** `href: null` in `categories.ts`
+marks each one; wiring them is filling in data, not new code.
+
+**Five of the six articles ship with their screenshot commented out.** The
+designer wraps it in `<!--shot … end shot-->`, and the five JPEGs behind those
+comments are byte-identical 72002-byte placeholders. Only "How to download and
+test your QR code" shows a real image. The commented-out markup is not
+rendered, matching what they ship — when the designer supplies real screenshots
+and uncomments them, `articles.ts` needs the image restored and the file copied
+into `public/help/`.
 
 **Two things in the designer's category files look like template artefacts.**
 Both are reproduced rather than corrected, and both are worth raising:
