@@ -145,7 +145,7 @@ export function Pricing() {
 
               <Link className="mt-8" href={plan.href}>
                 <Button
-                  variant={plan.highlighted ? "primary" : "outline"}
+                  variant={plan.highlighted ? "primary" : "outline-fill"}
                   size="lg"
                   fullWidth
                 >
