@@ -35,6 +35,10 @@ const TOKEN_TTL_MS = 10 * 60 * 1000;
  * them the account. The honest fix for both is a real processor webhook (proof
  * of payment) plus an emailed link (proof of address); this comment should be
  * deleted the day either lands.
+ *
+ * REVIEW PROMPT: when this starts setting `user.plan` away from "free", the
+ * review modal becomes eligible for that account — the dashboard reads the
+ * column directly. Nothing extra is needed here; see lib/reviewPrompt.ts.
  */
 export async function checkout(
   _prev: PaywallFormState,

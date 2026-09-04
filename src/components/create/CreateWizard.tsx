@@ -67,6 +67,18 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
   /* --- STEP 3 STATE — SHELVED ---------------------------------------------
      Restore alongside the two blocks below.
 
+     WHEN THE DOWNLOAD IS RESTORED, call markDownloaded() from
+     lib/reviewPrompt.ts inside the download handler, on SUCCESS only:
+
+       import { markDownloaded } from "@/lib/reviewPrompt";
+       ...
+       onClick={() => { download?.(ext); markDownloaded(); }}
+
+     That is the trigger for the review modal. It records eligibility and
+     nothing else — the modal deliberately does NOT open here. It opens on the
+     next dashboard view, so the ask never lands on top of the download the
+     customer just came for. See lib/reviewPrompt.ts.
+
      const [style, setStyle] = useState<QrStyle>(defaultQrStyle);
      const [password, setPassword] = useState("");
 
@@ -214,6 +226,7 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
                   key={ext}
                   size="lg"
                   variant={ext === "png" ? "primary" : "outline"}
+                  // markDownloaded() belongs here — see the note above.
                   onClick={entitled ? () => download?.(ext) : paywall.open}
                 >
                   <Download className="h-4 w-4" />

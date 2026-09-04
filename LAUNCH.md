@@ -250,6 +250,47 @@ never re-uploads, and the adjuster and the phone previews cannot drift apart.
 outside React — a hosted landing page, a PDF, an export — has to apply the same
 transform or it will show the uncropped original.
 
+## Review modal — waiting on two triggers
+
+The "How was your experience?" modal is built and wired, but it cannot appear
+yet, because neither signal it depends on exists:
+
+  1. **Paid activation.** The dashboard reads `user.plan !== "free"`, and
+     nothing sets that column — checkout does not take a real payment. Marked
+     in `app/actions/paywall.ts`.
+  2. **A successful download.** Step 3 of the creator, which owns the download
+     buttons, is shelved. The handler must call `markDownloaded()`; marked in
+     `CreateWizard.tsx` beside the shelved block.
+
+Both land automatically once those steps are finished — no further wiring.
+Rules and reasoning are in `lib/reviewPrompt.ts`; 13 assertions cover them.
+
+**Submitted feedback goes nowhere.** `ReviewPromptGate` logs it and marks the
+prompt suppressed. Before launch it needs a destination, and `markSubmitted`
+should move to the success path so a failed send does not lose the review and
+silence the prompt at the same time.
+
+**State is per-device.** It lives in localStorage, because the download is a
+client event and there is no table for it. "Never ask again" therefore does not
+follow a user to another browser. Move it to the user row when the download
+becomes a server event — the shape is small and serialisable so only `load`
+and `save` change.
+
+## The mockups have no viewport meta
+
+None of the designer's HTML files declare `<meta name="viewport">`. On a real
+phone they lay out at Chrome's 980px fallback, so their own `max-width: 767px`
+and narrower rules never fire — the pages render zoomed-out rather than
+responsive. Our app sets the meta through Next, so it does respond.
+
+This matters for verification: `scripts/design-diff.mjs` sets
+`mobile: args.width < 600`, so a `--width 390` run compares a mockup laid out
+at 980px against a port laid out at 390px. **Mobile pixel-diff numbers taken
+that way are not meaningful**, including the 390px figures quoted in earlier
+handovers. Measuring with `mobile: false` gives the designer's *intended*
+responsive layout and is the comparison worth making until the meta is added
+upstream — which is the real fix, and worth raising.
+
 ## Verification gaps
 
 - **`npm run skel` and `npm run diff:design` were not run** against the upload

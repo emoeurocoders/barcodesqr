@@ -438,17 +438,17 @@ small.error  { display: block; font-size: 11px; padding: 2px 0 0 0;  color: #cc0
 #mainRating .logo img { display: block; width: 162px; margin: 0 auto; }
 #mainRating .head { font-size: 33px; font-weight: 700; color: #000000; line-height: 1.2em; letter-spacing: -0.025em; text-align: center; max-width: 12.5em; margin: 16px auto 0 auto; padding: 0; }
 #mainRating .desc { font-size: 16px; font-weight: 400; color: #6b7280; line-height: 1.6em; text-align: center; margin-top: 8px; padding: 0; }
-#mainRating .stars { display: flex; justify-content: center; gap: 3.4em; margin-top: 2.2em; }
+#mainRating .stars { display: flex; justify-content: center; gap: 3em; margin-top: 1.8em; }
 #mainRating .stars .star { position: relative; display: flex; color: #9ca3af; text-decoration: none; cursor: pointer; }
-#mainRating .stars .star svg { display: block; width: 4em; height: 4em; }
+#mainRating .stars .star svg { display: block; width: 3.8em; height: 3.8em; }
 #mainRating .stars .star:has(input:checked), #mainRating .stars .star:has(~ .star input:checked) { color: #2563eb; }
 #mainRating .stars .star:has(input:checked) svg, #mainRating .stars .star:has(~ .star input:checked) svg { fill: currentColor; }
-#mainRating .sepLn { border-top: 1px solid #e7eaef; margin-top: 2.6em; }
-#mainRating .likes { margin-top: 2.2em; }
+#mainRating .sepLn { border-top: 1px solid #e7eaef; margin-top: 2.3em; }
+#mainRating .likes { margin-top: 1.8em; }
 #mainRating .likes .ttl { font-size: 17px; font-weight: 700; color: #0e1311; line-height: 1.3em; padding: 0; }
 #mainRating .likes .sub { font-size: 13.5px; font-weight: 400; color: #6b7280; line-height: 1.4em; margin-top: 4px; padding: 0; }
 #mainRating .likes .lst { display: flex; flex-wrap: wrap; gap: 1em; margin-top: 1.4em; font-size: 10px;}
-#mainRating .likes .itm { position: relative; display: flex; align-items: center; height: 5em; box-sizing: border-box; background: #ffffff; border: 1px solid #d1d5db; border-radius: 1.2em; padding: 0 1em; text-decoration: none; cursor: pointer; flex-grow: 1;  }
+#mainRating .likes .itm { position: relative; display: flex; align-items: center; height: 4.6em; box-sizing: border-box; background: #ffffff; border: 1px solid #d1d5db; border-radius: 1.2em; padding: 0 1em; text-decoration: none; cursor: pointer; flex-grow: 1;  }
 #mainRating .likes .itm .ico { display: flex; flex: 0 0 auto; color: #4b5563; }
 #mainRating .likes .itm .ico svg { display: block; width: 1.8em; height: 1.8em; }
 #mainRating .likes .itm .lbl { font-size: 1.35em; font-weight: 600; color: #374151; line-height: 1.2em; padding-left: 0.5em; white-space: nowrap; }
@@ -456,14 +456,15 @@ small.error  { display: block; font-size: 11px; padding: 2px 0 0 0;  color: #cc0
 #mainRating .likes .itm .tick svg { display: block; width: 1em; height: 1em; }
 #mainRating .likes .itm:has(input:checked) { background: #e9f0fb; border-color: #d5e0ef; }
 #mainRating .likes .itm:has(input:checked) .tick { display: flex; }
-#mainRating .more { margin-top: 22px; }
+#mainRating .more { margin-top: 1.8em; }
 #mainRating .more .ttl { font-size: 17px; font-weight: 700; color: #0e1311; line-height: 1.3em; padding: 0; }
 #mainRating .more .ttl .opt { font-size: 13.5px; font-weight: 400; color: #6b7280; }
-#mainRating .more textarea { display: block; width: 100%; min-height: 139px; box-sizing: border-box; background: #ffffff; border: 1px solid #d1d5db; border-radius: 12px; font-family: inherit; font-size: 15px; line-height: 1.5em; color: #0e1311; padding: 12px 14px; margin-top: 12px; resize: vertical; outline: none; }
+#mainRating .more textarea { display: block; width: 100%; min-height: 116.5px; box-sizing: border-box; background: #ffffff; border: 1px solid #d1d5db; border-radius: 12px; font-family: inherit; font-size: 15px; line-height: 1.5em; color: #0e1311; padding: 12px 14px; margin-top: 8px; resize: vertical; outline: none; }
 #mainRating .more textarea::placeholder { color: #9ca3af; }
 #mainRating .more textarea:focus { border-color: #2563eb; }
 #mainRating .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; }
 #mainRating .later { font-size: 16px; font-weight: 500; color: #2563eb; text-decoration: none; cursor: pointer; }
+#mainRating .genBtn4  { padding: 1.05em 3em;  }
 #mainRating .btnSubmit { display: flex; align-items: center; justify-content: center; height: 56px; background: #2563eb; border: 1px solid #2563eb; border-radius: 12px; font-family: inherit; letter-spacing: 0; cursor: pointer; padding: 0 46px; }
 #mainRating .btnSubmit .lbl { font-size: 16px; font-weight: 500; color: #ffffff; line-height: 1.2em; }
 @media (min-width: 1000px) {
@@ -482,15 +483,17 @@ small.error  { display: block; font-size: 11px; padding: 2px 0 0 0;  color: #cc0
 #mainRating .desc { max-width: 21em; margin: 0.5em auto 0 auto; }
 #mainRating .stars { gap: 2.6em; font-size: 0.9em; }
 #mainRating .likes .lst { font-size: 9px;  }
-
+#mainRating .more textarea {  min-height: 115px;  font-size: 16px; }
+#mainRating .genBtn4  { padding: 1.05em 1.4em;  }
 }
 @media (max-width: 479px) {
 #mainRating .head { font-size: 6.4vw; }
 #mainRating .desc {  font-size: 3.3vw;} 
 #mainRating .likes .lst { font-size: 2.1vw; }
 #mainRating .likes .itm { padding: 0 1.6em; }
+#mainRating .genBtn4  { padding: 1.05em 1.4em;  }
 #mainRating .btnSubmit { height: 48px; padding: 0 0.54em; }
-#mainRating .btnSubmit .lbl,  #mainRating .later  { font-size: 14px; }
+#mainRating .btnSubmit .lbl,  #mainRating .later, #mainRating .genBtn4   { font-size: 14px!important; }
 }
 @media (max-width: 420px){
 #mainRating .likes .ttl, #mainRating .more .ttl { font-size: 4vw; }
@@ -498,6 +501,7 @@ small.error  { display: block; font-size: 11px; padding: 2px 0 0 0;  color: #cc0
 #mainRating .body { font-size: 2.38vw; }
 }
 @media (max-width: 364px){
+#mainRating .genBtn4  { padding: 1.05em 1.4em;  }
 #mainRating .btnSubmit { height: 44px;  padding: 0 24px; }
-#mainRating .btnSubmit .lbl, #mainRating .later  { font-size: 14px; }
+#mainRating .btnSubmit .lbl, #mainRating .later , #mainRating .genBtn4 { font-size: 14px!important; }
 }

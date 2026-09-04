@@ -150,10 +150,15 @@
 @custom-variant to-1123 (@media (max-width: 1123px));
 @custom-variant to-1080 (@media (max-width: 1080px));
 @custom-variant to-992 (@media (max-width: 992px));
+/* The review modal steps at 767/479/420, one pixel off the marketing
+   breakpoints above. Reproduced exactly rather than rounded. */
 @custom-variant to-768 (@media (max-width: 768px));
+@custom-variant to-767 (@media (max-width: 767px));
 @custom-variant to-576 (@media (max-width: 576px));
 @custom-variant to-480 (@media (max-width: 480px));
+@custom-variant to-479 (@media (max-width: 479px));
 @custom-variant to-440 (@media (max-width: 440px));
+@custom-variant to-420 (@media (max-width: 420px));
 
 @utility container-frm {
   width: 100%;
