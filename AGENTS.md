@@ -169,6 +169,24 @@ decision to raise, not a detail to settle yourself.
 | Designer SVG → `lucide-react` icon             | Only when the glyph visually matches — see the icon rule.             |
 | SVG/attr casing fixed for React                | `strokeWidth`, `linearGradient` — React renders nothing otherwise.    |
 
+### The mailers are ported differently
+
+`html_files/mailers/*/index.html` are transactional emails, and the porting
+rules above do NOT apply to them. Email HTML is nested tables, inline styles,
+VML and MSO conditional comments because that is what mail clients need —
+translating any of it to Tailwind would break the thing it is trying to match.
+
+So they are kept verbatim instead. `scripts/build-email-templates.mjs` copies
+the designer's file and substitutes only the values, the image URLs and the
+placeholder hrefs, producing `src/emails/templates/*.ts`. After a sync, run
+`npm run emails:build` rather than editing the port by hand; it fails loudly
+naming the rule when the designer moves a row out from under it.
+
+Verify them at `--width 750`, the mailers' own lock width, against the dev-only
+preview route (`/dev/emails/trial`, `/dev/emails/receipt`) which seeds the
+renderers with the mockup's exact sample values. Full instructions, including
+where the send call belongs once payments exist, are in `docs/EMAILS.md`.
+
 ### Prove it matches: diff first, then look
 
 A port is not done until it has been **diffed** and then **looked at**.

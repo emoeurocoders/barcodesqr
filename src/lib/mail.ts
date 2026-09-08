@@ -1,6 +1,14 @@
 import "server-only";
 
 import { env } from "./env";
+import {
+  renderPaymentReceiptEmail,
+  type PaymentReceiptData,
+} from "@/emails/paymentReceipt";
+import {
+  renderTrialStartedEmail,
+  type TrialStartedData,
+} from "@/emails/trialStarted";
 
 /**
  * Transactional email, over Resend's HTTP API.
@@ -68,4 +76,32 @@ export async function sendSignInLink(to: string, token: string) {
 </html>`;
 
   await send(to, "Your BarcodesQR sign-in link", html, text);
+}
+
+/**
+ * "Your 7-Day Trial Is Active" — the $1 trial receipt and account confirmation.
+ *
+ * Nothing calls this yet: checkout does not take a real payment, so there is no
+ * moment at which it would be true. `docs/EMAILS.md` says where the call goes
+ * once payments land, and why it must be the provider's webhook rather than the
+ * checkout response that makes it.
+ */
+export async function sendTrialStartedEmail(
+  to: string,
+  data: TrialStartedData,
+) {
+  const { subject, html, text } = renderTrialStartedEmail(data);
+  await send(to, subject, html, text);
+}
+
+/**
+ * "Payment Received" — the receipt for a full subscription charge, sent on
+ * every successful renewal. Also uncalled; see above.
+ */
+export async function sendPaymentReceiptEmail(
+  to: string,
+  data: PaymentReceiptData,
+) {
+  const { subject, html, text } = renderPaymentReceiptEmail(data);
+  await send(to, subject, html, text);
 }

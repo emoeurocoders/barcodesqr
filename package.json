@@ -15,7 +15,8 @@
     "db:studio": "drizzle-kit studio",
     "skel": "node scripts/design-skel.mjs",
     "diff:design": "node scripts/design-diff.mjs",
-    "storage:check": "node scripts/storage-check.mjs"
+    "storage:check": "node scripts/storage-check.mjs",
+    "emails:build": "node scripts/build-email-templates.mjs"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

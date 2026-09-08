@@ -250,6 +250,69 @@ never re-uploads, and the adjuster and the phone previews cannot drift apart.
 outside React — a hosted landing page, a PDF, an export — has to apply the same
 transform or it will show the uncropped original.
 
+## Transactional emails — built, unwired
+
+The two mailers the designer sent are ported and verified: "Your 7-Day Trial Is
+Active" and "Payment Received". Both pixel-diff at 0.00% against
+`html_files/mailers/` at 750 and 390. **Nothing calls either one**, and nothing
+can until a payment processor exists — both emails assert that money moved, and
+the only thing that knows is the processor.
+
+`docs/EMAILS.md` is the instruction sheet: the payloads, which provider event
+maps to which email, and why the call belongs in the webhook rather than in
+`checkout()`. Read it before wiring, not after.
+
+The things that must be settled with the payments work:
+
+- **Idempotency has no home.** Providers redeliver webhooks, and sending is not
+  idempotent. A seen-event-id table is needed or customers get duplicate
+  receipts. There is no such table.
+- **A failed send disappears.** `send()` throws; the handler must swallow that
+  to avoid triggering a redelivery of the whole event, which leaves a missing
+  receipt nobody hears about. A queue with retries is the real fix; an alert is
+  the minimum.
+- **`manageUrl` points at `/dashboard`** because there is no billing portal.
+  Both "Manage or Cancel Subscription" buttons go there. A portal session URL
+  is the right target but they expire, so a stable route of ours that mints one
+  on click is the better shape.
+- **`statementDescriptor` defaults to `BARCODESQR.COM`,** copied from the
+  mockup. It must be checked against whatever the processor is actually
+  configured with — a mismatch is what a chargeback looks like.
+- **Nothing has been opened in a real mail client.** Only headless Chrome. The
+  templates carry VML and MSO conditionals purely for Outlook, and that path
+  renders in no browser.
+
+### Designer issues found while porting
+
+Reproduced faithfully rather than corrected, per the fidelity contract. Both
+are worth raising upstream:
+
+  1. **The receipt's second button says two different things.** Outlook reads
+     the VML `roundrect` and shows "Manage Subscription"; every other client
+     reads the anchor beside it and shows "Manage or Cancel Subscription". The
+     trial email says "Manage or Cancel Subscription" in both, so the receipt is
+     the odd one out.
+  2. **The dark-mode logo swap is half-wired.** `logo_dark.png` ships in both
+     files, but the `@media (prefers-color-scheme: dark)` rule that would show
+     it is commented out — only the `[data-ogsc]` rule is live, and that is
+     Outlook.com's attribute. Both files also declare
+     `<meta name="color-scheme" content="light only">`, so this may be
+     deliberate; ask which they meant.
+
+### Known divergences
+
+- **Absolute URLs for images and links.** The mockup's `src="logo.png"` and
+  `href="#"` cannot work in an inbox. Images are served from `public/emails/`
+  and links resolve against `APP_URL`. This is the sanctioned divergence and it
+  is the ONLY thing the skeleton diff reports for either file.
+- **The plain-text alternative is unmocked.** The designer ships HTML only, and
+  `send()` requires both. Written by hand in `src/emails/*.ts`, following the
+  mockup's own copy and ordering. No tool diffs it — when a string changes in
+  the HTML, it has to be changed there too.
+- **Privacy links to `/legal/privacy`, which does not exist,** matching the
+  site footer, which 404s the same way. Not an email problem; listed here so it
+  is not discovered from an inbox.
+
 ## Review modal — waiting on two triggers
 
 The "How was your experience?" modal is built and wired, but it cannot appear
