@@ -254,7 +254,7 @@ jQuery(document).ready(function($) {
 		});
 	}
 	//press logos infinite scroller
-	if ($('#mainPressScroll .lst').length) {
+	/*if ($('#mainPressScroll .lst').length) {
 		var $pressWrap = $('#mainPressScroll .scrl');
 		var $pressTrack = $('#mainPressScroll .lst');
 		var pressSet = $pressTrack.children();
@@ -284,7 +284,7 @@ jQuery(document).ready(function($) {
 			requestAnimationFrame(pressStep);
 		}
 		requestAnimationFrame(pressStep);
-	}
+	}*/
 
 	//terms toggle
 	$('#mainTerms .toc .tgl').on('click', function (e) {
@@ -292,4 +292,29 @@ jQuery(document).ready(function($) {
 		var open = $(this).closest('.toc').toggleClass('open').hasClass('open');
 		$(this).find('.txt').text(open ? 'Show fewer sections' : 'Show all 31 sections');
 	});
+
+	//mobile home (main_mobile.html)
+	if ($('body.mobHome').length) {
+		//side menu
+		$('.mobHome #mainHdr .brg').on('click', function(e) {
+			e.preventDefault();
+			$('body').toggleClass('mobNavOpen');
+		});
+		$('.mobHome #mobNav .cls, .mobHome .ovl').on('click', function(e) {
+			e.preventDefault();
+			$('body').removeClass('mobNavOpen');
+		});
+		$('.mobHome #mobNav .lst a').on('click', function() {
+			$('body').removeClass('mobNavOpen');
+		});
+		//more formats toggle
+		$('.mobHome #mainTypes .mid').on('click', function() {
+			$('#mainTypes').toggleClass('open');
+		});
+		//footer accordions
+		$('.mobHome #mainFooter .col .ln1').on('click', function() {
+			$(this).closest('.col').toggleClass('open');
+		});
+	}
+
 });
