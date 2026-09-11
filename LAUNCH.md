@@ -230,6 +230,70 @@ no such route exists, so both 404. `Reviews.tsx` is kept unreferenced for
 exactly that page rather than deleted; either build the route or drop the two
 nav entries and the component together.
 
+## Mobile homepage — ported 2026-09-11, with four things to confirm
+
+`main_mobile.html` (Monday item *BarcodesQR Mobile Main 9/11*) is ported on
+`design/mobile-main`. Desktop was held byte-identical through the whole port —
+verified by capturing the 1440 rendering before the first edit and pixel-diffing
+against it after every change, ending at **0 pixels differing**. Mobile is
+within 7px per section and +12px over the page. Four things need a decision:
+
+### The designer also changed DESKTOP in the same sync, and it is NOT ported
+
+The 2026-09-11 sync rewrote `main.html` as well: the press-logo scroller
+(`#mainPressScroll`) is replaced by a three-card feature strip (`#mainFeat` —
+"Dynamic QR Codes", "Built-in Analytics", "Custom Branding"), and two CTAs go
+from "Create QR Code" to "Create Your QR Code". None of that is ported, under
+instruction to leave desktop alone. `PressScroll.tsx` therefore still renders
+a section the mockup no longer has, and the committed `html_files/` baseline
+and the port now knowingly disagree on desktop. Ticket it or revert the mockup.
+
+### Two strings are stale on desktop, and now differ between breakpoints
+
+`main.html` and `main_mobile.html` BOTH say "Everything you need after creating
+your QR code" and "Organize everything"; the desktop port has been carrying
+"…after the QR code is created" and "Customize your brand" since before this
+branch. Mobile ports the correct strings, desktop keeps the wrong ones, so the
+same section reads differently depending on width. Fixing desktop reflows it,
+which this branch was not allowed to do — it is a one-line change in
+`WhyBarcodesQR.tsx` plus deleting `mobileBenefits`.
+
+The same split applies to "Create Your QR Code": both mockups use it in the
+hero and the closing CTA, the port says "Create QR Code" on desktop. Mobile
+uses the designer's wording.
+
+### Mobile drops content the desktop page sells
+
+`#mainChoose` goes from six cards to four on mobile — "High-Quality Downloads"
+and "Easy to Manage" are absent from the designer's file. Reproduced as
+shipped, but losing two selling points on phones reads like a decision someone
+should confirm rather than a styling choice.
+
+### The 640–768 band is neither mockup
+
+The designer ships mobile as a separate page scoped by a `.mobHome` body class,
+so it has no breakpoint of its own; their fluid root starts at 640px while this
+port switches at Tailwind's `md:` (768) to keep the existing desktop header
+behaviour. Between 640 and 768 the page therefore renders the mobile
+composition at desktop-ish widths. It was already the band where the old
+hamburger appeared, so nothing regressed, but nobody has designed it.
+
+### Smaller notes
+
+- **Skeleton diffs on `/` are noisy now.** The port renders both compositions
+  and hides one with `md:hidden` / `hidden md:block`; `npm run -s skel` walks
+  the DOM and cannot tell. Diff a section root and expect the other
+  breakpoint's markup appended — the mobile half still compares clean.
+- **The drawer is only mocked on the home page.** Its links are absolute
+  (`/#steps`) so they work from /help and /terms, but no mockup covers what the
+  drawer should hold there.
+- **Their `.mobHome … .ln1 .mrk` rule is dead.** It would flatten the hero's
+  marked word to plain blue, but the markup they shipped has no `.mrk` on that
+  page. The rendered file is what was reproduced. Worth telling the designer.
+- The mobile logo is drawn as SVG + live text against their single background
+  image, as on desktop. Sized to their 153px, so it matches in width, but the
+  glyph rasterisation differs.
+
 ## Image adjuster
 
 The fields the schema marks `adjustable` — vCard and Social profile photos

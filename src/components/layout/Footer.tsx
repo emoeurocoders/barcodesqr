@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Globe, ChevronDown } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { LiveHelpLink } from "@/components/support/LiveHelpLink";
+import { FooterColumn } from "./FooterColumn";
 
 type FooterLink = { href: string; label: string };
 
@@ -77,73 +78,88 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-line bg-white">
-      <div className="container-page py-14">
-        <div className="grid gap-10 lg:grid-cols-[1.6fr_repeat(5,1fr)]">
-          {/* Brand */}
-          <div>
+    <footer className="mt-auto border-t border-hero-divider bg-white md:border-line">
+      <div className="container-home pb-[26px] pt-[42px] md:py-14">
+        <div className="grid gap-0 pb-[25px] md:gap-10 md:pb-0 lg:grid-cols-[1.6fr_repeat(5,1fr)]">
+          {/* Brand. On mobile their `.lgo` reserves 120px on the right and hangs
+              the Live Help button in it; on desktop that button lives in the
+              Support column instead, which is where their main.html puts it. */}
+          <div className="relative pr-[120px] md:pr-0">
             <span className="inline-flex items-center gap-2">
               <Logo />
-              <span className="text-lg font-bold tracking-tight text-ink">
+              {/* Their footer wordmark is 21px/800 on mobile against the
+                  header's 18px/700; desktop keeps the 18. */}
+              <span className="text-[21px] font-extrabold leading-[normal] tracking-tight text-ink md:text-lg md:font-bold md:leading-7">
                 Barcodes<span className="text-primary">QR</span>
               </span>
             </span>
-            <p className="mt-4 max-w-[15rem] text-sm leading-relaxed text-muted">
+            <p className="mt-[1em] max-w-[17em] text-sm leading-relaxed text-muted md:mt-4 md:max-w-[15rem]">
               Create, customize and manage QR codes for web, print and business.
             </p>
+
+            {/* `flex-row-reverse` because their button leads with the glyph and
+                LiveHelpLink renders it after the label. */}
+            <LiveHelpLink className="absolute right-0 top-0 inline-flex h-[44px] flex-row-reverse items-center gap-[7px] rounded-[10px] border border-primary bg-white px-[13px] text-[13px] font-bold text-primary [&>svg]:h-5 [&>svg]:w-5 md:hidden" />
           </div>
 
           {columns.map((col) => (
-            <div key={col.title}>
-              <h4 className="text-sm font-bold text-ink">{col.title}</h4>
-              <ul className="mt-4 space-y-2.5">
-                {col.title === "Support" && (
-                  <li>
-                    <LiveHelpLink className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink transition-colors hover:text-primary" />
-                  </li>
-                )}
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <Link className={linkClass} href={link.href}>
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-                {col.title === "QR Code Types" && (
-                  <li className="pt-1">
-                    <Link
-                      href="/#types"
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
-                    >
-                      View All QR Types
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </div>
+            <FooterColumn key={col.title} title={col.title}>
+              {col.title === "Support" && (
+                <li className="hidden md:block">
+                  <LiveHelpLink className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink transition-colors hover:text-primary" />
+                </li>
+              )}
+              {col.links.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    className={`flex min-h-[40px] items-center text-[14px] md:inline md:min-h-0 md:text-sm ${linkClass}`}
+                    href={link.href}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              {col.title === "QR Code Types" && (
+                <li className="md:pt-1">
+                  <Link
+                    href="/#types"
+                    className="inline-flex min-h-[40px] items-center gap-1.5 text-[14px] font-semibold text-primary transition-colors hover:text-primary-dark md:min-h-0 md:text-sm"
+                  >
+                    View All QR Types
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </li>
+              )}
+            </FooterColumn>
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-6 border-t border-line pt-6 sm:flex-row">
-          <p className="text-sm text-muted">
+        {/* Mobile reorders this row: the payment marks come first, then a ruled
+            copyright line, and the language picker is dropped. */}
+        <div className="mt-0 flex flex-col items-center justify-between gap-0 border-t-0 pt-0 md:mt-12 md:gap-6 md:border-t md:border-line md:pt-6 sm:flex-row">
+          <p className="order-2 mt-[24px] w-full border-t border-hero-divider pt-[22px] text-center text-[13px] text-muted md:order-none md:mt-0 md:w-auto md:border-0 md:pt-0 md:text-left md:text-sm">
             © {year} BarcodesQR. All rights reserved.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="order-1 grid w-full grid-cols-5 items-center gap-2 md:order-none md:flex md:w-auto md:flex-wrap md:justify-center">
             {payments.map((p) => (
               <span
                 key={p.alt}
-                className="flex h-8 items-center justify-center rounded-md border border-line bg-white px-3"
+                className="flex min-h-[44px] items-center justify-center rounded-md border border-line bg-white px-[0.4em] py-[0.3em] md:h-8 md:min-h-0 md:px-3 md:py-0"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.src} alt={p.alt} className={p.className} />
+                <img
+                  src={p.src}
+                  alt={p.alt}
+                  className={`w-10 max-w-[86%] md:w-auto md:max-w-none ${p.className}`}
+                />
               </span>
             ))}
           </div>
 
-          {/* Language is display-only until i18n is wired up. */}
-          <span className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink">
+          {/* Language is display-only until i18n is wired up, and their mobile
+              file drops it outright. */}
+          <span className="hidden items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink md:inline-flex">
             <Globe className="h-4 w-4 text-muted" aria-hidden="true" />
             English
             <ChevronDown className="h-4 w-4 text-muted" aria-hidden="true" />

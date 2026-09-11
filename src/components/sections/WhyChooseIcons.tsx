@@ -49,19 +49,27 @@ export function DynamicIcon({ className }: IconProps) {
 }
 
 /** "Scan Analytics" */
+/*
+ * `mainChooseGrad1` is a document-global id, and `url(#id)` binds to the FIRST
+ * match in the document rather than the nearest one. Rendering this set twice
+ * on one page — as a `md:hidden` / `hidden md:block` pair, say — makes the
+ * visible copy resolve its fill against the hidden one and the bars vanish.
+ * Give each instance its own id before doing that.
+ */
 export function AnalyticsIcon({ className }: IconProps) {
+  const gradId = "mainChooseGrad1";
   return (
     <svg className={className} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <defs>
-      <linearGradient id="mainChooseGrad1" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stopColor="#2563eb" />
       <stop offset="1" stopColor="#11b1a7" />
       </linearGradient>
       </defs>
-      <rect x="3" y="13.5" width="3.1" height="7.5" rx="0.7" fill="url(#mainChooseGrad1)" stroke="none" />
-      <rect x="8" y="11.5" width="3.1" height="9.5" rx="0.7" fill="url(#mainChooseGrad1)" stroke="none" />
-      <rect x="13" y="9.5" width="3.1" height="11.5" rx="0.7" fill="url(#mainChooseGrad1)" stroke="none" />
-      <rect x="18" y="7.5" width="3.1" height="13.5" rx="0.7" fill="url(#mainChooseGrad1)" stroke="none" />
+      <rect x="3" y="13.5" width="3.1" height="7.5" rx="0.7" fill={`url(#${gradId})`} stroke="none" />
+      <rect x="8" y="11.5" width="3.1" height="9.5" rx="0.7" fill={`url(#${gradId})`} stroke="none" />
+      <rect x="13" y="9.5" width="3.1" height="11.5" rx="0.7" fill={`url(#${gradId})`} stroke="none" />
+      <rect x="18" y="7.5" width="3.1" height="13.5" rx="0.7" fill={`url(#${gradId})`} stroke="none" />
       <path d="M3.5 8 9 4.5l4.5 2L20.5 2" stroke="#2563eb" strokeWidth="1.8" />
       <circle cx="9" cy="4.5" r="1.1" fill="#2563eb" stroke="none" />
       <circle cx="13.5" cy="6.5" r="1.1" fill="#2563eb" stroke="none" />

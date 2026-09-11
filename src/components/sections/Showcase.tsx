@@ -308,13 +308,129 @@ function PhonePreview({ type }: { type: QrType }) {
   );
 }
 
+/**
+ * The tile tints in main_mobile.html, which are NOT the `accent` each type
+ * already carries above — that one colours the desktop tab and its phone
+ * preview, these two colour the mobile tile's disc. Several types share a pair
+ * (Image with vCard, Video with PDF), so they are keyed by label rather than
+ * folded into `QrType`.
+ */
+const mobileTint: Record<string, { fg: string; bg: string }> = {
+  Website: { fg: "#782be4", bg: "#f1e9ff" },
+  vCard: { fg: "#079b63", bg: "#e4f8ef" },
+  PDF: { fg: "#c92348", bg: "#fdecef" },
+  Image: { fg: "#079b63", bg: "#e4f8ef" },
+  Video: { fg: "#c92348", bg: "#fdecef" },
+  "App Link": { fg: "#1f6fe5", bg: "#e9f2ff" },
+  WhatsApp: { fg: "#079b63", bg: "#e4f8ef" },
+  SMS: { fg: "#1f6fe5", bg: "#e9f2ff" },
+  "Social Media": { fg: "#f35d9e", bg: "#fbe8f7" },
+  WiFi: { fg: "#078fa9", bg: "#e5f8fb" },
+  Menu: { fg: "#e4770b", bg: "#fff1df" },
+  Email: { fg: "#1f6fe5", bg: "#e9f2ff" },
+  Phone: { fg: "#079b63", bg: "#e4f8ef" },
+  Location: { fg: "#1f6fe5", bg: "#e9f2ff" },
+  Event: { fg: "#782be4", bg: "#f1e9ff" },
+  Reviews: { fg: "#e4770b", bg: "#fff1df" },
+  "Multi-Link": { fg: "#782be4", bg: "#f1e9ff" },
+  Payment: { fg: "#c51d9e", bg: "#fbe8f7" },
+  "Plain Text": { fg: "#667085", bg: "#eef1f5" },
+};
+
+/**
+ * Popular types on mobile. Their file keeps all ten `.tabsMain` tiles in the
+ * DOM and hides the ninth — Social Media — with `nth-child(9) { display: none }`
+ * so the grid lands on a clean 3×3. Filtered here rather than hidden, because
+ * a tile nobody can see is still read out otherwise.
+ */
+const mobileMainTypes = mainTypes.filter((t) => t.label !== "Social Media");
+
+function MobileTypeTile({ type }: { type: QrType }) {
+  const { icon: Icon, label } = type;
+  const tint = mobileTint[label];
+  return (
+    <li className="flex min-h-[13.8em] flex-col items-center justify-center rounded-[1.6em] border border-hero-card-line bg-white px-[0.6em] py-[1.48em] text-[2.1vw] leading-[normal]">
+      <span
+        className="flex h-[5.9em] w-[5.9em] shrink-0 items-center justify-center rounded-full"
+        style={{ color: tint?.fg, background: tint?.bg }}
+      >
+        <Icon className="h-[3.1em] w-[3.1em]" />
+      </span>
+      <span className="mt-[0.7em] text-[1.6em] font-semibold text-ink">
+        {label}
+      </span>
+    </li>
+  );
+}
+
+/**
+ * The whole mobile composition for this section: a heading, a 3×3 grid of
+ * popular types and a "More Formats" disclosure holding the other nine.
+ *
+ * It replaces rather than reflows the desktop one — there is no tab strip, no
+ * blurb and no phone preview on mobile, and the heading is a different sentence
+ * ("23+ QR code types…" against the desktop "Choose your QR code type").
+ */
+function MobileTypes() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="md:hidden">
+      <h2 className="mx-auto max-w-[9.5em] text-center text-[8.7vw] font-extrabold leading-[1.08] tracking-[-0.035em] text-ink">
+        <span className="text-primary">23+</span> QR code types for every use
+        case
+      </h2>
+      <p className="mx-auto mt-[0.85em] max-w-[18em] text-center text-[4.1vw] leading-[1.55] text-muted">
+        From websites and PDFs to menus, reviews, payments and more.
+      </p>
+
+      <p className="mt-[3.75vw] text-[4.6vw] font-extrabold leading-[normal] tracking-[-0.02em] text-ink">
+        Popular QR Types
+      </p>
+      <ul className="mt-[2.5vw] grid grid-cols-3 gap-[2.56vw]">
+        {mobileMainTypes.map((t) => (
+          <MobileTypeTile key={t.key} type={t} />
+        ))}
+      </ul>
+
+      {/* Their `.mid`, whose rules are a hairline either side of the label. */}
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls="more-formats"
+        onClick={() => setOpen((v) => !v)}
+        className="mt-[2.890625vw] flex w-full cursor-pointer select-none items-center text-[3.8vw] font-semibold leading-[normal] text-ink before:mr-[0.7em] before:h-px before:flex-1 before:bg-hero-divider before:content-[''] after:ml-[0.35em] after:h-px after:flex-1 after:bg-hero-divider after:content-['']"
+      >
+        More Formats
+        <ArrowDown
+          aria-hidden="true"
+          className={`ml-[0.35em] h-[4.6vw] w-[4.6vw] transition-transform duration-[250ms] ease-out ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {open && (
+        <ul id="more-formats" className="mt-[2.890625vw] grid grid-cols-3 gap-[2.56vw]">
+          {moreTypes.map((t) => (
+            <MobileTypeTile key={t.key} type={t} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export function Showcase() {
   const [activeKey, setActiveKey] = useState(allTypes[0].key);
   const type = allTypes.find((t) => t.key === activeKey) ?? allTypes[0];
 
   return (
-    <section id="types" className="scroll-mt-20 bg-bg">
-      <div className="container-page py-16 md:py-20">
+    <section id="types" className="scroll-mt-[84px] md:scroll-mt-20 bg-bg">
+      <div className="container-home pb-16 pt-[59px] md:py-20">
+        <MobileTypes />
+
+        <div className="hidden md:block">
         <h2 className="text-center text-3xl font-bold sm:text-4xl">
           Choose your QR&nbsp;code type
         </h2>
@@ -367,6 +483,7 @@ export function Showcase() {
           </div>
 
           <PhonePreview type={type} />
+        </div>
         </div>
       </div>
     </section>

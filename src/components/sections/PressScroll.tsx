@@ -36,7 +36,7 @@ export function PressScroll() {
         hidden below 1400px. Kept as pseudo-elements rather than spans so the
         DOM matches the mockup node for node.
       */
-      className="relative border-y border-hero-line bg-[#f8f9fb]
+      className="relative hidden border-y border-hero-line bg-[#f8f9fb] md:block
         before:absolute before:left-[3vw] before:top-1/2 before:h-[176px] before:w-[88px] before:-translate-y-1/2 before:bg-[radial-gradient(circle,#d2d8e2_2.5px,transparent_2.5px)] before:[background-size:22px_22px] before:content-['']
         after:absolute after:right-[3vw] after:top-1/2 after:h-[176px] after:w-[88px] after:-translate-y-1/2 after:bg-[radial-gradient(circle,#d2d8e2_2.5px,transparent_2.5px)] after:[background-size:22px_22px] after:content-['']
         to-1400:before:hidden to-1400:after:hidden"

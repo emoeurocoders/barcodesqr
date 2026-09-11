@@ -34,26 +34,39 @@ export function Faq() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="scroll-mt-20 bg-white">
-      <div className="container-page py-16 md:py-20">
+    <section id="faq" className="md:order-2 scroll-mt-[84px] md:scroll-mt-20 bg-white">
+      <div className="container-home pb-[30px] pt-[59px] md:py-20">
         <h2 className="text-center text-3xl font-bold sm:text-4xl">
-          Frequently asked&nbsp;questions
+          <span className="block text-[6.5vw] tracking-[-0.035em] md:hidden">
+            Frequently asked&nbsp;questions
+          </span>
+          <span className="hidden md:inline">
+            Frequently asked&nbsp;questions
+          </span>
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-muted">
-          Answers to the most common questions about creating and managing QR
-          codes.
+          <span className="mx-auto -mt-3 block max-w-[19em] pt-[0.85em] text-[4.1vw] leading-[1.55] md:hidden">
+            Answers to the most common questions about creating and managing QR
+            codes.
+          </span>
+          <span className="hidden md:inline">
+            Answers to the most common questions about creating and managing QR
+            codes.
+          </span>
         </p>
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-[7fr_4fr] lg:gap-14">
+        <div className="mt-[4.6875vw] grid gap-0 md:mt-12 md:gap-10 lg:grid-cols-[7fr_4fr] lg:gap-14">
           {/* Accordion */}
-          <ul className="space-y-3">
+          <ul className="space-y-0 md:space-y-3">
             {items.map((item, i) => {
               const isOpen = open === i;
               return (
                 <li
                   key={item.q}
-                  className={`overflow-hidden rounded-2xl border transition-colors ${
-                    isOpen ? "border-line bg-white" : "border-line/70 bg-white"
+                  className={`mt-[1.48em] overflow-hidden rounded-[1.7em] border bg-white text-[2.1vw] leading-[normal] shadow-[0_2px_6px_rgba(14,19,17,0.04)] transition-colors first:mt-0 md:leading-normal md:mt-0 md:rounded-2xl md:text-[1rem] md:shadow-none ${
+                    isOpen
+                      ? "border-hero-divider md:border-line"
+                      : "border-hero-divider md:border-line/70"
                   }`}
                 >
                   <h3>
@@ -63,10 +76,10 @@ export function Faq() {
                       aria-controls={`faq-panel-${i}`}
                       id={`faq-trigger-${i}`}
                       onClick={() => setOpen(isOpen ? null : i)}
-                      className="flex w-full cursor-pointer items-center gap-4 px-5 py-4 text-left"
+                      className="flex w-full cursor-pointer items-center gap-[1.47em] px-[1.85em] py-[1.5em] text-left md:gap-4 md:px-5 md:py-4"
                     >
                       <span
-                        className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors ${
+                        className={`grid h-[2.04em] w-[2.04em] shrink-0 place-items-center rounded-full text-[2.3em] transition-colors md:h-7 md:w-7 md:text-[1rem] ${
                           isOpen
                             ? "bg-primary text-white"
                             : "bg-primary-soft text-primary"
@@ -80,12 +93,12 @@ export function Faq() {
                         )}
                       </span>
 
-                      <span className="flex-1 text-base font-bold text-ink">
+                      <span className="flex-1 text-[1.85em] font-bold leading-[1.3] text-ink md:text-base md:leading-normal">
                         {item.q}
                       </span>
 
                       <ChevronDown
-                        className={`h-5 w-5 shrink-0 text-muted transition-transform ${
+                        className={`h-[2.2em] w-[2.2em] shrink-0 text-muted transition-transform md:h-5 md:w-5 ${
                           isOpen ? "rotate-180" : ""
                         }`}
                         aria-hidden="true"
@@ -98,9 +111,9 @@ export function Faq() {
                     role="region"
                     aria-labelledby={`faq-trigger-${i}`}
                     hidden={!isOpen}
-                    className="bg-bg-alt/60"
+                    className="bg-transparent md:bg-bg-alt/60"
                   >
-                    <p className="px-5 py-4 text-sm leading-relaxed text-muted">
+                    <p className="pb-[1.45em] pl-[4.66em] pr-[1.5em] pt-0 text-[1.72em] leading-[1.6] text-muted md:px-5 md:py-4 md:text-sm md:leading-relaxed">
                       {item.a}
                     </p>
                   </div>
@@ -110,7 +123,7 @@ export function Faq() {
           </ul>
 
           {/* Side panel */}
-          <div className="lg:pl-4">
+          <div className="hidden md:block lg:pl-4">
             <span className="grid h-12 w-12 place-items-center rounded-full bg-primary-soft text-primary">
               <MessageCircle className="h-5 w-5" aria-hidden="true" />
             </span>

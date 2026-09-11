@@ -61,6 +61,57 @@
   --color-help-tag: #e2f4f1;
   --color-help-tag-line: #b4e1de;
 
+  /* The mobile chrome, from the designer's `.mobHome` block in main_mobile.html:
+     the hamburger and the drawer's close button share one border, and the
+     drawer's links share one hover wash. Both happen to repeat values already
+     above (`help-panel-line`, near `bg-alt`) — they are named separately
+     because they answer to the mobile nav, not to the help pages, and the
+     designer is free to move one without the other. */
+  --color-nav-line: #e3e7ec;
+  --color-nav-hover: #f5f7f9;
+
+  /* The mobile hero, which in main_mobile.html is a different composition from
+     the desktop one rather than a reflow of it — a centred column, a benefits
+     strip and a "Choose your QR code type" card, none of which main.html has.
+     These five answer to that block alone. */
+  --color-hero-badge-ink: #243b64;
+  --color-hero-badge-line: #cfdcf1;
+  /* The hairline between the three benefits, and the card's outer edge. */
+  --color-hero-divider: #dae0e8;
+  /* Behind the benefit glyphs (brand-tinted) and behind the card's step number
+     (primary-tinted). The second repeats `help-tile`; named apart because the
+     hero is free to move without the help pages. */
+  --color-hero-tile: #e2f7f4;
+  --color-hero-num-tile: #e9f0fb;
+  /* The type tiles inside that card — a lighter rule than the card's own. */
+  --color-hero-card-line: #e2e6ec;
+  /* The foot of the mobile hero gradient; desktop fades to `bg` instead. */
+  --color-hero-fade: #f5f8fb;
+
+  /* The mobile Steps section, which in main_mobile.html carries steps 2 and 3
+     as two demo cards (step 1 having moved into the hero). The desktop file has
+     no equivalent — its three steps are flat cards — so none of these are
+     shared with anything above. */
+  --color-steps-card-line: #d4e0ee;
+  --color-steps-demo-from: #edf7ff;
+  --color-steps-demo-to: #f8fbff;
+  --color-steps-thumb-line: #e4e8ef;
+  /* The selected ("Your Branded QR") thumbnail, which is drawn larger too. */
+  --color-steps-thumb-on-line: #bcd0f4;
+  --color-steps-rule: #cfdae8;
+  --color-steps-btn-line: #dfe6ef;
+  --color-steps-arrow: #3b82f6;
+  /* The colour swatches: every one carries a 1px ring, and the selected one
+     swaps it for a two-step halo. */
+  --color-steps-swatch-ring: #d5dce6;
+  --color-steps-swatch-halo: #dbeafe;
+  --color-steps-swatch-on: #3180f0;
+
+  /* The closing CTA panel on mobile: a cooler white than `bg`, and a bluer
+     rule around the QR tile inside it. */
+  --color-ready-panel: #f7f9fc;
+  --color-ready-tile-line: #c8d8f4;
+
   /* Radius */
   --radius-btn: 0.75rem;
 
@@ -80,6 +131,10 @@
   /* The paywall lightbox, and the QR card inside its first step. */
   --shadow-modal: 0 30px 60px 0 rgba(14, 19, 17, 0.35);
   --shadow-qr: 2px 4px 6px -1px rgba(14, 19, 17, 0.15);
+  /* The mobile drawer, thrown leftward from the right edge it slides off of.
+     Same blur and alpha as `shadow-pop`, different offset — kept separate so
+     the drawer does not drift when a popover is retuned. */
+  --shadow-drawer: -12px 0 40px rgba(14, 19, 17, 0.14);
 
   /* Typography */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
@@ -179,6 +234,78 @@
   @media (max-width: 640px) {
     padding-inline: 3.125vw;
   }
+}
+
+/**
+ * The home page's containers, below `md:` only.
+ *
+ * main_mobile.html overrides `.FrmCtr` to `max-width: 528px; padding: 0 2.4rem`
+ * — narrower than the desktop container and a wider gutter. By the same
+ * measurement that gave `container-frm` its 3.125vw, their 2.4rem against a
+ * root that is viewport/64 below 640px is viewport/26.67, i.e. 3.75vw.
+ *
+ * These exist instead of an override on `container-page` because that utility
+ * also carries /help, /terms, the dashboard and the creator, and the designer
+ * has only redesigned the home page for mobile. They exist as two because the
+ * sections they replace do not agree above `md:` — `container-page` caps at
+ * 1200 and `container-frm` at 1240, a forty-pixel difference the comment above
+ * says not to unify without a re-check. Below 768 the two are identical.
+ *
+ * The media query lives inside the utility rather than as a `max-md:` class so
+ * it cannot lose a specificity race with the utility it is overriding.
+ *
+ * The second is NOT called `container-home-wide`: when one static `@utility`
+ * name is an exact prefix of another, Tailwind v4 emits only the shorter one
+ * and drops the longer SILENTLY — no error, no warning. WhyChoose simply lost
+ * its container and the desktop page came out 22px shorter. Keep these two
+ * names non-prefixing, and check the compiled CSS if a new one goes missing.
+ */
+@utility container-home {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @media (max-width: 767px) {
+    max-width: 528px;
+    padding-inline: 3.75vw;
+  }
+}
+
+@utility container-wide-home {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: 20px;
+
+  @media (max-width: 767px) {
+    max-width: 528px;
+    padding-inline: 3.75vw;
+  }
+}
+
+/**
+ * The mobile plan card. main_mobile.html stops stacking the card and lays it
+ * out as two columns — name/price/badge/terms on the left, "What's included"
+ * and its list on the right, the button spanning both — using named areas.
+ *
+ * It lives here rather than as an arbitrary class because the template is five
+ * quoted row strings, which Tailwind's underscores-for-spaces syntax turns into
+ * something no one can read or edit safely.
+ *
+ * Only the template is here. `display` stays in the markup (`grid md:flex`), so
+ * every one of these properties is inert from `md:` up, where the card goes
+ * back to being a flex column and grid-template-* is ignored.
+ */
+@utility plan-grid {
+  grid-template-columns: 152fr 140fr;
+  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-areas:
+    "ttl inc"
+    "prc lst"
+    "bdg lst"
+    "ln3 lst"
+    "btn btn";
 }
 
 @utility marquee-mask {

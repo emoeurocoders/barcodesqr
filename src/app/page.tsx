@@ -24,13 +24,21 @@ export default async function Home({
           sign-in link, arrives here. Read on the server so the header does
           not need `useSearchParams` and the page can still be prerendered. */}
       <Header user={session?.user} openLogin={!!signin && !session?.user} />
-      <main>
+      {/*
+        Flex column so the mobile sequence can differ from the desktop one
+        without duplicating a section. The DOM order below IS the designer's
+        main_mobile.html order; `md:order-*` on WhyBarcodesQR (1) and on
+        Pricing/Faq/ReadyCta (2) lifts the desktop sequence back out of it, so
+        main.html still reads Types → Choose → Why → Plans. PressScroll carries
+        `hidden md:block` because the mobile mockup drops it outright.
+      */}
+      <main className="flex flex-col">
         <Hero />
         <PressScroll />
         <Steps />
+        <WhyBarcodesQR />
         <Showcase />
         <WhyChoose />
-        <WhyBarcodesQR />
         {/*
           Reviews is deliberately NOT here. The designer's current main.html has
           no reviews section, so it was removed from the homepage on 2026-09-02.

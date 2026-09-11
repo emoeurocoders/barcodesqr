@@ -76,82 +76,144 @@ const plans: Plan[] = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="scroll-mt-20 bg-bg">
-      <div className="container-page py-16 md:py-20">
+    <section id="pricing" className="md:order-2 scroll-mt-[84px] md:scroll-mt-20 bg-bg">
+      <div className="container-home pb-16 pt-[59px] md:py-20">
+        {/* Two headings: main.html and main_mobile.html genuinely word this
+            line differently. The sub-line below is shared, byte for byte. */}
+        {/*
+          The element keeps its desktop classes verbatim and the mobile styling
+          hangs off a `block` span inside it, rather than being layered on with
+          `md:` overrides.
+
+          That is deliberate, and the rest of this port follows it: a font-size
+          utility in Tailwind v4 also sets `line-height`, so re-stating one at
+          `md:` means reproducing the other by hand — `md:leading-10` here came
+          out 2px short of what `text-4xl` sets itself, which walked the whole
+          page below this point up by two pixels. A block span carries its own
+          font-size and leading and leaves the parent's alone.
+        */}
         <h2 className="text-center text-3xl font-bold sm:text-4xl">
-          Start your trial today and upgrade anytime
+          <span className="mx-auto block max-w-[11.5em] text-[7.9vw] font-extrabold leading-[1.08] tracking-[-0.035em] text-ink md:hidden">
+            Start with a $1 trial or save with a longer plan
+          </span>
+          <span className="hidden md:inline">
+            Start your trial today and upgrade anytime
+          </span>
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-center text-muted">
-          Every plan includes unlimited dynamic codes, analytics and
-          customization.
+          <span className="mx-auto -mt-3 block max-w-[22em] pt-[0.85em] text-[4.1vw] leading-[1.55] md:hidden">
+            Every plan includes unlimited dynamic codes, analytics and
+            customization.
+          </span>
+          <span className="hidden md:inline">
+            Every plan includes unlimited dynamic codes, analytics and
+            customization.
+          </span>
         </p>
 
-        <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
+        {/*
+          One markup for both. Below `md:` the card is the designer's named-area
+          grid (see `plan-grid`); from `md:` up it is the flex column it has
+          always been, and every `[grid-area:…]` below goes inert.
+        */}
+        <div className="mx-auto mt-[4.6875vw] grid max-w-5xl gap-y-0 md:mt-12 md:gap-6 md:grid-cols-3">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative flex flex-col rounded-2xl border bg-white p-7 shadow-soft ${
+              /*
+                `text-[2.1vw]` is the card's own root: every `em` below resolves
+                against it, which is how the designer sizes this block. The
+                stacking margin is a margin rather than a grid `gap` because
+                their `:has(.tag)` rule REPLACES the 1.8rem with 3rem to clear
+                the "Most popular" tag — a gap would have added to it instead.
+              */
+              className={`plan-grid relative grid items-start gap-x-[1.48em] gap-y-0 rounded-[2em] border bg-white p-[2.7em] text-[2.1vw] leading-[normal] shadow-[0_2px_4px_rgba(14,19,17,0.04)] first:mt-0 md:mt-0 md:leading-normal md:flex md:flex-col md:items-stretch md:gap-0 md:rounded-2xl md:p-7 md:text-[1rem] md:shadow-soft ${
+                plan.badge ? "mt-[4.6875vw]" : "mt-[2.8125vw]"
+              } ${
                 plan.highlighted
-                  ? "border-brand ring-2 ring-brand/30"
+                  ? "border-2 border-brand md:border md:ring-2 md:ring-brand/30"
                   : "border-line"
               }`}
             >
               {plan.badge && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
+                <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-brand px-[1.3em] py-[0.42em] text-[1.35em] font-semibold text-white md:-top-3 md:translate-y-0 md:px-3 md:py-1 md:text-xs">
                   {plan.badge}
                 </span>
               )}
 
-              <h3 className="text-lg font-bold text-ink">{plan.name}</h3>
+              <h3 className="text-[2.34em] font-extrabold text-ink [grid-area:ttl] md:text-lg md:font-bold">
+                {plan.name}
+              </h3>
 
-              <div className="mt-3 flex items-baseline gap-0.5">
-                <span className="text-xl font-bold text-ink">$</span>
-                <span className="text-5xl font-bold tracking-tight text-ink">
+              <div className="mt-[0.25em] flex items-baseline gap-0.5 [grid-area:prc] md:mt-3">
+                <span className="text-[2.2em] font-bold text-ink md:text-xl">
+                  $
+                </span>
+                <span className="text-[4.3em] font-extrabold leading-none tracking-tight text-ink md:text-5xl md:font-bold">
                   {plan.price}
                 </span>
-                <span className="ml-1.5 text-sm text-muted">{plan.period}</span>
+                <span className="ml-1.5 text-[1.23em] text-muted md:text-sm">
+                  {plan.period}
+                </span>
               </div>
 
               {plan.save ? (
-                <span className="mt-4 inline-flex w-fit rounded-full bg-brand-soft px-3 py-1 text-sm font-semibold text-brand-dark">
+                <span className="mt-[0.7em] inline-flex w-fit rounded-full bg-brand-soft px-[0.75em] py-[0.33em] text-[1.48em] font-semibold text-brand-dark [grid-area:bdg] md:mt-4 md:px-3 md:py-1 md:text-sm">
                   {plan.save}
                 </span>
               ) : (
                 /* Keeps the terms line and everything under it on the same
-                   baseline as the plans that do show a discount pill. */
-                <span aria-hidden="true" className="mt-4 inline-flex w-fit px-3 py-1 text-sm font-semibold opacity-0">
+                   baseline as the plans that do show a discount pill. On mobile
+                   the named-area grid does that on its own, so the spacer is
+                   dropped rather than left to add an empty row. */
+                <span aria-hidden="true" className="mt-4 hidden w-fit px-3 py-1 text-sm font-semibold opacity-0 md:inline-flex">
                   &nbsp;
                 </span>
               )}
 
-              <p className="mt-4 text-sm text-muted">{plan.terms}</p>
+              <p className="mt-[1em] text-[1.35em] leading-[1.4] text-muted [grid-area:ln3] md:mt-4 md:text-sm md:leading-5">
+                {plan.terms}
+              </p>
 
-              <hr className="mt-6 border-line" />
+              {/* Their `.ln2` loses its rule on mobile: `border-top: 0`. */}
+              <hr className="mt-6 hidden border-line md:block" />
 
-              <p className="mt-6 text-sm font-bold text-ink">
+              <p className="pt-[0.15em] text-[1.6em] font-extrabold text-ink [grid-area:inc] md:mt-6 md:pt-0 md:text-sm md:font-bold">
                 What&apos;s included:
               </p>
-              <ul className="mt-4 flex-1 space-y-3">
+              <ul className="mt-[0.9em] space-y-[0.6em] text-[1.48em] [grid-area:lst] md:mt-4 md:flex-1 md:space-y-3 md:text-[1rem]">
                 {plan.features.map((feature) => (
                   <li
                     key={feature}
-                    className="flex items-start gap-2.5 text-sm text-body"
+                    className="flex items-start gap-2.5 text-[1em] text-prose md:text-sm md:text-body"
                   >
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                    <Check className="mt-[0.18em] h-[1.07em] w-[1.07em] shrink-0 text-brand md:mt-0.5 md:h-4 md:w-4" />
                     {feature}
                   </li>
                 ))}
               </ul>
 
-              <Link className="mt-8" href={plan.href}>
-                <Button
-                  variant={plan.highlighted ? "primary" : "outline-fill"}
-                  size="lg"
-                  fullWidth
+              <div className="mt-[2em] [grid-area:btn] md:mt-8">
+                <Link
+                  href={plan.href}
+                  className={`flex w-full items-center justify-center rounded-btn py-[1.05em] text-[13px] font-medium leading-none transition-colors md:hidden ${
+                    plan.highlighted
+                      ? "bg-primary text-on-accent hover:bg-primary-press"
+                      : "border border-primary bg-white text-black hover:bg-primary hover:text-on-accent"
+                  }`}
                 >
                   {plan.cta}
-                </Button>
-              </Link>
+                </Link>
+                <Link href={plan.href} className="hidden md:block">
+                  <Button
+                    variant={plan.highlighted ? "primary" : "outline-fill"}
+                    size="lg"
+                    fullWidth
+                  >
+                    {plan.cta}
+                  </Button>
+                </Link>
+              </div>
             </div>
           ))}
         </div>
