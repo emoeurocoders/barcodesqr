@@ -286,6 +286,17 @@ jQuery(document).ready(function($) {
 		requestAnimationFrame(pressStep);
 	}*/
 
+	//mainB faq accordion, one item open at a time
+	$('#mainFaqs .btm > .lst .qst').on('click', function() {
+		var $itm = $(this).closest('.itm');
+		if ($itm.hasClass('act')) {
+			$itm.removeClass('act').find('.ans').stop(true, true).slideUp(220);
+			return;
+		}
+		$('#mainFaqs .btm > .lst .itm.act').removeClass('act').find('.ans').stop(true, true).slideUp(220);
+		$itm.addClass('act').find('.ans').stop(true, true).slideDown(220);
+	});
+
 	//terms toggle
 	$('#mainTerms .toc .tgl').on('click', function (e) {
 		e.preventDefault();
@@ -315,6 +326,42 @@ jQuery(document).ready(function($) {
 		$('.mobHome #mainFooter .col .ln1').on('click', function() {
 			$(this).closest('.col').toggleClass('open');
 		});
+		//sticky bottom cta, shows once the hero cta scrolls away, hides at the final cta / open menu / open modal / keyboard
+		if ($('#mobCta').length) {
+			var mobCtaHeroGone = false, mobCtaEndVis = false, mobCtaKb = false;
+			var mobCtaSync = function() {
+				var blocked = $('body').hasClass('mobNavOpen') || $('html').hasClass('remodal-is-locked') || mobCtaKb;
+				$('body').toggleClass('mobCtaShow', mobCtaHeroGone && !mobCtaEndVis && !blocked);
+			};
+			var theHeroCta = $('#mainHero .btnWrp .btn')[0];
+			var theEndCta = $('#mainReady .rgt .btn')[0];
+			if (theHeroCta) {
+				new IntersectionObserver(function(entries) {
+					mobCtaHeroGone = !entries[0].isIntersecting;
+					mobCtaSync();
+				}).observe(theHeroCta);
+			}
+			if (theEndCta) {
+				new IntersectionObserver(function(entries) {
+					mobCtaEndVis = entries[0].isIntersecting;
+					mobCtaSync();
+				}).observe(theEndCta);
+			}
+			//menu / modal state lives in body + html classes
+			new MutationObserver(mobCtaSync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+			new MutationObserver(mobCtaSync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+			//mobile keyboard
+			$(document).on('focusin', 'input, textarea, select', function() {
+				mobCtaKb = true;
+				mobCtaSync();
+			});
+			$(document).on('focusout', 'input, textarea, select', function() {
+				setTimeout(function() {
+					mobCtaKb = $(document.activeElement).is('input, textarea, select');
+					mobCtaSync();
+				}, 80);
+			});
+		}
 	}
 
 });

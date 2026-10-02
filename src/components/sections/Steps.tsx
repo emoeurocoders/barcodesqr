@@ -1,68 +1,31 @@
-import {
-  Globe,
-  Contact,
-  FileText,
-  Image as ImageIcon,
-  Video,
-  Smartphone,
-  Palette,
-  Sparkles,
-  FileImage,
-  Code,
-  Download,
-} from "lucide-react";
-
-/** Step 1 tiles keep each format's own accent, matching the type picker. */
-const qrTypes = [
-  { icon: Globe, label: "Website", color: "#3670f4" },
-  { icon: Contact, label: "vCard", color: "#5d6ded" },
-  { icon: FileText, label: "PDF", color: "#d52025" },
-  { icon: ImageIcon, label: "Image", color: "#3d994c" },
-  { icon: Video, label: "Video", color: "#db4243" },
-  { icon: Smartphone, label: "App Link", color: "#2aa7c5" },
+/**
+ * mainB.html's three step cards, each a designer screenshot over a numbered
+ * caption. Earlier ports drew these thumbnails as live mini-components; the
+ * designer's file has flat JPGs, and the fidelity contract takes the file.
+ */
+const desktopSteps = [
+  {
+    step: 1,
+    src: "/steps-select-type.jpg",
+    alt: "Select your QR code type",
+    title: "Select your QR\u00a0code type",
+    body: "Pick from 20+ types \u2014 website, vCard, WiFi, PDF, menu and more.",
+  },
+  {
+    step: 2,
+    src: "/steps-customize.jpg",
+    alt: "Customize your QR code",
+    title: "Customize your QR code",
+    body: "Add your colors, shapes, a frame and your logo to match your brand.",
+  },
+  {
+    step: 3,
+    src: "/steps-download.jpg",
+    alt: "Download and share",
+    title: "Download & share",
+    body: "Export print-ready PNG, JPG or SVG, then track scans over time.",
+  },
 ];
-
-const swatches = [
-  "#11b1a7",
-  "#2563eb",
-  "#22c55e",
-  "#ef4444",
-  "#f59e0b",
-  "#8b5cf6",
-];
-
-const formats = [
-  { icon: FileImage, label: "PNG" },
-  { icon: Code, label: "SVG" },
-  { icon: FileImage, label: "JPEG" },
-];
-
-const cardClass =
-  "flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white p-5 shadow-soft";
-const visualClass =
-  "flex flex-1 flex-col justify-center rounded-xl bg-bg-alt/70 p-5";
-
-function StepCaption({
-  step,
-  title,
-  body,
-}: {
-  step: number;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="pt-5">
-      <div className="flex items-center gap-2.5">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-          {step}
-        </span>
-        <h3 className="text-lg font-bold text-ink">{title}</h3>
-      </div>
-      <p className="mt-2.5 text-sm leading-relaxed text-muted">{body}</p>
-    </div>
-  );
-}
 
 /**
  * Steps 2 and 3 as main_mobile.html draws them: a numbered caption over a demo
@@ -71,8 +34,9 @@ function StepCaption({
  * "Create a QR code in 3 simple steps" with its sub-line, so the numbering now
  * runs across two sections. Desktop keeps all three flat cards and the heading.
  *
- * Everything inside sizes in `em` off a 2.1vw root, which is how their file
- * scales this block — see the fluid-root note on `container-home`.
+ * Everything inside sizes in `em` off the article's font-size: their fixed
+ * 10px down to 480, then 2.1vw (10.08px at 480, so the hand-off is seamless).
+ * Scaling at every width overshot by up to half again between 480 and 768.
  */
 const swatchesMobile = [
   { color: "#2575e7", on: true },
@@ -134,14 +98,14 @@ function ArrowGlyph({ className }: { className?: string }) {
 const downloadFormats = [
   {
     label: "PNG",
-    blurb: "Best for web and social",
+    blurb: "Best for web & digital",
     fg: "#782be4",
     bg: "#f1e9ff",
     Icon: ImageGlyph,
   },
   {
     label: "SVG",
-    blurb: "Scalable for any size",
+    blurb: "Best for print & scaling",
     fg: "#079b63",
     bg: "#e4f8ef",
     Icon: ({ className }: { className?: string }) => (
@@ -154,7 +118,13 @@ const downloadFormats = [
   },
   {
     label: "JPEG",
-    blurb: "Perfect for print",
+    blurb: (
+      <>
+        Easy to
+        <br />
+        share
+      </>
+    ),
     fg: "#e4770b",
     bg: "#fff1df",
     Icon: ImageGlyph,
@@ -176,9 +146,9 @@ function MobileStepCaption({
         {step}
       </span>
       <div className="min-w-0 pl-[1.7em]">
-        <h3 className="text-[2.83em] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink">
+        <h5 className="text-[2.83em] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink">
           {title}
-        </h3>
+        </h5>
         <p className="mt-[0.42em] max-w-[20em] text-[1.72em] leading-[1.5] text-muted">
           {body}
         </p>
@@ -190,7 +160,7 @@ function MobileStepCaption({
 function MobileSteps() {
   return (
     <div className="md:hidden">
-      <article className="text-[2.1vw] leading-[normal]">
+      <article className="text-[10px] leading-[normal] to-480:text-[2.1vw]">
         <MobileStepCaption
           step={2}
           title="Customize your QR code"
@@ -205,12 +175,12 @@ function MobileSteps() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/steps-qr-plain.svg"
-                  alt="Plain QR code"
+                  alt="Standard QR code"
                   className="block w-full"
                 />
               </span>
               <p className="mt-[0.7em] whitespace-nowrap text-[1.48em] text-hero-badge-ink">
-                Plain QR
+                Standard QR
               </p>
             </div>
 
@@ -294,11 +264,11 @@ function MobileSteps() {
         </div>
       </article>
 
-      <article className="mt-[4.7em] text-[2.1vw] leading-[normal]">
+      <article className="mt-[4.7em] text-[10px] leading-[normal] to-480:text-[2.1vw]">
         <MobileStepCaption
           step={3}
           title="Download & share"
-          body="Export print-ready PNG, JPG or SVG, then track scans over time."
+          body="Export print-ready PNG, JPEG or SVG, then track scans over time."
         />
 
         <div className="mt-[2.46em] rounded-[2.2em] border border-steps-card-line bg-white p-[2.7em]">
@@ -338,104 +308,51 @@ export function Steps() {
       id="steps"
       className="scroll-mt-[84px] border-b border-hero-card-line bg-white md:scroll-mt-20 md:border-b-0"
     >
-      <div className="container-home pb-16 pt-[59px] md:py-20">
+      {/*
+        Mobile: main_mobile.html's 48px top and bottom, 10vw from 480 down.
+        Desktop: their `6em` on a 10px section, i.e. 60px.
+      */}
+      <div className="container-wide-home py-[48px] to-480:py-[10vw] md:py-[60px]">
         <MobileSteps />
 
-        <div className="hidden md:block">
-        <h2 className="text-center text-3xl font-bold sm:text-4xl">
-          Create a QR code in 3 simple steps
-        </h2>
-        <p className="mx-auto mt-3 max-w-xl text-center text-muted">
-          From idea to a scannable, branded QR code in under a minute.
-        </p>
+        <div className="hidden text-[10px] leading-[normal] md:block">
+          <div className="text-center">
+            {/* Their <h4>, kept — the page's heading levels are the designer's. */}
+            <h4 className="text-[40px] font-extrabold tracking-heading text-black to-992:mx-auto to-992:max-w-[11em] to-768:text-[36px]">
+              Create a QR code in 3 simple steps
+            </h4>
+            <p className="mt-[0.55em] p-0 text-[18px] text-muted to-992:mx-auto to-992:max-w-[17em]">
+              From idea to a scannable, branded QR code in under a minute.
+            </p>
+          </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {/* Step 1 — pick a type */}
-          <div className={cardClass}>
-            <div className={visualClass}>
-              <div className="grid grid-cols-3 gap-2.5">
-                {qrTypes.map(({ icon: Icon, label, color }) => (
-                  <div
-                    key={label}
-                    className="flex flex-col items-center gap-1.5 rounded-lg border border-line/70 bg-white p-2.5"
-                  >
-                    <Icon className="h-4 w-4" style={{ color }} />
-                    <span className="text-[10px] font-semibold text-ink">
-                      {label}
-                    </span>
+          {/* Their .btm wrapper carries no styles, but it is in the markup. */}
+          <div>
+            <div className="mt-[3em] flex to-768:flex-col">
+              {desktopSteps.map(({ step, src, alt, title, body }) => (
+                <div
+                  key={step}
+                  className="flex-[1_0_0] rounded-[16px] border border-help-card-line bg-white p-[1.2em] text-[10px] shadow-[0_1px_2px_rgba(14,19,17,0.04)] not-first:ml-[2.4em] to-768:not-first:ml-0 to-768:not-first:mt-[2em]"
+                >
+                  <div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={alt} className="w-full rounded-[10px]" />
                   </div>
-                ))}
-              </div>
-            </div>
-            <StepCaption
-              step={1}
-              title="Select your QR code type"
-              body="Pick from 20+ types — website, vCard, WiFi, PDF, menu and more."
-            />
-          </div>
-
-          {/* Step 2 — customize */}
-          <div className={cardClass}>
-            <div className={`${visualClass} items-center text-center`}>
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
-                <Palette className="h-3.5 w-3.5 text-primary" />
-                Colors
-              </p>
-              <div className="mt-2.5 flex gap-2">
-                {swatches.map((color) => (
-                  <span
-                    key={color}
-                    className="h-6 w-6 rounded-full border-2 border-white shadow-soft"
-                    style={{ background: color }}
-                  />
-                ))}
-              </div>
-              <div className="mt-3.5 flex gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-line/70 bg-white px-3 py-1.5 text-xs font-semibold text-ink">
-                  <ImageIcon className="h-3.5 w-3.5 text-primary" />
-                  Add logo
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-line/70 bg-white px-3 py-1.5 text-xs font-semibold text-ink">
-                  <Sparkles className="h-3.5 w-3.5 text-primary" />
-                  Styles
-                </span>
-              </div>
-            </div>
-            <StepCaption
-              step={2}
-              title="Customize your QR code"
-              body="Add your colors, shapes, a frame and your logo to match your brand."
-            />
-          </div>
-
-          {/* Step 3 — download */}
-          <div className={cardClass}>
-            <div className={visualClass}>
-              <div className="flex gap-2.5">
-                {formats.map(({ icon: Icon, label }) => (
-                  <div
-                    key={label}
-                    className="flex flex-1 flex-col items-center gap-1.5 rounded-lg border border-line/70 bg-white p-3"
-                  >
-                    <Icon className="h-4 w-4 text-primary" />
-                    <span className="text-[11px] font-semibold text-ink">
-                      {label}
+                  <div className="flex items-center px-[1.2em] pt-[1.8em]">
+                    <span className="flex h-[2em] w-[2em] items-center justify-center rounded-full bg-primary text-[1.3em] font-bold text-white">
+                      {step}
                     </span>
+                    <h5 className="ml-[0.55em] text-[1.9em] font-bold text-black">
+                      {title}
+                    </h5>
                   </div>
-                ))}
-              </div>
-              <span className="mt-3.5 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
-                <Download className="h-3.5 w-3.5" />
-                High-quality export
-              </span>
+                  <p className="px-[0.85em] pb-[0.55em] pt-[0.85em] text-[1.45em] leading-[1.55em] text-muted">
+                    {body}
+                  </p>
+                </div>
+              ))}
             </div>
-            <StepCaption
-              step={3}
-              title="Download & share"
-              body="Export print-ready PNG, JPG or SVG, then track scans over time."
-            />
           </div>
-        </div>
         </div>
       </div>
     </section>

@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, Globe, ChevronDown } from "lucide-react";
-import { Logo } from "@/components/ui/Logo";
-import { LiveHelpLink } from "@/components/support/LiveHelpLink";
-import { FooterColumn } from "./FooterColumn";
+import {
+  FooterColumn,
+  FooterHelpButton,
+  FooterLiveHelp,
+  footerLinkClass,
+} from "./FooterColumn";
 
 type FooterLink = { href: string; label: string };
 
@@ -38,7 +40,10 @@ const columns: { title: string; links: FooterLink[] }[] = [
     title: "Company",
     links: [
       { href: "/#pricing", label: "Pricing" },
-      { href: "/reviews", label: "Reviews" },
+      // "Media" in the designer's file since the 2026-09-11 sync, where the
+      // port had carried "Reviews". There is no media page yet, so it points
+      // at the route one would live on — see LAUNCH.md.
+      { href: "/media", label: "Media" },
     ],
   },
   {
@@ -53,119 +58,159 @@ const columns: { title: string; links: FooterLink[] }[] = [
 ];
 
 const payments = [
-  { src: "/payments/visa.svg", alt: "Visa", className: "h-[22px] w-auto" },
-  {
-    src: "/payments/mastercard.svg",
-    alt: "Mastercard",
-    className: "h-[22px] w-auto",
-  },
-  {
-    src: "/payments/amex.svg",
-    alt: "American Express",
-    className: "h-[22px] w-auto",
-  },
-  { src: "/payments/applepay.svg", alt: "Apple Pay", className: "h-3.5 w-auto" },
-  {
-    src: "/payments/googlepay.svg",
-    alt: "Google Pay",
-    className: "h-3.5 w-auto",
-  },
+  { src: "/payments/visa.svg", alt: "Visa" },
+  { src: "/payments/mastercard.svg", alt: "Mastercard" },
+  { src: "/payments/amex.svg", alt: "American Express" },
+  { src: "/payments/applepay.svg", alt: "Apple Pay" },
+  { src: "/payments/googlepay.svg", alt: "Google Pay" },
 ];
 
-const linkClass = "text-sm text-muted transition-colors hover:text-ink";
-
+/**
+ * mainB.html's `#mainFooter`, and main_mobile.html's `.mobHome` restyling of
+ * the same markup — the two files share it node for node, apart from the
+ * mobile-only Live Help button beside the logo.
+ *
+ * Their element is a <section>, not a <footer>, and that is kept.
+ *
+ * Desktop reflows at 1180 and 1080 (`[@media(min-width:768px)_and_…]`, bounded
+ * below so those rules cannot leak into the mobile composition, which their
+ * `.mobHome` selectors outrank in the mockup). Spelled out in every class
+ * rather than interpolated: Tailwind finds classes by scanning the source
+ * text, and a `${…}:flex-col` never appears in it. Their em values resolve
+ * against a 10px body, hence text-[10px] on the container.
+ */
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-hero-divider bg-white md:border-line">
-      <div className="container-home pb-[26px] pt-[42px] md:py-14">
-        <div className="grid gap-0 pb-[25px] md:gap-10 md:pb-0 lg:grid-cols-[1.6fr_repeat(5,1fr)]">
-          {/* Brand. On mobile their `.lgo` reserves 120px on the right and hangs
-              the Live Help button in it; on desktop that button lives in the
-              Support column instead, which is where their main.html puts it. */}
-          <div className="relative pr-[120px] md:pr-0">
-            <span className="inline-flex items-center gap-2">
-              <Logo />
-              {/* Their footer wordmark is 21px/800 on mobile against the
-                  header's 18px/700; desktop keeps the 18. */}
-              <span className="text-[21px] font-extrabold leading-[normal] tracking-tight text-ink md:text-lg md:font-bold md:leading-7">
-                Barcodes<span className="text-primary">QR</span>
+    <section className="mt-auto border-t border-hero-divider bg-white pb-[5.4vw] pt-[10vw] md:border-t-0 md:py-[25px]">
+      <div className="container-wide-home text-[10px] leading-[normal]">
+        <div
+          className={`pb-[25px] md:flex md:pb-0 [@media(min-width:768px)_and_(max-width:1080px)]:flex-col`}
+        >
+          <div
+            className={`relative pr-[120px] md:flex-[0_0_300px] md:pr-0 [@media(min-width:1081px)_and_(max-width:1180px)]:basis-[250px] [@media(min-width:768px)_and_(max-width:1080px)]:flex-none`}
+          >
+            <div className="flex items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/logo-mark.svg" alt="BarcodesQR" className="w-[30px]" />
+              <span className="ml-[0.45em] text-[21px] font-extrabold text-black">
+                Barcodes<b className="font-extrabold text-primary">QR</b>
               </span>
-            </span>
-            <p className="mt-[1em] max-w-[17em] text-sm leading-relaxed text-muted md:mt-4 md:max-w-[15rem]">
+            </div>
+            <p
+              className={`mb-[1em] mt-[1em] max-w-[17em] p-0 text-[14.5px] leading-[1.55em] text-prose md:mt-[1.4em] md:max-w-[16em] min-[1081px]:mb-0 [@media(min-width:768px)_and_(max-width:1080px)]:mt-[1.1em] [@media(min-width:768px)_and_(max-width:1080px)]:max-w-full`}
+            >
+              {/* The 1em under it is their 1080px rule, which the mobile file's
+                  `.mobHome` overrides never undo — so it applies on phones too. */}
               Create, customize and manage QR codes for web, print and business.
             </p>
-
-            {/* `flex-row-reverse` because their button leads with the glyph and
-                LiveHelpLink renders it after the label. */}
-            <LiveHelpLink className="absolute right-0 top-0 inline-flex h-[44px] flex-row-reverse items-center gap-[7px] rounded-[10px] border border-primary bg-white px-[13px] text-[13px] font-bold text-primary [&>svg]:h-5 [&>svg]:w-5 md:hidden" />
+            <FooterHelpButton />
           </div>
 
-          {columns.map((col) => (
-            <FooterColumn key={col.title} title={col.title}>
-              {col.title === "Support" && (
-                <li className="hidden md:block">
-                  <LiveHelpLink className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink transition-colors hover:text-primary" />
-                </li>
-              )}
-              {col.links.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    className={`flex min-h-[40px] items-center text-[14px] md:inline md:min-h-0 md:text-sm ${linkClass}`}
-                    href={link.href}
-                  >
+          <div
+            className={`md:ml-[5em] md:flex md:flex-auto md:justify-between [@media(min-width:768px)_and_(max-width:1080px)]:ml-0 [@media(min-width:768px)_and_(max-width:1080px)]:flex-wrap [@media(min-width:768px)_and_(max-width:1080px)]:justify-start`}
+          >
+            {columns.map((col) => (
+              <FooterColumn key={col.title} title={col.title}>
+                {col.title === "Support" && <FooterLiveHelp />}
+                {col.links.map((link) => (
+                  <Link key={link.label} href={link.href} className={footerLinkClass}>
                     {link.label}
                   </Link>
-                </li>
-              ))}
-              {col.title === "QR Code Types" && (
-                <li className="md:pt-1">
+                ))}
+                {col.title === "QR Code Types" && (
                   <Link
                     href="/#types"
-                    className="inline-flex min-h-[40px] items-center gap-1.5 text-[14px] font-semibold text-primary transition-colors hover:text-primary-dark md:min-h-0 md:text-sm"
+                    className="hidden min-h-[40px] items-center text-[14px] font-semibold text-primary transition-colors hover:text-primary-press group-data-[open=true]:flex md:mt-[1.3em] md:flex md:min-h-0 md:text-[14.5px]"
                   >
                     View All QR Types
-                    <ArrowRight className="h-4 w-4" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="ml-[0.4em] h-[1.1em] w-[1.1em] flex-none"
+                    >
+                      <path d="M5 12h14" />
+                      <path d="m12 5 7 7-7 7" />
+                    </svg>
                   </Link>
-                </li>
-              )}
-            </FooterColumn>
-          ))}
+                )}
+              </FooterColumn>
+            ))}
+          </div>
         </div>
 
-        {/* Mobile reorders this row: the payment marks come first, then a ruled
+        {/* Mobile reorders this row: the payment marks first, then a ruled
             copyright line, and the language picker is dropped. */}
-        <div className="mt-0 flex flex-col items-center justify-between gap-0 border-t-0 pt-0 md:mt-12 md:gap-6 md:border-t md:border-line md:pt-6 sm:flex-row">
-          <p className="order-2 mt-[24px] w-full border-t border-hero-divider pt-[22px] text-center text-[13px] text-muted md:order-none md:mt-0 md:w-auto md:border-0 md:pt-0 md:text-left md:text-sm">
+        <div
+          className={`flex flex-col items-center md:mt-[3.4em] md:flex-row md:justify-between md:border-t md:border-footer-rule md:pt-[1.7em] [@media(min-width:768px)_and_(max-width:1080px)]:flex-col`}
+        >
+          <p
+            className={`order-2 mt-[24px] min-w-full border-t border-hero-divider p-0 pt-[22px] text-center text-[13px] text-muted md:order-none md:mt-0 md:min-w-0 md:border-t-0 md:pt-0 md:text-start md:text-[14px] [@media(min-width:768px)_and_(max-width:1080px)]:py-[0.7em]`}
+          >
             © {year} BarcodesQR. All rights reserved.
           </p>
 
-          <div className="order-1 grid w-full grid-cols-5 items-center gap-2 md:order-none md:flex md:w-auto md:flex-wrap md:justify-center">
+          <ul
+            className={`order-1 grid grid-cols-5 gap-[0.8em] md:order-none md:flex md:gap-0 [@media(min-width:768px)_and_(max-width:1080px)]:mt-[1.5em]`}
+          >
             {payments.map((p) => (
-              <span
+              <li
                 key={p.alt}
-                className="flex min-h-[44px] items-center justify-center rounded-md border border-line bg-white px-[0.4em] py-[0.3em] md:h-8 md:min-h-0 md:px-3 md:py-0"
+                className="flex min-h-[3.8em] items-center justify-center rounded-[6px] border border-footer-pay-line bg-white px-[0.7em] md:min-h-0 md:px-[0.6em] md:py-[0.3em] md:[&+&]:ml-[0.7em]"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.src}
-                  alt={p.alt}
-                  className={`w-10 max-w-[86%] md:w-auto md:max-w-none ${p.className}`}
-                />
-              </span>
+                <img src={p.src} alt={p.alt} className="w-[4em] max-w-[86%] md:w-[34px] md:max-w-none" />
+              </li>
             ))}
-          </div>
+          </ul>
 
-          {/* Language is display-only until i18n is wired up, and their mobile
-              file drops it outright. */}
-          <span className="hidden items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink md:inline-flex">
-            <Globe className="h-4 w-4 text-muted" aria-hidden="true" />
-            English
-            <ChevronDown className="h-4 w-4 text-muted" aria-hidden="true" />
-          </span>
+          {/* Display-only until i18n is wired up; their mobile file hides it. */}
+          <div
+            className={`hidden items-center rounded-[8px] border border-footer-lang-line bg-white px-[1.15em] py-[0.55em] text-[14px] text-body md:flex [@media(min-width:768px)_and_(max-width:1080px)]:mt-[1.6em]`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#374151"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className="mr-[0.5em] h-4 w-4"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+              <path d="M2 12h20" />
+            </svg>
+            <span>English</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#374151"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className="ml-[0.5em] h-3 w-3"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </div>
         </div>
       </div>
-    </footer>
+    </section>
   );
 }

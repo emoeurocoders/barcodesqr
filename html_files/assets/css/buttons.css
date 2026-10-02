@@ -13,19 +13,24 @@ button.genBtn1 { -webkit-appearance: none; background: none; border: none; outli
 .genBtn6, .genBtn6:active, .genBtn6:focus { padding: 0.8em 1.8em 0.8em 1.8em;  line-height: 1em; font-size: 15px;  font-family:  "Inter",  "Helvetica Neue",  Arial, "Nimbus Sans L", FreeSans; font-weight: 500; text-transform: capitalize;  letter-spacing: 0.0em;  }
 .genBtn7, .genBtn7:active, .genBtn7:focus { padding: 0.8em 1.8em 0.8em 1.8em;  line-height: 1em; font-size: 15px;  font-family:  "Inter",  "Helvetica Neue",  Arial, "Nimbus Sans L", FreeSans; font-weight: 500; text-transform: capitalize;  letter-spacing: 0.0em;  }
 .genBtn8, .genBtn8:active, .genBtn8:focus { padding: 0.8em 1.1em 0.8em 1.1em;  line-height: 1em; font-size: 14px;  font-family:  "Inter",  "Helvetica Neue",  Arial, "Nimbus Sans L", FreeSans; font-weight: 500; text-transform: capitalize;  letter-spacing: 0.0em;  }
+.genBtn9, .genBtn9:active, .genBtn9:focus { padding: 1.15em 1.1em 1.15em 1.1em;  line-height: 1.3em; font-size: 16px;  font-family:  "Inter",  "Helvetica Neue",  Arial, "Nimbus Sans L", FreeSans; font-weight: 600; text-transform: capitalize;  letter-spacing: 0.0em;  display: flex; align-items: center; justify-content: center; gap: 0.7em; }
+.genBtn9 svg {  width: 1.3em;  height: 1.3em; }
 /* Mobile Size
 -----------------------*/
 @media all and (max-width: 572px) {
 .genBtn1{ font-size: 13px!important; padding: 0.8em 1.05em 0.8em 1.05em; }
 .genBtn4 { font-size: 14px!important; }   
 .genBtn5 { font-size: 14px!important; }   
-.genBtn6 { font-size: 14px!important; }   
+.genBtn6 { font-size: 14px!important; } 
 }
 @media all and (max-width: 479px) {
 .genBtn1{ font-size: 13px!important; }
 .genBtn4 { font-size: 13px!important; }   
 .genBtn5 { font-size: 13px!important; }
 .genBtn6 { font-size: 13px!important; }   
+}
+@media all and (max-width: 390px) {	
+.genBtn9 { font-size: 4.1vw!important; }   
 }
 /* Button Colors
 -----------------------*/

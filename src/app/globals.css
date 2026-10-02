@@ -112,6 +112,182 @@
   --color-ready-panel: #f7f9fc;
   --color-ready-tile-line: #c8d8f4;
 
+  /* ---- mainB.html homepage: Header, hero, features strip, footer and the sticky mobile CTA. ---- */
+  /* mainB's desktop hero. `#mainHero .bdg` keeps a cooler rule than `line`;
+     the marked word is a tinted chip with a dark-teal frame; the three
+     benefits under the CTA sit on a mint tile in a slate label. */
+  --color-hero-chip-line: #e3e7ec;
+  --color-hero-mark: #e9eef9;
+  --color-hero-mark-line: #157f77;
+  --color-hero-perk: #5b687a;
+  --color-hero-perk-tile: #e1f8f5;
+
+  /* mainB's `#mainFeat` strip: a cooler grey than `bg`, and one tint per
+     card behind its glyph. */
+  --color-feat-bg: #f8f9fb;
+  --color-feat-tile-1: #eaf4fd;
+  --color-feat-tile-2: #e2f8f6;
+  --color-feat-tile-3: #e8f6fd;
+
+  /* The footer's rules: the line over its bottom row, and the borders of
+     the payment marks and the language picker — three near-identical greys
+     the designer keeps distinct. */
+  --color-footer-rule: #e7e9ed;
+  --color-footer-pay-line: #e2e4e9;
+  --color-footer-lang-line: #dfe2e7;
+
+  /* main_mobile.html's sticky `#mobCta` bar, thrown upward off the bottom
+     edge it is pinned to. */
+  --shadow-mob-cta: 0 -10px 30px rgba(14, 19, 17, 0.1);
+
+  /* ---- mainB.html homepage: Steps, Customize and Share. ---- */
+  /* mainB.html's #mainCustomize and #mainShare — the two desktop "step"
+     spreads under the three step cards. They share one heading/copy treatment
+     and one pale-blue demo panel, so the tokens are named for the pair. */
+  --color-spread-ink: #10151d;
+  --color-spread-copy: #667085;
+  --color-spread-item: #536174;
+  /* Behind the "2" / "3" step number. */
+  --color-spread-num-tile: #eaf3ff;
+  --color-spread-panel: #f0f8ff;
+  --color-spread-panel-line: #dfeaf5;
+  /* The rule above "Colors" and the two mock buttons' border. */
+  --color-spread-rule: #dce7f0;
+  --color-spread-caption: #637185;
+  --color-spread-btn-ink: #293548;
+
+  /* The format tiles and the scans card inside the Share panel. */
+  --color-share-tile-line: #e6edf4;
+  --color-share-tile-copy: #718095;
+  --color-share-note: #8390a1;
+  --color-share-png-tile: #f0eafe;
+  --color-share-svg-tile: #e1f8f5;
+  --color-share-jpeg-tile: #fff0d9;
+  --color-share-stat-line: #e4edf5;
+  --color-share-stat-label: #98a2b3;
+  --color-share-up: #13a876;
+  --color-share-up-tile: #e0f8ef;
+
+  --shadow-spread-panel: 0 4px 7.5px rgba(24, 44, 75, 0.04);
+  --shadow-spread-thumb: 0 2px 4px rgba(23, 35, 58, 0.05);
+
+  /* ---- mainB.html homepage: QR code types (#mainFormats / mobile #mainTypes). ---- */
+  /* mainB's #mainFormats — the "23 QR code types" grid on desktop. A bluer
+     white than `bg`, and its own near-black and slate rather than `ink` and
+     `muted`, which the designer used everywhere before this section. */
+  --color-formats-bg: #fafcff;
+  --color-formats-ink: #10151d;
+  --color-formats-muted: #667085;
+  --color-formats-tile-line: #e7eaf0;
+  /* The tile border on hover — the only interactive cue the tiles have. */
+  --color-formats-tile-hover: #c4d4f4;
+  /* The "More Formats" divider: its two hairlines and its label. */
+  --color-formats-rule: #dfe6ee;
+  --color-formats-rule-ink: #626e80;
+  --shadow-formats-tile: 0 2px 3.5px rgba(25, 42, 68, 0.04);
+  --shadow-formats-tile-hover: 0 4px 10px rgba(25, 42, 68, 0.08);
+
+  /* main_mobile.html's #mainTypes background. Not `bg` (#f9fafb) — one step
+     cooler in every channel. */
+  --color-types-bg: #f8f9fb;
+
+  /* ---- mainB.html homepage: Benefits dashboard and "Why choose" (#mainBenefits / #mainReasons). ---- */
+  /*
+   * mainB.html's #mainBenefits ("Everything you need after creating your QR
+   * code") and #mainReasons ("Why choose BarcodesQR"). The two share one type
+   * scale and one card, so the heading/sub/card values are named once for both.
+   */
+  /* Both headings — a deeper ink than `ink`. */
+  --color-why-ink: #10151d;
+  /* Both sub-lines. */
+  --color-why-sub: #667085;
+  /* Top of #mainBenefits' gradient; it fades to white. */
+  --color-why-wash: #f8fbff;
+  --color-why-badge: #eef4ff;
+  /* Every benefit/reason card's border. */
+  --color-why-card-line: #e7eaf0;
+  /* The icon discs. Benefits and reasons pick from the same set, plus pink. */
+  --color-why-tile-blue: #e8f0ff;
+  --color-why-tile-green: #e1f8ee;
+  --color-why-tile-purple: #f3eaff;
+  --color-why-tile-cyan: #e5f8fc;
+  --color-why-tile-pink: #fdeaf3;
+
+  /*
+   * The "Analytics Overview" mock dashboard inside #mainBenefits. Its own,
+   * slightly bluer greys — none of them repeat a token above or in globals.
+   */
+  --color-dash-line: #dfe6ee;
+  --color-dash-sub: #66758a;
+  --color-dash-chip: #5d6879;
+  --color-dash-chip-line: #e1e8ef;
+  /* The KPI tiles and the two panels below them. */
+  --color-dash-panel-line: #e7ebf0;
+  /* KPI discs that differ from the card discs above by a shade. */
+  --color-dash-tile-teal: #e1f8f5;
+  --color-dash-tile-purple: #f1eaff;
+  --color-dash-kpi-label: #6f7d91;
+  --color-dash-up: #14a77a;
+  --color-dash-kpi-note: #758398;
+  --color-dash-tabs: #7b8798;
+  --color-dash-grid: #edf1f5;
+  --color-dash-axis: #9aa5b4;
+  --color-dash-row: #626d7d;
+  --color-dash-row-line: #f0f2f5;
+  /* The Top QR Codes legend dots. */
+  --color-dash-dot-blue: #3b82f6;
+  --color-dash-dot-teal: #16b89d;
+  --color-dash-dot-purple: #a855f7;
+  --color-dash-dot-amber: #f7aa27;
+
+  --shadow-why-card: 0 2px 4px rgba(21, 43, 69, 0.04);
+  --shadow-why-dash: 0 8px 12.5px rgba(23, 54, 91, 0.05);
+
+  /* ---- mainB.html homepage: Pricing and FAQ (#mainPricing / #mainFaqs). ---- */
+  /* mainB's #mainPricing. A cooler, bluer set than the mobile plan card's:
+     the designer redrew this section for desktop rather than restyling it. */
+  --color-pricing-bg: #fbfdff;
+  /* The "SIMPLE PRICING" pill behind the section heading. */
+  --color-pricing-badge: #eef4ff;
+  /* Headings, plan names and prices — a hair bluer than `ink`. */
+  --color-pricing-ink: #10151d;
+  /* The section sub-line and the note strip's small print. */
+  --color-pricing-sub: #667085;
+  --color-pricing-card-line: #e1e6ed;
+  /* The highlighted (trial) card's 2px ring, and the "Most popular" tag. Two
+     teals a step apart in their file, neither of them `brand`. */
+  --color-pricing-act: #10beb2;
+  --color-pricing-tag: #0db8aa;
+  /* The rule between a card's price column and its "What's included" list. */
+  --color-pricing-rule: #e7ebef;
+  --color-pricing-per: #7c8797;
+  --color-pricing-terms: #788497;
+  /* The "Save n%" pill. */
+  --color-pricing-save-ink: #099b91;
+  --color-pricing-save: #ddf6f1;
+  /* The three-up note strip under the cards: icon disc and title. Also the
+     icon disc on the FAQ's side panel, which uses the same value. */
+  --color-pricing-note-tile: #e8f0ff;
+  --color-pricing-note-ink: #17202b;
+  --shadow-pricing-card: 0 4px 7px rgba(20, 46, 77, 0.04);
+
+  /* The mobile plans section (main_mobile.html's #mainPlans base rule). */
+  --color-plans-bg: #f8f9fb;
+  /* Its "Save n%" pill — paler than `brand-soft`, which it was ported as. */
+  --color-plans-save: #e2f4f1;
+
+  /* mainB's #mainFaqs. */
+  --color-faq-line: #eef0f3;
+  --color-faq-tgl: #e9f0fb;
+  --color-faq-answer: #f7faff;
+  --color-faq-answer-line: #eef2f2;
+  --color-faq-panel-line: #e4eaf1;
+  --color-faq-check-ink: #5f6b7b;
+  --shadow-faq-item: 0 2px 6px rgba(14, 19, 17, 0.04);
+  --shadow-faq-panel: 0 1px 1px rgba(14, 19, 17, 0.04);
+  /* main_mobile.html's plan card. */
+  --shadow-plans-card: 0 2px 4px rgba(14, 19, 17, 0.04);
+
   /* Radius */
   --radius-btn: 0.75rem;
 
@@ -141,32 +317,6 @@
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-display: var(--font-anton), var(--font-inter), sans-serif;
   --font-caveat: var(--font-caveat), ui-serif, cursive;
-
-  /* Animation */
-  --animate-marquee: marquee 40s linear infinite;
-  /* 1148px of logos+gaps at 40px/s; 1068px below 768px where the gap tightens. */
-  --animate-press-scroll: marquee 28.7s linear infinite;
-  --animate-press-scroll-sm: marquee 26.7s linear infinite;
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes showcaseFade {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @layer base {
@@ -240,9 +390,11 @@
  * The home page's containers, below `md:` only.
  *
  * main_mobile.html overrides `.FrmCtr` to `max-width: 528px; padding: 0 2.4rem`
- * — narrower than the desktop container and a wider gutter. By the same
- * measurement that gave `container-frm` its 3.125vw, their 2.4rem against a
- * root that is viewport/64 below 640px is viewport/26.67, i.e. 3.75vw.
+ * — narrower than the desktop container and a wider gutter. Their root is a
+ * fixed 10px down to 640, so 2.4rem is 24px there; below 640 the root is
+ * viewport/64, which makes it viewport/26.67, i.e. 3.75vw — meeting 24px
+ * exactly at 640. (Applying 3.75vw all the way up to 767 left content 9px
+ * narrow at 767.)
  *
  * These exist instead of an override on `container-page` because that utility
  * also carries /help, /terms, the dashboard and the creator, and the designer
@@ -268,6 +420,9 @@
 
   @media (max-width: 767px) {
     max-width: 528px;
+    padding-inline: 24px;
+  }
+  @media (max-width: 640px) {
     padding-inline: 3.75vw;
   }
 }
@@ -280,6 +435,9 @@
 
   @media (max-width: 767px) {
     max-width: 528px;
+    padding-inline: 24px;
+  }
+  @media (max-width: 640px) {
     padding-inline: 3.75vw;
   }
 }
@@ -293,9 +451,9 @@
  * quoted row strings, which Tailwind's underscores-for-spaces syntax turns into
  * something no one can read or edit safely.
  *
- * Only the template is here. `display` stays in the markup (`grid md:flex`), so
- * every one of these properties is inert from `md:` up, where the card goes
- * back to being a flex column and grid-template-* is ignored.
+ * Only the template is here; `display: grid` stays in the markup. The card
+ * lives in the mobile subtree only — desktop renders mainB.html's own row
+ * cards, which do not use this.
  */
 @utility plan-grid {
   grid-template-columns: 152fr 140fr;
@@ -306,27 +464,6 @@
     "bdg lst"
     "ln3 lst"
     "btn btn";
-}
-
-@utility marquee-mask {
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 8%,
-    #000 92%,
-    transparent
-  );
-  mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 8%,
-    #000 92%,
-    transparent
-  );
-}
-
-@utility showcase-fade {
-  animation: showcaseFade 0.32s both;
 }
 
 @utility scroll-thin {
@@ -340,13 +477,3 @@
   }
 }
 
-.marquee-group:hover .animate-marquee {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .showcase-fade,
-  .animate-marquee {
-    animation: none;
-  }
-}

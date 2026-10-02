@@ -165,29 +165,22 @@ geometry, not text height, when checking these pages.
 
 ## Header is pinned, and the designer's own pages do not clear it
 
-As of the 2026-09-03 sync the designer's `#mainHdr` gained `position: fixed`,
-reversing the earlier decision this port followed when it unpinned the header.
-Ported.
+The designer's `#mainHdr` is `position: fixed`. Their file only compensates on
+the homepage (`#mainHdr + section { margin-top }`); `help.html` and
+`terms.html` get nothing, so in the mockup the first section of those pages
+sits under the bar. Worth reporting upstream.
 
-**Their file only compensates on the homepage.** `#mainHero` gained
-`padding-top: 83px`, but `help.html` and `terms.html` got nothing, so in the
-mockup the first section of those pages sits under the fixed header — verified
-by measuring: an 83px overlap on every page. Worth reporting upstream.
+Here the offset is a spacer inside the `Header` component, so every page that
+renders a Header clears it. Since the 2026-10-02 port the header is the
+designer's own bar: 83px tall at 1300 and up, 74px from 1025 to 1299, 71px
+below, against a 71px/83px page margin. **Between 1025 and 1299 their bar is
+3px taller than the margin, so the first section tucks 3px under it.**
+Reproduced, not fixed — raise it with the designer.
 
-Here the offset lives in the `Header` component itself, as a spacer rendered
-above the fixed bar, so every page that renders a Header clears it and none can
-be forgotten. It is 65px because that is our header's height; the designer's
-83/71px are theirs, and the difference is the pre-existing header divergence
-already tracked below.
-
-**The header sits at `z-40`, not the designer's `z-index: 12`.** Nothing in
-their page climbs above 12, but this port's hero was built on Tailwind's scale
-and floats its dashboard cards at `z-20`/`z-30`; at 12 those scrolled straight
-over the nav. 40 also matters for the login modal, which renders inside the
-header: a fixed element with a z-index opens a stacking context, so at 12 the
-modal's own `z-50` was trapped beneath those same cards. Anything added to a
-page above `z-30` will punch through the header again — keep page content below
-it, and full-screen overlays at `z-50`.
+**The header sits at `z-40`, not the designer's `z-index: 12`.** The login
+modal renders inside the header, and a fixed element with a z-index opens a
+stacking context, so the modal's own `z-50` is capped at the header's level.
+Keep page content below `z-40` and full-screen overlays at `z-50`.
 
 ## Trial price: $1 or $1.00?
 
@@ -197,102 +190,69 @@ reproduced as theirs. The PM asked for "Start $1.00 Trial", which matches the
 card rather than the button. One of the two should change; it is a one-word
 edit either way.
 
-## Homepage drift from the mockup
+## Homepage — mainB.html + main_mobile.html, ported 2026-10-02
 
-The two sections ported on 2026-09-02 — the press-logo scroller and "Why choose
-BarcodesQR" — match the mockup exactly at 1440 (245px and 627px, card 384x165).
-Measuring them turned up how far the REST of the homepage has drifted, none of
-it touched by that work:
+The PM replaced the desktop homepage with `mainB.html` (Monday item 12828299935)
+and asked for the updated `main_mobile.html` (item 13023554182) to go live with
+it. Both mockups now list their sections in the same order, so each section
+component carries a mobile and a desktop subtree under one id; Features,
+Customize and Share exist only in `mainB.html` and are `hidden md:block`.
+`main.html` is superseded by `mainB.html` and is no longer the desktop
+reference.
 
-| Section | Mockup | Port | Delta |
-| ------- | ------ | ---- | ----- |
-| Showcase (`#mainTypes`) | 456 | 939 | **+483** |
-| Footer | 349 | 458 | +109 |
-| Steps | 512 | 598 | +86 |
-| Pricing (`#mainPlans`) | 726 | 791 | +65 |
-| Ready (`#mainReady`) | 299 | 322 | +23 |
-| Header | 83 | 65 | −18 |
-| Hero | 629 | 620 | −9 |
-| Why (`#mainWhy`) | 866 | 829 | −37 |
+### Divergences and open questions
 
-The gap between "Why choose BarcodesQR" and #mainWhy was tightened from ~156px
-to ~81px at the PM's request on 2026-09-03. That is a deliberate divergence:
-the designer gives both sections a full 76px pad and has not changed it, so a
-future sync will not "fix" this and it should not be read as drift.
-
-Reviews was the largest of these at +578px and has since been removed from the
-homepage, which is what the mockup asks for. The rest still stand and sum to the
-~694px the page-level pixel diff now reports. **Showcase's +483 is the one to
-look at next** — a real layout divergence in the QR-type grid.
-
-**`/reviews` is a broken link.** The header and the footer both point at it and
-no such route exists, so both 404. `Reviews.tsx` is kept unreferenced for
-exactly that page rather than deleted; either build the route or drop the two
-nav entries and the component together.
-
-## Mobile homepage — ported 2026-09-11, with four things to confirm
-
-`main_mobile.html` (Monday item *BarcodesQR Mobile Main 9/11*) is ported on
-`design/mobile-main`. Desktop was held byte-identical through the whole port —
-verified by capturing the 1440 rendering before the first edit and pixel-diffing
-against it after every change, ending at **0 pixels differing**. Mobile is
-within 7px per section and +12px over the page. Four things need a decision:
-
-### The designer also changed DESKTOP in the same sync, and it is NOT ported
-
-The 2026-09-11 sync rewrote `main.html` as well: the press-logo scroller
-(`#mainPressScroll`) is replaced by a three-card feature strip (`#mainFeat` —
-"Dynamic QR Codes", "Built-in Analytics", "Custom Branding"), and two CTAs go
-from "Create QR Code" to "Create Your QR Code". None of that is ported, under
-instruction to leave desktop alone. `PressScroll.tsx` therefore still renders
-a section the mockup no longer has, and the committed `html_files/` baseline
-and the port now knowingly disagree on desktop. Ticket it or revert the mockup.
-
-### Two strings are stale on desktop, and now differ between breakpoints
-
-`main.html` and `main_mobile.html` BOTH say "Everything you need after creating
-your QR code" and "Organize everything"; the desktop port has been carrying
-"…after the QR code is created" and "Customize your brand" since before this
-branch. Mobile ports the correct strings, desktop keeps the wrong ones, so the
-same section reads differently depending on width. Fixing desktop reflows it,
-which this branch was not allowed to do — it is a one-line change in
-`WhyBarcodesQR.tsx` plus deleting `mobileBenefits`.
-
-The same split applies to "Create Your QR Code": both mockups use it in the
-hero and the closing CTA, the port says "Create QR Code" on desktop. Mobile
-uses the designer's wording.
-
-### Mobile drops content the desktop page sells
-
-`#mainChoose` goes from six cards to four on mobile — "High-Quality Downloads"
-and "Easy to Manage" are absent from the designer's file. Reproduced as
-shipped, but losing two selling points on phones reads like a decision someone
-should confirm rather than a styling choice.
+- **Footer "Media" links to `/media`, which does not exist.** The mockup's
+  Company column is "Pricing / Media"; the port used to show "Reviews". Build
+  the page or ask the designer to drop the entry.
+- **`Reviews.tsx` is now unreferenced and nothing links to `/reviews`.** Kept
+  for that page; delete it if the page is not coming.
+- **The FAQ's last answer differs between breakpoints.** `mainB.html` has the
+  new "If your subscription ends…" text; `main_mobile.html` still has "Static
+  QR codes never expire…". Each breakpoint shows its own file's copy. Ask which
+  is current.
+- **"JPG" vs "JPEG".** Desktop Steps card 3 says "PNG, JPG or SVG"; Share and
+  mobile say "JPEG". Ported as written.
+- **The Steps cards are the designer's JPGs again.** The 2026-08-20 port drew
+  them as live components; that was not a sanctioned divergence and is reversed.
+- **The "Why choose" ↔ dashboard gap is the mockup's again.** The 2026-09-03
+  tightening was for a seam the designer has since reordered (Benefits now
+  precedes Reasons) and redrawn at a full 76px pad. If the PM still finds
+  ~152px too airy, it needs asking again.
+- **Small-tile tints on desktop formats.** The six "More Formats" tiles carry
+  `.ico2`–`.ico6` classes, but the popular grid's `nth-child` rules win, so
+  they show the first six tints. Reproduced as rendered; ask if intended.
+- **Mobile "Reliable & Secure" still uses the palette icon** left from the old
+  "Custom Branding" card. Reproduced; looks like a leftover.
+- **Hero heading at 992px:** their 42px rule is outranked by the 1120px
+  `.ln1:has(.ln)` rule, so 48px renders. Reproduced.
+- **Their footer is a `<section>`, not a `<footer>`**, so the page has no
+  footer landmark. Kept as theirs.
+- **Interactive elements the mockup makes inaccessible are made operable
+  without changing the element:** the desktop FAQ's `div.qst` has
+  `role="button"`, `tabIndex`, `aria-expanded`; the footer column headings
+  wrap a `<button>`; mobile "More Formats" is a `<button>`.
+- **The sticky mobile CTA (`#mobCta`)** shows once the hero CTA scrolls away
+  and hides at the closing CTA, with the drawer or a modal open, or while a
+  form field is focused — React state replacing their observers in `main.js`.
 
 ### The 640–768 band is neither mockup
 
-The designer ships mobile as a separate page scoped by a `.mobHome` body class,
-so it has no breakpoint of its own; their fluid root starts at 640px while this
-port switches at Tailwind's `md:` (768) to keep the existing desktop header
-behaviour. Between 640 and 768 the page therefore renders the mobile
-composition at desktop-ish widths. It was already the band where the old
-hamburger appeared, so nothing regressed, but nobody has designed it.
+The port switches at Tailwind's `md:` (768); the mobile file has no breakpoint
+of its own. Between 640 and 768 the page renders the mobile composition at its
+528px cap with the designer's fixed 24px gutter. Nobody has designed it.
 
 ### Smaller notes
 
-- **Skeleton diffs on `/` are noisy now.** The port renders both compositions
-  and hides one with `md:hidden` / `hidden md:block`; `npm run -s skel` walks
-  the DOM and cannot tell. Diff a section root and expect the other
-  breakpoint's markup appended — the mobile half still compares clean.
+- **Skeleton diffs on `/` are noisy.** Both compositions are in the DOM and
+  `npm run -s skel` walks hidden nodes too, so the other breakpoint's markup is
+  appended to every section root — and identical copy in the hidden half can
+  mask a missing node in the visible one. Compare against a root inside the
+  visible subtree when in doubt.
 - **The drawer is only mocked on the home page.** Its links are absolute
-  (`/#steps`) so they work from /help and /terms, but no mockup covers what the
-  drawer should hold there.
-- **Their `.mobHome … .ln1 .mrk` rule is dead.** It would flatten the hero's
-  marked word to plain blue, but the markup they shipped has no `.mrk` on that
-  page. The rendered file is what was reproduced. Worth telling the designer.
-- The mobile logo is drawn as SVG + live text against their single background
-  image, as on desktop. Sized to their 153px, so it matches in width, but the
-  glyph rasterisation differs.
+  (`/#steps`) so they work from /help and /terms.
+- **Signed-in state is unmocked:** "Dashboard" in the header and drawer keeps
+  the Log In styling.
 
 ## Image adjuster
 

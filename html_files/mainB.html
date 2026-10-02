@@ -1,0 +1,990 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BarcodesQR</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="cleartype" content="on">
+<meta name="HandheldFriendly" content="true">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<meta name="description" content="">
+<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+<link rel="stylesheet" type="text/css" href="assets/css/default.css">
+<link rel="stylesheet" type="text/css" href="assets/css/remodal.css">
+<link rel="stylesheet" type="text/css" href="assets/css/modals.css">
+<script type="text/javascript" src="assets/scripts/jquery-3.6.0.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/remodal.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/jquery.validate.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/main.js"></script>
+</head>
+
+<body>
+<div id="fullWrp" style="overflow: hidden;"> 
+	<!--header-->
+	<header id="mainHdr"  >
+		<div class="ctr"><!--<a href="#" class="nav-hamburger"><span></span></a>--> 
+			<!--logo-->
+			<h1 id="mainLogo"><a href="/">BarcodesQR</a></h1>
+			<!--end logo--> 
+			<!--nav
+			<nav id="mainNav">
+				<ul class="site-nav">
+					<li><a href="#" >Nav Itm</a></li>
+				</ul>
+			</nav> nav--> 
+			<!--nav-->
+			<nav id="mainLoginNav">
+				<ul class="site-nav">
+					<li><a href="register.html"  class="btn genBtn1 btnC0" data-lbox="modal_user_login.html" >Log In</a></li>
+					<li><a href="#" class="btn genBtn1 btnC1" >
+						<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-qr-code h-4 w-4" aria-hidden="true">
+							<rect width="5" height="5" x="3" y="3" rx="1"></rect>
+							<rect width="5" height="5" x="16" y="3" rx="1"></rect>
+							<rect width="5" height="5" x="3" y="16" rx="1"></rect>
+							<path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+							<path d="M21 21v.01"></path>
+							<path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+							<path d="M3 12h.01"></path>
+							<path d="M12 3h.01"></path>
+							<path d="M12 16v.01"></path>
+							<path d="M16 12h1"></path>
+							<path d="M21 12v.01"></path>
+							<path d="M12 21v-1"></path>
+						</svg>
+						Create QR Code</a></li>
+				</ul>
+			</nav>
+			<!--end nav--> 
+		</div>
+	</header>
+	<!--end header--> 
+	<!--mainHero-->
+	<section id="mainHero"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--row-->
+			<div class="row"> 
+				<!--lft-->
+				<div class="lft"> <span class="bdg ElmCirc">🏆 #1 QR Code Generator</span>
+					<h4 class="ln1">Generate <span class="mrk">Branded</span> <span class="ln genC1">QR Codes</span></h4>
+					<p class="ln2">Dynamic QR codes with analytics you can edit anytime—even after printing.</p>
+					<!--btn-->
+					<div class="btnWrp"><a href="#" class="btn genBtn4 btnC3">Create Your QR Code
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+						</a></div>
+					<!--end btn-->
+					<!--lst-->
+					<ul class="lst">
+						<li class="itm"><span class="ico ElmCirc">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 13" fill="none"><path d="M6.5 10.2917H11.375" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.9375 1.89583C9.15299 1.68034 9.44525 1.55928 9.75 1.55928C10.0547 1.55928 10.347 1.68034 10.5625 1.89583C10.778 2.11132 10.899 2.40359 10.899 2.70833C10.899 3.01308 10.778 3.30534 10.5625 3.52083L4.875 9.20833L2.70833 9.75L3.25 7.58333L8.9375 1.89583Z" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.58333 3.25L9.75 5.41667" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Edit anytime</li>
+						<li class="itm"><span class="ico ElmCirc">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 13" fill="none"><path d="M1.625 10.8333H11.375" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.25 9.20833V4.875" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 9.20833V2.16667" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.75 9.20833V5.95833" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.25 4.33333C3.54915 4.33333 3.79167 4.09082 3.79167 3.79167C3.79167 3.49251 3.54915 3.25 3.25 3.25C2.95085 3.25 2.70833 3.49251 2.70833 3.79167C2.70833 4.09082 2.95085 4.33333 3.25 4.33333Z" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.75 5.41667C10.0492 5.41667 10.2917 5.17415 10.2917 4.875C10.2917 4.57585 10.0492 4.33333 9.75 4.33333C9.45085 4.33333 9.20833 4.57585 9.20833 4.875C9.20833 5.17415 9.45085 5.41667 9.75 5.41667Z" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Track scans</li>
+						<li class="itm"><span class="ico ElmCirc">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 13" fill="none"><path d="M3.25 4.875V1.625H9.75V4.875" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.2917 4.875H2.70833C2.11002 4.875 1.625 5.36002 1.625 5.95833V8.66667C1.625 9.26498 2.11002 9.75 2.70833 9.75H10.2917C10.89 9.75 11.375 9.26498 11.375 8.66667V5.95833C11.375 5.36002 10.89 4.875 10.2917 4.875Z" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.25 8.66667H9.75V11.375H3.25V8.66667Z" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.20833 6.5H9.75" stroke="#0DAEA3" stroke-width="0.975" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Print with confidence</li>
+					</ul>
+					<!--end lst-->
+				</div>
+				<!--end lft-->
+				<!--rgt-->
+				<div class="rgt"> <img class="tmb" src="assets/images/main_hero_tmb.png" alt="BarcodesQR dashboard"> </div>
+				<!--end rgt--> 
+			</div>
+			<!--end row--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainHero--> 
+	<!--mainFeat-->
+	<section id="mainFeat">
+		<!--FrmCtr-->
+		<div class="FrmCtr genPad1">
+			<!--btm-->
+			<div class="btm">
+				<!--lst-->
+				<div class="lst">
+					<!--itm-->
+					<div class="itm"> <span class="ico ico1">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="#257ef9"  viewBox="0 0 1024 1024" version="1.1"><path d="M434.897971 962.214818c-2.485611 0-4.357238-0.661056-5.599532-1.871627-8.714476-2.52552-11.821233-7.463995-9.335622-14.935154l57.877175-341.637937L225.804792 603.7701c-6.220678 0-10.577916-2.492774-13.071713-7.471159-3.727904-4.938476-3.106758-10.538007 1.871627-16.799618L602.920756 71.702042c4.978385-7.471159 10.577916-8.674567 16.799618-3.736091 6.220678 1.242294 9.335622 6.260587 9.335622 14.935154l-57.877175 341.646124L793.34269 424.547229c6.220678 0 10.577916 2.52552 13.071713 7.463995 1.242294 4.978385 1.242294 10.577916 0 16.806781L447.969685 956.615287C444.233594 960.343191 439.876356 962.214818 434.897971 962.214818z"/></svg>
+						</span>
+						<div class="txt">
+							<h5 class="ln1">Dynamic QR Codes</h5>
+							<p class="ln3">Edit your destination anytime, no reprints needed.</p>
+						</div>
+					</div>
+					<!--end itm-->
+					<!--itm-->
+					<div class="itm"> <span class="ico ico2">
+						<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024" fill="#07b8a2" ><path d="M51.2 307.2m51.2 0l102.4 0q51.2 0 51.2 51.2l0 460.8q0 51.2-51.2 51.2l-102.4 0q-51.2 0-51.2-51.2l0-460.8q0-51.2 51.2-51.2Z"/><path d="M409.6 51.2m51.2 0l102.4 0q51.2 0 51.2 51.2l0 716.8q0 51.2-51.2 51.2l-102.4 0q-51.2 0-51.2-51.2l0-716.8q0-51.2 51.2-51.2Z"/><path d="M768 204.8m51.2 0l102.4 0q51.2 0 51.2 51.2l0 563.2q0 51.2-51.2 51.2l-102.4 0q-51.2 0-51.2-51.2l0-563.2q0-51.2 51.2-51.2Z"/></svg>
+						</span>
+						<div class="txt">
+							<h5 class="ln1">Built-in Analytics</h5>
+							<p class="ln3">Track scans, locations, devices and performance.</p>
+						</div>
+					</div>
+					<!--end itm-->
+					<!--itm-->
+					<div class="itm"> <span class="ico ico3">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="#0896cf" viewBox="0 0 1024 1024" version="1.1"><path d="M833.706667 216.746667A452.693333 452.693333 0 0 0 508.16 85.333333a426.666667 426.666667 0 0 0-2.133333 853.333334 110.08 110.08 0 0 0 107.946666-80.64 107.52 107.52 0 0 0-24.32-97.28 21.333333 21.333333 0 0 1 15.786667-35.413334h70.4A262.4 262.4 0 0 0 938.666667 483.413333a361.813333 361.813333 0 0 0-104.96-266.666666z m-541.866667 412.16a64 64 0 1 1 17.066667-88.746667 63.573333 63.573333 0 0 1-17.066667 88.746667zM354.133333 394.666667a64 64 0 1 1-23.466666-85.333334 64 64 0 0 1 23.466666 85.333334zM469.333333 298.666667a64 64 0 1 1 64-64A64 64 0 0 1 469.333333 298.666667z m245.333334 34.133333a64 64 0 1 1 23.466666-85.333333 64 64 0 0 1-23.466666 85.333333z"/></svg>
+						</span>
+						<div class="txt">
+							<h5 class="ln1">Custom Branding</h5>
+							<p class="ln3">Add your logo, colors, frames and styles.</p>
+						</div>
+					</div>
+					<!--end itm-->
+				</div>
+				<!--end lst-->
+			</div>
+			<!--end btm-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainFeat-->
+	<!--mainSteps-->
+	<section id="mainSteps"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--top-->
+			<div class="top">
+				<h4 class="ln1">Create a QR code in 3 simple steps</h4>
+				<p class="ln2">From idea to a scannable, branded QR code in under a minute.</p>
+			</div>
+			<!--end top--> 
+			<!--btm-->
+			<div class="btm"> 
+				<!--lst-->
+				<div class="lst"> 
+					<!--itm-->
+					<div class="itm">
+						<div class="tmb"><img src="assets/images/main_steps_tmb_01.jpg" alt="Select your QR code type"></div>
+						<div class="cap"> <span class="num ElmCirc">1</span>
+							<h5 class="ln1">Select your QR&nbsp;code type</h5>
+						</div>
+						<p class="ln3">Pick from 20+ types — website, vCard, WiFi, PDF, menu and more.</p>
+					</div>
+					<!--end itm--> 
+					<!--itm-->
+					<div class="itm">
+						<div class="tmb"><img src="assets/images/main_steps_tmb_02.jpg" alt="Customize your QR code"></div>
+						<div class="cap"> <span class="num ElmCirc">2</span>
+							<h5 class="ln1">Customize your QR code</h5>
+						</div>
+						<p class="ln3">Add your colors, shapes, a frame and your logo to match your brand.</p>
+					</div>
+					<!--end itm--> 
+					<!--itm-->
+					<div class="itm">
+						<div class="tmb"><img src="assets/images/main_steps_tmb_03.jpg" alt="Download and share"></div>
+						<div class="cap"> <span class="num ElmCirc">3</span>
+							<h5 class="ln1">Download &amp; share</h5>
+						</div>
+						<p class="ln3">Export print-ready PNG, JPG or SVG, then track scans over time.</p>
+					</div>
+					<!--end itm--> 
+				</div>
+				<!--end lst--> 
+			</div>
+			<!--end btm--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainSteps--> 
+	<!--mainCustomize-->
+	<section id="mainCustomize">
+		<!--FrmCtr-->
+		<div class="FrmCtr genPad1">
+			<!--row-->
+			<div class="row">
+				<!--lft-->
+				<div class="lft"> <span class="num ElmCirc">2</span>
+					<h4 class="ln1">Customize your  QR&nbsp;code</h4>
+					<p class="ln2">Add your colors, shapes, a frame and your logo to match your brand.</p>
+					<!--lst-->
+					<ul class="lst">
+						<li class="itm"><span class="ico">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" fill="none"><path d="M8.5 2.125C7.66282 2.125 6.83384 2.28989 6.06039 2.61027C5.28694 2.93064 4.58417 3.40022 3.99219 3.99219C3.40022 4.58417 2.93064 5.28694 2.61027 6.06039C2.28989 6.83384 2.125 7.66282 2.125 8.5C2.125 9.33718 2.28989 10.1662 2.61027 10.9396C2.93064 11.7131 3.40022 12.4158 3.99219 13.0078C4.58417 13.5998 5.28694 14.0694 6.06039 14.3897C6.83384 14.7101 7.66282 14.875 8.5 14.875H9.20833C9.58406 14.875 9.94439 14.7257 10.2101 14.4601C10.4757 14.1944 10.625 13.8341 10.625 13.4583C10.6211 13.1189 10.4954 12.7921 10.2708 12.5375C10.1088 12.3222 10.0116 12.0652 9.99047 11.7966C9.96937 11.528 10.0253 11.259 10.1517 11.021C10.2781 10.7831 10.4697 10.5861 10.7041 10.4533C10.9385 10.3204 11.2059 10.2571 11.475 10.2708H12.75C13.3136 10.2708 13.8541 10.047 14.2526 9.64844C14.6511 9.24992 14.875 8.70942 14.875 8.14583C14.7844 6.51721 14.0729 4.98527 12.8871 3.86528C11.7012 2.7453 10.1311 2.12248 8.5 2.125Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.95833 8.5C5.34953 8.5 5.66667 8.18287 5.66667 7.79167C5.66667 7.40047 5.34953 7.08333 4.95833 7.08333C4.56713 7.08333 4.25 7.40047 4.25 7.79167C4.25 8.18287 4.56713 8.5 4.95833 8.5Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.375 5.66667C6.7662 5.66667 7.08333 5.34953 7.08333 4.95833C7.08333 4.56713 6.7662 4.25 6.375 4.25C5.9838 4.25 5.66667 4.56713 5.66667 4.95833C5.66667 5.34953 5.9838 5.66667 6.375 5.66667Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.91667 5.66667C10.3079 5.66667 10.625 5.34953 10.625 4.95833C10.625 4.56713 10.3079 4.25 9.91667 4.25C9.52546 4.25 9.20833 4.56713 9.20833 4.95833C9.20833 5.34953 9.52546 5.66667 9.91667 5.66667Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.0417 7.79167C12.4329 7.79167 12.75 7.47453 12.75 7.08333C12.75 6.69213 12.4329 6.375 12.0417 6.375C11.6505 6.375 11.3333 6.69213 11.3333 7.08333C11.3333 7.47453 11.6505 7.79167 12.0417 7.79167Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Brand colors</li>
+						<li class="itm"><span class="ico">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" fill="none"><path d="M13.4583 2.125H3.54167C2.75926 2.125 2.125 2.75926 2.125 3.54167V13.4583C2.125 14.2407 2.75926 14.875 3.54167 14.875H13.4583C14.2407 14.875 14.875 14.2407 14.875 13.4583V3.54167C14.875 2.75926 14.2407 2.125 13.4583 2.125Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.02083 7.08333C6.60764 7.08333 7.08333 6.60764 7.08333 6.02083C7.08333 5.43403 6.60764 4.95833 6.02083 4.95833C5.43403 4.95833 4.95833 5.43403 4.95833 6.02083C4.95833 6.60764 5.43403 7.08333 6.02083 7.08333Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.125 12.0417L5.66667 8.5L8.5 11.3333L10.625 9.20833L14.875 13.4583" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Add your logo</li>
+						<li class="itm"><span class="ico">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" fill="none"><path d="M8.5 1.41667L9.70417 5.87917L14.1667 7.08333L9.70417 8.2875L8.5 12.75L7.29583 8.2875L2.83333 7.08333L7.29583 5.87917L8.5 1.41667Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.4583 12.75L13.8125 13.8125L14.875 14.1667L13.8125 14.5208L13.4583 15.5833L13.1042 14.5208L12.0417 14.1667L13.1042 13.8125L13.4583 12.75Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Choose a style</li>
+					</ul>
+					<!--end lst-->
+				</div>
+				<!--end lft-->
+				<!--rgt-->
+				<div class="rgt">
+					<!--cmp-->
+					<div class="cmp">
+						<!--col-->
+						<div class="col">
+							<div class="tmb"><img src="assets/images/main_customize_ico_qr1.svg" alt="Standard QR code"></div>
+							<p class="ln3">Standard QR</p>
+						</div>
+						<!--end col--> <span class="arw">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+						</span>
+						<!--col-->
+						<div class="col">
+							<div class="tmb"><img src="assets/images/main_customize_ico_qr2.svg" alt="Branded QR code"></div>
+							<p class="ln3">Your Branded QR</p>
+						</div>
+						<!--end col-->
+					</div>
+					<!--end cmp-->
+					<!--pck-->
+					<div class="pck">
+						<h5 class="ln4">Colors</h5>
+						<!--dots-->
+						<ul class="dots">
+							<li class="itm ElmCirc" style="background: #2563eb;"></li>
+							<li class="itm ElmCirc" style="background: #19b9aa;"></li>
+							<li class="itm ElmCirc" style="background: #a855f7;"></li>
+							<li class="itm ElmCirc" style="background: #f0526d;"></li>
+							<li class="itm ElmCirc" style="background: #f5a524;"></li>
+							<li class="itm ElmCirc" style="background: #111827;"></li>
+						</ul>
+						<!--end dots-->
+					</div>
+					<!--end pck-->
+					<!--mck-->
+					<div class="mck">
+						<div class="itm">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M12.6667 2H3.33333C2.59695 2 2 2.59695 2 3.33333V12.6667C2 13.403 2.59695 14 3.33333 14H12.6667C13.403 14 14 13.403 14 12.6667V3.33333C14 2.59695 13.403 2 12.6667 2Z" stroke="#2563EB" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.66667 6.66667C6.21895 6.66667 6.66667 6.21895 6.66667 5.66667C6.66667 5.11438 6.21895 4.66667 5.66667 4.66667C5.11438 4.66667 4.66667 5.11438 4.66667 5.66667C4.66667 6.21895 5.11438 6.66667 5.66667 6.66667Z" stroke="#2563EB" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11.3333L5.33333 8L8 10.6667L10 8.66667L14 12.6667" stroke="#2563EB" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							Add Logo</div>
+						<div class="itm">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M8 1.33333L9.13333 5.53333L13.3333 6.66667L9.13333 7.8L8 12L6.86667 7.8L2.66667 6.66667L6.86667 5.53333L8 1.33333Z" stroke="#2563EB" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.6667 12L13 13L14 13.3333L13 13.6667L12.6667 14.6667L12.3333 13.6667L11.3333 13.3333L12.3333 13L12.6667 12Z" stroke="#2563EB" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							Styles<svg class="arw" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div>
+					</div>
+					<!--end mck-->
+				</div>
+				<!--end rgt-->
+			</div>
+			<!--end row-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainCustomize-->
+	<!--mainShare-->
+	<section id="mainShare">
+		<!--FrmCtr-->
+		<div class="FrmCtr genPad1">
+			<!--row-->
+			<div class="row">
+				<!--lft-->
+				<div class="lft">
+					<h5 class="ln1">Download Your QR Code</h5>
+					<!--lst-->
+					<div class="lst">
+						<!--itm-->
+						<div class="itm"> <span class="ico ico1">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" fill="none"><path d="M18.2083 2.875H4.79167C3.73312 2.875 2.875 3.73312 2.875 4.79167V18.2083C2.875 19.2669 3.73312 20.125 4.79167 20.125H18.2083C19.2669 20.125 20.125 19.2669 20.125 18.2083V4.79167C20.125 3.73312 19.2669 2.875 18.2083 2.875Z" stroke="#9056E8" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.14583 9.58333C8.93974 9.58333 9.58333 8.93974 9.58333 8.14583C9.58333 7.35192 8.93974 6.70833 8.14583 6.70833C7.35192 6.70833 6.70833 7.35192 6.70833 8.14583C6.70833 8.93974 7.35192 9.58333 8.14583 9.58333Z" stroke="#9056E8" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.875 16.2917L7.66667 11.5L11.5 15.3333L14.375 12.4583L20.125 18.2083" stroke="#9056E8" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>
+							<p class="ln3">PNG</p>
+							<p class="ln4">Best for web &amp;<br>
+								digital</p>
+						</div>
+						<!--end itm-->
+						<!--itm-->
+						<div class="itm"> <span class="ico ico2">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" fill="none"><path d="M7.66667 7.66667L3.83333 11.5L7.66667 15.3333M15.3333 7.66667L19.1667 11.5L15.3333 15.3333M13.4167 3.83333L9.58333 19.1667" stroke="#16AC9D" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>
+							<p class="ln3">SVG</p>
+							<p class="ln4">Best for print &amp;<br>
+								scaling</p>
+						</div>
+						<!--end itm-->
+						<!--itm-->
+						<div class="itm"> <span class="ico ico3">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" fill="none"><path d="M18.2083 2.875H4.79167C3.73312 2.875 2.875 3.73312 2.875 4.79167V18.2083C2.875 19.2669 3.73312 20.125 4.79167 20.125H18.2083C19.2669 20.125 20.125 19.2669 20.125 18.2083V4.79167C20.125 3.73312 19.2669 2.875 18.2083 2.875Z" stroke="#DC8A14" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.14583 9.58333C8.93974 9.58333 9.58333 8.93974 9.58333 8.14583C9.58333 7.35192 8.93974 6.70833 8.14583 6.70833C7.35192 6.70833 6.70833 7.35192 6.70833 8.14583C6.70833 8.93974 7.35192 9.58333 8.14583 9.58333Z" stroke="#DC8A14" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.875 16.2917L7.66667 11.5L11.5 15.3333L14.375 12.4583L20.125 18.2083" stroke="#DC8A14" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>
+							<p class="ln3">JPEG</p>
+							<p class="ln4">Easy to share</p>
+						</div>
+						<!--end itm-->
+					</div>
+					<!--end lst-->
+					<p class="ln5">Choose the best format for print or digital use.</p>
+					<!--stat-->
+					<div class="stat"> <span class="ico">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" fill="none"><path d="M2.75 18.3333H19.25" stroke="#2563EB" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 15.5833V8.25" stroke="#2563EB" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 15.5833V3.66667" stroke="#2563EB" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 15.5833V10.0833" stroke="#2563EB" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 7.33333C6.00626 7.33333 6.41667 6.92293 6.41667 6.41667C6.41667 5.91041 6.00626 5.5 5.5 5.5C4.99374 5.5 4.58333 5.91041 4.58333 6.41667C4.58333 6.92293 4.99374 7.33333 5.5 7.33333Z" stroke="#2563EB" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 9.16667C17.0063 9.16667 17.4167 8.75626 17.4167 8.25C17.4167 7.74374 17.0063 7.33333 16.5 7.33333C15.9937 7.33333 15.5833 7.74374 15.5833 8.25C15.5833 8.75626 15.9937 9.16667 16.5 9.16667Z" stroke="#2563EB" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						</span>
+						<div class="txt">
+							<p class="ln6">Tracks scans over time</p>
+							<p class="ln7">1,248</p>
+							<p class="ln8">Total scans</p>
+						</div>
+						<div class="tmb"><img src="assets/images/main_share_ico_chart.svg" alt="Scan activity"></div>
+						<span class="pct">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+						+12%</span> </div>
+					<!--end stat-->
+				</div>
+				<!--end lft-->
+				<!--rgt-->
+				<div class="rgt"> <span class="num ElmCirc">3</span>
+					<h4 class="ln1">Download &amp; share</h4>
+					<p class="ln2">Export print-ready PNG, JPEG or SVG, then track scans over time.</p>
+					<!--lst-->
+					<ul class="lst">
+						<li class="itm"><span class="ico">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" fill="none"><path d="M8.5 14.875C12.0208 14.875 14.875 12.0208 14.875 8.5C14.875 4.97918 12.0208 2.125 8.5 2.125C4.97918 2.125 2.125 4.97918 2.125 8.5C2.125 12.0208 4.97918 14.875 8.5 14.875Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.125 8.5H14.875M8.5 2.125C9.87936 3.96415 10.625 6.20107 10.625 8.5C10.625 10.7989 9.87936 13.0359 8.5 14.875C7.12064 13.0359 6.375 10.7989 6.375 8.5C6.375 6.20107 7.12064 3.96415 8.5 2.125Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Web</li>
+						<li class="itm"><span class="ico">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" fill="none"><path d="M4.25 6.375V2.125H12.75V6.375" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.4583 6.375H3.54167C2.75926 6.375 2.125 7.00926 2.125 7.79167V11.3333C2.125 12.1157 2.75926 12.75 3.54167 12.75H13.4583C14.2407 12.75 14.875 12.1157 14.875 11.3333V7.79167C14.875 7.00926 14.2407 6.375 13.4583 6.375Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.25 11.3333H12.75V14.875H4.25V11.3333Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.0417 8.5H12.75" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Print</li>
+						<li class="itm"><span class="ico">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" fill="none"><path d="M14.1667 2.83333H2.83333C2.44213 2.83333 2.125 3.15047 2.125 3.54167V11.3333C2.125 11.7245 2.44213 12.0417 2.83333 12.0417H14.1667C14.5579 12.0417 14.875 11.7245 14.875 11.3333V3.54167C14.875 3.15047 14.5579 2.83333 14.1667 2.83333Z" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.66667 14.875H11.3333M8.5 12.0417V14.875M4.95833 6.375H12.0417M4.95833 8.5H9.20833" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Signage</li>
+						<li class="itm"><span class="ico">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" fill="none"><path d="M8.5 15.5833L2.125 12.0417V4.95833L8.5 1.41667L14.875 4.95833V12.0417L8.5 15.5833ZM14.875 4.95833L8.5 8.5M8.5 8.5L2.125 4.95833M8.5 8.5V15.5833M4.95833 2.83333L11.3333 6.375" stroke="#2563EB" stroke-width="1.275" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span>Packaging</li>
+					</ul>
+					<!--end lst-->
+				</div>
+				<!--end rgt-->
+			</div>
+			<!--end row-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainShare-->
+	<!--mainFormats-->
+	<section id="mainFormats">
+		<!--FrmCtr-->
+		<div class="FrmCtr">
+			<!--top-->
+			<div class="top">
+				<h4 class="ln1"><span class="genC1">23</span> QR code types for every use case</h4>
+				<p class="ln2">From websites and PDFs to menus, reviews, payments and more.</p>
+			</div>
+			<!--end top-->
+			<h5 class="ln3">Popular QR Types</h5>
+			<!--lst-->
+			<ul class="lst">
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_website.svg" alt="Website"></span>
+					<p class="ln4">Website</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_vcard.svg" alt="vCard"></span>
+					<p class="ln4">vCard</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_pdf.svg" alt="PDF"></span>
+					<p class="ln4">PDF</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_image.svg" alt="Image"></span>
+					<p class="ln4">Image</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_video.svg" alt="Video"></span>
+					<p class="ln4">Video</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_applink.svg" alt="App Link"></span>
+					<p class="ln4">App Link</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_whatsapp.svg" alt="WhatsApp"></span>
+					<p class="ln4">WhatsApp</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_sms.svg" alt="SMS"></span>
+					<p class="ln4">SMS</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_wifi.svg" alt="WiFi"></span>
+					<p class="ln4">WiFi</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_menu.svg" alt="Menu"></span>
+					<p class="ln4">Menu</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_reviews.svg" alt="Reviews"></span>
+					<p class="ln4">Reviews</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_payment.svg" alt="Payment"></span>
+					<p class="ln4">Payment</p>
+				</li>
+			</ul>
+			<!--end lst-->
+			<!--mid-->
+			<div class="mid"><span class="txt">More Formats
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg>
+				</span></div>
+			<!--end mid-->
+			<!--lst-->
+			<ul class="lst lstSml">
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_email.svg" alt="Email"></span>
+					<p class="ln4">Email</p>
+				</li>
+				<li class="itm"><span class="ico ico2"><img src="assets/images/main_formats_ico_phone.svg" alt="Phone"></span>
+					<p class="ln4">Phone</p>
+				</li>
+				<li class="itm"><span class="ico"><img src="assets/images/main_formats_ico_location.svg" alt="Location"></span>
+					<p class="ln4">Location</p>
+				</li>
+				<li class="itm"><span class="ico ico4"><img src="assets/images/main_formats_ico_event.svg" alt="Event"></span>
+					<p class="ln4">Event</p>
+				</li>
+				<li class="itm"><span class="ico ico5"><img src="assets/images/main_formats_ico_multilink.svg" alt="Multi-Link"></span>
+					<p class="ln4">Multi-Link</p>
+				</li>
+				<li class="itm"><span class="ico ico6"><img src="assets/images/main_formats_ico_plaintext.svg" alt="Plain Text"></span>
+					<p class="ln4">Plain Text</p>
+				</li>
+			</ul>
+			<!--end lst-->
+			<!--btn-->
+			<div class="btnWrp"><a href="#" class="btn genBtn4 btnC3">Create Your QR Code
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+				</a></div>
+			<!--end btn-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainFormats-->
+	<!--mainBenefits-->
+	<section id="mainBenefits">
+		<!--FrmCtr-->
+		<div class="FrmCtr genPad1">
+			<!--top-->
+			<div class="top"> <span class="bdg ElmCirc">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0Q13.6 10.4 24 12Q13.6 13.6 12 24Q10.4 13.6 0 12Q10.4 10.4 12 0Z"></path></svg>
+				WHY BARCODESQR</span>
+				<h4 class="ln1">Everything you need after creating your QR&nbsp;code</h4>
+				<p class="ln2">Edit, track and manage your QR codes from one simple dashboard.</p>
+			</div>
+			<!--end top-->
+			<!--btm-->
+			<div class="btm">
+				<!--lst-->
+				<ul class="lst">
+					<!--itm-->
+					<li class="itm"> <span class="ico ico1"><img src="assets/images/main_benefits_ico_edit.svg" alt="Edit anytime"></span>
+						<h5 class="ln3">Edit anytime</h5>
+						<p class="ln4">Change the destination after printing without replacing the QR code.</p>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm"> <span class="ico ico2"><img src="assets/images/main_benefits_ico_track.svg" alt="Track every scan"></span>
+						<h5 class="ln3">Track every scan</h5>
+						<p class="ln4">See scans, locations, devices and performance over time.</p>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm"> <span class="ico ico3"><img src="assets/images/main_benefits_ico_organize.svg" alt="Organize everything"></span>
+						<h5 class="ln3">Organize everything</h5>
+						<p class="ln4">Manage QR codes, folders and campaigns from one dashboard.</p>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm"> <span class="ico ico4"><img src="assets/images/main_benefits_ico_secure.svg" alt="Secure and reliable"></span>
+						<h5 class="ln3">Secure &amp; reliable</h5>
+						<p class="ln4">Use password protection, permissions and dependable QR hosting.</p>
+					</li>
+					<!--end itm-->
+				</ul>
+				<!--end lst-->
+				<!--dash-->
+				<div class="dash">
+					<!--cap-->
+					<div class="cap">
+						<div class="txt">
+							<h5 class="ln5">Analytics Overview</h5>
+							<p class="ln6">See how your QR codes perform</p>
+						</div>
+						<div class="ctl"> <span class="chip">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" fill="none"><path d="M11.0833 2.91667H2.91667C2.27233 2.91667 1.75 3.439 1.75 4.08333V11.0833C1.75 11.7277 2.27233 12.25 2.91667 12.25H11.0833C11.7277 12.25 12.25 11.7277 12.25 11.0833V4.08333C12.25 3.439 11.7277 2.91667 11.0833 2.91667Z" stroke="#5D6879" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.08333 1.75V4.08333M9.91667 1.75V4.08333M1.75 5.83333H12.25" stroke="#5D6879" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							Jul 21 &ndash; Aug 20, 2025
+							<svg class="chv" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="#5D6879" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span> <span class="chip">Export
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" fill="none"><path d="M7 1.75V8.75M4.66667 6.41667L7 8.75L9.33333 6.41667M2.33333 9.91667V11.6667H11.6667V9.91667" stroke="#5D6879" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</span> </div>
+					</div>
+					<!--end cap-->
+					<!--kpi-->
+					<ul class="kpi">
+						<!--itm-->
+						<li class="itm"> <span class="ico ico1"><img src="assets/images/main_benefits_ico_codes.svg" alt="Total QR Codes"></span>
+							<div class="txt">
+								<p class="ln7">11</p>
+								<p class="ln8">Total QR Codes</p>
+							</div>
+						</li>
+						<!--end itm-->
+						<!--itm-->
+						<li class="itm"> <span class="ico ico2"><img src="assets/images/main_benefits_ico_scans.svg" alt="Total Scans"></span>
+							<div class="txt">
+								<p class="ln7">241</p>
+								<p class="ln8">Total Scans</p>
+							</div>
+							<div class="dlt">
+								<p class="ln9">
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+									18.6%</p>
+								<p class="ln10">vs previous 30 days</p>
+							</div>
+						</li>
+						<!--end itm-->
+						<!--itm-->
+						<li class="itm"> <span class="ico ico3"><img src="assets/images/main_benefits_ico_unique.svg" alt="Unique Scans"></span>
+							<div class="txt">
+								<p class="ln7">67</p>
+								<p class="ln8">Unique Scans</p>
+							</div>
+							<div class="dlt">
+								<p class="ln9">
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+									21.4%</p>
+								<p class="ln10">vs previous 30 days</p>
+							</div>
+						</li>
+						<!--end itm-->
+						<!--itm-->
+						<li class="itm"> <span class="ico ico4"><img src="assets/images/main_benefits_ico_rate.svg" alt="Scan Rate"></span>
+							<div class="txt">
+								<p class="ln7">62.9%</p>
+								<p class="ln8">Scan Rate</p>
+							</div>
+							<div class="dlt">
+								<p class="ln9">
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+									8.7%</p>
+								<p class="ln10">vs previous 30 days</p>
+							</div>
+						</li>
+						<!--end itm-->
+					</ul>
+					<!--end kpi-->
+					<!--row-->
+					<div class="row">
+						<!--cht-->
+						<div class="cht">
+							<div class="cap2">
+								<p class="ln11">Scans Over Time</p>
+								<p class="ln12">Day Week Month</p>
+							</div>
+							<div class="tmb"><img src="assets/images/main_benefits_chart.svg" alt="Scans over time chart"></div>
+							<div class="lbl"><span>Jul 21</span><span>Jul 30</span><span>Aug 8</span><span>Aug 14</span><span>Aug 20</span></div>
+						</div>
+						<!--end cht-->
+						<!--tops-->
+						<div class="tops">
+							<div class="cap2">
+								<p class="ln11">Top QR Codes</p>
+								<p class="ln13">View all</p>
+							</div>
+							<!--lst-->
+							<ul class="lst">
+								<li class="itm"><span class="dot" style="background: #3b82f6;"></span>My Website QR Code<b>108</b></li>
+								<li class="itm"><span class="dot" style="background: #16b89d;"></span>Social Media<b>76</b></li>
+								<li class="itm"><span class="dot" style="background: #a855f7;"></span>TPA Location QR<b>57</b></li>
+								<li class="itm"><span class="dot" style="background: #f7aa27;"></span>Product Catalog<b>42</b></li>
+								<li class="itm"><span class="dot" style="background: #16b89d;"></span>Event Registration<b>28</b></li>
+							</ul>
+							<!--end lst-->
+						</div>
+						<!--end tops-->
+					</div>
+					<!--end row-->
+				</div>
+				<!--end dash-->
+			</div>
+			<!--end btm-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainBenefits-->
+	<!--mainReasons-->
+	<section id="mainReasons">
+		<!--FrmCtr-->
+		<div class="FrmCtr genPad1">
+			<!--top-->
+			<div class="top">
+				<p class="cap">WHY CHOOSE US</p>
+				<h4 class="ln1">Why choose BarcodesQR</h4>
+				<p class="ln2">Everything you need in one professional QR platform.</p>
+			</div>
+			<!--end top-->
+			<!--btm-->
+			<div class="btm">
+				<!--lst-->
+				<ul class="lst">
+					<!--itm-->
+					<li class="itm"> <span class="ico ico1"><img src="assets/images/main_reasons_ico_easy.svg" alt="Easy to Use"></span>
+						<h5 class="ln3">Easy to Use</h5>
+						<p class="ln4">Create, customize and download your QR code in minutes.</p>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm"> <span class="ico ico2"><img src="assets/images/main_reasons_ico_quality.svg" alt="Professional Quality"></span>
+						<h5 class="ln3">Professional Quality</h5>
+						<p class="ln4">High-resolution QR codes for digital use, sharing and print.</p>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm"> <span class="ico ico3"><img src="assets/images/main_reasons_ico_business.svg" alt="Built for Business"></span>
+						<h5 class="ln3">Built for Business</h5>
+						<p class="ln4">Manage QR codes, campaigns and scans from one dashboard.</p>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm"> <span class="ico ico4"><img src="assets/images/main_reasons_ico_secure.svg" alt="Reliable and Secure"></span>
+						<h5 class="ln3">Reliable &amp; Secure</h5>
+						<p class="ln4">Dependable hosting and controls to keep your QR codes protected.</p>
+					</li>
+					<!--end itm-->
+				</ul>
+				<!--end lst-->
+			</div>
+			<!--end btm-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainReasons-->
+	<!--mainPricing-->
+	<section id="mainPricing">
+		<!--FrmCtr-->
+		<div class="FrmCtr genPad1">
+			<!--top-->
+			<div class="top"> <span class="bdg ElmCirc">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0Q13.6 10.4 24 12Q13.6 13.6 12 24Q10.4 13.6 0 12Q10.4 10.4 12 0Z"></path></svg>
+				SIMPLE PRICING</span>
+				<h4 class="ln1">Start with a $1 trial or save with a longer plan</h4>
+				<p class="ln2">Every plan includes unlimited dynamic codes, analytics and customization.</p>
+			</div>
+			<!--end top-->
+			<!--btm-->
+			<div class="btm">
+				<!--lst-->
+				<div class="lst">
+					<!--itm-->
+					<div class="itm act">
+						<div class="row">
+							<div class="lft">
+								<h5 class="ln3">7-Day Trial</h5>
+								<div class="prc"><span class="cur">$</span><span class="num">1.00</span><span class="per">/ 7 days</span></div>
+								<p class="ln5">then $39.95 / month</p>
+							</div>
+							<div class="rgt">
+								<p class="ln6">What's included:</p>
+								<ul class="lst">
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Unlimited QR codes</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Full customization</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Dynamic &amp; editable codes</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Scan analytics</li>
+								</ul>
+							</div>
+						</div>
+						<!--btn-->
+						<div class="btnWrp"><a href="#" class="btn genBtn4 btnC3 btnFull" data-lbox="modal_join.html">Start $1 Trial
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+							</a></div>
+						<!--end btn-->
+					</div>
+					<!--end itm-->
+					<!--itm-->
+					<div class="itm">
+						<div class="row">
+							<div class="lft">
+								<h5 class="ln3">Quarterly</h5>
+								<div class="prc"><span class="cur">$</span><span class="num">29.95</span><span class="per">/ month</span></div>
+								<span class="bdg2 ElmCirc">Save 25%</span>
+								<p class="ln5">billed quarterly $89.85</p>
+							</div>
+							<div class="rgt">
+								<p class="ln6">What's included:</p>
+								<ul class="lst">
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Everything in trial</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Priority support</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Bulk creation</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Password protection</li>
+								</ul>
+							</div>
+						</div>
+						<!--btn-->
+						<div class="btnWrp"><a href="#" class="btn genBtn4 btnC4 btnFull" data-lbox="modal_join.html">Start Quarterly Plan
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+							</a></div>
+						<!--end btn-->
+					</div>
+					<!--end itm-->
+					<!--itm-->
+					<div class="itm"> <span class="tag ElmCirc">Most popular</span>
+						<div class="row">
+							<div class="lft">
+								<h5 class="ln3">Bi-Annual</h5>
+								<div class="prc"><span class="cur">$</span><span class="num">19.95</span><span class="per">/ month</span></div>
+								<span class="bdg2 ElmCirc">Save 50%</span>
+								<p class="ln5">billed bi-annually $119.70</p>
+							</div>
+							<div class="rgt">
+								<p class="ln6">What's included:</p>
+								<ul class="lst">
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Everything in quarterly</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Team sharing</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Advanced exports</li>
+									<li class="itm"><img src="assets/images/main_pricing_ico_check.svg" alt="Check">Best value</li>
+								</ul>
+							</div>
+						</div>
+						<!--btn-->
+						<div class="btnWrp"><a href="#" class="btn genBtn4 btnC4 btnFull" data-lbox="modal_join.html">Start Bi-Annual Plan
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+							</a></div>
+						<!--end btn-->
+					</div>
+					<!--end itm-->
+				</div>
+				<!--end lst-->
+				<!--nte-->
+				<ul class="nte">
+					<li class="itm"><span class="ico">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" fill="none"><path d="M11.5 21.0833C11.5 21.0833 19.1667 17.25 19.1667 11.5V4.79167L11.5 1.91667L3.83333 4.79167V11.5C3.83333 17.25 11.5 21.0833 11.5 21.0833Z" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.625 11.5L10.5417 13.4167L14.375 9.58333" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						</span>
+						<div class="txt">
+							<h5 class="ln7">Start for $1</h5>
+							<p class="ln8">7 days of full access before monthly billing.</p>
+						</div>
+					</li>
+					<li class="itm"><span class="ico">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" fill="none"><path d="M12.4583 1.91667L3.83333 12.4583H10.5417L9.58333 21.0833L19.1667 9.58333H12.4583V1.91667Z" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						</span>
+						<div class="txt">
+							<h5 class="ln7">Upgrade anytime</h5>
+							<p class="ln8">Change plans or cancel at any time.</p>
+						</div>
+					</li>
+					<li class="itm"><span class="ico">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" fill="none"><path d="M2.875 13.4167V10.5417C2.875 8.25417 3.7837 6.06037 5.4012 4.44287C7.01871 2.82537 9.21251 1.91667 11.5 1.91667C13.7875 1.91667 15.9813 2.82537 17.5988 4.44287C19.2163 6.06037 20.125 8.25417 20.125 10.5417V13.4167" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.75 14.375C5.75 13.3165 4.89188 12.4583 3.83333 12.4583C2.77479 12.4583 1.91667 13.3165 1.91667 14.375V17.25C1.91667 18.3085 2.77479 19.1667 3.83333 19.1667C4.89188 19.1667 5.75 18.3085 5.75 17.25V14.375Z" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.0833 14.375C21.0833 13.3165 20.2252 12.4583 19.1667 12.4583C18.1081 12.4583 17.25 13.3165 17.25 14.375V17.25C17.25 18.3085 18.1081 19.1667 19.1667 19.1667C20.2252 19.1667 21.0833 18.3085 21.0833 17.25V14.375Z" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.1667 19.1667C18.2083 21.0833 15.3333 21.0833 12.4583 21.0833" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						</span>
+						<div class="txt">
+							<h5 class="ln7">Friendly support</h5>
+							<p class="ln8">Get help whenever you need it.</p>
+						</div>
+					</li>
+				</ul>
+				<!--end nte-->
+			</div>
+			<!--end btm-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainPricing-->
+	<!--mainFaqs-->
+	<section id="mainFaqs">
+		<!--FrmCtr-->
+		<div class="FrmCtr genPad1">
+			<!--top-->
+			<div class="top">
+				<h4 class="ln1">Frequently asked questions</h4>
+				<p class="ln2">Answers to the most common questions about creating and managing QR codes.</p>
+			</div>
+			<!--end top-->
+			<!--btm-->
+			<div class="btm">
+				<!--lst-->
+				<ul class="lst">
+					<!--itm-->
+					<li class="itm act">
+						<div class="qst"> <span class="tgl ElmCirc"></span>
+							<p class="ln1">Can I edit my QR code after printing?</p>
+							<img class="ico" src="assets/images/main_faqs_ico_toggle.png" alt="Toggle"></div>
+						<div class="ans">
+							<p class="ln2">Yes. If you created a dynamic QR code, you can update the destination or content anytime&mdash;without changing the printed code. Your scan experience stays seamless.</p>
+						</div>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm">
+						<div class="qst"> <span class="tgl ElmCirc"></span>
+							<p class="ln1">What file formats can I download?</p>
+							<img class="ico" src="assets/images/main_faqs_ico_toggle.png" alt="Toggle"></div>
+						<div class="ans">
+							<p class="ln2">Download your QR codes as PNG or JPG for screens and everyday print, or as vector SVG that stays crisp at any size &mdash; from business cards to billboards.</p>
+						</div>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm">
+						<div class="qst"> <span class="tgl ElmCirc"></span>
+							<p class="ln1">Can I track how many people scan my QR code?</p>
+							<img class="ico" src="assets/images/main_faqs_ico_toggle.png" alt="Toggle"></div>
+						<div class="ans">
+							<p class="ln2">Yes. Every dynamic code includes built-in analytics showing total and unique scans over time, plus the locations, devices and operating systems behind them.</p>
+						</div>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm">
+						<div class="qst"> <span class="tgl ElmCirc"></span>
+							<p class="ln1">Can I customize my QR code with my logo and colors?</p>
+							<img class="ico" src="assets/images/main_faqs_ico_toggle.png" alt="Toggle"></div>
+						<div class="ans">
+							<p class="ln2">Absolutely. Add your logo to the center, pick custom colors and gradients, change the dot and corner shapes, and wrap it all in a framed call-to-action that matches your brand.</p>
+						</div>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm">
+						<div class="qst"> <span class="tgl ElmCirc"></span>
+							<p class="ln1">What&rsquo;s the difference between a static and dynamic QR code?</p>
+							<img class="ico" src="assets/images/main_faqs_ico_toggle.png" alt="Toggle"></div>
+						<div class="ans">
+							<p class="ln2">A static code stores its content permanently and can never be changed once printed. A dynamic code points to an editable destination, so you can update it anytime and track every scan.</p>
+						</div>
+					</li>
+					<!--end itm-->
+					<!--itm-->
+					<li class="itm">
+						<div class="qst"> <span class="tgl ElmCirc"></span>
+							<p class="ln1">What happens to my QR codes if my subscription ends?</p>
+							<img class="ico" src="assets/images/main_faqs_ico_toggle.png" alt="Toggle"></div>
+						<div class="ans">
+							<p class="ln2">If your subscription ends, your dynamic QR codes will become inactive and scan analytics will pause. You&rsquo;ll keep access through the end of any paid billing period. Reactivate your subscription anytime to restore your QR codes without having to reprint them.</p>
+						</div>
+					</li>
+					<!--end itm-->
+				</ul>
+				<!--end lst-->
+				<!--rgt-->
+				<div class="rgt"> <span class="ico">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" fill="none"><path d="M11.5 1.91667L13.1292 7.95417L19.1667 9.58333L13.1292 11.2125L11.5 17.25L9.87083 11.2125L3.83333 9.58333L9.87083 7.95417L11.5 1.91667Z" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.2083 17.25L18.6875 18.6875L20.125 19.1667L18.6875 19.6458L18.2083 21.0833L17.7292 19.6458L16.2917 19.1667L17.7292 18.6875L18.2083 17.25Z" stroke="#2563EB" stroke-width="1.725" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					</span>
+					<h5 class="ln3">Ready to create your QR&nbsp;code?</h5>
+					<p class="ln4">Create, customize, track and manage your QR codes from one simple dashboard.</p>
+					<!--lst-->
+					<ul class="lst">
+						<li class="itm"><img src="assets/images/main_faqs_ico_check.svg" alt="Check">Unlimited dynamic QR codes</li>
+						<li class="itm"><img src="assets/images/main_faqs_ico_check.svg" alt="Check">Full customization &amp; analytics</li>
+						<li class="itm"><img src="assets/images/main_faqs_ico_check.svg" alt="Check">Edit your QR codes anytime</li>
+						<li class="itm"><img src="assets/images/main_faqs_ico_check.svg" alt="Check">Download in PNG, SVG and JPEG</li>
+						<li class="itm"><img src="assets/images/main_faqs_ico_check.svg" alt="Check">Manage QR codes in one dashboard</li>
+					</ul>
+					<!--end lst-->
+				</div>
+				<!--end rgt-->
+			</div>
+			<!--end btm-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainFaqs-->
+	<!--mainReady-->
+	<section id="mainReady"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--row-->
+			<div class="row"> 
+				<!--tmb-->
+				<div class="tmb"> <img src="assets/images/main_ready_qr_ico.svg" alt="ico"> </div>
+				<!--end tmb--> 
+				<!--txt-->
+				<div class="txt">
+					<h4 class="ln1">Ready to create your QR code?</h4>
+					<p class="ln2">Choose a QR code type and start creating in seconds.</p>
+				</div>
+				<!--end txt--> 
+				<!--rgt-->
+				<div class="rgt"> <a href="#" class="btn genBtn5 btnC3">Create Your QR Code
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M5 12h14"></path>
+						<path d="m12 5 7 7-7 7"></path>
+					</svg>
+					</a> 
+					<!--<p class="ln3">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1 1 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+							<path d="m9 12 2 2 4-4"></path>
+						</svg>
+						Secure Connection </p>--> 
+				</div>
+				<!--end rgt--> 
+			</div>
+			<!--end row--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainReady--> 
+	<!--mainFooter-->
+	<section id="mainFooter"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--top-->
+			<div class="top"> 
+				<!--lgo-->
+				<div class="lgo">
+					<div class="cap"> <img src="assets/images/main_footer_ico_logo.svg" alt="BarcodesQR"> <span class="txt">Barcodes<b>QR</b></span> </div>
+					<p class="ln2">Create, customize and manage QR codes for web, print and business.</p>
+				</div>
+				<!--end lgo--> 
+				<!--cols-->
+				<div class="cols"> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">QR Code Types</h5>
+						<a href="#">Website QR</a> <a href="#">PDF QR</a> <a href="#">vCard QR</a> <a href="#">WiFi QR</a> <a href="#">Menu QR</a> <a href="#" class="all">View All QR Types
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M5 12h14"></path>
+							<path d="m12 5 7 7-7 7"></path>
+						</svg>
+						</a> </div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Use Cases</h5>
+						<a href="#">Restaurants</a> <a href="#">Business Cards</a> <a href="#">Packaging</a> <a href="#">Events</a> <a href="#">Real Estate</a></div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Support</h5>
+						 <a class="footLive" href="#">Live Help<span class="genC1"><svg fill="none"  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg></span></a> <a href="#">Help Center</a> <a href="#">Cancel Subscription</a> </div>
+					<!--end col-->
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Company</h5>
+						<a href="#">Pricing</a> <a href="#">Media</a> </div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Legal</h5>
+						<a href="#">Privacy Policy</a> <a href="#">Terms &amp; Conditions</a> <a href="#">Refund Policy</a> </div>
+					<!--end col--> 
+				</div>
+				<!--end cols--> 
+			</div>
+			<!--end top--> 
+			<!--btm-->
+			<div class="btm">
+				<p class="cpy">© 2026 BarcodesQR. All rights reserved.</p>
+				<!--lst-->
+				<ul class="lst">
+					<li class="itm"><img src="assets/images/main_footer_ico_visa.svg" alt="Visa"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_mastercard.svg" alt="Mastercard"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_amex.svg" alt="American Express"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_applepay.svg" alt="Apple Pay"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_googlepay.svg" alt="Google Pay"></li>
+				</ul>
+				<!--end lst--> 
+				<!--lng-->
+				<div class="lng">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"></circle>
+						<path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+						<path d="M2 12h20"></path>
+					</svg>
+					<span class="txt">English</span>
+					<svg class="ico2" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="m6 9 6 6 6-6"></path>
+					</svg>
+				</div>
+				<!--end lng--> 
+			</div>
+			<!--end btm--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainFooter--> 
+</div>
+</body>
+</html>

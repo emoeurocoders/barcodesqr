@@ -196,7 +196,7 @@ A port is not done until it has been **diffed** and then **looked at**.
 
 ```bash
 # -s, or npm's banner lands in the file and shows up as diff noise.
-npm run -s skel -- html_files/main.html --root 'header' > /tmp/design.txt
+npm run -s skel -- html_files/mainB.html --root 'header' > /tmp/design.txt
 npm run -s skel -- http://localhost:3000/ --root 'header' > /tmp/port.txt
 diff -u /tmp/design.txt /tmp/port.txt
 ```
@@ -216,8 +216,8 @@ live data**, and the leftovers get quoted in the handover.
 **2. Pixel diff — the paint:**
 
 ```bash
-npm run -s diff:design -- html_files/main.html http://localhost:3000/ --width 1440
-npm run -s diff:design -- html_files/main.html http://localhost:3000/ --width 390
+npm run -s diff:design -- html_files/mainB.html http://localhost:3000/ --width 1440
+npm run -s diff:design -- html_files/main_mobile.html http://localhost:3000/ --width 390
 ```
 
 Renders both sides in the same headless Chrome (animations frozen, true
