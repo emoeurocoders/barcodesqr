@@ -2,9 +2,9 @@ import { QrCode, Pencil, Palette, ChevronRight, Check } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const steps: { icon: LucideIcon; step: string; title: string }[] = [
-  { icon: QrCode, step: "Step 1", title: "Choose QR type" },
-  { icon: Pencil, step: "Step 2", title: "Complete Content" },
-  { icon: Palette, step: "Step 3", title: "Customize & Protect" },
+  { icon: QrCode, step: "Step 1", title: "Choose QR Type" },
+  { icon: Pencil, step: "Step 2", title: "Add Content" },
+  { icon: Palette, step: "Step 3", title: "Customize & Download" },
 ];
 
 /**
