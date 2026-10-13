@@ -47,6 +47,11 @@ export type CreateQrType = {
   stepLabel?: string;
   stepDesc?: string;
   stepIcon?: QrTypeIcon;
+  /**
+   * The one-liner under a "More QR Types" tile. Only create_mobile.html
+   * describes these — on desktop the tiles carry a label alone.
+   */
+  tileDesc?: string;
 };
 
 /**
@@ -185,6 +190,7 @@ export const secondaryTypes: CreateQrType[] = [
     value: "sms",
     label: "SMS",
     desc: "",
+    tileDesc: "Send a text message",
     color: "#2563EB",
     icon: MessageSquare,
     stepDesc: "Send a text message instantly",
@@ -193,6 +199,7 @@ export const secondaryTypes: CreateQrType[] = [
     value: "phone",
     label: "Phone",
     desc: "",
+    tileDesc: "Call a phone number",
     color: "#16A34A",
     icon: Phone,
     stepDesc: "Call a phone number",
@@ -201,6 +208,7 @@ export const secondaryTypes: CreateQrType[] = [
     value: "text",
     label: "Plain Text",
     desc: "",
+    tileDesc: "Show text instantly",
     color: "#6B7280",
     icon: Type,
     stepLabel: "Text",
@@ -210,6 +218,7 @@ export const secondaryTypes: CreateQrType[] = [
     value: "payment",
     label: "Payment",
     desc: "",
+    tileDesc: "Accept payments",
     color: "#7C3AED",
     icon: CreditCard,
     stepDesc: "Accept payments with a scan",
@@ -218,6 +227,7 @@ export const secondaryTypes: CreateQrType[] = [
     value: "mp3",
     label: "Audio",
     desc: "",
+    tileDesc: "Play an audio file",
     color: "#F59E0B",
     icon: Music,
     stepDesc: "Play an audio clip",
@@ -226,6 +236,7 @@ export const secondaryTypes: CreateQrType[] = [
     value: "coupon",
     label: "Coupon",
     desc: "",
+    tileDesc: "Share a discount",
     color: "#EF4444",
     icon: Ticket,
     stepDesc: "Share a redeemable coupon",
@@ -234,6 +245,7 @@ export const secondaryTypes: CreateQrType[] = [
     value: "feedback",
     label: "Feedback",
     desc: "",
+    tileDesc: "Collect feedback",
     color: "#F59E0B",
     icon: Star,
     stepDesc: "Collect ratings and feedback",
@@ -242,6 +254,7 @@ export const secondaryTypes: CreateQrType[] = [
     value: "business",
     label: "Business",
     desc: "",
+    tileDesc: "Share business info",
     color: "#2563EB",
     icon: Building2,
     stepLabel: "Business Page",

@@ -254,6 +254,69 @@ of its own. Between 640 and 768 the page renders the mobile composition at its
 - **Signed-in state is unmocked:** "Dashboard" in the header and drawer keeps
   the Log In styling.
 
+## Creator on mobile — create_mobile*.html, ported 2026-10-13
+
+The PM posted a mobile step 1 (`create_mobile.html`, Monday item 13272385970)
+and the first three of 23 mobile step-2 forms — Website, vCard, Multi-Link
+(`create_mobile_website|vcard|multilink.html`, item 13257818061) — with a
+polish list on top. Below `md` the creator now renders those; desktop is
+untouched (0px pixel diff at 1440 on step 1 and all three forms).
+
+- **The shell is the site header, no footer.** Their files end in the site
+  footer and the sticky "Create Your QR Code" bar; the PM asked for "the body
+  only". Desktop keeps its full-screen app shell with no header.
+- **The other 20 types are not redesigned yet.** On mobile they show the old
+  step-2 form inside the new rail and Back/Next bar, and keep the old Next rule
+  (disabled until complete). Click-to-validate arrives per type with its
+  mockup — the designer's `main.js` already has handlers for menu, WiFi,
+  image, WhatsApp, social, app link.
+
+### Divergences and open questions
+
+- **Step 1's rail says "Choose / Customize / Download"** — ported as written,
+  but it contradicts the 2026-10-12 rename ("Choose QR Type / Add Content /
+  Customize & Download") on desktop. Step 2's rail hides its labels; their
+  screen-reader text uses the renamed wording. Ask which mobile step 1 wants.
+- **"Continue to Customize" leads to the content step,** since customising
+  (step 3) is shelved. Ported as written; the copy probably wants changing.
+- **The vCard avatars are ovals in the mockup** (35.7×51.5 in the bar,
+  60×87 expanded): their `.pho` sets a width and the image keeps its own
+  height. Reproduced — almost certainly a designer bug, report it.
+- **Implemented from JB's polish list, not from the mockup:** "Collapse
+  preview" while expanded; 4px more room above the expanded preview card;
+  Next always enabled, validating on click, opening the accordion holding the
+  first problem and scrolling it to mid-screen with focus; "Your Links" open by
+  default.
+- **"Company details and address update in the live preview"** (JB) — the
+  mockup's three vCard rows are fixed labels. Each now shows the first thing
+  typed in its section (a phone or email; the organisation or website; city,
+  state, country or the address link) and falls back to the label. Our
+  interpretation; confirm.
+- **No reposition/zoom on mobile uploads.** Desktop offers the image adjuster
+  for the vCard photo and the cover; the mobile mockups show a thumbnail and
+  "Remove" only.
+- **No per-link logo on mobile Multi-Link** — the mobile rows are name + URL.
+  Logos added on desktop are kept in the data.
+- **vCard phones are plain number fields** with no dial-code picker, as in the
+  mockup; the number is stored as typed.
+- **Mobile Multi-Link requires every link row** (name and valid URL), as their
+  `data-req` does; desktop requires none. The rules differ until desktop gets
+  its pass.
+- **vCard website and email are checked when filled,** which the mockup does
+  not do, so a malformed one cannot go into the card. The messages are the
+  desktop form's copy — unmocked.
+- **Upload progress and errors in the mobile upload box are unmocked.** It
+  reads "Uploading… n%" in place of "Click to upload…", and errors use the
+  field-error style.
+- **"More QR Types" and "See All" do nothing,** as on desktop.
+- **The mobile picker uses the designer's icons; desktop still does not.**
+  `designerTypeIcons.tsx` is extracted from their file. Desktop's lucide
+  stand-ins (vCard, Multi-Link and App Link most visibly) were never a match —
+  `create.html` carries the same artwork as the mobile file. Not fixed here.
+- **Fixed px, not `vw`.** Their stylesheet scales this page with the screen
+  width; the port is fixed at the 390px rendering, as the mobile homepage is.
+  Below `md`, 360px and 700px were checked for overflow and footer overlap.
+
 ## Image adjuster
 
 The fields the schema marks `adjustable` — vCard and Social profile photos

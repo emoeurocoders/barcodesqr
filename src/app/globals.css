@@ -312,6 +312,58 @@
      the drawer does not drift when a popover is retuned. */
   --shadow-drawer: -12px 0 40px rgba(14, 19, 17, 0.14);
 
+  /* ---- create_mobile*.html: the creator below `md`. ---- */
+  /* Step 1 (create_mobile.html). */
+  --color-mc-num: #e9edf2;
+  --color-mc-rule: #e2e6ec;
+  --color-mc-card-line: #e8eaef;
+  --color-mc-art-line: #eceef2;
+  --color-mc-on: #eff4ff;
+  --color-mc-tag: #dff3f0;
+  --color-mc-radio-line: #d9dfe4;
+  --color-mc-radio-on-line: #dfdfdf;
+  --color-mc-cancel-line: #d7dde2;
+  /* Step 2 (create_mobile_website / _vcard / _multilink). The step-3 circle
+     still to come — paler than `bg-alt`. */
+  --color-mc-step-off: #f1f3f5;
+  --color-mc-line: #dae0e8;
+  --color-mc-acc-line: #e3e7ee;
+  --color-mc-tile: #f5f7f9;
+  --color-mc-input-line: #d1d5db;
+  /* Every placeholder in their forms.css — dimmed to 58% while focused. */
+  --color-mc-placeholder: #666666;
+  /* Their validation red, a step brighter than the desktop form's `error`. */
+  --color-mc-error: #dc2626;
+  --color-mc-pill-line: #c8e7e3;
+  --color-mc-tip-ink: #5cb5ae;
+  --color-mc-soft: #e9f0fb;
+  --color-mc-well: #eef1f5;
+  --color-mc-row: #fbfcfd;
+  /* The phone previews inside "Your … Preview". */
+  --color-mc-pv-line: #e3e7ee;
+  --color-mc-pv-band: #b8cdd5;
+  --color-mc-pv-ring: #d1dfdf;
+  --color-mc-pv-row: #f2f2f7;
+  --color-mc-pv-name: #323232;
+  --color-mc-pv-role: #494949;
+  --color-mc-pv-bar: #e5e9ee;
+  --color-mc-pv-ic-line: #e7eaef;
+  --color-mc-pv-title: #1a1a1a;
+  --color-mc-pv-skel: #d8dfe7;
+  --color-mc-pv-card-line: #eef0f4;
+  --color-mc-pv-ph: #c3cad4;
+  --color-mc-pv-sheen: #ebebeb;
+  --shadow-mc-input: 0 5px 10px -5px rgba(0, 0, 0, 0.1);
+  --shadow-mc-tip: 0 10px 24px -10px rgba(14, 19, 17, 0.45);
+  --shadow-mc-phone: 0 16px 32px -20px rgba(14, 19, 17, 0.3);
+  --shadow-mc-mini: 0 8px 18px -10px rgba(14, 19, 17, 0.22);
+  --shadow-mc-photo: 0 8px 18px -10px rgba(14, 19, 17, 0.35);
+  --shadow-mc-chip: 0 1px 2px rgba(14, 19, 17, 0.14);
+  --shadow-mc-tick: 0 1px 2px rgba(14, 19, 17, 0.1);
+  --shadow-mc-row: 0 1px 3px rgba(14, 19, 17, 0.08);
+  --shadow-mc-row-soft: 0 1px 3px rgba(14, 19, 17, 0.06);
+  --shadow-mc-pill: 0 1px 2px rgba(14, 19, 17, 0.16);
+
   /* Typography */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

@@ -1,12 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 // `Download` is shelved with step 3.
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StepRail } from "./StepRail";
 import { TypePicker } from "./TypePicker";
+import { MobileTypePicker } from "./MobileTypePicker";
+import {
+  MobileFallbackStepTwo,
+  MobileStepTwo,
+} from "./mobile/MobileStepTwo";
+import { mobileTypes } from "./mobile/forms";
+import { useIsMobile } from "./useIsMobile";
 import { StepContent } from "./StepContent";
 // Shelved with step 3: import { StepCustomize } from "./StepCustomize";
 import { PreviewPanel } from "./PreviewPanel";
@@ -124,72 +131,133 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
     setStep(2);
   };
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-line bg-white">
-      <StepRail current={step} />
+  // Mobile (create_mobile.html) separates the two: a row only SELECTS, and
+  // "Continue to Customize" goes on with whatever is selected.
+  const selectType = (next: string) => {
+    if (next === type) return;
+    setType(next);
+    setValues({});
+    setName(defaultName(next));
+  };
 
-      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+  const isMobile = useIsMobile();
+
+  // Below `md` the page itself scrolls, so a new step would otherwise open
+  // wherever the last one was left — at the very bottom, after Continue.
+  useEffect(() => {
+    // Instant: the site scrolls smoothly, and gliding up a 2,000px page
+    // reads as the new step loading from the bottom.
+    if (isMobile) window.scrollTo({ top: 0, behavior: "instant" });
+  }, [step, isMobile]);
+
+  const back = () => setStep(step - 1);
+
+  // The desktop step-2 body. Below `md` it is also what the types without a
+  // mobile mockup yet still use, inside the mobile rail and footer.
+  const stepTwoBody = (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="rounded-2xl border border-line bg-white p-6 shadow-soft">
+        <StepContent
+          type={type}
+          values={values}
+          setValues={setValues}
+          name={name}
+          setName={setName}
+        />
+        {/* --- STEP 3 — SHELVED ------------------------------------
+            Customise & Protect, kept whole against the PM changing
+            their mind. Restore this and the footer block below, put
+            the `step === 2 ?` ternaries back around both, and point
+            `finishStepTwo` at setStep(3) again.
+
+            <StepCustomize
+              style={style}
+              setStyle={setStyle}
+              password={password}
+              setPassword={setPassword}
+            />
+        --------------------------------------------------------- */}
+      </div>
+
+      <aside className="order-first lg:order-none lg:sticky lg:top-6 lg:self-start">
+        <ContentPreview
+          type={type}
+          values={values}
+          qrValue={qrValue}
+          style={style}
+        />
+        {/* --- STEP 3 PREVIEW — SHELVED ----------------------------
+            <SidePreview
+              qrValue={qrValue}
+              style={style}
+              // Wrapped: a bare function passed to a setter is read
+              // as an updater, and React would call it with the old
+              // value.
+              onReady={(fn) => setDownload(() => fn)}
+            />
+        --------------------------------------------------------- */}
+      </aside>
+    </div>
+  );
+
+  return (
+    // Desktop: a full-screen card with its own scrolling body and a pinned
+    // footer. Below `md` (create_mobile*.html) none of that — the page
+    // scrolls as a page, under the site header the route adds.
+    <div className="bg-white md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-hidden md:rounded-2xl md:border md:border-line">
+      <div className="hidden md:block">
+        <StepRail current={step} />
+      </div>
+
+      <main className="md:min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
       {/* Step 1 runs full width; steps 2 and 3 sit in a narrower centred
           column, which is what makes the form read as a card rather than a
           sheet. Both match the live creator. */}
       {step === 1 ? (
-        <div className="px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
-            <TypePicker selected={type} onSelect={chooseType} />
-            <PreviewPanel />
+        <>
+          <div className="md:hidden">
+            <MobileTypePicker
+              selected={type}
+              onSelect={selectType}
+              onContinue={() => setStep(2)}
+            />
           </div>
-        </div>
+          <div className="hidden px-4 py-5 sm:px-6 sm:py-8 md:block lg:px-8">
+            <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+              <TypePicker selected={type} onSelect={chooseType} />
+              <PreviewPanel />
+            </div>
+          </div>
+        </>
+      ) : isMobile && mobileTypes.has(type) ? (
+        <MobileStepTwo
+          type={type}
+          values={values}
+          setValues={setValues}
+          name={name}
+          setName={setName}
+          onBack={back}
+          onNext={finishStepTwo}
+        />
+      ) : isMobile ? (
+        <MobileFallbackStepTwo
+          complete={complete}
+          onBack={back}
+          onNext={finishStepTwo}
+        >
+          {stepTwoBody}
+        </MobileFallbackStepTwo>
       ) : (
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <div className="rounded-2xl border border-line bg-white p-6 shadow-soft">
-              <StepContent
-                type={type}
-                values={values}
-                setValues={setValues}
-                name={name}
-                setName={setName}
-              />
-              {/* --- STEP 3 — SHELVED ------------------------------------
-                  Customise & Protect, kept whole against the PM changing
-                  their mind. Restore this and the footer block below, put
-                  the `step === 2 ?` ternaries back around both, and point
-                  `finishStepTwo` at setStep(3) again.
-
-                  <StepCustomize
-                    style={style}
-                    setStyle={setStyle}
-                    password={password}
-                    setPassword={setPassword}
-                  />
-              --------------------------------------------------------- */}
-            </div>
-
-            <aside className="order-first lg:order-none lg:sticky lg:top-6 lg:self-start">
-              <ContentPreview
-                type={type}
-                values={values}
-                qrValue={qrValue}
-                style={style}
-              />
-              {/* --- STEP 3 PREVIEW — SHELVED ----------------------------
-                  <SidePreview
-                    qrValue={qrValue}
-                    style={style}
-                    // Wrapped: a bare function passed to a setter is read
-                    // as an updater, and React would call it with the old
-                    // value.
-                    onReady={(fn) => setDownload(() => fn)}
-                  />
-              --------------------------------------------------------- */}
-            </aside>
-          </div>
+          {stepTwoBody}
         </div>
       )}
       </main>
 
-      {/* Footer actions — pinned to the bottom of the shell */}
-      <div className="flex shrink-0 items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-6 lg:px-8">
+      {/* Footer actions — pinned to the bottom of the shell. Desktop only:
+          the mobile steps carry their own (Continue on step 1, the sticky
+          Back/Next on step 2). */}
+      <div className="hidden shrink-0 items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-6 md:flex lg:px-8">
         {step === 1 ? (
           <Link href="/">
             <Button variant="outline" size="md">
@@ -200,7 +268,7 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
           <Button
             variant="outline-primary"
             size="md"
-            onClick={() => setStep(step - 1)}
+            onClick={back}
           >
             <ChevronLeft className="h-4 w-4" />
             Back
