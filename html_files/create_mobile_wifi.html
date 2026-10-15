@@ -1,0 +1,404 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BarcodesQR</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="cleartype" content="on">
+<meta name="HandheldFriendly" content="true">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<meta name="description" content="">
+<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+<link rel="stylesheet" type="text/css" href="assets/css/default.css">
+<link rel="stylesheet" type="text/css" href="assets/css/remodal.css">
+<link rel="stylesheet" type="text/css" href="assets/css/modals.css">
+<script type="text/javascript" src="assets/scripts/jquery-3.6.0.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/remodal.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/jquery.validate.min.js"></script> 
+<script type="text/javascript" src="assets/scripts/main.js"></script>
+</head>
+
+<body class="mobHome">
+<div id="fullWrp" style="overflow: clip;"> 
+	<!--header-->
+	<header id="mainHdr"  >
+		<div class="ctr"><!--<a href="#" class="nav-hamburger"><span></span></a>--> 
+			<!--logo-->
+			<h1 id="mainLogo"><a href="/">BarcodesQR</a></h1>
+			<!--end logo--> 
+			<!--nav
+			<nav id="mainNav">
+				<ul class="site-nav">
+					<li><a href="#" >Nav Itm</a></li>
+				</ul>
+			</nav> nav--> 
+			<!--nav-->
+			<nav id="mainLoginNav">
+				<ul class="site-nav">
+					<li><a href="register.html"  class="btn genBtn1 btnC0" data-lbox="modal_user_login.html" >Log In</a></li>
+					<li><a href="#" class="btn genBtn1 btnC1" >
+						<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-qr-code h-4 w-4" aria-hidden="true">
+							<rect width="5" height="5" x="3" y="3" rx="1"></rect>
+							<rect width="5" height="5" x="16" y="3" rx="1"></rect>
+							<rect width="5" height="5" x="3" y="16" rx="1"></rect>
+							<path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+							<path d="M21 21v.01"></path>
+							<path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+							<path d="M3 12h.01"></path>
+							<path d="M12 3h.01"></path>
+							<path d="M12 16v.01"></path>
+							<path d="M16 12h1"></path>
+							<path d="M21 12v.01"></path>
+							<path d="M12 21v-1"></path>
+						</svg>
+						Create QR Code</a></li>
+				</ul>
+			</nav>
+			<!--end nav--> 
+			<!--brg-->
+			<a href="#" class="brg" aria-label="Open menu">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h16"></path></svg>
+			</a>
+			<!--end brg-->
+		</div>
+		<!--mobNav-->
+	<div class="ovl"></div>
+	<nav id="mobNav">
+		<div class="hdr"> <span class="ln1">Menu</span> <a href="#" class="cls" aria-label="Close menu">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+			</a> </div>
+		<!--lst-->
+		<ul class="lst">
+			<li class="itm"><a href="main.html"><i class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+				</i>Home</a></li>
+			<li class="itm"><a href="main.html#mainSteps"><i class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+				</i>Create a QR Code</a></li>
+			<li class="itm"><a href="main.html#mainTypes"><i class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h.01"/><path d="M21 14h.01"/><path d="M17.5 17.5h.01"/><path d="M14 21h.01"/><path d="M21 21h.01"/></svg>
+				</i>QR Code Types</a></li>
+			<li class="itm"><a href="main.html#mainWhy"><i class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-5"/><path d="M12 20V9"/><path d="M18 20v-8"/></svg>
+				</i>Manage &amp; Track</a></li>
+			<li class="itm"><a href="main.html#mainChoose"><i class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+				</i>Why BarcodesQR</a></li>
+			<li class="itm"><a href="main.html#mainPlans"><i class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.65 5.62 6.15.78-4.52 4.28 1.16 6.1L12 17.32l-5.44 2.96 1.16-6.1L3.2 9.9l6.15-.78z"/></svg>
+				</i>Pricing</a></li>
+			<li class="itm"><a href="main.html#mainFaq"><i class="ico">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 9h6"/><path d="M9 13h4"/></svg>
+				</i>FAQ</a></li>
+		</ul>
+		<!--end lst-->
+		<!--btm-->
+		<div class="btm"> <a href="#" class="btn genBtn4 btnC4 btnFull" data-lbox="modal_user_login.html">Log In</a> <a href="#" class="btn genBtn4 btnC3 btnFull">Create Your QR Code</a> </div>
+		<!--end btm-->
+	</nav>
+	<!--end mobNav-->
+	</header>
+	<!--end header--> 
+	
+	<!--mainCreate-->
+	<section id="mainCreate" class="createMob2">
+		<!--FrmCtr-->
+		<div class="FrmCtr">
+			<!--crd-->
+			<div class="crd">
+				<form action="#" class="crMobFrm">
+				<!--top-->
+				<div class="top">
+					<!--stp-->
+					<div class="stp on">
+						<div class="ico ElmCirc">
+							<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M17.5 5.25L7.875 14.875L3.5 10.5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</div>
+						<div class="txt">
+							<p class="ln2">Step 1</p>
+							<h5 class="ln1">Choose QR type</h5>
+						</div>
+					</div>
+					<!--end stp-->
+					<!--chv-->
+					<div class="chv">
+						<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<g>
+								<path d="M6.375 4.25L10.625 8.5L6.375 12.75" stroke="currentColor" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/>
+							</g>
+						</svg>
+					</div>
+					<!--end chv-->
+					<!--stp-->
+					<div class="stp on">
+						<div class="ico ElmCirc">
+							<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<g>
+									<path d="M10.5 2.625H4.375C3.91087 2.625 3.46575 2.80937 3.13756 3.13756C2.80937 3.46575 2.625 3.91087 2.625 4.375V16.625C2.625 17.0891 2.80937 17.5342 3.13756 17.8624C3.46575 18.1906 3.91087 18.375 4.375 18.375H16.625C17.0891 18.375 17.5342 18.1906 17.8624 17.8624C18.1906 17.5342 18.375 17.0891 18.375 16.625V10.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+									<path d="M16.1 2.275C16.4481 1.9269 16.9202 1.73134 17.4125 1.73134C17.9048 1.73134 18.3769 1.9269 18.725 2.275C19.0731 2.6231 19.2687 3.09522 19.2687 3.5875C19.2687 4.07978 19.0731 4.5519 18.725 4.9L10.85 12.775L7.35 13.65L8.225 10.15L16.1 2.275Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+								</g>
+							</svg>
+						</div>
+						<div class="txt">
+							<p class="ln2">Step 2</p>
+							<h5 class="ln1">Complete Content</h5>
+						</div>
+					</div>
+					<!--end stp-->
+					<!--chv-->
+					<div class="chv">
+						<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<g>
+								<path d="M6.375 4.25L10.625 8.5L6.375 12.75" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/>
+							</g>
+						</svg>
+					</div>
+					<!--end chv-->
+					<!--stp-->
+					<div class="stp">
+						<div class="ico ElmCirc">
+							<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<g>
+									<path d="M17.5 11.375C17.5 15.75 14.4375 17.9375 10.7975 19.2062C10.6069 19.2708 10.3998 19.2678 10.2113 19.1975C6.5625 17.9375 3.5 15.75 3.5 11.375V5.25C3.5 5.01794 3.59219 4.79538 3.75628 4.63128C3.92038 4.46719 4.14294 4.375 4.375 4.375C6.125 4.375 8.3125 3.325 9.835 1.995C9.91714 1.89894 10.0191 1.82182 10.1339 1.76894C10.2487 1.71606 10.3736 1.68868 10.5 1.68868C10.6264 1.68868 10.7513 1.71606 10.8661 1.76894C10.9809 1.82182 11.0829 1.89894 11.165 1.995C12.6963 3.33375 14.875 4.375 16.625 4.375C16.8571 4.375 17.0796 4.46719 17.2437 4.63128C17.4078 4.79538 17.5 5.01794 17.5 5.25V11.375Z" stroke="#6B7280" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+								</g>
+							</svg>
+						</div>
+						<div class="txt">
+							<p class="ln2">Step 3</p>
+							<h5 class="ln1">Customize &amp; Protect</h5>
+						</div>
+					</div>
+					<!--end stp-->
+				</div>
+				<!--end top-->
+				<!--pvwCmp-->
+				<div class="pvwCmp">
+					<a href="#" class="bar">
+						<span class="tmb"><img src="assets/images/create2_pvw_wifiqr.png" alt=""></span>
+						<span class="txt">
+							<span class="ln1">Your WiFi QR Preview</span>
+							<span class="ln2 base">Tap to expand your QR code</span>
+							<span class="ln2 alt">Tap to collapse</span>
+						</span>
+						<i class="chv">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+						</i>
+					</a>
+					<div class="bd">
+						<!--phn-->
+						<div class="phn pvwWifi"> <img class="qri" src="assets/images/create2_pvw_wifiqr.png" alt="">
+							<div class="ssid">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><path d="M8.5 16.429a5 5 0 0 1 7 0"></path></svg>
+								<span class="pvwSsid">CozyCornerWiFi</span> </div>
+							<p class="meta">WPA/WPA2 &middot; Password protected</p>
+						</div>
+						<!--end phn-->
+						<p class="smp">Sample code shown &mdash; your final WiFi code is generated at the download step.</p>
+					</div>
+				</div>
+				<!--end pvwCmp-->
+				<!--frm-->
+				<div class="frm">
+					<!--hdr-->
+					<div class="hdr">
+						<div class="ico">
+							<svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<g>
+									<path d="M12.5 20.8333H12.51" stroke="#0EA5E9" stroke-width="2.08333" stroke-linecap="round" stroke-linejoin="round"/>
+									<path d="M2.08333 9.1875C4.94803 6.62523 8.6566 5.20869 12.5 5.20869C16.3434 5.20869 20.052 6.62523 22.9167 9.1875" stroke="#0EA5E9" stroke-width="2.08333" stroke-linecap="round" stroke-linejoin="round"/>
+									<path d="M5.20833 13.3958C7.15551 11.4872 9.77341 10.4182 12.5 10.4182C15.2266 10.4182 17.8445 11.4872 19.7917 13.3958" stroke="#0EA5E9" stroke-width="2.08333" stroke-linecap="round" stroke-linejoin="round"/>
+									<path d="M8.85417 17.1146C9.82775 16.1603 11.1367 15.6257 12.5 15.6257C13.8633 15.6257 15.1722 16.1603 16.1458 17.1146" stroke="#0EA5E9" stroke-width="2.08333" stroke-linecap="round" stroke-linejoin="round"/>
+								</g>
+							</svg>
+						</div>
+						<div class="txt">
+							<h4 class="ln1">WiFi</h4>
+							<p class="ln2">Connect to a WiFi network</p>
+						</div>
+					</div>
+					<!--end hdr-->
+					<div class="sep"></div>
+					<!--fld-->
+					<div class="fld">
+						<div class="row">
+							<div class="lbl">
+								<label for="wfSsid">Network name (SSID) <em>*</em></label>
+								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About your network name"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Your network name (SSID) &mdash; usually printed on the sticker on your router, along with the password and security type.</span></span>
+							</div>
+							<input type="text" name="wfSsid" id="wfSsid" value="" placeholder="CozyCornerWiFi" maxlength="32" data-req="text" data-msg="Please enter your network name.">
+						</div>
+					</div>
+					<!--end fld-->
+					<!--fld-->
+					<div class="fld">
+						<div class="row">
+							<div class="lbl">
+								<label for="wfSec">Security type</label>
+								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About security types"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Most modern routers use WPA/WPA2 &mdash; pick that if unsure.</span></span>
+							</div>
+							<select name="wfSec" id="wfSec">
+								<option value="WPA" selected>WPA/WPA2 (recommended)</option>
+								<option value="WEP">WEP</option>
+								<option value="nopass">None &mdash; open network</option>
+							</select>
+						</div>
+					</div>
+					<!--end fld-->
+					<!--fld-->
+					<div class="fld fldPass">
+						<div class="row">
+							<div class="lbl">
+								<label for="wfPass">Network password <em>*</em></label>
+								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About the password"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Scanners connect to your WiFi automatically using this password.</span></span>
+							</div>
+							<span class="pwdWrp">
+							<input type="password" name="wfPass" id="wfPass" value="" placeholder="Cappuccino123" maxlength="63" data-req="text" data-msg="Please enter the network password.">
+							<a href="#" class="passwordToggle" aria-label="Show password">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+							</a>
+							</span>
+						</div>
+					</div>
+					<!--end fld-->
+					<!--chk-->
+					<label class="chkRow">
+						<input type="checkbox" name="wfHidden" id="wfHidden" value="true">
+						WiFi is hidden (not visible to others)</label>
+					<!--end chk-->
+					<div class="sep"></div>
+					<!--fld-->
+					<div class="fld">
+						<div class="row">
+							<div class="lbl">
+								<label for="qrName">Name your QR Code</label>
+								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About the QR code name"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Only you can see this &mdash; it helps you find the code later.</span></span>
+							</div>
+							<input type="text" name="qrName" id="qrName" value="My WiFi QR Code" maxlength="40">
+						</div>
+						<p class="cnt">15/40</p>
+					</div>
+					<!--end fld-->
+				</div>
+				<!--end frm-->
+				<!--ftr-->
+				<div class="ftr">
+					<!--btn--><a href="create_mobile.html" class="btn genBtn6 btnC6">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M19 12H5"></path>
+						<path d="m12 19-7-7 7-7"></path>
+					</svg>
+					Back</a><!--end btn-->
+					<!--btn--><a href="#" class="btn genBtn6 btnC3 btnNext">Next
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M5 12h14"></path>
+						<path d="m12 5 7 7-7 7"></path>
+					</svg>
+					</a><!--end btn-->
+				</div>
+				<!--end ftr-->
+				</form>
+			</div>
+			<!--end crd-->
+		</div>
+		<!--end FrmCtr-->
+	</section>
+	<!--end mainCreate-->
+	<!--mainFooter-->
+	<section id="mainFooter"> 
+		<!--FrmCtr-->
+		<div class="FrmCtr"> 
+			<!--top-->
+			<div class="top"> 
+				<!--lgo-->
+				<div class="lgo">
+					<div class="cap"> <img src="assets/images/main_footer_ico_logo.svg" alt="BarcodesQR"> <span class="txt">Barcodes<b>QR</b></span> </div>
+					<p class="ln2">Create, customize and manage QR codes for web, print and business.</p>
+					<a href="#" class="hlp">
+					<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg>
+					Live Help</a> </div>
+				<!--end lgo--> 
+				<!--cols-->
+				<div class="cols"> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">QR Code Types</h5>
+						<a href="#">Website QR</a> <a href="#">PDF QR</a> <a href="#">vCard QR</a> <a href="#">WiFi QR</a> <a href="#">Menu QR</a> <a href="#" class="all">View All QR Types
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M5 12h14"></path>
+							<path d="m12 5 7 7-7 7"></path>
+						</svg>
+						</a> </div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Use Cases</h5>
+						<a href="#">Restaurants</a> <a href="#">Business Cards</a> <a href="#">Packaging</a> <a href="#">Events</a> <a href="#">Real Estate</a></div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Support</h5>
+						 <a class="footLive" href="#">Live Help<span class="genC1"><svg fill="none"  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg></span></a> <a href="#">Help Center</a> <a href="#">Cancel Subscription</a> </div>
+					<!--end col-->
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Company</h5>
+						<a href="#">Pricing</a> <a href="#">Media</a> </div>
+					<!--end col--> 
+					<!--col-->
+					<div class="col">
+						<h5 class="ln1">Legal</h5>
+						<a href="#">Privacy Policy</a> <a href="#">Terms &amp; Conditions</a> <a href="#">Refund Policy</a> </div>
+					<!--end col--> 
+				</div>
+				<!--end cols--> 
+			</div>
+			<!--end top--> 
+			<!--btm-->
+			<div class="btm">
+				<p class="cpy">© 2026 BarcodesQR. All rights reserved.</p>
+				<!--lst-->
+				<ul class="lst">
+					<li class="itm"><img src="assets/images/main_footer_ico_visa.svg" alt="Visa"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_mastercard.svg" alt="Mastercard"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_amex.svg" alt="American Express"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_applepay.svg" alt="Apple Pay"></li>
+					<li class="itm"><img src="assets/images/main_footer_ico_googlepay.svg" alt="Google Pay"></li>
+				</ul>
+				<!--end lst--> 
+				<!--lng-->
+				<div class="lng">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"></circle>
+						<path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+						<path d="M2 12h20"></path>
+					</svg>
+					<span class="txt">English</span>
+					<svg class="ico2" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="m6 9 6 6 6-6"></path>
+					</svg>
+				</div>
+				<!--end lng--> 
+			</div>
+			<!--end btm--> 
+		</div>
+		<!--end FrmCtr--> 
+	</section>
+	<!--end mainFooter-->
+	<!--mobCta-->
+	<div id="mobCta">
+		<div class="btnWrp">
+			<button class="btn genBtn9 btnC3 btnFull">Create Your QR Code <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M5 12h14"></path>
+							<path d="m12 5 7 7-7 7"></path>
+						</svg></button>
+		</div>
+	</div>
+	<!--end mobCta-->
+
+</div>
+</body>
+</html>

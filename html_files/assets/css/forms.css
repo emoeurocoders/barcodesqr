@@ -1,6 +1,6 @@
 /* Input Font
 --------------------------------------------------------------*/ 
-input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt, select { font-family:"Inter","Helvetica Neue", Arial, "Nimbus Sans L", "FreeSans;"; font-weight: 400; }
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search],  input[type=date], textarea, .inTxt, select { font-family:"Inter","Helvetica Neue", Arial, "Nimbus Sans L", "FreeSans;"; font-weight: 400; }
 /* Input Metrics (mobile first 16px fixed till reaching 16px scaling breakpoint)
 --------------------------------------------------------------*/   
 select { padding-top: 0px!important; padding-bottom: 0px!important; background-position: calc(100% - 1.8rem) center!important; background-position: 97% center; line-height: 1.5em; height: 3.6em; background-size: 2.1rem 1.4rem; }
@@ -13,7 +13,7 @@ background-size: 1.8rem 1.3rem;
 input[type=text], select, input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt { font-size: 16px; line-height: 1.5em; height: 3.6em; padding: 0.50em 0.8em 0.45em 0.8em; letter-spacing: 0.01em; }
 select { padding-left: calc(1em - 3px)!important; padding-right: 1.2em; }
 .Explorer select { padding-left: calc(0.5em - 1px)!important; }
-input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt, select { border-width: 1px; border-style: solid; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search],  input[type=date], textarea, .inTxt, select { border-width: 1px; border-style: solid; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
  @media all and (min-width: 640px) {
 input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt { border-width: 1px; font-size: 18px; padding: 0.50em 0.8em 0.45em 0.8em; height: 3.6em; }
 select { font-size: 18px; background-size: 1.1rem 1rem; padding-right: 3.1rem; background-position: calc(100% - 0.9rem) center!important; height: 3.6em; padding-left: 0.75em!important; }
@@ -32,7 +32,7 @@ select { font-size: 18px; background-size: 1.1rem 1rem; padding-right: 3.1rem; b
 /* Input Colors (seperated for simplicity )
 --------------------------------------------------------------*/   
 select { box-shadow: 0 5px 10px -5px rgba(0,0,0,0.1); border: 1px solid #777; background-color: rgba(0,0,0,0); color: #555; }
-input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, .inTxt { border-color: #777; color: #555; background: none rgba(255,255,255,0.01);  box-shadow: 0 5px 10px -5px rgba(0,0,0,0.1);  }
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], input[type=search],  input[type=date], textarea, .inTxt { border-color: #777; color: #555; background: none rgba(255,255,255,0.01);  box-shadow: 0 5px 10px -5px rgba(0,0,0,0.1);  }
 input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=tel]:focus, input[type=number]:focus, input[type=search]:focus, textarea:focus, .inputFocused select, .textAreaFocused { border-color: #2563eb !important; /*box-shadow:  0 5px 10px -5px rgba(0,0,0,0.1), inset 0 0 0 1px #000;*/}
 
 small.error { font-size: 12px; color: #cc0000; position: relative; top: 2px; padding-left: 0; font-family:  "Helvetica Neue", Arial, "Nimbus Sans L", "FreeSans;";  }

@@ -364,6 +364,15 @@ jQuery(document).ready(function($) {
 		}
 	}
 
+	//create step 1 mobile (create_mobile.html) - view all 23 qr types toggle
+	if ($('#mainCreate.createAltMob').length) {
+		$('#mainCreate.createAltMob .lst .itm.mor > a').on('click', function (e) {
+			e.preventDefault();
+			$(this).closest('.itm').toggleClass('open');
+			$('#mainCreate.createAltMob .lft .xtr').stop(true, true).slideToggle(260);
+		});
+	}
+
 	//create step 2 mobile pages (create_mobile_website / _vcard / _multilink)
 	if ($('#mainCreate.createMob2').length) {
 		var $cr = $('#mainCreate.createMob2');
@@ -376,6 +385,30 @@ jQuery(document).ready(function($) {
 		var crMlSocsDef = $cr.find('.pvwMl .socs').html();
 		var crSmSocsDef = $cr.find('.pvwSoc .socs').html();
 		var crMnItsDef = $cr.find('.pvwMenu .its').html();
+		var crPayProv = {
+			paypal: { n: 'PayPal', c: '#003087', d: ['paypal.com', 'paypal.me'] },
+			stripe: { n: 'Stripe', c: '#635bff', d: ['stripe.com'] },
+			cashapp: { n: 'CashApp', c: '#00d632', d: ['cash.app'] },
+			braintree: { n: 'Braintree', c: '#0e1311', d: ['braintreepayments.com'] },
+			square: { n: 'Square', c: '#0e1311', d: ['square.link', 'squareup.com'] },
+			payoneer: { n: 'Payoneer', c: '#ff4800', d: ['payoneer.com'] },
+			venmo: { n: 'Venmo', c: '#008cff', d: ['venmo.com'] },
+			verifone: { n: 'Verifone (2Checkout)', c: '#00a3e0', d: ['2checkout.com', '2co.com'] },
+			applepay: { n: 'Apple Pay', c: '#0e1311', d: [] },
+			googlepay: { n: 'Google Pay', c: '#4285f4', d: [] },
+			adyen: { n: 'Adyen', c: '#0abf53', d: ['adyen.com'] },
+			klarna: { n: 'Klarna', c: '#e96f8f', d: ['klarna.com'] },
+			cartesbancaires: { n: 'Cartes Bancaires', c: '#083969', d: [] },
+			giropay: { n: 'Giropay', c: '#000268', d: ['giropay.de'] },
+			other: { n: 'Other provider', c: '#6b7280', d: [] }
+		};
+		function crFmtTime(theT) {
+			var theP = theT.split(':');
+			var theH = parseInt(theP[0], 10);
+			var theAp = theH >= 12 ? 'PM' : 'AM';
+			var theH12 = theH % 12 || 12;
+			return theH12 + (theP[1] !== '00' ? ':' + theP[1] : '') + ' ' + theAp;
+		}
 		function crEsc(theStr) {
 			return $('<i>').text(theStr).html();
 		}
@@ -469,19 +502,23 @@ jQuery(document).ready(function($) {
 		});
 
 		//image uploads, swap into the live preview
-		function crSetImg(theSrc) {
+		function crSetImg(theSrc, theTgt) {
 			$cr.find('img.pvwImg').each(function() {
-				$(this).attr('src', theSrc || $(this).data('def'));
+				if (theTgt && $(this).attr('data-img') !== theTgt) return;
+				if (!theTgt && $(this).attr('data-img')) return;
+				var theFin = theSrc || $(this).data('def') || '';
+				$(this).attr('src', theFin).toggle(!!theFin);
 			});
 		}
 		$cr.on('change', '.upl input[type=file]:not([multiple])', function() {
 			var theFile = this.files && this.files[0];
 			var $bd = $(this).closest('.bd');
+			var theTgt = $(this).attr('data-tgt') || null;
 			if (!theFile || !window.FileReader) return;
 			var theReader = new FileReader();
 			theReader.onload = function(ev) {
 				$bd.find('.uplPrv').addClass('on').find('img').attr('src', ev.target.result);
-				crSetImg(ev.target.result);
+				crSetImg(ev.target.result, theTgt);
 			};
 			theReader.readAsDataURL(theFile);
 		});
@@ -490,7 +527,7 @@ jQuery(document).ready(function($) {
 			var $bd = $(this).closest('.bd');
 			$bd.find('.uplPrv').removeClass('on').find('img').removeAttr('src');
 			$bd.find('input[type=file]').val('');
-			crSetImg(null);
+			crSetImg(null, $bd.find('input[type=file]').attr('data-tgt') || null);
 		});
 
 		//address mode segment
@@ -646,6 +683,100 @@ jQuery(document).ready(function($) {
 			if ($('#waMsg').length) {
 				$cr.find('.pvwWa .bub p').text($.trim($('#waMsg').val()) || "Hi! 👋 I just scanned your QR code and I'd love to hear more — can you fill me in?");
 			}
+			//email draft
+			if ($('#emTo').length) {
+				$cr.find('.pvwEml .eto').text($.trim($('#emTo').val()) || 'email@example.com');
+				$cr.find('.pvwEml .esub').text($.trim($('#emSubj').val()) || 'Product Inquiry');
+				$cr.find('.pvwEml .ebod').text($.trim($('#emBody').val()) || 'Hi there — I just scanned your QR code and wanted to learn more about your services.');
+			}
+			//google review: the button uses the validated link
+			if ($('#rvUrl').length) {
+				var theRv = $.trim($('#rvUrl').val());
+				$cr.find('.pvwRev .wrb').attr('href', crUrlOk(theRv) ? theRv : '#');
+			}
+			//sms draft
+			if ($('#smsNum').length) {
+				var theSn = $.trim($('#smsNum').val());
+				var theScc = ($('#smsCc').val() || '+1').split('-')[0];
+				$cr.find('.pvwSmsNum').text(theSn ? theScc + ' ' + theSn : '+1 555 123 4567');
+				$cr.find('.pvwSms .bub2 p').text($.trim($('#smsMsg').val()) || "Hi! I just scanned your QR code and I'd love to hear more — can you fill me in?");
+			}
+			//payment, auto-detect recognized providers from the link
+			if ($('#paySel').length) {
+				var theLnk = $.trim($('#payLink').val());
+				var theHost = (theLnk.match(/^https?:\/\/([^\/?#]+)/i) || [])[1] || '';
+				if (theHost) {
+					for (var pk in crPayProv) {
+						var theDms = crPayProv[pk].d || [];
+						for (var di = 0; di < theDms.length; di++) {
+							if (theHost.toLowerCase().indexOf(theDms[di]) > -1 && $('#paySel').val() !== pk) {
+								$('#paySel').val(pk).removeClass('error').closest('.row').find('small.error').remove();
+							}
+						}
+					}
+				}
+				var thePv = crPayProv[$('#paySel').val()];
+				$cr.find('.pvwPay .pvwPvNm').text(thePv ? thePv.n : '—');
+				$cr.find('.pvwPay .pvwPvCh').text(thePv ? thePv.n.charAt(0) : '?').css('background', thePv ? thePv.c : '#9aa3b2');
+				$cr.find('.pvwPay .ph4').text(thePv && $('#paySel').val() !== 'other' ? 'Checkout on ' + thePv.n : 'Secure Checkout');
+				$cr.find('.pvwPay .ctp').attr('href', /^https:\/\//i.test(theLnk) && crUrlOk(theLnk) ? theLnk : '#');
+			}
+			//coupon
+			if ($('#cpTitle').length) {
+				$cr.find('.pvwCpTtl').text($.trim($('#cpTitle').val()) || 'Weekend Special');
+				$cr.find('.pvwCpDsc').text($.trim($('#cpDisc').val()) || '20% OFF');
+				$cr.find('.pvwCpCod').text($.trim($('#cpCode').val()) || 'SAVE20');
+				$cr.find('.pvwCpTrm').text($.trim($('#cpTerms').val()) || 'One per customer. Cannot be combined with other offers.');
+				var theEx = $('#cpExp').val();
+				var $exr = $cr.find('.pvwCpn .cexp');
+				if (theEx) {
+					var theDt = new Date(theEx + 'T23:59:59');
+					var theOld = theDt.getTime() < new Date().getTime();
+					$cr.find('.pvwCpExp').text((theOld ? 'Expired ' : 'Expires ') + theDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+					$exr.toggleClass('off2', theOld);
+				} else {
+					$cr.find('.pvwCpExp').text('Expires Dec 31, 2026');
+					$exr.removeClass('off2');
+				}
+			}
+			//business page
+			if ($('#bzName').length) {
+				$cr.find('.pvwBzNm').text($.trim($('#bzName').val()) || 'Harbor & Sage Co.');
+				$cr.find('.pvwBzDs').text($.trim($('#bzDesc').val()) || 'Specialty coffee & all-day brunch in the heart of town.');
+				var theBzMap = [['#bzPhone', '.bzCall', '+1 555 014 2890'], ['#bzEmail', '.bzMail', 'hello@harborsage.com'], ['#bzWeb', '.bzWeb', 'harborsage.com'], ['#bzAdr', '.bzAdr', '123 Harbor St, Portside']];
+				var theAny = false;
+				for (var b = 0; b < theBzMap.length; b++) {
+					if ($.trim($(theBzMap[b][0]).val())) {
+						theAny = true;
+					}
+				}
+				for (var b2 = 0; b2 < theBzMap.length; b2++) {
+					var theBv = $.trim($(theBzMap[b2][0]).val());
+					var $brw = $cr.find('.pvwBiz ' + theBzMap[b2][1]);
+					if (theAny) {
+						$brw.toggle(!!theBv);
+						if (theBv) {
+							$brw.find('.t2').text(theBv.replace(/^https?:\/\//i, ''));
+						}
+					} else {
+						$brw.show().find('.t2').text(theBzMap[b2][2]);
+					}
+				}
+				var theOp = $('#bzOpen').val();
+				var theCl = $('#bzClose').val();
+				if (theOp && theCl) {
+					var theNow = new Date();
+					var theNm = theNow.getHours() * 60 + theNow.getMinutes();
+					var theOm = parseInt(theOp.split(':')[0], 10) * 60 + parseInt(theOp.split(':')[1], 10);
+					var theCm = parseInt(theCl.split(':')[0], 10) * 60 + parseInt(theCl.split(':')[1], 10);
+					var theOpen = theOm <= theCm ? (theNm >= theOm && theNm < theCm) : (theNm >= theOm || theNm < theCm);
+					$cr.find('.pvwBiz .hrs').toggleClass('cls2', !theOpen);
+					$cr.find('.pvwBzHrs').html(theOpen ? '<b>Open</b> &middot; Closes ' + crFmtTime(theCl) : '<b>Closed</b> &middot; Opens ' + crFmtTime(theOp));
+				} else {
+					$cr.find('.pvwBiz .hrs').removeClass('cls2');
+					$cr.find('.pvwBzHrs').html('<b>Open</b> &middot; Closes 3 PM');
+				}
+			}
 			//social media
 			if ($('#smHeadline').length) {
 				$cr.find('.pvwNm').text($.trim($('#smHeadline').val()) || 'Kaia Bennett');
@@ -662,14 +793,223 @@ jQuery(document).ready(function($) {
 				}
 			}
 		}
-		$cr.on('input', '#siteUrl, #vcFirst, #vcLast, #vcRole, #vcSummary, #mlTitle, #mlDesc, #smHeadline, #smDesc, #mnTitle, #mnCat, #wfSsid, #imTitle, #waMsg, .lnkNme, .mnPrc, .mnDsc', crPreview);
+		$cr.on('input', '#siteUrl, #vcFirst, #vcLast, #vcRole, #vcSummary, #mlTitle, #mlDesc, #smHeadline, #smDesc, #mnTitle, #mnCat, #wfSsid, #imTitle, #waMsg, #emTo, #emSubj, #emBody, #rvUrl, #smsNum, #smsMsg, #payLink, #cpTitle, #cpDisc, #cpCode, #cpTerms, #bzName, #bzDesc, #bzPhone, #bzEmail, #bzWeb, #bzAdr, .lnkNme, .mnPrc, .mnDsc', crPreview);
+		$cr.on('change', '#paySel, #cpExp, #bzOpen, #bzClose, #smsCc', crPreview);
 
-		//whatsapp: suggest the visitor's country code
-		if ($('#waCc').length) {
+		//review link help + example-state button guards
+		$cr.find('.hlpLnk').on('click', function(e) {
+			e.preventDefault();
+			$cr.find('.hlpBox').stop(true, true).slideToggle(200);
+		});
+		$cr.on('click', '.pvwRev .wrb[href="#"], .pvwPay .ctp[href="#"]', function(e) {
+			e.preventDefault();
+		});
+
+		//coupon: copy code button
+		$cr.on('click', '.pvwCpn .cpyb', function() {
+			var $theBtn = $(this);
+			var theCode = $cr.find('.pvwCpCod').text();
+			var theDone = function() {
+				$theBtn.find('span').text('Copied!');
+				setTimeout(function() {
+					$theBtn.find('span').text('Copy code');
+				}, 1400);
+			};
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(theCode).then(theDone, theDone);
+			} else {
+				theDone();
+			}
+		});
+
+		//single-file upload helpers
+		function crSizeTxt(theB) {
+			return theB >= 1048576 ? (theB / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(theB / 1024)) + ' KB';
+		}
+		function crFileErr($fld, theMsg) {
+			$fld.children('small.error').remove();
+			if (theMsg) {
+				$fld.append('<small class="error">' + theMsg + '</small>');
+			}
+		}
+
+		//pdf: single document, embedded preview with page navigation
+		if ($('#pdfFile').length) {
+			var crPdfUrl = null;
+			var crPdfPages = 1;
+			var crPdfPage = 1;
+			var crPdfDefDoc = $cr.find('.pvwPdf .doc').html();
+			function crPdfObj() {
+				$cr.find('.pvwPdf .doc').html('<object class="pdfObj" type="application/pdf" data="' + crPdfUrl + '#toolbar=0&navpanes=0&page=' + crPdfPage + '"></object>');
+				$cr.find('.pvwPdf .pcnt').text(crPdfPage + ' / ' + crPdfPages);
+			}
+			$cr.on('change', '#pdfFile', function() {
+				var theFile = this.files && this.files[0];
+				this.value = '';
+				if (!theFile) return;
+				var $fld = $cr.find('.fileReq');
+				if (theFile.type !== 'application/pdf' && !/\.pdf$/i.test(theFile.name)) {
+					crFileErr($fld, 'Please choose a PDF file.');
+					return;
+				}
+				if (theFile.size > 20 * 1048576) {
+					crFileErr($fld, 'That file is too large (max 20 MB).');
+					return;
+				}
+				crFileErr($fld, '');
+				if (crPdfUrl) {
+					URL.revokeObjectURL(crPdfUrl);
+				}
+				crPdfUrl = URL.createObjectURL(theFile);
+				crPdfPage = 1;
+				crPdfPages = 1;
+				$fld.find('.fileCrd').addClass('on').find('.fnm').text(theFile.name).end().find('.fsz').text(crSizeTxt(theFile.size));
+				crPdfObj();
+				var theReader = new FileReader();
+				theReader.onload = function(ev) {
+					var theM = String(ev.target.result).match(/\/Type\s*\/Page[^s]/g);
+					if (theM && theM.length) {
+						crPdfPages = theM.length;
+					}
+					$cr.find('.pvwPdf .pcnt').text(crPdfPage + ' / ' + crPdfPages);
+				};
+				theReader.readAsText(theFile);
+			});
+			$cr.on('click', '.pvwPdf .nv2', function(e) {
+				e.preventDefault();
+				if (!crPdfUrl) return;
+				crPdfPage = Math.min(crPdfPages, Math.max(1, crPdfPage + ($(this).hasClass('pdfNxt') ? 1 : -1)));
+				crPdfObj();
+			});
+			$cr.on('click', '.fileCrd .frm2', function(e) {
+				e.preventDefault();
+				if (crPdfUrl) {
+					URL.revokeObjectURL(crPdfUrl);
+					crPdfUrl = null;
+				}
+				$cr.find('.fileCrd').removeClass('on');
+				$cr.find('.pvwPdf .doc').html(crPdfDefDoc);
+				$cr.find('.pvwPdf .pcnt').html('&ndash; / &ndash;');
+			});
+		}
+
+		//video: single upload, native player preview, captured thumbnail
+		if ($('#vidFile').length) {
+			var crVidUrl = null;
+			var crVidDefWrp = $cr.find('.pvwVid .vidWrp').html();
+			var crVidDefFic = $cr.find('.fileCrd .fic').html();
+			$cr.on('change', '#vidFile', function() {
+				var theFile = this.files && this.files[0];
+				this.value = '';
+				if (!theFile) return;
+				var $fld = $cr.find('.fileReq');
+				if (!/^video\//.test(theFile.type) && !/\.(mp4|mov|m4v|avi|webm)$/i.test(theFile.name)) {
+					crFileErr($fld, 'Please choose a video file (MP4, MOV, AVI, etc.).');
+					return;
+				}
+				if (theFile.size > 50 * 1048576) {
+					crFileErr($fld, 'That file is too large (max 50 MB).');
+					return;
+				}
+				crFileErr($fld, '');
+				if (crVidUrl) {
+					URL.revokeObjectURL(crVidUrl);
+				}
+				crVidUrl = URL.createObjectURL(theFile);
+				$fld.find('.fileCrd').addClass('on').find('.fnm').text(theFile.name).end().find('.fsz').text(crSizeTxt(theFile.size));
+				$cr.find('.pvwVid .vidWrp').html('<video controls preload="metadata" src="' + crVidUrl + '"></video>');
+				//grab a frame for the file card thumbnail, fall back to the icon
+				var theV = document.createElement('video');
+				theV.muted = true;
+				theV.src = crVidUrl;
+				theV.addEventListener('loadeddata', function() {
+					try { theV.currentTime = 0.1; } catch (e) {}
+				});
+				theV.addEventListener('seeked', function() {
+					try {
+						var theC = document.createElement('canvas');
+						theC.width = 96;
+						theC.height = 96;
+						var theS = Math.min(theV.videoWidth, theV.videoHeight);
+						theC.getContext('2d').drawImage(theV, (theV.videoWidth - theS) / 2, (theV.videoHeight - theS) / 2, theS, theS, 0, 0, 96, 96);
+						$cr.find('.fileCrd .fic').html('<img src="' + theC.toDataURL('image/jpeg', 0.72) + '" alt="">');
+					} catch (e) {}
+				});
+			});
+			$cr.on('click', '.fileCrd .frm2', function(e) {
+				e.preventDefault();
+				if (crVidUrl) {
+					URL.revokeObjectURL(crVidUrl);
+					crVidUrl = null;
+				}
+				$cr.find('.fileCrd').removeClass('on').find('.fic').html(crVidDefFic);
+				$cr.find('.pvwVid .vidWrp').html(crVidDefWrp);
+			});
+		}
+
+		//google maps: suggestion picker + keyless embed preview
+		if ($('#gmQ').length) {
+			var crPlaces = [
+				{ n: 'Empire State Building', a: '20 W 34th St, New York, NY 10001' },
+				{ n: 'Central Park', a: 'New York, NY, USA' },
+				{ n: 'Times Square', a: 'Manhattan, NY, USA' },
+				{ n: 'Statue of Liberty', a: 'New York, NY, USA' },
+				{ n: 'Brooklyn Bridge', a: 'New York, NY 10038' },
+				{ n: 'Golden Gate Bridge', a: 'San Francisco, CA, USA' },
+				{ n: 'Eiffel Tower', a: 'Paris, France' },
+				{ n: 'Big Ben', a: 'London, United Kingdom' }
+			];
+			var crPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+			function crMapSug() {
+				var theQ = $.trim($('#gmQ').val()).toLowerCase();
+				var $lst = $cr.find('.sugLst').empty();
+				var theN = 0;
+				for (var i = 0; i < crPlaces.length && theN < 5; i++) {
+					if (!theQ || (crPlaces[i].n + ' ' + crPlaces[i].a).toLowerCase().indexOf(theQ) > -1) {
+						$lst.append('<li data-i="' + i + '"><span class="pic">' + crPinSvg + '</span><span class="ptx"><span class="pn">' + crEsc(crPlaces[i].n) + '</span><span class="pa">' + crEsc(crPlaces[i].a) + '</span></span></li>');
+						theN++;
+					}
+				}
+				$lst.toggleClass('on', theN > 0);
+			}
+			$cr.on('focusin', '#gmQ', crMapSug);
+			$cr.on('input', '#gmQ', function() {
+				$(this).removeAttr('data-sel');
+				$cr.find('.okSel, .srchWrp .clr').removeClass('on');
+				crMapSug();
+			});
+			$cr.on('click', '.sugLst li', function() {
+				var thePl = crPlaces[$(this).data('i')];
+				var theQ = encodeURIComponent(thePl.n + ', ' + thePl.a);
+				$('#gmQ').val(thePl.n + ', ' + thePl.a).attr('data-sel', '1');
+				$cr.find('.sugLst').removeClass('on');
+				$cr.find('.okSel, .srchWrp .clr').addClass('on');
+				$cr.find('.mapReq').children('small.error').remove();
+				$cr.find('#gmQ').removeClass('error');
+				$cr.find('.gmFrame').attr('src', 'https://www.google.com/maps?q=' + theQ + '&output=embed');
+				$cr.find('.mapCrd .mnm').text(thePl.n);
+				$cr.find('.mapCrd .madr').text(thePl.a);
+				$cr.find('.mapCrd .vgm').attr('href', 'https://www.google.com/maps/search/?api=1&query=' + theQ);
+			});
+			$cr.on('click', '.srchWrp .clr', function(e) {
+				e.preventDefault();
+				$('#gmQ').val('').removeAttr('data-sel');
+				$cr.find('.okSel, .srchWrp .clr, .sugLst').removeClass('on');
+			});
+			$(document).on('click', function(e) {
+				if (!$(e.target).closest('.srchWrp, .sugLst').length) {
+					$cr.find('.sugLst').removeClass('on');
+				}
+			});
+		}
+
+		//whatsapp / sms: suggest the visitor's country code
+		var $crCc = $('#waCc, #smsCc');
+		if ($crCc.length) {
 			var theReg = ((navigator.language || '').split('-')[1] || '').toUpperCase();
-			var $theOpt = $('#waCc option[data-reg="' + theReg + '"]').first();
+			var $theOpt = $crCc.first().find('option[data-reg="' + theReg + '"]').first();
 			if ($theOpt.length) {
-				$('#waCc').val($theOpt.attr('value'));
+				$crCc.val($theOpt.attr('value'));
 			}
 		}
 
@@ -761,7 +1101,7 @@ jQuery(document).ready(function($) {
 			$cr.on('click', '.pvwGal .nv', function(e) {
 				e.preventDefault();
 				var theN = crGalList().length;
-				crGalIx = (crGalIx + ($(this).hasClass('nxt') ? 1 : theN - 1)) % theN;
+				crGalIx = (crGalIx + ($(this).hasClass('galNxt') ? 1 : theN - 1)) % theN;
 				crGalRender();
 			});
 			$cr.on('click', '.pvwGal .thumbs .th[data-i]', function() {
@@ -811,6 +1151,16 @@ jQuery(document).ready(function($) {
 				var theDigits = theVal.replace(/\D/g, '');
 				ok = theDigits.length >= 5 && theDigits.length <= 14 && theVal.indexOf('+') === -1;
 			}
+			if (theType === 'eml') {
+				ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(theVal);
+			}
+			if (theType === 'urls') {
+				ok = /^https:\/\//i.test(theVal) && crUrlOk(theVal);
+			}
+			if (theType === 'tel') {
+				var theTd = theVal.replace(/\D/g, '');
+				ok = theTd.length >= 5 && theTd.length <= 15;
+			}
 			//optional fields only validate once something is entered
 			if (!$in.attr('data-req') && (!theVal || theVal === 'https://')) {
 				ok = true;
@@ -835,7 +1185,14 @@ jQuery(document).ready(function($) {
 			var ok = false;
 			$cr.find('.grpReq .grpIn').each(function() {
 				var theVal = $.trim($(this).val());
-				if (theVal && theVal !== 'https://' && crUrlOk(theVal)) {
+				if (!theVal || theVal === 'https://') return;
+				var theType = $(this).attr('data-opt') || 'text';
+				var good = true;
+				if (theType === 'url') good = crUrlOk(theVal);
+				if (theType === 'urls') good = /^https:\/\//i.test(theVal) && crUrlOk(theVal);
+				if (theType === 'eml') good = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(theVal);
+				if (theType === 'tel') good = theVal.replace(/\D/g, '').length >= 5;
+				if (good) {
 					ok = true;
 				}
 			});
@@ -907,7 +1264,27 @@ jQuery(document).ready(function($) {
 					$imr.append('<small class="error">' + $imr.attr('data-msg') + '</small>');
 				}
 			}
-			if (!$bad.length && socOk && grpOk && imgOk) {
+			var fileOk = true;
+			var $flr = $cr.find('.fileReq');
+			if ($flr.length) {
+				fileOk = $flr.find('.fileCrd.on').length > 0;
+				if (fileOk) {
+					$flr.children('small.error').remove();
+				} else if (!$flr.children('small.error').length) {
+					$flr.append('<small class="error">' + $flr.attr('data-msg') + '</small>');
+				}
+			}
+			var mapOk = true;
+			var $mpr = $cr.find('.mapReq');
+			if ($mpr.length) {
+				mapOk = $('#gmQ').attr('data-sel') === '1';
+				if (mapOk) {
+					$mpr.children('small.error').remove();
+				} else if (!$mpr.children('small.error').length) {
+					$mpr.append('<small class="error">' + $mpr.attr('data-msg') + '</small>');
+				}
+			}
+			if (!$bad.length && socOk && grpOk && imgOk && fileOk && mapOk) {
 				if (typeof fireModal === 'function') {
 					fireModal('modal_join.html');
 				}
@@ -917,14 +1294,26 @@ jQuery(document).ready(function($) {
 				$cr.find('.imgReq .upl')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
 				return;
 			}
+			if (!$bad.length && !fileOk) {
+				$cr.find('.fileReq .upl')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+				return;
+			}
+			if (!$bad.length && !mapOk) {
+				$('#gmQ')[0].focus({ preventScroll: true });
+				$('#gmQ')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+				return;
+			}
 			if (!$bad.length && !socOk) {
 				$cr.find('.socReq .socGrd')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
 				return;
 			}
 			if (!$bad.length && !grpOk) {
 				var theGrpIn = $cr.find('.grpReq .grpIn').first();
-				theGrpIn[0].focus({ preventScroll: true });
-				theGrpIn[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+				crOpenAcc(theGrpIn.closest('.acc'));
+				setTimeout(function() {
+					theGrpIn[0].focus({ preventScroll: true });
+					theGrpIn[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}, 240);
 				return;
 			}
 			var theFirst = $bad.first();
