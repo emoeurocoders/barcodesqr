@@ -33,7 +33,7 @@ import type { QrTypeIcon } from "./qrTypes";
 import { hasTracking } from "./encodeQr";
 import { InfoTip } from "./InfoTip";
 import { ContactIcon } from "@/components/ui/CreatorIcons";
-import { fieldError, isValidUrl, errorCopy, visible } from "./validate";
+import { fieldError, errorCopy, linkIssues, visible } from "./validate";
 import {
   cropStyle,
   fileSrc,
@@ -42,8 +42,7 @@ import {
   type StoredFile,
   type StoredLink,
 } from "./storedValues";
-import { LINK_LOGO_FIELD, matchesAccept, uploadTarget } from "@/lib/uploads";
-import { UploadError, uploadFile } from "./uploadFile";
+import { UploadError, uploadLinkLogo } from "./uploadFile";
 import { useFileUpload } from "./useFileUpload";
 import { ImageAdjuster } from "./ImageAdjuster";
 
@@ -287,12 +286,16 @@ const emptyLink: StoredLink = { name: "", url: "" };
 function LinksControl({
   value,
   onChange,
+  strict = false,
 }: {
   value: string;
   onChange: (v: string) => void;
+  /** Multi-Link's rules (`requireOneLink`): a half-filled row is an error. */
+  strict?: boolean;
 }) {
   const parsed = parseLinks(value);
   const rows = parsed.length ? parsed : [emptyLink];
+  const issues = linkIssues(rows).rows;
   const [touched, setTouched] = useState<Record<number, boolean>>({});
   const [logoError, setLogoError] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState<number | null>(null);
@@ -312,19 +315,10 @@ function LinksControl({
 
   const takeLogo = async (i: number, file: File | undefined | null) => {
     if (!file) return;
-    const limits = uploadTarget(type, LINK_LOGO_FIELD)!;
-    if (!matchesAccept(file.name, file.type, limits.accept)) {
-      setLogoError("Logos must be images — PNG, JPG, JPEG, etc.");
-      return;
-    }
-    if (file.size > limits.maxSizeMb * 1024 * 1024) {
-      setLogoError(`This logo is too large — the maximum size is ${limits.maxSizeMb} MB.`);
-      return;
-    }
     setLogoError(null);
     setUploadingLogo(i);
     try {
-      const { url } = await uploadFile({ type, field: LINK_LOGO_FIELD, file });
+      const url = await uploadLinkLogo(type, file);
       // Read the rows again on the way out: the visitor may have typed into
       // another row while this was uploading, and `rows` is a stale closure.
       onChange(
@@ -346,8 +340,13 @@ function LinksControl({
   return (
     <div className="space-y-3">
       {rows.map((row, i) => {
+        // Once the row has been left: a malformed URL always, and under
+        // Multi-Link's rules whichever half of a half-filled row is missing.
+        const issue = issues[i] ?? {};
+        const nameBad = !!touched[i] && strict && !!issue.name;
         const urlBad =
-          touched[i] && row.url.trim() !== "" && !isValidUrl(row.url);
+          !!touched[i] &&
+          (issue.url === "invalid" || (strict && issue.url === "missing"));
         return (
           <div key={i} className="rounded-xl border border-line bg-bg p-3">
             <div className="flex items-start gap-3">
@@ -380,12 +379,14 @@ function LinksControl({
 
               <div className="min-w-0 flex-1 space-y-2">
                 <input
-                  className={inputClass}
+                  className={nameBad ? invalidInputClass : inputClass}
                   placeholder={fieldLabels.linkName}
                   maxLength={40}
                   value={row.name}
                   onChange={(e) => update(i, { name: e.target.value })}
+                  onBlur={() => setTouched((t) => ({ ...t, [i]: true }))}
                 />
+                {nameBad && <ErrorText>{errorCopy.required}</ErrorText>}
                 <input
                   type="url"
                   className={urlBad ? invalidInputClass : inputClass}
@@ -395,7 +396,11 @@ function LinksControl({
                   onChange={(e) => update(i, { url: e.target.value })}
                   onBlur={() => setTouched((t) => ({ ...t, [i]: true }))}
                 />
-                {urlBad && <ErrorText>{errorCopy.url}</ErrorText>}
+                {urlBad && (
+                  <ErrorText>
+                    {issue.url === "invalid" ? errorCopy.url : errorCopy.required}
+                  </ErrorText>
+                )}
               </div>
 
               <button
@@ -558,7 +563,13 @@ function FieldControl({
       );
 
     case "links":
-      return <LinksControl value={value} onChange={onChange} />;
+      return (
+        <LinksControl
+          value={value}
+          onChange={onChange}
+          strict={!!field.requireOneLink}
+        />
+      );
 
     default:
       return (

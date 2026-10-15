@@ -1,3 +1,4 @@
+import { dialCodes } from "./fieldSchema";
 /**
  * Turns the step-2 form values into the string the QR actually encodes.
  *
@@ -30,9 +31,10 @@ const dynamicTypes = new Set([
  * `+1-CA` and friends so two countries can share a code without the select
  * collapsing them; only the digits before the dash are dialled.
  */
-function intlPhone(v: Record<string, string>) {
-  const code = (v.phoneCountry ?? "").split("-")[0];
-  const number = (v.phone ?? "").trim();
+function intlPhone(v: Record<string, string>, field = "phone") {
+  // An untouched picker has stored nothing yet; it shows its first option.
+  const code = (v[`${field}Country`] ?? dialCodes[0].value).split("-")[0];
+  const number = (v[field] ?? "").trim();
   if (!number) return "";
   return number.startsWith("+") ? number : `${code}${number}`;
 }
@@ -59,8 +61,13 @@ function vcard(v: Record<string, string>) {
   ];
   if (v.organization) lines.push(`ORG:${v.organization}`);
   if (v.jobTitle) lines.push(`TITLE:${v.jobTitle}`);
-  if (v.phone) lines.push(`TEL;TYPE=WORK,VOICE:${v.phone}`);
-  if (v.mobile) lines.push(`TEL;TYPE=CELL:${v.mobile}`);
+  // Every number with the dial code picked beside it. Before 2026-10-15 the
+  // picker was shown but its code never reached the card, and Work and Fax
+  // were collected and dropped.
+  if (v.phone) lines.push(`TEL;TYPE=VOICE:${intlPhone(v, "phone")}`);
+  if (v.mobile) lines.push(`TEL;TYPE=CELL:${intlPhone(v, "mobile")}`);
+  if (v.work) lines.push(`TEL;TYPE=WORK,VOICE:${intlPhone(v, "work")}`);
+  if (v.fax) lines.push(`TEL;TYPE=FAX:${intlPhone(v, "fax")}`);
   if (v.email) lines.push(`EMAIL:${v.email}`);
   if (v.website) lines.push(`URL:${v.website}`);
   const addr = [v.street, v.city, v.state, v.zip, v.country].filter(Boolean);

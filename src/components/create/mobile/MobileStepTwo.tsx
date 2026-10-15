@@ -207,6 +207,7 @@ export function MobileStepTwo({
   const s: FormState = {
     values,
     set: (k, v) => setValues((cur) => ({ ...cur, [k]: v })),
+    update: (k, fn) => setValues((cur) => ({ ...cur, [k]: fn(cur[k] ?? "") })),
     errors,
     isOpen: (acc) => open.includes(acc),
     toggle: (acc) =>

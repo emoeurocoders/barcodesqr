@@ -1,19 +1,22 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { fieldSchema } from "../fieldSchema";
+import { dialCodes, fieldSchema } from "../fieldSchema";
 import type { Field } from "../fieldSchema";
-import { parseLinks } from "../storedValues";
+import { cropStyle, parseLinks } from "../storedValues";
 import type { StoredLink } from "../storedValues";
 import { useFileUpload } from "../useFileUpload";
-import { errorCopy, isValidEmail, isValidUrl } from "../validate";
+import { errorCopy, isValidEmail, isValidUrl, linkIssues } from "../validate";
+import { ImageAdjuster } from "../ImageAdjuster";
+import { UploadError, uploadLinkLogo } from "../uploadFile";
 import {
   Acc,
   Counter,
   Fld,
   Label,
   Sep,
+  Slide,
   TrackingPill,
   outlineBtn,
   textArea,
@@ -36,6 +39,8 @@ type Values = Record<string, string>;
 export type FormState = {
   values: Values;
   set: (k: string, v: string) => void;
+  /** Read-modify-write against the latest value, for writes that land late. */
+  update: (k: string, fn: (cur: string) => string) => void;
   /** Messages by control id — empty until Next has been pressed once. */
   errors: Record<string, string>;
   isOpen: (acc: string) => boolean;
@@ -80,16 +85,25 @@ export function checksFor(type: string, values: Values): Check[] {
       ];
     }
 
-    case "multilink":
-      // JB: a title and at least one valid link. Every row is required in
-      // their file, and there is always at least one row.
+    case "multilink": {
+      // The shared rule (validate.ts `linkIssues`, same as desktop): a title
+      // and at least one complete link. Empty spare rows are ignored; a
+      // half-filled row is flagged where it is missing. With every row empty,
+      // the first row is flagged so there is somewhere to start.
+      const rows = linkRows(values);
+      const { rows: issues, none } = linkIssues(rows);
+      const allEmpty = none && issues.every((r) => !r.name && !r.url);
       return [
         { id: "mlTitle", msg: trimmed(values.title) ? null : "Please enter a title." },
-        ...linkRows(values).flatMap((l, i): Check[] => [
-          { id: `lnkNme${i}`, acc: "links", msg: l.name.trim() ? null : "Please enter a link name." },
-          { id: `lnkUrl${i}`, acc: "links", msg: urlOk(l.url.trim()) ? null : "Please enter a valid link URL." },
-        ]),
+        ...issues.flatMap((r, i): Check[] => {
+          const flagEmpty = allEmpty && i === 0;
+          return [
+            { id: `lnkNme${i}`, acc: "links", msg: r.name || flagEmpty ? "Please enter a link name." : null },
+            { id: `lnkUrl${i}`, acc: "links", msg: r.url || flagEmpty ? "Please enter a valid link URL." : null },
+          ];
+        }),
       ];
+    }
 
     default:
       return [];
@@ -266,6 +280,60 @@ function TextAreaFld({
   );
 }
 
+/**
+ * A phone number with the country-code picker beside it — JB, 2026-10-15:
+ * keep desktop's picker on mobile. Laid out like the designer's own pairing
+ * on create_mobile_whatsapp.html (`.rowCols`: "Country" at 36%, the number
+ * beside it). The code is stored under `<key>Country`, as on desktop, and a
+ * number typed with its own leading "+" overrides it.
+ *
+ * The select is 16px, not their 12px: anything smaller makes iOS zoom the
+ * page when it opens.
+ */
+function PhoneFld({
+  s,
+  id,
+  k,
+  label,
+}: {
+  s: FormState;
+  id: string;
+  k: string;
+  label: string;
+}) {
+  const value = s.values[k] ?? "";
+  const dial = s.values[`${k}Country`] ?? dialCodes[0].value;
+  return (
+    <div className="flex gap-[9.7px]">
+      <Fld id={`${id}Cc`} label="Country" className="mt-[12.2px] w-[36%] shrink-0">
+        <select
+          id={`${id}Cc`}
+          value={dial}
+          onChange={(e) => s.set(`${k}Country`, e.target.value)}
+          className={`${textInput(false)} cursor-pointer pr-[12.8px] pl-[13px]`}
+        >
+          {dialCodes.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      </Fld>
+      <Fld id={id} label={label} className="mt-[12.2px] min-w-0 flex-1">
+        <input
+          type="tel"
+          id={id}
+          name={id}
+          value={value}
+          placeholder="555 555 0123"
+          onChange={(e) => s.set(k, e.target.value)}
+          className={textInput(false)}
+        />
+      </Fld>
+    </div>
+  );
+}
+
 /* ---- Upload ---------------------------------------------------------------- */
 
 const uploadGlyph = (
@@ -308,6 +376,7 @@ function Upload({
   round?: boolean;
 }) {
   const input = useRef<HTMLInputElement>(null);
+  const [adjusting, setAdjusting] = useState(false);
   const { take, clear, error, progress, pending, stored, maxMb } = useFileUpload({
     type,
     field,
@@ -349,14 +418,19 @@ function Upload({
       )}
       {src && (
         <div className="mt-[10.5px] flex items-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={src}
-            alt=""
-            className={`block h-[45.4px] w-[45.4px] border border-mc-acc-line object-cover ${
+          <span
+            className={`block h-[45.4px] w-[45.4px] shrink-0 overflow-hidden border border-mc-acc-line ${
               round ? "rounded-full" : "rounded-[8.1px]"
             }`}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt=""
+              className="block h-full w-full object-cover"
+              style={pending ? undefined : cropStyle(stored)}
+            />
+          </span>
           <a
             href="#"
             onClick={(e) => {
@@ -370,6 +444,38 @@ function Upload({
             Remove
           </a>
         </div>
+      )}
+      {/*
+        Reposition / zoom — JB, 2026-10-15: keep desktop's adjuster on
+        mobile, tucked behind a disclosure so it does not crowd the form.
+        Unmocked: the toggle borrows "More Platforms", the panel is the
+        desktop ImageAdjuster as is (it already drags by touch).
+      */}
+      {field.adjustable && stored && src && !uploading && (
+        <>
+          <a
+            href="#"
+            aria-expanded={adjusting}
+            onClick={(e) => {
+              e.preventDefault();
+              setAdjusting(!adjusting);
+            }}
+            className="mt-[10.5px] flex items-center gap-[4.9px] text-[10.95px] leading-[normal] font-bold text-primary"
+          >
+            Adjust position &amp; zoom
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`block h-[13.1px] w-[13.1px] transition-transform duration-[250ms] ease-out ${adjusting ? "rotate-180" : ""}`}>
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </a>
+          <Slide open={adjusting}>
+            <ImageAdjuster
+              shape={field.adjustable}
+              stored={stored}
+              src={src}
+              onChange={(crop) => onChange(JSON.stringify({ ...stored, crop }))}
+            />
+          </Slide>
+        </>
       )}
     </>
   );
@@ -616,10 +722,10 @@ export function VCardForm({ s }: { s: FormState }) {
         open={s.isOpen("contact")}
         onToggle={() => s.toggle("contact")}
       >
-        <TextFld s={s} id="vcPhone" k="phone" label="Phone" type="tel" placeholder="+1 555 555 0123" />
-        <TextFld s={s} id="vcMobile" k="mobile" label="Mobile" type="tel" placeholder="+1 555 555 0123" />
-        <TextFld s={s} id="vcWork" k="work" label="Work" type="tel" placeholder="+1 555 555 0123" />
-        <TextFld s={s} id="vcFax" k="fax" label="Fax" type="tel" placeholder="+1 555 555 0123" />
+        <PhoneFld s={s} id="vcPhone" k="phone" label="Phone" />
+        <PhoneFld s={s} id="vcMobile" k="mobile" label="Mobile" />
+        <PhoneFld s={s} id="vcWork" k="work" label="Work" />
+        <PhoneFld s={s} id="vcFax" k="fax" label="Fax" />
       </Acc>
 
       <Acc
@@ -712,6 +818,79 @@ export function linkRows(values: Values): StoredLink[] {
   return rows.length ? rows : [emptyLink];
 }
 
+/**
+ * One row's optional logo — JB, 2026-10-15: keep desktop's per-link logos on
+ * mobile. Unmocked; kept to a single line so a row is no taller until a logo
+ * is actually added: the upload-box glyph as a small tile, "Add logo
+ * (optional)", and once there, the thumbnail with "Remove".
+ */
+function LinkLogo({ s, i, logo }: { s: FormState; i: number; logo?: string }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const setLogo = (url: string | undefined) =>
+    // Against the latest rows: typing may have happened while uploading.
+    s.update("links", (cur) =>
+      JSON.stringify(
+        linkRows({ links: cur }).map((l, j) => (j === i ? { ...l, logo: url } : l)),
+      ),
+    );
+
+  return (
+    <div className="mt-[12.2px]">
+      <div className="flex items-center gap-[8.1px]">
+        <label className="relative flex h-[35.7px] w-[35.7px] shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[8.1px] border border-dashed border-mc-input-line bg-white text-faint [&>svg]:h-[16.2px] [&>svg]:w-[16.2px]">
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt="" className="h-full w-full object-cover" />
+          ) : (
+            imageGlyph
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            aria-label={`Logo for link ${i + 1}`}
+            className="absolute top-0 left-0 h-px w-px border-0 opacity-0"
+            onChange={async (e) => {
+              const file = e.currentTarget.files?.[0];
+              e.currentTarget.value = "";
+              if (!file) return;
+              setError(null);
+              setBusy(true);
+              try {
+                setLogo(await uploadLinkLogo("multilink", file));
+              } catch (err) {
+                setError(err instanceof UploadError ? err.message : "That logo could not be uploaded.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          />
+        </label>
+        <span className="text-[10.95px] leading-[normal] font-semibold text-body">
+          {busy ? "Uploading…" : logo ? "Logo" : "Add logo (optional)"}
+        </span>
+        {logo && !busy && (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setLogo(undefined);
+            }}
+            className="ml-auto flex items-center gap-[4.7px] text-[10.55px] leading-[normal] font-semibold text-mc-error [&>svg]:block [&>svg]:h-[12.7px] [&>svg]:w-[12.7px]"
+          >
+            {trashGlyph}
+            Remove
+          </a>
+        )}
+      </div>
+      {error && (
+        <small className="mt-[5.1px] block text-[10.14px] leading-[normal] text-mc-error">{error}</small>
+      )}
+    </div>
+  );
+}
+
 const ctlBtn =
   "flex h-[24.3px] w-[24.3px] items-center justify-center rounded-[6.5px] hover:bg-mc-well [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px]";
 
@@ -789,6 +968,7 @@ function LinkList({ s }: { s: FormState }) {
                   {...urlHandlers(row.url, (v) => update(i, { url: v }))}
                 />
               </Fld>
+              <LinkLogo s={s} i={i} logo={row.logo} />
             </div>
           );
         })}

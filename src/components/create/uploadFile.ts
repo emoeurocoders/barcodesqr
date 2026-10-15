@@ -1,4 +1,4 @@
-import { LINK_LOGO_FIELD } from "@/lib/uploads";
+import { LINK_LOGO_FIELD, matchesAccept, uploadTarget } from "@/lib/uploads";
 
 /**
  * Puts one picked file into R2 and returns where it landed.
@@ -75,4 +75,29 @@ export async function uploadFile({
   });
 
   return { key: approved.key, url: approved.url };
+}
+
+/**
+ * One multi-link row's optional logo: checked against the link-logo limits,
+ * then uploaded. Shared by the desktop links editor and the mobile rows so
+ * the two give the same verdict in the same words.
+ */
+export async function uploadLinkLogo(type: string, file: File): Promise<string> {
+  const limits = uploadTarget(type, LINK_LOGO_FIELD)!;
+  if (!matchesAccept(file.name, file.type, limits.accept)) {
+    throw new UploadError("Logos must be images — PNG, JPG, JPEG, etc.");
+  }
+  if (file.size > limits.maxSizeMb * 1024 * 1024) {
+    throw new UploadError(
+      `This logo is too large — the maximum size is ${limits.maxSizeMb} MB.`,
+    );
+  }
+  try {
+    const { url } = await uploadFile({ type, field: LINK_LOGO_FIELD, file });
+    return url;
+  } catch (e) {
+    throw e instanceof UploadError
+      ? e
+      : new UploadError("That logo could not be uploaded.");
+  }
 }

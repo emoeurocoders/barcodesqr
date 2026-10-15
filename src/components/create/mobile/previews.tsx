@@ -3,7 +3,8 @@
 import type { ReactNode } from "react";
 import { Caret, Slide } from "./ui";
 import { socialByKey } from "./socials";
-import { fileSrc, parseLinks, parseStoredFile } from "../storedValues";
+import { cropStyle, fileSrc, filledLinks, linkCaption, parseStoredFile } from "../storedValues";
+import { dialCodes } from "../fieldSchema";
 import { isValidUrl } from "../validate";
 
 /**
@@ -208,14 +209,17 @@ function dotColors(selected: string[]) {
   );
 }
 
-/** The value a vCard preview row shows once there is one, else its label. */
-function firstOf(values: Values, keys: string[]) {
-  for (const k of keys) {
-    const v = (values[k] ?? "").trim();
-    if (v) return v;
-  }
-  return "";
+/** A phone value as the card will dial it: the picked code, unless typed. */
+function phoneOf(values: Values, k: string) {
+  const n = (values[k] ?? "").trim();
+  if (!n) return "";
+  if (n.startsWith("+")) return n;
+  const code = (values[`${k}Country`] ?? dialCodes[0].value).split("-")[0];
+  return `${code} ${n}`;
 }
+
+const clean = (parts: (string | undefined)[], sep: string) =>
+  parts.map((p) => (p ?? "").trim()).filter(Boolean).join(sep);
 
 export function VCardPreview({
   values,
@@ -235,18 +239,29 @@ export function VCardPreview({
   const summary =
     (values.summary ?? "").trim() ||
     "Designing thoughtful, human-centered products — pairing research and craft to turn rough ideas into polished experiences.";
-  const photo = fileSrc(parseStoredFile(values.photo ?? "")) ?? "/previews/portrait.jpg";
+  const stored = parseStoredFile(values.photo ?? "");
+  const photo = fileSrc(stored) ?? "/previews/portrait.jpg";
+  const photoStyle = stored ? cropStyle(stored) : { objectFit: "cover" as const };
   const dots = dotColors(selectedSocials);
 
-  // The designer's three rows are labels; once a section has something in it
-  // the row shows that instead, so the preview follows what is typed.
+  // JB, 2026-10-15: the three rows keep their labels and show what was
+  // entered underneath — contact: a phone, else the email; company: the
+  // organisation; address: city/state, else the whole address or its link.
+  // Nothing entered, nothing shown: no sample details here.
+  const contact =
+    phoneOf(values, "phone") ||
+    phoneOf(values, "mobile") ||
+    phoneOf(values, "work") ||
+    (values.email ?? "").trim();
   const address =
     values.addressMode === "url"
       ? (values.addressUrl ?? "").trim()
-      : [values.city, values.state, values.country].map((s) => (s ?? "").trim()).filter(Boolean).join(", ");
+      : clean([values.city, values.state], ", ") ||
+        clean([values.street, clean([values.zip, values.country], " ")], ", ");
   const rows = [
     {
-      label: firstOf(values, ["phone", "mobile", "work", "email"]) || "Contact",
+      label: "Contact",
+      detail: contact,
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -254,7 +269,8 @@ export function VCardPreview({
       ),
     },
     {
-      label: firstOf(values, ["organization", "website"]) || "Company info",
+      label: "Company info",
+      detail: (values.organization ?? "").trim(),
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
@@ -264,7 +280,8 @@ export function VCardPreview({
       ),
     },
     {
-      label: address || "Address",
+      label: "Address",
+      detail: address,
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
@@ -301,8 +318,11 @@ export function VCardPreview({
           {/* Their `.mini`: a thumbnail of the card, always visible. */}
           <span className="relative block w-[102.2px] shrink-0 overflow-hidden rounded-[9.7px] border border-mc-card-line bg-white pb-[8.9px] text-center shadow-mc-mini">
             <i className="block h-[29.2px] bg-mc-pv-band" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo} alt="" className="mx-auto -mt-[17.8px] block h-[51.5px] w-[35.7px] rounded-full border-[2.4px] border-white object-cover" />
+            {/* JB, 2026-10-15: a true circle (the mockup's oval was a bug). */}
+            <span className="mx-auto -mt-[17.8px] block h-[35.7px] w-[35.7px] overflow-hidden rounded-full border-[2.4px] border-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo} alt="" className="block h-full w-full" style={photoStyle} />
+            </span>
             <span className="mt-[4.7px] block truncate px-[4.7px] text-[9.33px] leading-[normal] font-bold text-mc-pv-name">
               {name}
             </span>
@@ -334,8 +354,10 @@ export function VCardPreview({
           </span>
         </div>
         <div className="relative -mt-[13px] rounded-t-[16.2px] bg-white px-[11.4px] pb-[13.8px] text-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photo} alt="" className="mx-auto -mt-[31.6px] block h-[87px] w-[60px] rounded-full border-[3.2px] border-white object-cover shadow-mc-photo" />
+          <span className="mx-auto -mt-[31.6px] block h-[60px] w-[60px] overflow-hidden rounded-full border-[3.2px] border-white shadow-mc-photo">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo} alt="" className="block h-full w-full" style={photoStyle} />
+          </span>
           <h5 className="mt-[7.1px] text-[12.98px] leading-[normal] font-bold tracking-[-0.13px] text-mc-pv-name">
             {name}
           </h5>
@@ -354,8 +376,16 @@ export function VCardPreview({
                 <span className="flex h-[21.1px] w-[21.1px] shrink-0 items-center justify-center rounded-[6.5px] bg-white text-ink shadow-mc-tick [&>svg]:block [&>svg]:h-[10.5px] [&>svg]:w-[10.5px]">
                   {r.icon}
                 </span>
-                <span className="min-w-0 flex-1 truncate pl-[8.8px] text-left text-[9.73px] leading-[normal] font-semibold text-body">
-                  {r.label}
+                <span className="min-w-0 flex-1 pl-[8.8px] text-left">
+                  <span className="block truncate text-[9.73px] leading-[normal] font-semibold text-body">
+                    {r.label}
+                  </span>
+                  {/* Unmocked: the entered value, wrapping so the row grows. */}
+                  {r.detail && (
+                    <span className="mt-[1.6px] block text-[8.52px] leading-[12px] break-words text-muted">
+                      {r.detail}
+                    </span>
+                  )}
                 </span>
                 <span className="shrink-0 text-muted [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px]">{chevronRight}</span>
               </div>
@@ -440,10 +470,10 @@ export function MultiLinkPreview({
   const desc =
     (values.description ?? "").trim() ||
     "A cozy matcha bar pouring comforting, Japanese-inspired drinks all day long.";
-  const cover = fileSrc(parseStoredFile(values.image ?? "")) ?? "/previews/cafe.jpg";
-  const named = parseLinks(values.links ?? "")
-    .map((l) => l.name.trim())
-    .filter(Boolean);
+  const coverFile = parseStoredFile(values.image ?? "");
+  const cover = fileSrc(coverFile) ?? "/previews/cafe.jpg";
+  const coverStyle = coverFile ? cropStyle(coverFile) : { objectFit: "cover" as const };
+  const links = filledLinks(values.links ?? "");
   const soc = selectedSocials.length ? selectedSocials : sampleSocials;
 
   return (
@@ -454,7 +484,7 @@ export function MultiLinkPreview({
         <>
           <span className="block h-[35.7px] w-[35.7px] shrink-0 overflow-hidden rounded-[8.1px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cover} alt="" className="block h-full w-full object-cover" />
+            <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
           </span>
           <BarText open={open} title="Your Multi-Link Preview" base="See how your page looks" />
           <BarCaret open={open} />
@@ -464,7 +494,7 @@ export function MultiLinkPreview({
       <Phone className="bg-[linear-gradient(115deg,#ffffff_30%,var(--color-mc-pv-sheen)_50%,#ffffff_70%)] pb-[13.8px]">
         <div className="relative mx-[8.1px] mt-[8.1px] h-[81.1px] overflow-hidden rounded-[13px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={cover} alt="" className="block h-full w-full object-cover" />
+          <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
           <Chip className="top-[8.1px] left-[8.1px] text-primary-dark">{qrGlyph}</Chip>
           <Chip round className="top-[8.1px] right-[8.1px] text-muted">{shareGlyph}</Chip>
         </div>
@@ -473,10 +503,22 @@ export function MultiLinkPreview({
           <p className="mt-[4px] text-[8.92px] leading-[13.83px] text-muted">{desc}</p>
         </div>
         <div className="px-[10.5px] pt-[9.7px]">
-          {named.length
-            ? named.map((n, i) => (
-                <LinkRow key={i} lead={<span className={ic}>{linkGlyph}</span>}>
-                  {n}
+          {links.length
+            ? links.map((l, i) => (
+                <LinkRow
+                  key={i}
+                  lead={
+                    <span className={`${ic} overflow-hidden`}>
+                      {l.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={l.logo} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        linkGlyph
+                      )}
+                    </span>
+                  }
+                >
+                  {linkCaption(l)}
                 </LinkRow>
               ))
             : sampleLinks.map((l) => (

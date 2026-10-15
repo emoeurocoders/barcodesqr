@@ -31,6 +31,11 @@ export type Field = {
   /** Crop shape offered for image uploads. */
   adjustable?: "circle" | "wide";
   hintKey?: string;
+  /**
+   * Links fields only: at least one complete row (name + URL) is required.
+   * A flag rather than `required`, which would also star the label.
+   */
+  requireOneLink?: boolean;
   /** Placeholder that follows another field's value, e.g. the payment provider. */
   placeholderFrom?: {
     field: string;
@@ -1191,6 +1196,7 @@ export const fieldSchema: Record<string, Field[]> = {
       "name": "links",
       "labelKey": "links",
       "type": "links",
+      "requireOneLink": true,
       "section": "links"
     },
     {

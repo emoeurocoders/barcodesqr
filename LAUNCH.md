@@ -296,29 +296,39 @@ seven up front and sixteen behind "View All 23 QR Types".
   (JB: "return the user to the heading"); the file just slides the list shut.
 - **The step-1 rail scales below 390px** (`min(px, vw)`), where fixed sizes
   overflowed a 320px screen by 7px. Everything else is fixed px.
-- **The vCard avatars are ovals in the mockup** (35.7×51.5 in the bar,
-  60×87 expanded): their `.pho` sets a width and the image keeps its own
-  height. Reproduced — almost certainly a designer bug, report it.
+- **The vCard avatars are circles, not the mockup's ovals** (35.7×51.5 /
+  60×87 there). JB confirmed it a bug on 2026-10-15: 1:1, centred, cover.
 - **Implemented from JB's polish list, not from the mockup:** "Collapse
   preview" while expanded; 4px more room above the expanded preview card;
   Next always enabled, validating on click, opening the accordion holding the
   first problem and scrolling it to mid-screen with focus; "Your Links" open by
   default.
-- **"Company details and address update in the live preview"** (JB) — the
-  mockup's three vCard rows are fixed labels. Each now shows the first thing
-  typed in its section (a phone or email; the organisation or website; city,
-  state, country or the address link) and falls back to the label. Our
-  interpretation; confirm.
-- **No reposition/zoom on mobile uploads.** Desktop offers the image adjuster
-  for the vCard photo and the cover; the mobile mockups show a thumbnail and
-  "Remove" only.
-- **No per-link logo on mobile Multi-Link** — the mobile rows are name + URL.
-  Logos added on desktop are kept in the data.
-- **vCard phones are plain number fields** with no dial-code picker, as in the
-  mockup; the number is stored as typed.
-- **Mobile Multi-Link requires every link row** (name and valid URL), as their
-  `data-req` does; desktop requires none. The rules differ until desktop gets
-  its pass.
+- **vCard preview rows** keep their labels (Contact / Company info /
+  Address) with what was entered on a second line — a phone with its dial
+  code, else the email; the organisation; city/state, else the address or its
+  link. Nothing entered, no second line (JB, 2026-10-15). The second line is
+  unmocked. The name, photo and summary above still show the designer's
+  sample until typed over — JB's "no fictional details" was read as being
+  about the rows; ask if he meant the whole card.
+- **Desktop parity on mobile (JB, 2026-10-15), all unmocked:**
+  - *Crop/zoom* — "Adjust position & zoom" under an uploaded photo or cover
+    opens the desktop `ImageAdjuster` as is (it already drags by touch).
+  - *Per-link logos* — one line per link row: a small tile, "Add logo
+    (optional)", then the thumbnail and "Remove". Same upload checks as
+    desktop (`uploadLinkLogo`).
+  - *Country codes* — each vCard phone has a "Country" select beside it,
+    laid out like the designer's WhatsApp mobile file. The placeholder is
+    "555 555 0123", not the mockup's "+1 555 555 0123", which would sit next
+    to a picker already showing +1.
+- **Multi-Link has one rule on both layouts** (`linkIssues` in validate.ts):
+  a title and at least one complete link; spare empty rows are ignored; a
+  half-filled row is flagged where it is missing. Mobile flags on Next;
+  desktop keeps its disabled Next and highlights a half row once it is left.
+  Social Media's links keep their old, looser rule.
+- **The vCard now dials the code the picker shows.** Before, desktop showed
+  the picker but encoded the bare number, and Work and Fax were collected
+  but never written into the card. SMS and WhatsApp now also include the
+  default +1 when the picker was left untouched; before, they encoded no code.
 - **vCard website and email are checked when filled,** which the mockup does
   not do, so a malformed one cannot go into the card. The messages are the
   desktop form's copy — unmocked.

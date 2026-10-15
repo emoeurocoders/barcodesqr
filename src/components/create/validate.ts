@@ -7,6 +7,7 @@
 import { fieldSchema } from "./fieldSchema";
 import type { Field } from "./fieldSchema";
 import { parseLinks } from "./storedValues";
+import type { StoredLink } from "./storedValues";
 
 type Values = Record<string, string>;
 
@@ -64,10 +65,56 @@ export const errorCopy = {
   url: "Enter a valid URL, e.g. https://example.com",
   email: "Enter a valid email address",
   phone: "Enter a valid phone number",
+  link: "Add at least one link with a name and a URL",
 } as const;
+
+/**
+ * The multi-link rule, shared by desktop and mobile (JB, 2026-10-15): at
+ * least one complete link (where the field sets `requireOneLink` — Social
+ * Media's links stay optional) — a name and a valid URL. A row left entirely empty
+ * is ignored, so a spare row never blocks Next; a half-filled row is flagged
+ * on whichever half is missing; a URL that is there but malformed is flagged.
+ *
+ * `none` is true when no row is complete, and `rows[i]` says what is wrong
+ * with row i, if anything. Each layout words the problems itself.
+ */
+export type LinkRowIssue = { name?: "missing"; url?: "missing" | "invalid" };
+
+export function linkIssues(rows: StoredLink[]): {
+  rows: LinkRowIssue[];
+  none: boolean;
+} {
+  let complete = 0;
+  const issues = rows.map((l): LinkRowIssue => {
+    const name = l.name.trim();
+    const url = l.url.trim();
+    const hasUrl = url !== "" && url !== "https://";
+    if (!name && !hasUrl) return {};
+    const issue: LinkRowIssue = {};
+    if (!name) issue.name = "missing";
+    if (!hasUrl) issue.url = "missing";
+    else if (!isValidUrl(url)) issue.url = "invalid";
+    if (!issue.name && !issue.url) complete++;
+    return issue;
+  });
+  return { rows: issues, none: complete === 0 };
+}
 
 /** The message a field should show, or null when it is fine. */
 export function fieldError(f: Field, raw: string): string | null {
+  // Links answer to `linkIssues` whether or not anything was typed: an empty
+  // editor is "no complete link", not "nothing to check".
+  if (f.type === "links") {
+    const { rows, none } = linkIssues(parseLinks(raw));
+    if (rows.some((r) => r.url === "invalid")) return errorCopy.url;
+    // The completeness rules are Multi-Link's. Social Media's rows have
+    // always allowed a bare URL, captioned by its host.
+    if (f.requireOneLink && (none || rows.some((r) => r.name || r.url))) {
+      return errorCopy.link;
+    }
+    return null;
+  }
+
   const v = (raw ?? "").trim();
   if (!v) return f.required ? errorCopy.required : null;
 
@@ -79,11 +126,6 @@ export function fieldError(f: Field, raw: string): string | null {
     case "tel":
     case "phone-intl":
       return isValidPhone(v) ? null : errorCopy.phone;
-    case "links":
-      // Row-level errors render inside the editor; here it only gates Next.
-      return parseLinks(v).every((l) => !l.url.trim() || isValidUrl(l.url))
-        ? null
-        : errorCopy.url;
     default:
       return null;
   }
