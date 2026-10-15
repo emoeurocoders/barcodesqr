@@ -282,15 +282,18 @@ export function Slide({
   open,
   children,
   className = "",
+  duration = "duration-[220ms]",
 }: {
   open: boolean;
   children: ReactNode;
   className?: string;
+  /** A Tailwind duration class: jQuery's 220ms unless the file says otherwise. */
+  duration?: string;
 }) {
   return (
     <div
       inert={!open}
-      className={`grid transition-[grid-template-rows] duration-[220ms] ease-in-out ${
+      className={`grid transition-[grid-template-rows] ${duration} ease-in-out ${
         open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
       }`}
     >

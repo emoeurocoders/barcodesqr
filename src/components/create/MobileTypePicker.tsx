@@ -1,28 +1,67 @@
 "use client";
 
-import Link from "next/link";
-import { primaryTypes, secondaryTypes } from "./qrTypes";
-import type { CreateQrType } from "./qrTypes";
+import { useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { designerTypeIcons } from "./designerTypeIcons";
+import { Slide } from "./mobile/ui";
 
 /**
- * Step 1 below `md`, ported from create_mobile.html.
+ * Step 1 below `md`, ported from create_mobile.html (the 2026-10-15
+ * revision, which replaced the radio list + Continue button).
  *
- * Not a reflow of the desktop picker: the mobile file has its own numbered
- * rail, one type per row with a visible radio, a three-up "More QR Types"
- * grid whose tiles carry a description, and a preview card ending in the
- * Continue button. Picking a row only SELECTS it here — Continue is what
- * advances, which is the one behavioural difference from desktop, where a
- * click on a format goes straight into its form.
+ * Every card is a link straight into its form. Seven show up front; "View
+ * All 23 QR Types" slides the other sixteen open beneath it. The cards' order
+ * and wording are the mobile file's own, not the desktop picker's, so they
+ * are listed here rather than read from `qrTypes`.
  *
  * Every number is the mockup's computed value at 390px. Their stylesheet
  * sizes this page in `vw`, so it scales with the screen; ours is fixed at
  * the 390 rendering, as the mobile homepage is.
  */
 
+type Card = { value: string; label: string; desc: string; tint: string };
+
+const first: Card[] = [
+  { value: "website", label: "Website", desc: "Open a website or landing page", tint: "rgba(37, 99, 235, 0.08)" },
+  { value: "vcard", label: "vCard", desc: "Share a digital business card", tint: "rgba(37, 99, 235, 0.08)" },
+  { value: "multilink", label: "Multi-Link", desc: "Share several links at once", tint: "rgba(124, 58, 237, 0.08)" },
+  { value: "social", label: "Social Media", desc: "Share all your social profiles", tint: "rgba(236, 72, 153, 0.08)" },
+  { value: "applink", label: "App Link", desc: "Send users to the right app store", tint: "rgba(16, 185, 129, 0.08)" },
+  { value: "pdf", label: "PDF", desc: "Open or download a PDF file", tint: "rgba(220, 38, 38, 0.08)" },
+  { value: "image", label: "Image", desc: "Display an image or photo", tint: "rgba(22, 163, 74, 0.08)" },
+];
+
+const rest: Card[] = [
+  { value: "whatsapp", label: "WhatsApp", desc: "Start a WhatsApp chat", tint: "rgba(37, 211, 102, 0.08)" },
+  { value: "menu", label: "Menu", desc: "Share your digital menu", tint: "rgba(249, 115, 22, 0.08)" },
+  { value: "wifi", label: "WiFi", desc: "Connect to a WiFi network", tint: "rgba(14, 165, 233, 0.08)" },
+  { value: "video", label: "Video", desc: "Play a video with one scan", tint: "rgba(239, 68, 68, 0.08)" },
+  { value: "location", label: "Google Maps", desc: "Share a location", tint: "rgba(234, 67, 53, 0.08)" },
+  { value: "email", label: "Email", desc: "Send an email message", tint: "rgba(139, 92, 246, 0.08)" },
+  { value: "review", label: "Google Review", desc: "Get more reviews on Google", tint: "rgba(220, 60, 42, 0.08)" },
+  { value: "sms", label: "SMS", desc: "Send a text message", tint: "rgba(37, 99, 235, 0.08)" },
+  { value: "phone", label: "Phone", desc: "Call a phone number", tint: "rgba(22, 163, 74, 0.08)" },
+  { value: "text", label: "Plain Text", desc: "Show text instantly", tint: "rgba(107, 114, 128, 0.08)" },
+  { value: "payment", label: "Payment", desc: "Accept payments", tint: "rgba(124, 58, 237, 0.08)" },
+  { value: "mp3", label: "Audio", desc: "Play an audio file", tint: "rgba(245, 158, 11, 0.08)" },
+  { value: "coupon", label: "Coupon", desc: "Share a discount", tint: "rgba(239, 68, 68, 0.08)" },
+  { value: "feedback", label: "Feedback", desc: "Collect feedback", tint: "rgba(245, 158, 11, 0.08)" },
+  { value: "business", label: "Business", desc: "Share business info", tint: "rgba(37, 99, 235, 0.08)" },
+  { value: "event", label: "Event", desc: "Promote your event", tint: "rgba(59, 130, 246, 0.08)" },
+];
+
+/** Every type the mobile picker offers — all 23, each exactly once. */
+export const mobilePickerTypes = [...first, ...rest].map((c) => c.value);
+
 const railSteps = ["Choose", "Customize", "Download"];
 
-/** Their `.top`: numbered circles joined by a grey bar, the first one live. */
+/**
+ * Their `.top`: numbered circles joined by a grey bar, the first one live.
+ *
+ * The one part of this page sized `min(px at 390, vw)`: their rail scales
+ * with the screen (`1.67vw`), and at fixed px its three labels overflow a
+ * 320px phone by 7px. Identical at 390 and up.
+ */
 function NumberRail() {
   return (
     <div className="flex">
@@ -35,14 +74,14 @@ function NumberRail() {
             className={`flex items-center text-left ${last ? "flex-none" : "flex-auto"}`}
           >
             <div
-              className={`flex h-[29.9px] w-[29.9px] shrink-0 items-center justify-center rounded-full text-[11.72px] font-bold ${
+              className={`flex h-[min(29.9px,7.667vw)] w-[min(29.9px,7.667vw)] shrink-0 items-center justify-center rounded-full text-[length:min(11.72px,3.005vw)] font-bold ${
                 on ? "bg-primary text-white" : "bg-mc-num text-prose"
               }`}
             >
               {i + 1}
             </div>
             <h5
-              className={`ml-[7.2px] max-w-[70.3px] text-[11.72px] leading-[14.07px] ${
+              className={`ml-[min(7.2px,1.846vw)] max-w-[min(70.3px,18.026vw)] text-[length:min(11.72px,3.005vw)] leading-[min(14.07px,3.608vw)] ${
                 on ? "font-bold text-primary" : "font-medium text-muted"
               }`}
             >
@@ -52,7 +91,7 @@ function NumberRail() {
             {!last && (
               <span
                 aria-hidden="true"
-                className="mx-[6.5px] block h-[1.63px] min-w-[7.8px] flex-1 bg-mc-rule"
+                className="mx-[min(6.5px,1.667vw)] block h-[min(1.63px,0.418vw)] min-w-[min(7.8px,2.000vw)] flex-1 bg-mc-rule"
               />
             )}
           </div>
@@ -62,78 +101,22 @@ function NumberRail() {
   );
 }
 
-function TypeRow({
-  type,
-  selected,
-  onSelect,
-}: {
-  type: CreateQrType;
-  selected: boolean;
-  onSelect: () => void;
-}) {
-  const Glyph = designerTypeIcons[type.value];
+/** Their `.chv`: right-pointing on a type, down-pointing on "View All". */
+function Chevron({ down, open }: { down?: boolean; open?: boolean }) {
   return (
-    <li
-      className={`rounded-[11.1px] border ${
-        selected ? "border-primary bg-mc-on" : "border-mc-card-line bg-white"
-      }`}
-    >
-      <label className="flex cursor-pointer items-center p-[11.138px]">
-        <div
-          className="flex h-[40.84px] w-[40.84px] shrink-0 items-center justify-center rounded-full"
-          style={{ background: `${type.color}14` }}
-        >
-          <Glyph className="h-[23.2px] w-[23.2px]" />
-        </div>
-        <div className="min-w-0 flex-1 pl-[7.4px] pr-[4.6px]">
-          <h5
-            className={`flex items-center text-[13.92px] leading-[normal] font-bold ${
-              selected ? "text-primary-dark" : "text-black"
-            }`}
-          >
-            {type.label}
-            {type.tag && (
-              <span className="ml-[6.2px] rounded-full bg-mc-tag px-[6.5px] py-[2.8px] text-[9.75px] font-bold tracking-[0.39px] text-brand-dark">
-                {type.tag}
-              </span>
-            )}
-          </h5>
-          <p className="mt-[2.8px] text-[11.6px] leading-[16.82px] font-medium text-muted">
-            {type.desc}
-          </p>
-        </div>
-        {/* A real radio, drawn the way their `input[type=radio]` is. */}
-        <input
-          type="radio"
-          name="qrTypeMobile"
-          value={type.value}
-          checked={selected}
-          onChange={onSelect}
-          className={`h-[26.7px] w-[26.7px] shrink-0 cursor-pointer appearance-none rounded-full bg-center bg-no-repeat ${
-            selected
-              ? "border border-mc-radio-on-line bg-primary bg-[url(/create/check-white.svg)] bg-[length:12px_12px]"
-              : "border-2 border-mc-radio-line bg-white"
-          }`}
-        />
-      </label>
-    </li>
-  );
-}
-
-/** Their `.chv`: the grey caret at the end of each small tile. */
-function TileCaret() {
-  return (
-    <div className="flex shrink-0">
+    <div className="ml-[3.7px] flex shrink-0">
       <svg
         width="17"
         height="17"
         viewBox="0 0 17 17"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="block h-[9.8px] w-[9.8px]"
+        className={`block h-[15.8px] w-[15.8px] transition-transform duration-300 ${
+          open ? "rotate-180" : ""
+        }`}
       >
         <path
-          d="M6.375 4.25L10.625 8.5L6.375 12.75"
+          d={down ? "M4.25 6.375L8.5 10.625L12.75 6.375" : "M6.375 4.25L10.625 8.5L6.375 12.75"}
           stroke="#9CA3AF"
           strokeWidth="1.41667"
           strokeLinecap="round"
@@ -144,186 +127,101 @@ function TileCaret() {
   );
 }
 
-const tileBox =
-  "flex cursor-pointer items-center px-[6.6px] py-[9px] text-left";
+/**
+ * The whole card is the link. The mockup has no pressed state; JB asked for
+ * clear tap feedback, so it borrows the picker's selected look (blue border,
+ * pale blue fill) while held.
+ */
+const cardLi =
+  "rounded-[11.1px] border border-mc-card-line bg-white transition-colors duration-100 has-[a:active]:border-primary has-[a:active]:bg-mc-on";
+const cardA =
+  "flex cursor-pointer items-center p-[11.138px] [-webkit-tap-highlight-color:transparent]";
 
-function TypeTile({
-  type,
-  selected,
-  onSelect,
+function CardBody({
+  icon,
+  tint,
+  title,
+  desc,
 }: {
-  type: CreateQrType;
-  selected: boolean;
-  onSelect: () => void;
+  icon: ReactNode;
+  tint: string;
+  title: ReactNode;
+  desc: string;
 }) {
-  const Glyph = designerTypeIcons[type.value];
   return (
-    <li
-      className={`rounded-[9.8px] border ${
-        selected ? "border-primary bg-mc-on" : "border-mc-card-line bg-white"
-      }`}
-    >
-      <label className={tileBox}>
-        <div
-          className="flex h-[28.7px] w-[28.7px] shrink-0 items-center justify-center rounded-full"
-          style={{ background: `${type.color}14` }}
-        >
-          <Glyph className="h-[14.3px] w-[14.3px]" />
-        </div>
-        <TileText title={type.label} desc={type.tileDesc ?? ""} />
-        <TileCaret />
-        <input
-          type="radio"
-          name="qrTypeMobile"
-          value={type.value}
-          checked={selected}
-          onChange={onSelect}
-          className="sr-only"
+    <>
+      <div
+        className="flex h-[40.84px] w-[40.84px] shrink-0 items-center justify-center rounded-full"
+        style={{ background: tint }}
+      >
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1 pr-[4.6px] pl-[7.4px]">
+        <h5 className="flex items-center text-[13.92px] leading-[normal] font-bold text-black">
+          {title}
+        </h5>
+        <p className="mt-[2.8px] text-[11.6px] leading-[16.82px] font-medium text-muted">
+          {desc}
+        </p>
+      </div>
+    </>
+  );
+}
+
+function TypeCard({
+  card,
+  onChoose,
+}: {
+  card: Card;
+  onChoose: (v: string) => void;
+}) {
+  const Glyph = designerTypeIcons[card.value];
+  return (
+    <li className={cardLi}>
+      <a
+        href={`/create?type=${card.value}`}
+        onClick={(e) => {
+          // A real address (new tab, long-press copy), but in-app it is a
+          // history push rather than a page load — see CreateWizard.
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+          e.preventDefault();
+          onChoose(card.value);
+        }}
+        className={cardA}
+      >
+        <CardBody
+          icon={<Glyph className="h-[23.2px] w-[23.2px]" />}
+          tint={card.tint}
+          title={card.label}
+          desc={card.desc}
         />
-      </label>
+        <Chevron />
+      </a>
     </li>
   );
 }
 
-function TileText({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="min-w-0 flex-1 pl-[5.7px] pr-[2.5px]">
-      <h5 className="block text-[9.83px] leading-[normal] font-bold text-ink">
-        {title}
-      </h5>
-      <p className="mt-[1.6px] text-[8.19px] leading-[9.42px] font-medium text-muted">
-        {desc}
-      </p>
-    </div>
-  );
-}
-
-/** Their preview-card perks, glyphs copied from the file. */
-const perks: { title: string; tint: string; icon: React.ReactNode }[] = [
-  {
-    title: "Dynamic",
-    tint: "rgba(17, 177, 167, 0.08)",
-    icon: (
-      <svg
-        width="21"
-        height="21"
-        viewBox="0 0 21 21"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="block h-[17.2px] w-[17.2px]"
-      >
-        <path
-          d="M18.375 10.5C18.3766 12.322 17.7464 14.0882 16.5917 15.4976C15.437 16.907 13.8294 17.8724 12.0426 18.2294C10.2559 18.5863 8.40074 18.3126 6.7932 17.455C5.18566 16.5973 3.92524 15.2088 3.22672 13.526C2.5282 11.8432 2.43481 9.9703 2.96246 8.22636C3.4901 6.48243 4.60614 4.97541 6.12039 3.96212C7.63464 2.94882 9.4534 2.49195 11.2668 2.66935C13.0801 2.84675 14.7758 3.64745 16.065 4.935"
-          stroke="#11B1A7"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M18.375 2.625V7.875H13.125"
-          stroke="#11B1A7"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Trackable",
-    tint: "rgba(37, 99, 235, 0.08)",
-    icon: (
-      <svg
-        width="21"
-        height="21"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="block h-[17.2px] w-[17.2px]"
-      >
-        <path
-          d="M12 20V10"
-          stroke="#2563EB"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M18 20V4"
-          stroke="#2563EB"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M6 20V16"
-          stroke="#2563EB"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Editable",
-    tint: "rgba(124, 58, 237, 0.08)",
-    icon: (
-      <svg
-        width="21"
-        height="21"
-        viewBox="0 0 21 21"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="block h-[17.2px] w-[17.2px]"
-      >
-        <path
-          d="M16.1 2.275C16.4481 1.9269 16.9202 1.73134 17.4125 1.73134C17.9048 1.73134 18.3769 1.9269 18.725 2.275C19.0731 2.6231 19.2687 3.09522 19.2687 3.5875C19.2687 4.07978 19.0731 4.5519 18.725 4.9L10.85 12.775L7.35 13.65L8.225 10.15L16.1 2.275Z"
-          stroke="#7C3AED"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Secure",
-    tint: "rgba(239, 68, 68, 0.08)",
-    icon: (
-      <svg
-        width="21"
-        height="21"
-        viewBox="0 0 21 21"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="block h-[17.2px] w-[17.2px]"
-      >
-        <path
-          d="M17.5 11.375C17.5 15.75 14.4375 17.9375 10.7975 19.2062C10.6069 19.2708 10.3998 19.2678 10.2113 19.1975C6.5625 17.9375 3.5 15.75 3.5 11.375V5.25C3.5 5.01794 3.59219 4.79538 3.75628 4.63128C3.92038 4.46719 4.14294 4.375 4.375 4.375C6.125 4.375 8.3125 3.325 9.835 1.995C9.91714 1.89894 10.0191 1.82182 10.1339 1.76894C10.2487 1.71606 10.3736 1.68868 10.5 1.68868C10.6264 1.68868 10.7513 1.71606 10.8661 1.76894C10.9809 1.82182 11.0829 1.89894 11.165 1.995C12.6963 3.33375 14.875 4.375 16.625 4.375C16.8571 4.375 17.0796 4.46719 17.2437 4.63128C17.4078 4.79538 17.5 5.01794 17.5 5.25V11.375Z"
-          stroke="#EF4444"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-];
-
-/** Their `.genBtn9`: 57.5px tall, 16px/600, 11.2px corners. */
-const bigBtn =
-  "flex h-[57.5px] w-full items-center justify-center gap-[9.6px] rounded-[11.2px] px-[17.6px] text-[15.99px] leading-[20.79px] font-semibold capitalize transition-colors";
-
 export function MobileTypePicker({
-  selected,
-  onSelect,
-  onContinue,
+  onChoose,
 }: {
-  selected: string;
-  onSelect: (value: string) => void;
-  onContinue: () => void;
+  onChoose: (value: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const moreRow = useRef<HTMLLIElement>(null);
+
+  const toggle = () => {
+    const closing = open;
+    setOpen(!open);
+    // JB: collapsing returns you to the "View All" row. If the list was
+    // scrolled far down, the page shortens under you; bring the row back
+    // into view — and leave the page alone if it already is.
+    if (closing) {
+      requestAnimationFrame(() =>
+        moreRow.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }),
+      );
+    }
+  };
+
   return (
     <div className="bg-white px-[14.6px] py-[12.2px]">
       <NumberRail />
@@ -337,133 +235,46 @@ export function MobileTypePicker({
         </p>
 
         <ul className="mt-[11.6px] grid gap-[14px]">
-          {primaryTypes.map((type) => (
-            <TypeRow
-              key={type.value}
-              type={type}
-              selected={selected === type.value}
-              onSelect={() => onSelect(type.value)}
-            />
+          {first.map((c) => (
+            <TypeCard key={c.value} card={c} onChoose={onChoose} />
           ))}
-        </ul>
-
-        {/* Their `.lnk`. Not a disclosure in their file either — the grid
-            below is always open — so, as on desktop, it is a label for the
-            grid that does nothing when pressed. */}
-        <div className="mt-[31.7px] flex flex-col items-center">
-          <a
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            className="flex items-center text-[14.43px] leading-[normal] font-bold text-black"
-          >
-            More QR Types
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/create/chevron-down.svg"
-              alt=""
-              className="ml-[4.5px] h-[15.3px] w-[15.3px]"
-            />
-          </a>
-          <p className="pt-[4.7px] text-[10.53px] leading-[normal] text-muted">
-            Explore more ways to connect
-          </p>
-        </div>
-
-        <ul className="mt-[8.5px] grid grid-cols-3 gap-[7.3px]">
-          {secondaryTypes.map((type) => (
-            <TypeTile
-              key={type.value}
-              type={type}
-              selected={selected === type.value}
-              onSelect={() => onSelect(type.value)}
-            />
-          ))}
-          <li className="rounded-[9.8px] border border-mc-card-line bg-white">
-            <a href="#" onClick={(e) => e.preventDefault()} className={tileBox}>
-              <div
-                className="flex h-[28.7px] w-[28.7px] shrink-0 items-center justify-center rounded-full"
-                style={{ background: "rgba(156, 163, 175, 0.08)" }}
-              >
-                <designerTypeIcons.seeall className="h-[14.3px] w-[14.3px]" />
-              </div>
-              <TileText title="See All" desc="View all 23 QR types" />
-              <TileCaret />
+          <li ref={moreRow} className={`${cardLi} scroll-my-[12px]`}>
+            <a
+              href="#"
+              aria-expanded={open}
+              aria-controls="more-qr-types"
+              onClick={(e) => {
+                e.preventDefault();
+                toggle();
+              }}
+              className={cardA}
+            >
+              <CardBody
+                icon={<designerTypeIcons.seeall className="h-[23.2px] w-[23.2px]" />}
+                tint="rgba(156, 163, 175, 0.08)"
+                title={
+                  <>
+                    {/* Their `.vw`: "View " drops out while the list is open. */}
+                    {!open && <span className="mr-[3.6px]">View</span>}
+                    All 23 QR Types
+                  </>
+                }
+                desc="Explore more ways to connect"
+              />
+              <Chevron down open={open} />
             </a>
           </li>
         </ul>
 
-        {/* Their `.rgt`: the preview card, which also carries the actions. */}
-        <div className="mt-[18.6px] rounded-[14.9px] border border-mc-card-line bg-white p-[18.6px]">
-          <div className="flex justify-center rounded-[14px] border border-mc-art-line p-[12.2px]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/create/qr-illustration.svg"
-              alt=""
-              className="h-[190.3px] w-[190.3px]"
-            />
-          </div>
-
-          <div className="mt-[16.4px]">
-            <h5 className="text-center text-[19.66px] leading-[normal] font-extrabold tracking-[-0.39px] text-ink">
-              Your QR Code Preview
-            </h5>
-            <p className="mt-[4.9px] text-center text-[13.92px] leading-[normal] text-muted">
-              Select a QR type to see your code update here.
-            </p>
-
-            <ul className="mt-[21.3px] grid grid-cols-2 gap-[11.5px]">
-              {perks.map((p) => (
-                <li
-                  key={p.title}
-                  className="flex items-center rounded-[9.8px] border border-mc-card-line bg-white p-[11.5px]"
-                >
-                  <div
-                    className="flex h-[36px] w-[36px] shrink-0 items-center justify-center rounded-full"
-                    style={{ background: p.tint }}
-                  >
-                    {p.icon}
-                  </div>
-                  <h5 className="pl-[11.4px] text-[13.92px] leading-[normal] font-bold text-ink">
-                    {p.title}
-                  </h5>
-                </li>
+        {/* Their `.xtr`, slid open with `slideToggle(260)`. */}
+        <div id="more-qr-types">
+          <Slide open={open} duration="duration-[260ms]">
+            <ul className="mt-[14px] grid gap-[14px]">
+              {rest.map((c) => (
+                <TypeCard key={c.value} card={c} onChoose={onChoose} />
               ))}
             </ul>
-
-            <div className="mt-[22.9px]">
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onContinue();
-                }}
-                className={`${bigBtn} bg-primary text-white hover:bg-primary-press`}
-              >
-                Continue to Customize
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-[19.2px] w-[19.2px]"
-                >
-                  <path d="M5 12h14" />
-                  <path d="m12 5 7 7-7 7" />
-                </svg>
-              </a>
-            </div>
-            <div className="mt-[10.6px]">
-              <Link
-                href="/"
-                className={`${bigBtn} border border-mc-cancel-line bg-white text-body hover:border-primary hover:bg-primary hover:text-white`}
-              >
-                Cancel
-              </Link>
-            </div>
-          </div>
+          </Slide>
         </div>
       </div>
     </div>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 // `Download` is shelved with step 3.
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StepRail } from "./StepRail";
@@ -63,10 +64,48 @@ const defaultName = (type: string) => {
 
 export function CreateWizard({ entitled }: { entitled: boolean }) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [type, setType] = useState("website");
-  const [values, setValues] = useState<Values>({});
-  const [name, setName] = useState(defaultName("website"));
+  const params = useSearchParams();
+
+  /**
+   * Which step is showing lives in the URL: step 2 is `/create?type=vcard`,
+   * step 1 is `/create`. Picking a type pushes a history entry, so a phone's
+   * own back button returns to the picker instead of leaving the creator,
+   * and a form can be linked to directly. Pushed with `history.pushState`,
+   * which Next syncs into `useSearchParams` without a server round trip.
+   */
+  const urlType = params.get("type");
+  const step = urlType && allTypes.some((t) => t.value === urlType) ? 2 : 1;
+
+  // The desktop picker's highlight; the open form's type when on step 2.
+  const [picked, setPicked] = useState("website");
+  const type = step === 2 ? urlType! : picked;
+
+  /**
+   * What has been typed, kept per type. Going Back and reopening the same
+   * type finds it as it was left (JB: back navigation must not lose entered
+   * data); opening a different type starts that type fresh.
+   */
+  const [draft, setDraft] = useState<{ type: string; values: Values; name: string }>(
+    { type: "website", values: {}, name: defaultName("website") },
+  );
+  const current =
+    draft.type === type ? draft : { type, values: {}, name: defaultName(type) };
+  const values = current.values;
+  const name = current.name;
+  const setValues: Dispatch<SetStateAction<Values>> = (u) =>
+    setDraft((d) => {
+      const base = d.type === type ? d : { type, values: {}, name: defaultName(type) };
+      return { ...base, values: typeof u === "function" ? u(base.values) : u };
+    });
+  const setName = (v: string) =>
+    setDraft((d) => {
+      const base = d.type === type ? d : { type, values: {}, name: defaultName(type) };
+      return { ...base, name: v };
+    });
+
+  /** Whether step 2 was reached from this page, i.e. there is a step 1 to go back to. */
+  const pushed = useRef(false);
+
   // The style is still read by step 2's preview; only the customiser wrote to
   // it, so the setter is shelved with step 3.
   const [style] = useState<QrStyle>(defaultQrStyle);
@@ -122,22 +161,16 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
   };
 
   // Choosing a type advances immediately — on the live creator one click on a
-  // format takes you into its form. Selecting and then hunting for a Next
-  // button below a 23-card grid is how you end up unable to build anything.
+  // format takes you into its form, and the 2026-10-15 mobile picker does the
+  // same. Selecting and then hunting for a Next button below a 23-card grid
+  // is how you end up unable to build anything.
   const chooseType = (next: string) => {
-    setType(next);
-    setValues({});
-    setName(defaultName(next));
-    setStep(2);
-  };
-
-  // Mobile (create_mobile.html) separates the two: a row only SELECTS, and
-  // "Continue to Customize" goes on with whatever is selected.
-  const selectType = (next: string) => {
-    if (next === type) return;
-    setType(next);
-    setValues({});
-    setName(defaultName(next));
+    setPicked(next);
+    // The desktop picker fires on both change and click; a second push of
+    // the same entry would make Back pop to a copy of the form.
+    if (new URLSearchParams(window.location.search).get("type") === next) return;
+    pushed.current = true;
+    window.history.pushState(null, "", `/create?type=${encodeURIComponent(next)}`);
   };
 
   const isMobile = useIsMobile();
@@ -150,7 +183,17 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
     if (isMobile) window.scrollTo({ top: 0, behavior: "instant" });
   }, [step, isMobile]);
 
-  const back = () => setStep(step - 1);
+  // Back pops our own history entry, so the browser's back and ours agree.
+  // Arriving straight on `?type=` there is none to pop — replace instead of
+  // walking the visitor off the site.
+  const back = () => {
+    if (pushed.current) {
+      pushed.current = false;
+      window.history.back();
+    } else {
+      window.history.replaceState(null, "", "/create");
+    }
+  };
 
   // The desktop step-2 body. Below `md` it is also what the types without a
   // mobile mockup yet still use, inside the mobile rail and footer.
@@ -167,8 +210,9 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
         {/* --- STEP 3 — SHELVED ------------------------------------
             Customise & Protect, kept whole against the PM changing
             their mind. Restore this and the footer block below, put
-            the `step === 2 ?` ternaries back around both, and point
-            `finishStepTwo` at setStep(3) again.
+            the `step === 2 ?` ternaries back around both, and have
+            `finishStepTwo` push step 3 — the step now lives in the URL
+            (`?type=`), so add a `&step=3` the way `chooseType` pushes.
 
             <StepCustomize
               style={style}
@@ -216,11 +260,7 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
       {step === 1 ? (
         <>
           <div className="md:hidden">
-            <MobileTypePicker
-              selected={type}
-              onSelect={selectType}
-              onContinue={() => setStep(2)}
-            />
+            <MobileTypePicker onChoose={chooseType} />
           </div>
           <div className="hidden px-4 py-5 sm:px-6 sm:py-8 md:block lg:px-8">
             <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
@@ -255,8 +295,8 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
       </main>
 
       {/* Footer actions — pinned to the bottom of the shell. Desktop only:
-          the mobile steps carry their own (Continue on step 1, the sticky
-          Back/Next on step 2). */}
+          the mobile steps carry their own (cards that go straight into a form
+          on step 1, the sticky Back/Next on step 2). */}
       <div className="hidden shrink-0 items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-6 md:flex lg:px-8">
         {step === 1 ? (
           <Link href="/">

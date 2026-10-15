@@ -259,26 +259,43 @@ of its own. Between 640 and 768 the page renders the mobile composition at its
 The PM posted a mobile step 1 (`create_mobile.html`, Monday item 13272385970)
 and the first three of 23 mobile step-2 forms — Website, vCard, Multi-Link
 (`create_mobile_website|vcard|multilink.html`, item 13257818061) — with a
-polish list on top. Below `md` the creator now renders those; desktop is
-untouched (0px pixel diff at 1440 on step 1 and all three forms).
+polish list on top. Below `md` the creator now renders those; desktop looks
+the same (0px pixel diff at 1440 on step 1 and all three forms).
 
-- **The shell is the site header, no footer.** Their files end in the site
-  footer and the sticky "Create Your QR Code" bar; the PM asked for "the body
-  only". Desktop keeps its full-screen app shell with no header.
+**Step 1 was replaced on 2026-10-15** ("last version was flawed"): no radio
+list, no preview card, no Continue — every card goes straight into its form,
+seven up front and sixteen behind "View All 23 QR Types".
+
+- **No site header or footer anywhere in the creator.** JB, 2026-10-15: keep
+  the logo and menu out of the mobile create flow. (Their step-2 files still
+  draw the header; JB's note supersedes them.)
+- **The step is in the URL.** Step 2 is `/create?type=<value>`, pushed with
+  `history.pushState`, so a phone's back button returns to the picker and a
+  form can be linked to. This applies to desktop too — it looks identical but
+  now has working browser back. What was typed is kept per type: Back and
+  reopening the same type finds it as left; another type starts fresh.
 - **The other 20 types are not redesigned yet.** On mobile they show the old
   step-2 form inside the new rail and Back/Next bar, and keep the old Next rule
-  (disabled until complete). Click-to-validate arrives per type with its
-  mockup — the designer's `main.js` already has handlers for menu, WiFi,
-  image, WhatsApp, social, app link.
+  (disabled until complete). The 2026-10-15 sync brought in 14 more mobile
+  forms (`create_mobile_app_link`, `_pdf`, `_image`, `_video`, `_whatsapp`,
+  `_menu`, `_google_maps`, `_google_review`, `_email`, `_sms`, `_payment`,
+  `_coupon`, `_business`, `_social_media`); none is ported yet, and phone,
+  plain text, audio, feedback and event have no file at all (404).
 
 ### Divergences and open questions
 
 - **Step 1's rail says "Choose / Customize / Download"** — ported as written,
   but it contradicts the 2026-10-12 rename ("Choose QR Type / Add Content /
   Customize & Download") on desktop. Step 2's rail hides its labels; their
-  screen-reader text uses the renamed wording. Ask which mobile step 1 wants.
-- **"Continue to Customize" leads to the content step,** since customising
-  (step 3) is shelved. Ported as written; the copy probably wants changing.
+  screen-reader text uses the renamed wording. Asked on 2026-10-13, no answer
+  yet.
+- **Tap feedback on the step-1 cards is ours.** JB asked for it; the file has
+  no pressed state, so a held card takes the selected look (blue border, pale
+  blue fill).
+- **Collapsing "View All" scrolls back to it** only if it has gone off screen
+  (JB: "return the user to the heading"); the file just slides the list shut.
+- **The step-1 rail scales below 390px** (`min(px, vw)`), where fixed sizes
+  overflowed a 320px screen by 7px. Everything else is fixed px.
 - **The vCard avatars are ovals in the mockup** (35.7×51.5 in the bar,
   60×87 expanded): their `.pho` sets a width and the image keeps its own
   height. Reproduced — almost certainly a designer bug, report it.
@@ -308,7 +325,6 @@ untouched (0px pixel diff at 1440 on step 1 and all three forms).
 - **Upload progress and errors in the mobile upload box are unmocked.** It
   reads "Uploading… n%" in place of "Click to upload…", and errors use the
   field-error style.
-- **"More QR Types" and "See All" do nothing,** as on desktop.
 - **The mobile picker uses the designer's icons; desktop still does not.**
   `designerTypeIcons.tsx` is extracted from their file. Desktop's lucide
   stand-ins (vCard, Multi-Link and App Link most visibly) were never a match —

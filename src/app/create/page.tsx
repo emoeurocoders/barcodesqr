@@ -6,7 +6,6 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { CreateWizard } from "@/components/create/CreateWizard";
-import { Header } from "@/components/layout/Header";
 
 export const metadata: Metadata = {
   title: "Create a QR code — BarcodesQR",
@@ -35,25 +34,16 @@ async function canDownload(session: Session | null) {
 }
 
 /**
- * On desktop the creator is a full-screen app, not a marketing page: no site
- * header or footer, the shell is exactly viewport height, and the form area
- * scrolls inside the card rather than the window.
- *
- * Below `md` it is create_mobile*.html instead: the site header on top and
- * an ordinary scrolling page under it. Their files end in the site footer
- * too; the PM asked for the body only, so it is left off.
+ * The creator is a full-screen app, not a marketing page: no site header or
+ * footer. On desktop the shell is exactly viewport height and the form area
+ * scrolls inside the card rather than the window; below `md`
+ * (create_mobile*.html) it is an ordinary scrolling page. JB, 2026-10-15:
+ * no logo or menu anywhere in the mobile create flow.
  */
 export default async function CreatePage() {
-  const session = await auth();
   return (
-    // `pt-px`: in create_mobile*.html the drawer sits inside the header, so
-    // their `#mainHdr + section { margin-top: 71px }` applies — one more than
-    // the 70px the shared header clears on mobile.
-    <div className="bg-white pt-px md:flex md:h-dvh md:flex-col md:bg-bg-alt md:p-4">
-      <div className="md:hidden">
-        <Header user={session?.user} />
-      </div>
-      <CreateWizard entitled={await canDownload(session)} />
+    <div className="bg-white md:flex md:h-dvh md:flex-col md:bg-bg-alt md:p-4">
+      <CreateWizard entitled={await canDownload(await auth())} />
     </div>
   );
 }
