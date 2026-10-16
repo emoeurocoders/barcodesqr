@@ -168,38 +168,43 @@ export const fieldHints: Record<string, string> = {
     "Paste your payment link — payments are completed on your provider's page.",
 };
 
-/** Dial codes offered beside every international phone field. */
-export const dialCodes: { value: string; label: string }[] = [
-  { value: "+1", label: "\uD83C\uDDFA\uD83C\uDDF8 +1" },
-  { value: "+1-CA", label: "\uD83C\uDDE8\uD83C\uDDE6 +1" },
-  { value: "+44", label: "\uD83C\uDDEC\uD83C\uDDE7 +44" },
-  { value: "+353", label: "\uD83C\uDDEE\uD83C\uDDEA +353" },
-  { value: "+61", label: "\uD83C\uDDE6\uD83C\uDDFA +61" },
-  { value: "+64", label: "\uD83C\uDDF3\uD83C\uDDFF +64" },
-  { value: "+49", label: "\uD83C\uDDE9\uD83C\uDDEA +49" },
-  { value: "+33", label: "\uD83C\uDDEB\uD83C\uDDF7 +33" },
-  { value: "+34", label: "\uD83C\uDDEA\uD83C\uDDF8 +34" },
-  { value: "+351", label: "\uD83C\uDDF5\uD83C\uDDF9 +351" },
-  { value: "+39", label: "\uD83C\uDDEE\uD83C\uDDF9 +39" },
-  { value: "+31", label: "\uD83C\uDDF3\uD83C\uDDF1 +31" },
-  { value: "+32", label: "\uD83C\uDDE7\uD83C\uDDEA +32" },
-  { value: "+41", label: "\uD83C\uDDE8\uD83C\uDDED +41" },
-  { value: "+43", label: "\uD83C\uDDE6\uD83C\uDDF9 +43" },
-  { value: "+46", label: "\uD83C\uDDF8\uD83C\uDDEA +46" },
-  { value: "+47", label: "\uD83C\uDDF3\uD83C\uDDF4 +47" },
-  { value: "+45", label: "\uD83C\uDDE9\uD83C\uDDF0 +45" },
-  { value: "+358", label: "\uD83C\uDDEB\uD83C\uDDEE +358" },
-  { value: "+48", label: "\uD83C\uDDF5\uD83C\uDDF1 +48" },
-  { value: "+91", label: "\uD83C\uDDEE\uD83C\uDDF3 +91" },
-  { value: "+65", label: "\uD83C\uDDF8\uD83C\uDDEC +65" },
-  { value: "+81", label: "\uD83C\uDDEF\uD83C\uDDF5 +81" },
-  { value: "+82", label: "\uD83C\uDDF0\uD83C\uDDF7 +82" },
-  { value: "+86", label: "\uD83C\uDDE8\uD83C\uDDF3 +86" },
-  { value: "+971", label: "\uD83C\uDDE6\uD83C\uDDEA +971" },
-  { value: "+27", label: "\uD83C\uDDFF\uD83C\uDDE6 +27" },
-  { value: "+55", label: "\uD83C\uDDE7\uD83C\uDDF7 +55" },
-  { value: "+52", label: "\uD83C\uDDF2\uD83C\uDDFD +52" },
-  { value: "+54", label: "\uD83C\uDDE6\uD83C\uDDF7 +54" },
+/**
+ * Dial codes offered beside every international phone field. `region` is the
+ * two-letter country create_mobile_whatsapp.html prints in its own labels
+ * ("🇺🇸 US +1") and uses to preselect the visitor's country; desktop's labels
+ * stay flag + code.
+ */
+export const dialCodes: { value: string; label: string; region: string }[] = [
+  { value: "+1", label: "\uD83C\uDDFA\uD83C\uDDF8 +1", region: "US" },
+  { value: "+1-CA", label: "\uD83C\uDDE8\uD83C\uDDE6 +1", region: "CA" },
+  { value: "+44", label: "\uD83C\uDDEC\uD83C\uDDE7 +44", region: "GB" },
+  { value: "+353", label: "\uD83C\uDDEE\uD83C\uDDEA +353", region: "IE" },
+  { value: "+61", label: "\uD83C\uDDE6\uD83C\uDDFA +61", region: "AU" },
+  { value: "+64", label: "\uD83C\uDDF3\uD83C\uDDFF +64", region: "NZ" },
+  { value: "+49", label: "\uD83C\uDDE9\uD83C\uDDEA +49", region: "DE" },
+  { value: "+33", label: "\uD83C\uDDEB\uD83C\uDDF7 +33", region: "FR" },
+  { value: "+34", label: "\uD83C\uDDEA\uD83C\uDDF8 +34", region: "ES" },
+  { value: "+351", label: "\uD83C\uDDF5\uD83C\uDDF9 +351", region: "PT" },
+  { value: "+39", label: "\uD83C\uDDEE\uD83C\uDDF9 +39", region: "IT" },
+  { value: "+31", label: "\uD83C\uDDF3\uD83C\uDDF1 +31", region: "NL" },
+  { value: "+32", label: "\uD83C\uDDE7\uD83C\uDDEA +32", region: "BE" },
+  { value: "+41", label: "\uD83C\uDDE8\uD83C\uDDED +41", region: "CH" },
+  { value: "+43", label: "\uD83C\uDDE6\uD83C\uDDF9 +43", region: "AT" },
+  { value: "+46", label: "\uD83C\uDDF8\uD83C\uDDEA +46", region: "SE" },
+  { value: "+47", label: "\uD83C\uDDF3\uD83C\uDDF4 +47", region: "NO" },
+  { value: "+45", label: "\uD83C\uDDE9\uD83C\uDDF0 +45", region: "DK" },
+  { value: "+358", label: "\uD83C\uDDEB\uD83C\uDDEE +358", region: "FI" },
+  { value: "+48", label: "\uD83C\uDDF5\uD83C\uDDF1 +48", region: "PL" },
+  { value: "+91", label: "\uD83C\uDDEE\uD83C\uDDF3 +91", region: "IN" },
+  { value: "+65", label: "\uD83C\uDDF8\uD83C\uDDEC +65", region: "SG" },
+  { value: "+81", label: "\uD83C\uDDEF\uD83C\uDDF5 +81", region: "JP" },
+  { value: "+82", label: "\uD83C\uDDF0\uD83C\uDDF7 +82", region: "KR" },
+  { value: "+86", label: "\uD83C\uDDE8\uD83C\uDDF3 +86", region: "CN" },
+  { value: "+971", label: "\uD83C\uDDE6\uD83C\uDDEA +971", region: "AE" },
+  { value: "+27", label: "\uD83C\uDDFF\uD83C\uDDE6 +27", region: "ZA" },
+  { value: "+55", label: "\uD83C\uDDE7\uD83C\uDDF7 +55", region: "BR" },
+  { value: "+52", label: "\uD83C\uDDF2\uD83C\uDDFD +52", region: "MX" },
+  { value: "+54", label: "\uD83C\uDDE6\uD83C\uDDF7 +54", region: "AR" },
 ];
 
 export const sections: Record<string, { title: string; desc: string }> = {

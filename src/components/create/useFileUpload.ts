@@ -20,11 +20,14 @@ export function useFileUpload({
   field,
   value,
   onChange,
+  messages,
 }: {
   type: string;
   field: Field;
   value: string;
   onChange: (v: string) => void;
+  /** A layout's own wording for the two refusals, where its mockup has one. */
+  messages?: { type?: string; size?: string };
 }) {
   const [error, setError] = useState<string | null>(null);
   /** Percent while a file is in flight, null when nothing is uploading. */
@@ -44,16 +47,23 @@ export function useFileUpload({
   const stored = parseStoredFile(value);
   const maxMb = field.maxSizeMb ?? 5;
 
-  const take = async (file: File | undefined | null) => {
+  /** `extra` is stored beside the file — e.g. a PDF's page count. */
+  const take = async (
+    file: File | undefined | null,
+    extra?: Record<string, unknown>,
+  ) => {
     if (!file) return;
     if (!matchesAccept(file.name, file.type, field.accept)) {
       setError(
-        `That file type isn't supported — use ${field.formats ?? "a supported format"}.`,
+        messages?.type ??
+          `That file type isn't supported — use ${field.formats ?? "a supported format"}.`,
       );
       return;
     }
     if (file.size > maxMb * 1024 * 1024) {
-      setError(`This file is too large — the maximum size is ${maxMb} MB.`);
+      setError(
+        messages?.size ?? `This file is too large — the maximum size is ${maxMb} MB.`,
+      );
       return;
     }
 
@@ -77,7 +87,7 @@ export function useFileUpload({
         onProgress: setProgress,
         signal: ctrl.signal,
       });
-      onChange(JSON.stringify({ name: file.name, size: file.size, key, url }));
+      onChange(JSON.stringify({ ...extra, name: file.name, size: file.size, key, url }));
     } catch (e) {
       if ((e as Error)?.name === "AbortError") return;
       setError(

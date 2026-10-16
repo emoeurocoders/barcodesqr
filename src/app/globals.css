@@ -353,6 +353,36 @@
   --color-mc-pv-card-line: #eef0f4;
   --color-mc-pv-ph: #c3cad4;
   --color-mc-pv-sheen: #ebebeb;
+  /* Batch 2 (app link / PDF / image / WhatsApp). The blue info note and the
+     blue upload box. */
+  --color-mc-note: #eff6ff;
+  --color-mc-note-line: #dbeafe;
+  --color-mc-note-ink: #1e3a8a;
+  --color-mc-drop: #f5f9ff;
+  --color-mc-drop-line: #c6dbf8;
+  --color-mc-pdf-line: #d7dde5;
+  /* The App Link preview: background rings, skeleton bars, store buttons. */
+  --color-mc-app-ring: #e9ebee;
+  --color-mc-app-bar: #c7ccda;
+  --color-mc-app-bar-2: #d3d7e2;
+  --color-mc-app-store: #f1f3f7;
+  /* The WhatsApp chat preview — WhatsApp's own palette. */
+  --color-mc-wa-bg: #ece5dd;
+  --color-mc-wa-head: #008069;
+  --color-mc-wa-brand: #25d366;
+  --color-mc-wa-bubble: #d9fdd3;
+  --color-mc-wa-ink: #111b21;
+  --color-mc-wa-time: #667781;
+  --color-mc-wa-tick: #53bdeb;
+  --color-mc-wa-icon: #54656f;
+  --color-mc-wa-hint: #8696a0;
+  --color-mc-wa-send: #00a884;
+  --shadow-mc-app-icon: 0 12px 26px -12px rgba(14, 19, 17, 0.35);
+  --shadow-mc-app-card: 0 14px 30px -16px rgba(14, 19, 17, 0.3);
+  --shadow-mc-doc: 0 10px 22px -16px rgba(14, 19, 17, 0.35);
+  --shadow-mc-nav: 0 1px 3px rgba(14, 19, 17, 0.12);
+  --shadow-mc-gal-nav: 0 1px 3px rgba(14, 19, 17, 0.2);
+  --shadow-mc-bubble: 0 1px 1px rgba(14, 19, 17, 0.12);
   --shadow-mc-input: 0 5px 10px -5px rgba(0, 0, 0, 0.1);
   --shadow-mc-tip: 0 10px 24px -10px rgba(14, 19, 17, 0.45);
   --shadow-mc-phone: 0 16px 32px -20px rgba(14, 19, 17, 0.3);

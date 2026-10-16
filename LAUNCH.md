@@ -274,12 +274,12 @@ seven up front and sixteen behind "View All 23 QR Types".
   form can be linked to. This applies to desktop too — it looks identical but
   now has working browser back. What was typed is kept per type: Back and
   reopening the same type finds it as left; another type starts fresh.
-- **The other 20 types are not redesigned yet.** On mobile they show the old
-  step-2 form inside the new rail and Back/Next bar, and keep the old Next rule
-  (disabled until complete). The 2026-10-15 sync brought in 14 more mobile
-  forms (`create_mobile_app_link`, `_pdf`, `_image`, `_video`, `_whatsapp`,
-  `_menu`, `_google_maps`, `_google_review`, `_email`, `_sms`, `_payment`,
-  `_coupon`, `_business`, `_social_media`); none is ported yet, and phone,
+- **Ported so far: seven of 23.** Batch 1 (Website, vCard, Multi-Link) and
+  batch 2 (App Link, PDF, Image, WhatsApp — Monday 5638161680, 2026-10-16).
+  The other 16 show the old step-2 form inside the new rail and Back/Next
+  bar, and keep the old Next rule (disabled until complete). Mockups exist
+  upstream but are not yet approved for video, menu, Google Maps, Google
+  Review, email, SMS, payment, coupon, business and social media; phone,
   plain text, audio, feedback and event have no file at all (404).
 
 ### Divergences and open questions
@@ -339,6 +339,31 @@ seven up front and sixteen behind "View All 23 QR Types".
   `designerTypeIcons.tsx` is extracted from their file. Desktop's lucide
   stand-ins (vCard, Multi-Link and App Link most visibly) were never a match —
   `create.html` carries the same artwork as the mobile file. Not fixed here.
+- **Batch 2 notes:**
+  - *App Link* follows its mobile file: at least one store link required,
+    fallback optional. Desktop still requires the fallback and leaves the
+    stores optional — ask whether desktop should change to match.
+  - *App Link routing and the PDF link cannot be checked yet:* both are
+    dynamic types and still encode the `q/preview` placeholder (see the first
+    blocker above).
+  - *Image* keeps up to 10 pictures under `images`, with the first mirrored
+    into desktop's single `file` so the desktop form and preview still work.
+    Reordering is by dragging a thumbnail onto another — pointer events, since
+    their file's HTML5 drag-and-drop does not fire for touch. A notice when
+    files are skipped (wrong type, over 5 MB, past 10) is ours; their script
+    drops them silently. Upload progress on each tile is unmocked.
+  - *PDF* preview embeds the file as their file does (`<object>`, `#page=`).
+    Phones' built-in viewers mostly ignore `#page` and some render nothing
+    inline, so the embed carries an "Open the PDF" link. The page count is
+    read from the file when picked and stored with it.
+  - *WhatsApp* prefills the message as a real value (desktop only showed it
+    as a placeholder) and allows 500 characters to desktop's 160 — ask which.
+    The country is preselected from the browser language, as their script
+    does. The code is `wa.me/<number>?text=…`, which opens the chat with the
+    text typed but not sent.
+  - *Mobile country selects show no arrow,* as in the file: their step-2 CSS
+    resets `background`, which takes reset.css's triangle with it. Probably
+    unintended; worth raising with the designer.
 - **Fixed px, not `vw`.** Their stylesheet scales this page with the screen
   width; the port is fixed at the 390px rendering, as the mobile homepage is.
   Below `md`, 360px and 700px were checked for overflow and footer overlap.

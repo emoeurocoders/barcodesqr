@@ -7,16 +7,31 @@ import { designerTypeIcons } from "../designerTypeIcons";
 import { socials } from "./socials";
 import {
   MultiLinkForm,
-  NameField,
-  FormHeader,
   Sep,
   VCardForm,
   WebsiteForm,
   checksFor,
   initiallyOpen,
 } from "./forms";
+import { FormHeader, NameField } from "./fields";
 import type { FormState } from "./forms";
 import { MultiLinkPreview, VCardPreview, WebsitePreview } from "./previews";
+import { AppLinkForm, ImageForm, PdfForm, WhatsAppForm } from "./forms2";
+import {
+  AppLinkPreview,
+  ImagePreview,
+  PdfPreview,
+  WhatsAppPreview,
+} from "./previews2";
+
+/**
+ * Where a mobile file introduces its form in other words than desktop's step
+ * 2 (`stepDesc`). Only the ones that differ.
+ */
+const mobileHeaderDesc: Record<string, string> = {
+  pdf: "Share a PDF document with one QR code",
+  image: "Display an image or photo gallery",
+};
 import { ArrowLeft, ArrowRight, outlineBtn, smallBtn } from "./ui";
 
 type Values = Record<string, string>;
@@ -200,7 +215,7 @@ export function MobileStepTwo({
   const errors = useMemo(() => {
     if (!submitted) return {};
     return Object.fromEntries(
-      checks.filter((c) => c.msg).map((c) => [c.id, c.msg as string]),
+      checks.filter((c) => c.msg).map((c) => [c.key ?? c.id, c.msg as string]),
     );
   }, [checks, submitted]);
 
@@ -208,6 +223,7 @@ export function MobileStepTwo({
     values,
     set: (k, v) => setValues((cur) => ({ ...cur, [k]: v })),
     update: (k, fn) => setValues((cur) => ({ ...cur, [k]: fn(cur[k] ?? "") })),
+    patch: (fn) => setValues((cur) => fn(cur)),
     errors,
     isOpen: (acc) => open.includes(acc),
     toggle: (acc) =>
@@ -250,6 +266,21 @@ export function MobileStepTwo({
   } else if (type === "multilink") {
     preview = <MultiLinkPreview values={values} selectedSocials={socialsOn} open={previewOpen} onToggle={() => setPreviewOpen(!previewOpen)} />;
     form = <MultiLinkForm s={s} />;
+ } else {
+    const p = { values, open: previewOpen, onToggle: () => setPreviewOpen(!previewOpen) };
+    if (type === "applink") {
+      preview = <AppLinkPreview {...p} />;
+      form = <AppLinkForm s={s} />;
+    } else if (type === "pdf") {
+      preview = <PdfPreview {...p} />;
+      form = <PdfForm s={s} />;
+    } else if (type === "image") {
+      preview = <ImagePreview {...p} />;
+      form = <ImageForm s={s} />;
+    } else if (type === "whatsapp") {
+      preview = <WhatsAppPreview {...p} />;
+      form = <WhatsAppForm s={s} />;
+    }
   }
 
   return (
@@ -269,7 +300,7 @@ export function MobileStepTwo({
         <FormHeader
           icon={Glyph ? <Glyph className="h-[22.7px] w-[22.7px]" /> : null}
           title={meta?.stepLabel ?? meta?.label ?? type}
-          desc={meta?.stepDesc ?? meta?.desc ?? ""}
+          desc={mobileHeaderDesc[type] ?? meta?.stepDesc ?? meta?.desc ?? ""}
         />
         <Sep />
         {form}

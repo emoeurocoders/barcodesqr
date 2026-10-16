@@ -19,7 +19,7 @@ import { isValidUrl } from "../validate";
 
 type Values = Record<string, string>;
 
-const chevronRight = (
+export const chevronRight = (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m9 18 6-6-6-6" />
   </svg>
@@ -33,7 +33,7 @@ const imageGlyph = (
   </svg>
 );
 
-const qrGlyph = (
+export const qrGlyph = (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect width="5" height="5" x="3" y="3" rx="1" />
     <rect width="5" height="5" x="16" y="3" rx="1" />
@@ -61,7 +61,7 @@ const shareGlyph = (
 );
 
 /** Their `.phn .chip`: the frosted square floated over a cover. */
-function Chip({ round, className, children }: { round?: boolean; className: string; children: ReactNode }) {
+export function Chip({ round, className, children }: { round?: boolean; className: string; children: ReactNode }) {
   return (
     <span
       className={`absolute flex h-[21.9px] w-[21.9px] items-center justify-center bg-white/88 shadow-mc-chip [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px] ${
@@ -74,7 +74,7 @@ function Chip({ round, className, children }: { round?: boolean; className: stri
 }
 
 /** Their `.phn`: the phone-shaped card the expanded preview draws in. */
-function Phone({ className = "", children }: { className?: string; children: ReactNode }) {
+export function Phone({ className = "", children }: { className?: string; children: ReactNode }) {
   return (
     <div
       className={`relative mx-auto mt-[4.1px] max-w-[243.4px] overflow-hidden rounded-[17.8px] border border-mc-pv-line bg-white shadow-mc-phone ${className}`}
@@ -85,7 +85,7 @@ function Phone({ className = "", children }: { className?: string; children: Rea
 }
 
 /** Their `.smp`: the grey caption under the phone. */
-function Sample({ children }: { children: ReactNode }) {
+export function Sample({ children }: { children: ReactNode }) {
   return (
     <p className="mt-[12.2px] text-center text-[10.14px] leading-[normal] text-faint">
       {children}
@@ -548,7 +548,7 @@ export function MultiLinkPreview({
 
 /* ---- Shared shell ---------------------------------------------------------- */
 
-function BarText({ open, title, base }: { open: boolean; title: string; base: string }) {
+export function BarText({ open, title, base }: { open: boolean; title: string; base: string }) {
   return (
     <span className="min-w-0 flex-1 pr-[8.1px] pl-[8.9px]">
       <span className="block text-[12.98px] leading-[normal] font-bold text-ink">{title}</span>
@@ -557,7 +557,7 @@ function BarText({ open, title, base }: { open: boolean; title: string; base: st
   );
 }
 
-function BarCaret({ open }: { open: boolean }) {
+export function BarCaret({ open }: { open: boolean }) {
   return (
     <i className={`flex shrink-0 text-muted not-italic transition-transform duration-[250ms] ease-out ${open ? "rotate-180" : ""}`}>
       <Caret className="block h-[14.6px] w-[14.6px]" />
@@ -570,7 +570,7 @@ function BarCaret({ open }: { open: boolean }) {
  * shows or hides — the form below is untouched, and the page does not jump,
  * because the card grows downward from where the visitor tapped.
  */
-function PreviewCard({
+export function PreviewCard({
   open,
   onToggle,
   bar,
