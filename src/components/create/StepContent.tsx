@@ -501,7 +501,10 @@ function FieldControl({
         <div className="flex gap-2">
           <select
             aria-label="Country code"
-            className={`${inputClass} w-[104px] shrink-0 cursor-pointer px-2 text-sm`}
+            // Not `${inputClass} w-[104px]`: that carries `w-full` too, and
+            // which of two width utilities wins is down to stylesheet order —
+            // it was `w-full`, squeezing the number to 30px (Andy, 2026-10-15).
+            className={`${inputClass.replace("w-full ", "")} w-[104px] shrink-0 cursor-pointer px-2 text-sm`}
             value={dial}
             onChange={(e) => onDialChange(e.target.value)}
           >
@@ -511,7 +514,7 @@ function FieldControl({
               </option>
             ))}
           </select>
-          <input {...common} type="tel" />
+          <input {...common} className={`${common.className} min-w-0 flex-1`} type="tel" />
         </div>
       );
 
