@@ -292,8 +292,19 @@ seven up front and sixteen behind "View All 23 QR Types".
 - **Tap feedback on the step-1 cards is ours.** JB asked for it; the file has
   no pressed state, so a held card takes the selected look (blue border, pale
   blue fill).
-- **Collapsing "View All" scrolls back to it** only if it has gone off screen
-  (JB: "return the user to the heading"); the file just slides the list shut.
+- **The expander is JB's, not the file's** (2026-10-19): a light blue card
+  12px below the seven — "Explore 16 More QR Types" / "WhatsApp, WiFi,
+  Video, and more", "Show Fewer QR Types" with the chevron up once open. No
+  mockup file has it yet; colours and copy are from his note, the grid glyph
+  (lucide `LayoutGrid`) from his reference image. His image also shows an
+  "All 23 QR Types · Show Fewer" header under the card; his note says no
+  second control, so it is left out. The subtitle has no full stop, as in the
+  image. If the designer posts a file, re-diff against it.
+- **Collapsing scrolls back to the expander** only if it has gone off screen
+  (JB: "return the user to the heading"). Collapsing from mid-list makes the
+  page shorter than the scroll position, so the card glides down with the
+  260ms slide while the browser clamps — it stays on screen, but it moves;
+  nothing can hold it still on a page that much shorter.
 - **The step-1 rail scales below 390px** (`min(px, vw)`), where fixed sizes
   overflowed a 320px screen by 7px. Everything else is fixed px.
 - **The vCard avatars are circles, not the mockup's ovals** (35.7×51.5 /

@@ -323,6 +323,10 @@
   --color-mc-radio-line: #d9dfe4;
   --color-mc-radio-on-line: #dfdfdf;
   --color-mc-cancel-line: #d7dde2;
+  /* JB, 2026-10-19: the "Explore 16 More QR Types" card. From his note, not a
+     mockup file. */
+  --color-mc-more: #f2f6ff;
+  --color-mc-more-line: #b7ccfa;
   /* Step 2 (create_mobile_website / _vcard / _multilink). The step-3 circle
      still to come — paler than `bg-alt`. */
   --color-mc-step-off: #f1f3f5;

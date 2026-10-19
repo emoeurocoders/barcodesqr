@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { LayoutGrid } from "lucide-react";
 import type { ReactNode } from "react";
 import { designerTypeIcons } from "./designerTypeIcons";
 import { Slide } from "./mobile/ui";
@@ -9,8 +10,8 @@ import { Slide } from "./mobile/ui";
  * Step 1 below `md`, ported from create_mobile.html (the 2026-10-15
  * revision, which replaced the radio list + Continue button).
  *
- * Every card is a link straight into its form. Seven show up front; "View
- * All 23 QR Types" slides the other sixteen open beneath it. The cards' order
+ * Every card is a link straight into its form. Seven show up front;
+ * "Explore 16 More QR Types" slides the other sixteen open beneath it. The cards' order
  * and wording are the mobile file's own, not the desktop picker's, so they
  * are listed here rather than read from `qrTypes`.
  *
@@ -101,8 +102,16 @@ function NumberRail() {
   );
 }
 
-/** Their `.chv`: right-pointing on a type, down-pointing on "View All". */
-function Chevron({ down, open }: { down?: boolean; open?: boolean }) {
+/** Their `.chv`: right-pointing on a type, down-pointing on the expander. */
+function Chevron({
+  down,
+  open,
+  stroke = "#9CA3AF",
+}: {
+  down?: boolean;
+  open?: boolean;
+  stroke?: string;
+}) {
   return (
     <div className="ml-[3.7px] flex shrink-0">
       <svg
@@ -117,7 +126,7 @@ function Chevron({ down, open }: { down?: boolean; open?: boolean }) {
       >
         <path
           d={down ? "M4.25 6.375L8.5 10.625L12.75 6.375" : "M6.375 4.25L10.625 8.5L6.375 12.75"}
-          stroke="#9CA3AF"
+          stroke={stroke}
           strokeWidth="1.41667"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -142,11 +151,13 @@ function CardBody({
   tint,
   title,
   desc,
+  titleClass = "font-bold text-black",
 }: {
   icon: ReactNode;
   tint: string;
   title: ReactNode;
   desc: string;
+  titleClass?: string;
 }) {
   return (
     <>
@@ -157,7 +168,7 @@ function CardBody({
         {icon}
       </div>
       <div className="min-w-0 flex-1 pr-[4.6px] pl-[7.4px]">
-        <h5 className="flex items-center text-[13.92px] leading-[normal] font-bold text-black">
+        <h5 className={`flex items-center text-[13.92px] leading-[normal] ${titleClass}`}>
           {title}
         </h5>
         <p className="mt-[2.8px] text-[11.6px] leading-[16.82px] font-medium text-muted">
@@ -212,7 +223,7 @@ export function MobileTypePicker({
   const toggle = () => {
     const closing = open;
     setOpen(!open);
-    // JB: collapsing returns you to the "View All" row. If the list was
+    // JB: collapsing returns you to the expander. If the list was
     // scrolled far down, the page shortens under you; bring the row back
     // into view — and leave the page alone if it already is.
     if (closing) {
@@ -238,7 +249,18 @@ export function MobileTypePicker({
           {first.map((c) => (
             <TypeCard key={c.value} card={c} onChoose={onChoose} />
           ))}
-          <li ref={moreRow} className={`${cardLi} scroll-my-[12px]`}>
+          {/*
+            JB, 2026-10-19 — the expander was "blending in": a light blue
+            card set 12px apart from the seven, "Explore 16 More QR Types",
+            and "Show Fewer QR Types" with the chevron turned up once open.
+            One control, the whole card; no second heading. No mockup file
+            carries it — the colours and copy are his note, the grid glyph is
+            from his reference image (lucide's LayoutGrid).
+          */}
+          <li
+            ref={moreRow}
+            className="mt-[12px] scroll-my-[12px] rounded-[11.1px] border border-mc-more-line bg-mc-more transition-colors duration-100 has-[a:active]:border-primary"
+          >
             <a
               href="#"
               aria-expanded={open}
@@ -250,18 +272,13 @@ export function MobileTypePicker({
               className={cardA}
             >
               <CardBody
-                icon={<designerTypeIcons.seeall className="h-[23.2px] w-[23.2px]" />}
-                tint="rgba(156, 163, 175, 0.08)"
-                title={
-                  <>
-                    {/* Their `.vw`: "View " drops out while the list is open. */}
-                    {!open && <span className="mr-[3.6px]">View</span>}
-                    All 23 QR Types
-                  </>
-                }
-                desc="Explore more ways to connect"
+                icon={<LayoutGrid className="h-[23.2px] w-[23.2px] text-primary" strokeWidth={2} />}
+                tint="rgba(37, 99, 235, 0.1)"
+                titleClass="font-semibold text-primary-dark"
+                title={open ? "Show Fewer QR Types" : "Explore 16 More QR Types"}
+                desc="WhatsApp, WiFi, Video, and more"
               />
-              <Chevron down open={open} />
+              <Chevron down open={open} stroke="#1D4ED8" />
             </a>
           </li>
         </ul>
