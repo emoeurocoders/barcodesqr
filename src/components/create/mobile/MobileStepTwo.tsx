@@ -18,6 +18,20 @@ import type { FormState } from "./forms";
 import { MultiLinkPreview, VCardPreview, WebsitePreview } from "./previews";
 import { AppLinkForm, ImageForm, PdfForm, WhatsAppForm } from "./forms2";
 import {
+  MenuForm,
+  SocialMediaForm,
+  VideoForm,
+  WifiForm,
+  checksForBatch3,
+  socialMediaOrder,
+} from "./forms3";
+import {
+  MenuPreview,
+  SocialMediaPreview,
+  VideoPreview,
+  WifiPreview,
+} from "./previews3";
+import {
   AppLinkPreview,
   ImagePreview,
   PdfPreview,
@@ -211,7 +225,12 @@ export function MobileStepTwo({
     socials.filter((p) => (values[p.key] ?? "").trim()).map((p) => p.key),
   );
 
-  const checks = useMemo(() => checksFor(type, values), [type, values]);
+  // Batch 3 imports batch 1's pickers, so its checks join here rather than
+  // inside `checksFor`, which would make the two modules import each other.
+  const checks = useMemo(
+    () => [...checksFor(type, values), ...checksForBatch3(type, values)],
+    [type, values],
+  );
   const errors = useMemo(() => {
     if (!submitted) return {};
     return Object.fromEntries(
@@ -280,6 +299,20 @@ export function MobileStepTwo({
     } else if (type === "whatsapp") {
       preview = <WhatsAppPreview {...p} />;
       form = <WhatsAppForm s={s} />;
+    } else if (type === "social") {
+      // The preview lists platforms in the order the picker shows them.
+      const ordered = socialMediaOrder.filter((k) => socialsOn.includes(k));
+      preview = <SocialMediaPreview {...p} selectedSocials={ordered} />;
+      form = <SocialMediaForm s={s} />;
+    } else if (type === "menu") {
+      preview = <MenuPreview {...p} />;
+      form = <MenuForm s={s} />;
+    } else if (type === "wifi") {
+      preview = <WifiPreview {...p} />;
+      form = <WifiForm s={s} />;
+    } else if (type === "video") {
+      preview = <VideoPreview {...p} />;
+      form = <VideoForm s={s} />;
     }
   }
 

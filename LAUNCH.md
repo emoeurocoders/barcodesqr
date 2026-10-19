@@ -274,13 +274,14 @@ seven up front and sixteen behind "View All 23 QR Types".
   form can be linked to. This applies to desktop too — it looks identical but
   now has working browser back. What was typed is kept per type: Back and
   reopening the same type finds it as left; another type starts fresh.
-- **Ported so far: seven of 23.** Batch 1 (Website, vCard, Multi-Link) and
-  batch 2 (App Link, PDF, Image, WhatsApp — Monday 5638161680, 2026-10-16).
-  The other 16 show the old step-2 form inside the new rail and Back/Next
-  bar, and keep the old Next rule (disabled until complete). Mockups exist
-  upstream but are not yet approved for video, menu, Google Maps, Google
-  Review, email, SMS, payment, coupon, business and social media; phone,
-  plain text, audio, feedback and event have no file at all (404).
+- **Ported so far: eleven of 23.** Batch 1 (Website, vCard, Multi-Link),
+  batch 2 (App Link, PDF, Image, WhatsApp — Monday 5638161680) and batch 3
+  (Social Media, Menu, WiFi, Video — Monday 5642568390, 2026-10-19). The
+  other 12 show the old step-2 form inside the new rail and Back/Next bar,
+  and keep the old Next rule (disabled until complete). Mockups exist
+  upstream but are not yet approved for Google Maps, Google Review, email,
+  SMS, payment, coupon and business; phone, plain text, audio, feedback and
+  event have no file at all (404).
 
 ### Divergences and open questions
 
@@ -375,6 +376,32 @@ seven up front and sixteen behind "View All 23 QR Types".
   - *Mobile country selects show no arrow,* as in the file: their step-2 CSS
     resets `background`, which takes reset.css's triangle with it. Probably
     unintended; worth raising with the designer.
+- **Batch 3 notes:**
+  - *Menu items* are stored in desktop's existing text format, one item per
+    line as `Name | Price | Description`, so saved menus open in the mobile
+    builder and desktop's textarea keeps working on the same value. `|` and
+    line breaks are stripped from what is typed into a cell.
+  - *Menu rules are now shared*: at least one item with a name and a price;
+    spare empty rows ignored, half-filled rows flagged. On desktop that means
+    an old menu with a line that has no price cannot pass Next until one is
+    added — the data is kept, but the rule is new.
+  - *Menu cover and category are new on both layouts* (schema fields `cover`
+    and `category`), so desktop shows them too, as plain fields until its
+    redesign. Desktop's menu description is on mobile as a collapsed
+    "Description" section — unmocked, added for parity.
+  - *Social Media needs a profile on both layouts* (JB): a headline and at
+    least one valid platform. Desktop just keeps Next disabled; it has no
+    message for it yet. Desktop's custom links are on mobile as a collapsed
+    "Your Links" section (unmocked, parity), all optional. The platform grid
+    uses this file's order (Instagram first), not vCard's.
+  - *WiFi* carries no tracking pill (static code). Its preview shows the
+    designer's sample QR, as the file does — the caption says the real one is
+    drawn at download. The real code was decoded in Chrome (BarcodeDetector)
+    and reads back as a correctly escaped `WIFI:` string; a phone scan by a
+    person is still worth doing once.
+  - *Video* captures a 96px thumbnail from the file when picked and stores it
+    with the upload; the preview plays the uploaded file with the phone's own
+    player (`playsInline`, so iOS does not jump to fullscreen).
 - **Fixed px, not `vw`.** Their stylesheet scales this page with the screen
   width; the port is fixed at the 390px rendering, as the mobile homepage is.
   Below `md`, 360px and 700px were checked for overflow and footer overlap.

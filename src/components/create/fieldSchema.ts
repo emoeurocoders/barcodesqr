@@ -130,7 +130,9 @@ export const fieldLabels: Record<string, string> = {
   "removeLink": "Remove link",
   "linkLogo": "Link logo (optional)",
   "linkName": "Name",
-  "linkUrl": "URL"
+  "linkUrl": "URL",
+  "cover": "Cover image",
+  "category": "Category / Section name"
 };
 
 /** Section headings and their sub-labels, used to group longer forms. */
@@ -1075,6 +1077,24 @@ export const fieldSchema: Record<string, Field[]> = {
       "labelKey": "text",
       "type": "textarea",
       "placeholder": "One item per line: Name | Price | Description"
+    },
+    // Added 2026-10-19 with the mobile menu builder (create_mobile_menu.html),
+    // so both layouts carry the same menu: an optional cover and section name.
+    {
+      "name": "cover",
+      "labelKey": "cover",
+      "type": "file",
+      "accept": "image/*",
+      "maxSizeMb": 5,
+      "formats": "PNG, JPG, JPEG, etc.",
+      "adjustable": "wide"
+    },
+    {
+      "name": "category",
+      "labelKey": "category",
+      "type": "text",
+      "maxLength": 40,
+      "placeholder": "e.g. Appetizers, Main Courses, Desserts"
     }
   ],
   "business": [

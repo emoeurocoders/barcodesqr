@@ -14,7 +14,7 @@ import {
   outlineBtn,
   textInput,
 } from "./ui";
-import { socials } from "./socials";
+import { socialByKey, socials } from "./socials";
 
 import {
   PhoneFld,
@@ -109,6 +109,10 @@ export const mobileTypes = new Set([
   "pdf",
   "image",
   "whatsapp",
+  "social",
+  "menu",
+  "wifi",
+  "video",
 ]);
 
 
@@ -126,7 +130,22 @@ const closeGlyph = (
  * field (focused, so the keyboard comes up); tap it again, or the ×, to switch
  * it off, which also clears what was typed for it.
  */
-function SocialPicker({ s, idPrefix }: { s: FormState; idPrefix: string }) {
+export function SocialPicker({
+  s,
+  idPrefix,
+  order,
+}: {
+  s: FormState;
+  idPrefix: string;
+  /**
+   * The platforms in a file's own order, where it differs from vCard's.
+   * The first eight show; the rest wait behind "More Platforms".
+   */
+  order?: string[];
+}) {
+  const list = order
+    ? order.map((k, i) => ({ ...socialByKey[k], extra: i >= 8 }))
+    : socials;
   const toggle = (key: string) => {
     const on = s.socialsOn.includes(key);
     // Updater form: two taps inside one render must not overwrite each other.
@@ -143,7 +162,7 @@ function SocialPicker({ s, idPrefix }: { s: FormState; idPrefix: string }) {
   return (
     <>
       <ul className="mt-[11.4px] grid grid-cols-4 gap-[8.1px]">
-        {socials.map((p) => {
+        {list.map((p) => {
           const on = s.socialsOn.includes(p.key);
           if (p.extra && !s.moreSocials) return null;
           return (
@@ -192,7 +211,7 @@ function SocialPicker({ s, idPrefix }: { s: FormState; idPrefix: string }) {
         </svg>
       </a>
       <div>
-        {socials
+        {list
           .filter((p) => s.socialsOn.includes(p.key))
           .map((p) => {
             const id = `${idPrefix}${p.key}`;
@@ -438,7 +457,17 @@ export function linkRows(values: Values): StoredLink[] {
  * is actually added: the upload-box glyph as a small tile, "Add logo
  * (optional)", and once there, the thumbnail with "Remove".
  */
-function LinkLogo({ s, i, logo }: { s: FormState; i: number; logo?: string }) {
+function LinkLogo({
+  s,
+  i,
+  logo,
+  type,
+}: {
+  s: FormState;
+  i: number;
+  logo?: string;
+  type: string;
+}) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -472,7 +501,7 @@ function LinkLogo({ s, i, logo }: { s: FormState; i: number; logo?: string }) {
               setError(null);
               setBusy(true);
               try {
-                setLogo(await uploadLinkLogo("multilink", file));
+                setLogo(await uploadLinkLogo(type, file));
               } catch (err) {
                 setError(err instanceof UploadError ? err.message : "That logo could not be uploaded.");
               } finally {
@@ -513,7 +542,17 @@ const ctlBtn =
  * removable — the controls hide while there is only one row, which is how
  * "at least one link" is kept without a separate rule.
  */
-function LinkList({ s }: { s: FormState }) {
+export function LinkList({
+  s,
+  type = "multilink",
+  optional = false,
+}: {
+  s: FormState;
+  /** Whose upload limits the logos answer to. */
+  type?: string;
+  /** Social Media's links: nothing required, so no stars. */
+  optional?: boolean;
+}) {
   const rows = linkRows(s.values);
   const write = (next: StoredLink[]) => s.set("links", JSON.stringify(next));
   const update = (i: number, patch: Partial<StoredLink>) =>
@@ -559,7 +598,7 @@ function LinkList({ s }: { s: FormState }) {
                   </span>
                 )}
               </div>
-              <Fld id={`lnkNme${i}`} label="Link name" required error={nameErr}>
+              <Fld id={`lnkNme${i}`} label="Link name" required={!optional} error={nameErr}>
                 <input
                   type="text"
                   id={`lnkNme${i}`}
@@ -571,7 +610,7 @@ function LinkList({ s }: { s: FormState }) {
                   className={textInput(!!nameErr)}
                 />
               </Fld>
-              <Fld id={`lnkUrl${i}`} label="Link URL" required error={urlErr}>
+              <Fld id={`lnkUrl${i}`} label="Link URL" required={!optional} error={urlErr}>
                 <input
                   type="text"
                   id={`lnkUrl${i}`}
@@ -582,7 +621,7 @@ function LinkList({ s }: { s: FormState }) {
                   {...urlHandlers(row.url, (v) => update(i, { url: v }))}
                 />
               </Fld>
-              <LinkLogo s={s} i={i} logo={row.logo} />
+              <LinkLogo s={s} i={i} logo={row.logo} type={type} />
             </div>
           );
         })}
@@ -681,6 +720,8 @@ export const initiallyOpen: Record<string, string[]> = {
   vcard: ["personal"],
   // JB: "Your Links" open by default, so links can be typed straight away.
   multilink: ["links"],
+  // create_mobile_menu.html opens "Menu Items".
+  menu: ["items"],
 };
 
 export { Sep };

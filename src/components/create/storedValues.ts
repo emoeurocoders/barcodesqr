@@ -105,3 +105,37 @@ export function linkCaption(l: StoredLink): string {
     .replace(/^www\./i, "")
     .split(/[/?#]/)[0];
 }
+
+/**
+ * A menu item. Menus are stored the way the desktop form has always taken
+ * them — one item per line, `Name | Price | Description` — so the mobile
+ * builder and the desktop textarea read and write the same value, and menus
+ * saved before the builder existed open in it unchanged.
+ */
+export type MenuItem = { name: string; price: string; desc: string };
+
+export function parseMenuItems(raw: string | undefined): MenuItem[] {
+  return (raw ?? "")
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line) => {
+      const [name = "", price = "", ...rest] = line.split("|");
+      return { name: name.trim(), price: price.trim(), desc: rest.join("|").trim() };
+    });
+}
+
+/** `|` and line breaks are the format's separators, so neither may appear in a cell. */
+const cell = (s: string) => s.replace(/[|\r\n]+/g, " ");
+
+/**
+ * An untouched row still writes a separator (`" | "`), so a row the builder
+ * has just added survives the round trip instead of vanishing as a blank line.
+ */
+export function serializeMenuItems(items: MenuItem[]): string {
+  return items
+    .map((i) => {
+      const line = `${cell(i.name)} | ${cell(i.price)}`;
+      return i.desc.trim() ? `${line} | ${cell(i.desc)}` : line;
+    })
+    .join("\n");
+}

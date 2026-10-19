@@ -6,7 +6,7 @@
 
 import { fieldSchema } from "./fieldSchema";
 import type { Field } from "./fieldSchema";
-import { parseLinks } from "./storedValues";
+import { parseLinks, parseMenuItems } from "./storedValues";
 import type { StoredLink } from "./storedValues";
 
 type Values = Record<string, string>;
@@ -131,9 +131,45 @@ export function fieldError(f: Field, raw: string): string | null {
   }
 }
 
+/**
+ * Social Media needs at least one profile (JB, 2026-10-19 — both layouts):
+ * a filled platform field, valid where the platform takes a URL.
+ */
+export function hasSocialProfile(values: Values) {
+  return (fieldSchema.social ?? [])
+    .filter((f) => f.section === "social")
+    .some((f) => {
+      const v = (values[f.name] ?? "").trim();
+      if (!v || v === "https://") return false;
+      return f.type === "url" ? isValidUrl(v) : true;
+    });
+}
+
+/**
+ * A menu needs at least one item with a name and a price (the mobile
+ * builder's rule, kept on desktop so the two agree). Spare empty rows are
+ * ignored; a half-filled one is not.
+ */
+export function menuIssues(raw: string | undefined) {
+  const rows = parseMenuItems(raw).map((i) => ({
+    name: !i.name && (i.price || i.desc) ? ("missing" as const) : undefined,
+    price: i.name && !i.price ? ("missing" as const) : undefined,
+    blank: !i.name && !i.price && !i.desc,
+    complete: !!i.name && !!i.price,
+  }));
+  return { rows, none: !rows.some((r) => r.complete) };
+}
+
 /** Every visible field filled where required, and malformed nowhere. */
 export function isComplete(type: string, values: Values) {
-  return (fieldSchema[type] ?? [])
+  const fieldsOk = (fieldSchema[type] ?? [])
     .filter((f) => visible(f, values))
     .every((f) => fieldError(f, values[f.name] ?? "") === null);
+  if (!fieldsOk) return false;
+  if (type === "social") return hasSocialProfile(values);
+  if (type === "menu") {
+    const { rows, none } = menuIssues(values.items);
+    return !none && rows.every((r) => !r.name && !r.price);
+  }
+  return true;
 }
