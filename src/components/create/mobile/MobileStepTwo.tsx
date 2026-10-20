@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { allTypes } from "../qrTypes";
+import { allTypes, mobileTypeTitle } from "../qrTypes";
 import { designerTypeIcons } from "../designerTypeIcons";
 import { socials } from "./socials";
 import {
@@ -31,6 +31,8 @@ import {
   VideoPreview,
   WifiPreview,
 } from "./previews3";
+import { EmailForm, MapsForm, ReviewForm, SmsForm, checksForBatch4 } from "./forms4";
+import { EmailPreview, MapsPreview, ReviewPreview, SmsPreview } from "./previews4";
 import {
   AppLinkPreview,
   ImagePreview,
@@ -45,6 +47,7 @@ import {
 const mobileHeaderDesc: Record<string, string> = {
   pdf: "Share a PDF document with one QR code",
   image: "Display an image or photo gallery",
+  location: "Share a location or address",
 };
 import { ArrowLeft, ArrowRight, outlineBtn, smallBtn } from "./ui";
 
@@ -225,10 +228,14 @@ export function MobileStepTwo({
     socials.filter((p) => (values[p.key] ?? "").trim()).map((p) => p.key),
   );
 
-  // Batch 3 imports batch 1's pickers, so its checks join here rather than
-  // inside `checksFor`, which would make the two modules import each other.
+  // Batches 3 and 4 join here rather than inside `checksFor`: batch 3 imports
+  // batch 1's pickers, and the two modules would otherwise import each other.
   const checks = useMemo(
-    () => [...checksFor(type, values), ...checksForBatch3(type, values)],
+    () => [
+      ...checksFor(type, values),
+      ...checksForBatch3(type, values),
+      ...checksForBatch4(type, values),
+    ],
     [type, values],
   );
   const errors = useMemo(() => {
@@ -313,6 +320,18 @@ export function MobileStepTwo({
     } else if (type === "video") {
       preview = <VideoPreview {...p} />;
       form = <VideoForm s={s} />;
+    } else if (type === "location") {
+      preview = <MapsPreview {...p} />;
+      form = <MapsForm s={s} />;
+    } else if (type === "email") {
+      preview = <EmailPreview {...p} />;
+      form = <EmailForm s={s} />;
+    } else if (type === "review") {
+      preview = <ReviewPreview {...p} />;
+      form = <ReviewForm s={s} />;
+    } else if (type === "sms") {
+      preview = <SmsPreview {...p} />;
+      form = <SmsForm s={s} />;
     }
   }
 
@@ -332,7 +351,7 @@ export function MobileStepTwo({
       <div className="mt-[13px] rounded-[13px] border border-mc-line bg-white px-[17px] pt-[16.2px] pb-[17px]">
         <FormHeader
           icon={Glyph ? <Glyph className="h-[22.7px] w-[22.7px]" /> : null}
-          title={meta?.stepLabel ?? meta?.label ?? type}
+          title={mobileTypeTitle[type] ?? meta?.stepLabel ?? meta?.label ?? type}
           desc={mobileHeaderDesc[type] ?? meta?.stepDesc ?? meta?.desc ?? ""}
         />
         <Sep />

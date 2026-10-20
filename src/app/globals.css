@@ -387,6 +387,27 @@
   --color-mc-verified: #1d9bf0;
   --color-mc-quote: #3b82f6;
   --color-mc-menu-dots: #d5dae2;
+  /* Batch 4: maps search, email / review / SMS previews. */
+  --color-mc-ok: #16a34a;
+  --color-mc-sug-line: #eef1f4;
+  --color-mc-sug-pin: #f1f3f6;
+  --color-mc-map-pin: #ea4335;
+  --color-mc-map-pin-bg: #fdecec;
+  --color-mc-eml-bg: #f3f6fa;
+  --color-mc-eml-line: #e5e8ee;
+  --color-mc-eml-bar: #eef1f6;
+  --color-mc-rev-top: #eef5ff;
+  --color-mc-rev-ink: #60a5fa;
+  --color-mc-sms-head: #e9edf3;
+  --color-mc-sms-avatar: #c6cdd8;
+  --color-mc-sms-meta: #8a94a3;
+  --color-mc-sms-green: #34c759;
+  --color-mc-sms-plus: #e4e8ef;
+  --color-mc-sms-line: #dfe4ec;
+  --shadow-mc-sug: 0 10px 24px -14px rgba(14, 19, 17, 0.25);
+  --shadow-mc-map-card: 0 8px 22px -10px rgba(14, 19, 17, 0.35);
+  --shadow-mc-mail: 0 8px 20px -14px rgba(14, 19, 17, 0.3);
+  --shadow-mc-rev: 0 10px 24px -16px rgba(37, 99, 235, 0.45);
   --shadow-mc-soc-photo: 0 8px 18px -10px rgba(14, 19, 17, 0.3);
   --shadow-mc-play: 0 2px 10px rgba(14, 19, 17, 0.3);
   --shadow-mc-app-icon: 0 12px 26px -12px rgba(14, 19, 17, 0.35);

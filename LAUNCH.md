@@ -274,14 +274,20 @@ seven up front and sixteen behind "View All 23 QR Types".
   form can be linked to. This applies to desktop too — it looks identical but
   now has working browser back. What was typed is kept per type: Back and
   reopening the same type finds it as left; another type starts fresh.
-- **Ported so far: eleven of 23.** Batch 1 (Website, vCard, Multi-Link),
-  batch 2 (App Link, PDF, Image, WhatsApp — Monday 5638161680) and batch 3
-  (Social Media, Menu, WiFi, Video — Monday 5642568390, 2026-10-19). The
-  other 12 show the old step-2 form inside the new rail and Back/Next bar,
-  and keep the old Next rule (disabled until complete). Mockups exist
-  upstream but are not yet approved for Google Maps, Google Review, email,
-  SMS, payment, coupon and business; phone, plain text, audio, feedback and
-  event have no file at all (404).
+- **Ported so far: fifteen of 23.** Batch 1 (Website, vCard, Multi-Link),
+  batch 2 (App Link, PDF, Image, WhatsApp — Monday 5638161680), batch 3
+  (Social Media, Menu, WiFi, Video — 5642568390) and batch 4 (Google Maps,
+  Email, Google Review, SMS — 5646620665, 2026-10-20). The other 8 show the
+  old step-2 form inside the new rail and Back/Next bar, and keep the old
+  Next rule (disabled until complete). Mockups exist upstream for payment,
+  coupon, business, phone, audio, feedback and event but are not yet
+  approved; plain text has no file (404).
+- **The 2026-10-20 sync revised the eleven ported files' copy:** every
+  "x — y" in tooltips and preview captions became "x. Y" (or "x: y"). All 16
+  strings were updated to match; the three em dashes still in the files
+  (sample vCard bio, WhatsApp's default message, WiFi's "None — open
+  network") are kept as they are there. The site header is gone from their
+  step-2 files too, which the port already had.
 
 ### Divergences and open questions
 
@@ -402,6 +408,33 @@ seven up front and sixteen behind "View All 23 QR Types".
   - *Video* captures a 96px thumbnail from the file when picked and stores it
     with the upload; the preview plays the uploaded file with the phone's own
     player (`playsInline`, so iOS does not jump to fullscreen).
+- **Batch 4 notes:**
+  - *Google Maps autocomplete is not live.* JB asked for address/business
+    autocomplete; the file fakes it with eight hard-coded landmarks. No places
+    provider is chosen yet (Google Places needs a billed API key; Photon/OSM
+    is free but weaker for businesses), so for now the suggestion list offers
+    exactly what was typed, to pick and confirm — the file's flow (type →
+    pick → "Location selected" → map) is intact and a provider only has to
+    fill that list (`suggestionsFor` in forms4.tsx). The map preview is the
+    file's keyless Google embed; the QR opens
+    `maps.google.com/?q=<place>`, as desktop's always has.
+  - *Google Maps is "Google Maps" on mobile* — title, and the default name
+    "My Google Maps QR Code" — where desktop says "Location". Its file has no
+    tracking pill, so mobile shows none; desktop still does.
+  - *Google Review's preview bar has our review glyph, not Google's "G"* that
+    the file uses: the 2026-08-20 rule against Google's logo stands. Raise it
+    with the designer.
+  - *Email QR codes now percent-encode the subject and body* (both layouts).
+    They used URLSearchParams, which writes spaces as "+", and mail apps keep
+    that "+" in a `mailto:` subject.
+  - *Duplicate country codes are refused* for SMS and WhatsApp: a number that
+    starts with the picked code's digits and runs on for 7+ more is taken to
+    include the code twice, and gets the file's own "(without the country
+    code)" message. SMS reuses WhatsApp's country/number component, including
+    the browser-language country guess.
+  - Checked by decoding the codes the site draws: Maps, Email (`mailto:` with
+    `%20`) and SMS (`SMSTO:`, a draft — nothing is sent) all read back as
+    intended. A real phone scan is still worth doing once.
 - **Fixed px, not `vw`.** Their stylesheet scales this page with the screen
   width; the port is fixed at the 390px rendering, as the mobile homepage is.
   Below `md`, 360px and 700px were checked for overflow and footer overlap.

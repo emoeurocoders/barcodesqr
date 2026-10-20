@@ -125,7 +125,7 @@ export function Tip({
 /* ---- "Smart Tracking & Editing Included" --------------------------------- */
 
 export const TRACKING_TIP =
-  "This is a dynamic QR code — you can edit where it points anytime (even after printing) and track every scan.";
+  "This is a dynamic QR code. You can edit where it points anytime (even after printing) and track every scan.";
 
 export function TrackingPill({ className = "" }: { className?: string }) {
   return (

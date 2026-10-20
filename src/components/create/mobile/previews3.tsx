@@ -122,7 +122,7 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
           ))}
         </div>
       </Phone>
-      <Sample>Example preview — your profiles replace it as you type.</Sample>
+      <Sample>Example preview. Your profiles replace it as you type.</Sample>
     </PreviewCard>
   );
 }
@@ -212,7 +212,7 @@ export function MenuPreview({ values, open, onToggle }: Props) {
           View full menu
         </div>
       </Phone>
-      <Sample>Example preview — your menu items replace it as you type.</Sample>
+      <Sample>Example preview. Your menu items replace it as you type.</Sample>
     </PreviewCard>
   );
 }
@@ -255,7 +255,7 @@ export function WifiPreview({ values, open, onToggle }: Props) {
         </div>
         <p className="mt-[3.6px] text-[8.92px] leading-[normal] text-muted">{meta}</p>
       </Phone>
-      <Sample>Sample code shown — your final WiFi code is generated at the download step.</Sample>
+      <Sample>Sample code shown. Your final WiFi code is generated at the download step.</Sample>
     </PreviewCard>
   );
 }
@@ -296,7 +296,7 @@ export function VideoPreview({ values, open, onToggle }: Props) {
           )}
         </div>
       </Phone>
-      <Sample>Example preview — your video plays here once uploaded.</Sample>
+      <Sample>Example preview. Your video plays here once uploaded.</Sample>
     </PreviewCard>
   );
 }

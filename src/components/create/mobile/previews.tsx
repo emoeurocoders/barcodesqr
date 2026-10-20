@@ -393,7 +393,7 @@ export function VCardPreview({
           </div>
         </div>
       </Phone>
-      <Sample>Example preview — your details replace it as you type.</Sample>
+      <Sample>Example preview. Your details replace it as you type.</Sample>
     </PreviewCard>
   );
 }
@@ -541,7 +541,7 @@ export function MultiLinkPreview({
           ))}
         </div>
       </Phone>
-      <Sample>Example preview — your links and details replace it as you type.</Sample>
+      <Sample>Example preview. Your links and details replace it as you type.</Sample>
     </PreviewCard>
   );
 }

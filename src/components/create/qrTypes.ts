@@ -251,3 +251,12 @@ export const secondaryTypes: CreateQrType[] = [
 
 /** Both groups, for looking a type up by value. */
 export const allTypes: CreateQrType[] = [...primaryTypes, ...secondaryTypes];
+
+/**
+ * Where a mobile file names a format differently from desktop's step 2: the
+ * form's title and the code's default name ("My Google Maps QR Code"), which
+ * desktop deliberately calls "My Location QR Code".
+ */
+export const mobileTypeTitle: Record<string, string> = {
+  location: "Google Maps",
+};

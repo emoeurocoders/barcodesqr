@@ -175,7 +175,7 @@ export function PdfPreview({ values, open, onToggle }: Props) {
           </a>
         </div>
       </Phone>
-      <Sample>Your uploaded document appears here — no sample is shown as your file.</Sample>
+      <Sample>Your uploaded document appears here. No sample is shown as your file.</Sample>
     </PreviewCard>
   );
 }
@@ -268,7 +268,7 @@ export function ImagePreview({ values, open, onToggle }: Props) {
           )}
         </div>
       </Phone>
-      <Sample>Example preview — your uploaded images replace this gallery.</Sample>
+      <Sample>Example preview. Your uploaded images replace this gallery.</Sample>
     </PreviewCard>
   );
 }
@@ -356,7 +356,7 @@ export function WhatsAppPreview({ values, open, onToggle }: Props) {
           </span>
         </div>
       </Phone>
-      <Sample>Example preview — your number and message replace this as you type.</Sample>
+      <Sample>Example preview. Your number and message replace this as you type.</Sample>
     </PreviewCard>
   );
 }

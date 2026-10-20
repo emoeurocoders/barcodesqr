@@ -110,11 +110,14 @@ export function encodeQr(
 
     case "email": {
       if (!v.to) return "";
-      const q = new URLSearchParams();
-      if (v.subject) q.set("subject", v.subject);
-      if (v.body) q.set("body", v.body);
-      const s = q.toString();
-      return `mailto:${v.to}${s ? `?${s}` : ""}`;
+      // Percent-encoding, not URLSearchParams: that writes spaces as "+",
+      // which mail apps leave as a literal "+" in a mailto subject (RFC
+      // 6068). "Product Inquiry" arrived as "Product+Inquiry".
+      const q = [
+        v.subject ? `subject=${encodeURIComponent(v.subject)}` : "",
+        v.body ? `body=${encodeURIComponent(v.body)}` : "",
+      ].filter(Boolean);
+      return `mailto:${v.to.trim()}${q.length ? `?${q.join("&")}` : ""}`;
     }
 
     case "sms":

@@ -2,26 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { dialCodes } from "../fieldSchema";
 import { parseStoredFile } from "../storedValues";
 import type { StoredFile } from "../storedValues";
 import { useFileUpload } from "../useFileUpload";
 import { UploadError, uploadFile } from "../uploadFile";
 import { matchesAccept } from "@/lib/uploads";
 import { isValidUrl } from "../validate";
-import {
-  Counter,
-  FieldError,
-  Fld,
-  Label,
-  TrackingPill,
-  textArea,
-  textInput,
-} from "./ui";
+import { Counter, FieldError, Fld, Label, TrackingPill, textArea } from "./ui";
 import {
   TextAreaFld,
   TextFld,
-  mobileDialLabel,
+  IntlNumberFld,
+  mobileNumberOk,
   schemaField,
   trimmed,
   uploadGlyph,
@@ -42,13 +34,6 @@ const optUrl = (v: string | undefined) => {
   const t = trimmed(v);
   return !t || t === "https://" || isValidUrl(t);
 };
-
-/** The digits of a WhatsApp number, as their `data-req="wap"` checks it. */
-function waNumberOk(raw: string | undefined) {
-  const v = trimmed(raw);
-  const digits = v.replace(/\D/g, "");
-  return digits.length >= 5 && digits.length <= 14 && !v.includes("+");
-}
 
 export function checksForBatch2(type: string, values: Values): Check[] {
   switch (type) {
@@ -106,7 +91,7 @@ export function checksForBatch2(type: string, values: Values): Check[] {
       return [
         {
           id: "waNum",
-          msg: waNumberOk(values.phone)
+          msg: mobileNumberOk(values.phone, values.phoneCountry)
             ? null
             : "Please enter a valid mobile number (without the country code).",
         },
@@ -238,7 +223,7 @@ export function AppLinkForm({ s }: { s: FormState }) {
           url
           tip={{
             label: "About the App Store link",
-            text: "Where iPhone users are sent — your Apple App Store page.",
+            text: "Where iPhone users are sent: your Apple App Store page.",
           }}
         />
         <TextFld
@@ -250,7 +235,7 @@ export function AppLinkForm({ s }: { s: FormState }) {
           url
           tip={{
             label: "About the Google Play link",
-            text: "Where Android users are sent — your Google Play page.",
+            text: "Where Android users are sent: your Google Play page.",
           }}
         />
         {groupErr && <FieldError>{groupErr}</FieldError>}
@@ -661,73 +646,35 @@ export const WA_DEFAULT =
   "Hi! 👋 I just scanned your QR code and I'd love to hear more — can you fill me in?";
 
 export function WhatsAppForm({ s }: { s: FormState }) {
-  const dial = s.values.phoneCountry ?? dialCodes[0].value;
-  const err = s.errors.waNum;
   const message = s.values.message ?? WA_DEFAULT;
 
-  // Their file prefills the message, and suggests the visitor's own country
-  // from the browser language. Seeded into the values, so both reach the code.
+  // Their file prefills the message as a real value, so it reaches the code.
   const { values, patch } = s;
   useEffect(() => {
-    if (values.message !== undefined && values.phoneCountry !== undefined)
-      return;
-    const region = (navigator.language.split("-")[1] ?? "").toUpperCase();
-    const guess = dialCodes.find((c) => c.region === region)?.value;
-    patch((cur) => ({
-      ...cur,
-      message: cur.message ?? WA_DEFAULT,
-      phoneCountry: cur.phoneCountry ?? guess ?? dialCodes[0].value,
-    }));
+    if (values.message !== undefined) return;
+    patch((cur) => ({ ...cur, message: cur.message ?? WA_DEFAULT }));
     // Once, on arrival.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
-      {/* Their `.rowCols`. */}
-      <div className="flex gap-[9.7px]">
-        <Fld id="waCc" label="Country" className="mt-[12.2px] w-[36%] shrink-0">
-          <select
-            id="waCc"
-            value={dial}
-            onChange={(e) => s.set("phoneCountry", e.target.value)}
-            className={`${textInput(false)} cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
-          >
-            {dialCodes.map((c) => (
-              <option key={c.value} value={c.value}>
-                {mobileDialLabel(c)}
-              </option>
-            ))}
-          </select>
-        </Fld>
-        <Fld
-          id="waNum"
-          label="WhatsApp number"
-          required
-          tip={{
-            label: "About your WhatsApp number",
-            text: "The number people message on WhatsApp after scanning.",
-          }}
-          error={err}
-          className="mt-[12.2px] min-w-0 flex-1"
-        >
-          <input
-            type="tel"
-            id="waNum"
-            value={s.values.phone ?? ""}
-            placeholder="Enter mobile number"
-            aria-invalid={!!err}
-            onChange={(e) => s.set("phone", e.target.value)}
-            className={textInput(!!err)}
-          />
-        </Fld>
-      </div>
+      <IntlNumberFld
+        s={s}
+        ccId="waCc"
+        numId="waNum"
+        label="WhatsApp number"
+        tip={{
+          label: "About your WhatsApp number",
+          text: "The number people message on WhatsApp after scanning.",
+        }}
+      />
       <Fld
         id="waMsg"
         label="Pre-typed message (optional)"
         tip={{
           label: "About the pre-typed message",
-          text: "Pre-filled chat text — the scanner just taps send.",
+          text: "Pre-filled chat text. The scanner just taps send.",
         }}
         counter={<Counter value={message} max={500} />}
       >

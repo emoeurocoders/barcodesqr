@@ -43,7 +43,7 @@ import { WifiPreview } from "./previews/WifiPreview";
 import { GoogleReviewPreview } from "./previews/GoogleReviewPreview";
 import { QrPreview, defaultQrStyle } from "./QrPreview";
 import type { QrStyle } from "./QrPreview";
-import { allTypes } from "./qrTypes";
+import { allTypes, mobileTypeTitle } from "./qrTypes";
 import { encodeQr } from "./encodeQr";
 import { isComplete } from "./validate";
 import { Button } from "@/components/ui/Button";
@@ -52,7 +52,9 @@ import { usePaywall } from "@/components/paywall/usePaywall";
 
 type Values = Record<string, string>;
 
-const defaultName = (type: string) => {
+const defaultName = (type: string, mobile = false) => {
+  // Below `md` a mobile file can name the format itself (Google Maps).
+  if (mobile && mobileTypeTitle[type]) return `My ${mobileTypeTitle[type]} QR Code`;
   const meta = allTypes.find((t) => t.value === type);
   // The creator names the code after what step 2 calls the format, not what
   // step 1's list calls it — "My Location QR Code", never "My Google Maps…".
@@ -65,6 +67,7 @@ const defaultName = (type: string) => {
 export function CreateWizard({ entitled }: { entitled: boolean }) {
   const router = useRouter();
   const params = useSearchParams();
+  const isMobile = useIsMobile();
 
   /**
    * Which step is showing lives in the URL: step 2 is `/create?type=vcard`,
@@ -86,20 +89,20 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
    * data); opening a different type starts that type fresh.
    */
   const [draft, setDraft] = useState<{ type: string; values: Values; name: string }>(
-    { type: "website", values: {}, name: defaultName("website") },
+    { type: "website", values: {}, name: defaultName("website", isMobile) },
   );
   const current =
-    draft.type === type ? draft : { type, values: {}, name: defaultName(type) };
+    draft.type === type ? draft : { type, values: {}, name: defaultName(type, isMobile) };
   const values = current.values;
   const name = current.name;
   const setValues: Dispatch<SetStateAction<Values>> = (u) =>
     setDraft((d) => {
-      const base = d.type === type ? d : { type, values: {}, name: defaultName(type) };
+      const base = d.type === type ? d : { type, values: {}, name: defaultName(type, isMobile) };
       return { ...base, values: typeof u === "function" ? u(base.values) : u };
     });
   const setName = (v: string) =>
     setDraft((d) => {
-      const base = d.type === type ? d : { type, values: {}, name: defaultName(type) };
+      const base = d.type === type ? d : { type, values: {}, name: defaultName(type, isMobile) };
       return { ...base, name: v };
     });
 
@@ -172,8 +175,6 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
     pushed.current = true;
     window.history.pushState(null, "", `/create?type=${encodeURIComponent(next)}`);
   };
-
-  const isMobile = useIsMobile();
 
   // Below `md` the page itself scrolls, so a new step would otherwise open
   // wherever the last one was left — at the very bottom, after Continue.

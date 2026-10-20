@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { dialCodes, fieldSchema } from "../fieldSchema";
 import type { Field } from "../fieldSchema";
@@ -84,7 +84,7 @@ export function urlHandlers(value: string, onChange: (v: string) => void) {
 
 export const NAME_TIP = {
   label: "About the QR code name",
-  text: "Only you can see this — it helps you find the code later.",
+  text: "Only you can see this. It helps you find the code later.",
 };
 
 /** The type header at the top of the form card (their `.frm .hdr`). */
@@ -445,3 +445,89 @@ export const shareGlyph = (
     <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
   </svg>
 );
+
+/**
+ * A mobile number typed beside a country picker, as their `data-req="wap"`
+ * checks it — 5 to 14 digits, no "+" — plus JB's "no duplicate country
+ * codes": a number that opens with the picked code's own digits and then
+ * runs on for a full national number has had the code typed twice.
+ * National numbers practically never begin with their country's code.
+ */
+export function mobileNumberOk(raw: string | undefined, dial: string | undefined) {
+  const v = (raw ?? "").trim();
+  const digits = v.replace(/\D/g, "");
+  if (digits.length < 5 || digits.length > 14 || v.includes("+")) return false;
+  const code = (dial ?? "+1").split("-")[0].replace(/\D/g, "");
+  return !(code && digits.startsWith(code) && digits.length - code.length >= 7);
+}
+
+/**
+ * The visitor's country, guessed from the browser language the way
+ * create_mobile_whatsapp.html's script does — or the first code if the
+ * language names no region we list.
+ */
+export function guessDialCode() {
+  const region = (navigator.language.split("-")[1] ?? "").toUpperCase();
+  return dialCodes.find((c) => c.region === region)?.value ?? dialCodes[0].value;
+}
+
+/**
+ * Country select + mobile number, as WhatsApp's file lays them out
+ * (`.rowCols`: "Country" at 36%). Shared by WhatsApp and SMS (JB: "reuse the
+ * WhatsApp international phone-number component"). Writes `phone` and
+ * `phoneCountry`, the keys desktop uses; preselects the visitor's country
+ * on arrival if none is set yet.
+ */
+export function IntlNumberFld({
+  s,
+  ccId,
+  numId,
+  label,
+  tip,
+}: {
+  s: FormState;
+  ccId: string;
+  numId: string;
+  label: string;
+  tip: { label: string; text: string };
+}) {
+  const dial = s.values.phoneCountry ?? dialCodes[0].value;
+  const err = s.errors[numId];
+  const { values, patch } = s;
+  useEffect(() => {
+    if (values.phoneCountry !== undefined) return;
+    patch((cur) => ({ ...cur, phoneCountry: cur.phoneCountry ?? guessDialCode() }));
+    // Once, on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div className="flex gap-[9.7px]">
+      <Fld id={ccId} label="Country" className="mt-[12.2px] w-[36%] shrink-0">
+        <select
+          id={ccId}
+          value={dial}
+          onChange={(e) => s.set("phoneCountry", e.target.value)}
+          className={`${textInput(false)} cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
+        >
+          {dialCodes.map((c) => (
+            <option key={c.value} value={c.value}>
+              {mobileDialLabel(c)}
+            </option>
+          ))}
+        </select>
+      </Fld>
+      <Fld id={numId} label={label} required tip={tip} error={err} className="mt-[12.2px] min-w-0 flex-1">
+        <input
+          type="tel"
+          id={numId}
+          value={s.values.phone ?? ""}
+          placeholder="Enter mobile number"
+          aria-invalid={!!err}
+          onChange={(e) => s.set("phone", e.target.value)}
+          className={textInput(!!err)}
+        />
+      </Fld>
+    </div>
+  );
+}

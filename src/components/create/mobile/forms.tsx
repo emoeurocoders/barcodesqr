@@ -113,6 +113,10 @@ export const mobileTypes = new Set([
   "menu",
   "wifi",
   "video",
+  "location",
+  "email",
+  "review",
+  "sms",
 ]);
 
 

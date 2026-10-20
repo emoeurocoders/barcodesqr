@@ -296,9 +296,9 @@ export function WifiForm({ s }: { s: FormState }) {
         placeholder="CozyCornerWiFi"
         max={32}
         required
-        tip={{ label: "About your network name", text: "Your network name (SSID) — usually printed on the sticker on your router, along with the password and security type." }}
+        tip={{ label: "About your network name", text: "Your network name (SSID). Usually printed on the sticker on your router, along with the password and security type." }}
       />
-      <Fld id="wfSec" label="Security type" tip={{ label: "About security types", text: "Most modern routers use WPA/WPA2 — pick that if unsure." }}>
+      <Fld id="wfSec" label="Security type" tip={{ label: "About security types", text: "Most modern routers use WPA/WPA2. Pick that if unsure." }}>
         <select
           id="wfSec"
           value={enc}
@@ -340,7 +340,7 @@ export function WifiForm({ s }: { s: FormState }) {
                 e.preventDefault();
                 setShow(!show);
               }}
-              className="absolute top-[9.6px] right-0 bottom-0 flex w-[23.5px] items-center justify-center text-faint [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px]"
+              className="absolute top-0 right-0 flex h-[43.7px] w-[23.5px] items-center justify-center text-faint [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px]"
             >
               {eyeGlyph}
             </a>
