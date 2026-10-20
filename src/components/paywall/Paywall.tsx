@@ -24,7 +24,9 @@ export function Paywall({
   if (!open) return null;
 
   return (
-    <PaywallShell onClose={onClose}>
+    // 400px wide below `lg`, as modal_join.html's ≤992px rule sets it; the
+    // two-column 976px card above.
+    <PaywallShell onClose={onClose} maxWidth="max-w-[400px] lg:max-w-[976px]">
       <CheckoutStep qrValue={qrValue} qrStyle={qrStyle} />
     </PaywallShell>
   );

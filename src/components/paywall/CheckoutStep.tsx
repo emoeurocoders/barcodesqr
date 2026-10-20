@@ -39,15 +39,16 @@ const features: {
   },
 ];
 
+// 16px below `lg`, as modal_join.html's ≤992px rule has it: anything smaller
+// makes iOS zoom the page when a field is focused.
 const inputBase =
-  "block h-[41px] w-full rounded-[9px] border bg-white px-[11px] text-[15px] leading-[normal] text-ink placeholder:text-faint focus:outline-none";
+  "block h-[41px] w-full rounded-[9px] border bg-white px-[11px] text-base leading-[normal] text-ink placeholder:text-faint focus:outline-none lg:text-[15px]";
 
 /** Invalid fields take the designer's error red on the border too. */
 const ring = (invalid?: boolean) =>
   invalid
     ? "border-error focus:border-error"
     : "border-line focus:border-primary";
-
 
 function Field({
   label,
@@ -136,12 +137,14 @@ export function CheckoutStep({
   return (
     <div className="flex flex-col items-stretch overflow-hidden lg:flex-row">
       {/* Left: the code they just built, locked */}
-      <div className="flex shrink-0 flex-col border-line-soft px-[34px] py-6 lg:w-[46.7%] lg:border-r">
+      {/* Below `lg`, their ≤992px rules: one column, the halves split by a
+          rule, 22px/20px padding. */}
+      <div className="flex shrink-0 flex-col border-b border-line-soft px-5 py-[22px] lg:w-[46.7%] lg:border-r lg:border-b-0 lg:px-[34px] lg:py-6">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/brand/logo.svg"
           alt="BarcodesQR"
-          className="block w-[196px]"
+          className="block w-[162px] max-w-[39vw] lg:w-[196px] lg:max-w-none"
         />
 
         <h2 className="mt-3.5 text-[31px] font-bold leading-[1.14em] tracking-[-0.025em] text-black">
@@ -189,7 +192,7 @@ export function CheckoutStep({
       </div>
 
       {/* Right: identify, then pay */}
-      <div className="min-w-0 flex-1 px-[34px] py-6">
+      <div className="min-w-0 flex-1 px-5 py-[22px] lg:px-[34px] lg:py-6">
         <form onSubmit={submit} noValidate>
           <h3 className="text-2xl font-bold leading-[normal] tracking-heading text-ink">
             Download your QR code
@@ -199,13 +202,16 @@ export function CheckoutStep({
             password required.
           </p>
 
-          <div className="mt-[9px] flex gap-3">
+          {/* Stacked below `lg` (their `.acts { flex-direction: column }`):
+              side by side, "Continue with Google" ran into the Apple button
+              and Apple's label was cut off. */}
+          <div className="mt-[9px] flex flex-col gap-2.5 lg:flex-row lg:gap-3">
             {/* The designer's hover is border-color #9ca3af — the faint token. */}
             <button
               type="button"
               onClick={google}
               disabled={googlePending}
-              className="flex h-[46px] min-w-0 flex-1 cursor-pointer items-center justify-center rounded-xl border border-line bg-white transition-colors hover:border-faint disabled:cursor-progress disabled:opacity-70"
+              className="flex h-[46px] min-w-0 cursor-pointer items-center justify-center rounded-xl border border-line bg-white transition-colors hover:border-faint disabled:cursor-progress disabled:opacity-70 lg:flex-1"
             >
               <span className="flex shrink-0">
                 <GoogleMark />
@@ -219,7 +225,7 @@ export function CheckoutStep({
               type="button"
               disabled
               title="Not connected yet — use your email below"
-              className="flex h-[46px] min-w-0 flex-1 cursor-not-allowed items-center justify-center rounded-xl border border-line bg-white opacity-55"
+              className="flex h-[46px] min-w-0 cursor-not-allowed items-center justify-center rounded-xl border border-line bg-white opacity-55 lg:flex-1"
             >
               <span className="flex shrink-0">
                 <AppleMark />
@@ -246,20 +252,24 @@ export function CheckoutStep({
             <span className="flex-1 border-t border-[#e2e6ec]" />
           </div>
 
-          <div className="relative mt-[9px]">
-            <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-faint" />
-            <input
-              id="inputEmail"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              aria-invalid={!!(emailError || state?.error)}
-              className={`${inputBase} ${ring(!!(emailError || state?.error))} pl-11`}
-            />
+          <div className="mt-[9px]">
+            {/* The envelope centres on the input alone. It used to centre on
+                this whole block — hint and error included — and sat low. */}
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-faint" />
+              <input
+                id="inputEmail"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={!!(emailError || state?.error)}
+                className={`${inputBase} ${ring(!!(emailError || state?.error))} pl-11`}
+              />
+            </div>
             {(emailError || state?.error) && (
               <small className="block pt-[0.2em] text-left text-xs text-error">
                 {emailError ?? state?.error}
@@ -279,7 +289,9 @@ export function CheckoutStep({
             </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-2.5">
+          {/* Two by two up to 480px (their ≤480px rule); four abreast had
+              "Credit or Debit Card" wrapping to four lines. */}
+          <div className="grid grid-cols-2 gap-2.5 min-[481px]:grid-cols-4">
             {[
               { key: "paypal", node: <PayPalMark /> },
               { key: "gpay", node: <GooglePayMark /> },
@@ -310,10 +322,12 @@ export function CheckoutStep({
                 type="tel"
                 inputMode="numeric"
                 autoComplete="cc-number"
-name="ccnumber"
+                name="ccnumber"
                 placeholder="1234-1234-1234-1234"
                 value={fields.number}
-                onChange={(e) => set("number", formatCardNumber(e.target.value))}
+                onChange={(e) =>
+                  set("number", formatCardNumber(e.target.value))
+                }
                 className={`${inputBase} ${ring(!!errors.number)} pr-[88px]`}
                 aria-invalid={!!errors.number}
               />
@@ -329,7 +343,7 @@ name="ccnumber"
                   type="tel"
                   inputMode="numeric"
                   autoComplete="cc-exp"
-  name="ccexp"
+                  name="ccexp"
                   placeholder="MM/YY"
                   value={fields.expiry}
                   onChange={(e) => set("expiry", formatExpiry(e.target.value))}
@@ -343,7 +357,7 @@ name="ccnumber"
                   type="tel"
                   inputMode="numeric"
                   autoComplete="cc-csc"
-  name="cvv"
+                  name="cvv"
                   placeholder="(Back of card)"
                   value={fields.cvc}
                   onChange={(e) => set("cvc", formatCvc(e.target.value))}
@@ -361,7 +375,7 @@ name="ccnumber"
                 <input
                   type="text"
                   autoComplete="cc-name"
-  name="name-first"
+                  name="name-first"
                   placeholder="Full name"
                   value={fields.name}
                   onChange={(e) => set("name", e.target.value)}

@@ -11,9 +11,23 @@
  * element and this file should shrink to nothing but the formatters.
  */
 
-/** Digits only, capped at the longest PAN we accept. */
+/**
+ * The most digits a number starting this way can have: 15 for Amex, 19 for
+ * the ranges that run that long (Maestro, UnionPay, Discover's 65), 16 for
+ * everything else — Visa and Mastercard included. Capping Visa at 16 is what
+ * stops a stray extra digit: with a flat 19, "4111 1111 1111 1111" plus three
+ * more 1s was accepted as typed and only failed at Pay (Tami, 2026-10-20).
+ */
+export function maxCardDigits(digits: string) {
+  if (/^3[47]/.test(digits)) return 15;
+  if (/^(5[06-9]|6)/.test(digits)) return 19;
+  return 16;
+}
+
+/** Digits only, capped at the longest number that card type can have. */
 export function formatCardNumber(raw: string) {
-  const digits = raw.replace(/\D/g, "").slice(0, 19);
+  const all = raw.replace(/\D/g, "");
+  const digits = all.slice(0, maxCardDigits(all));
   return digits.replace(/(.{4})(?=.)/g, "$1-");
 }
 

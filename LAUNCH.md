@@ -439,7 +439,28 @@ seven up front and sixteen behind "View All 23 QR Types".
   width; the port is fixed at the 390px rendering, as the mobile homepage is.
   Below `md`, 360px and 700px were checked for overflow and footer overlap.
 
-## Image adjuster
+## Paywall on phones — modal_join.html's ≤992px rules, ported 2026-10-20
+
+Tami (QA) could not pay on her phone: the sign-in buttons ran into each
+other, "Credit or Debit Card" wrapped to four lines, the envelope sat below
+the email field, and the card number was hard to see in full, so a test
+number gained three extra digits and failed the Luhn check. Only the
+desktop layout had ever been ported. Below `lg` the paywall now follows
+the file's small-screen rules: one column at 400px max, 22px/20px padding,
+Google and Apple stacked, the four payment tiles two by two up to 480px,
+16px inputs (iOS zoom), smaller logo. Desktop is unchanged except that the
+envelope now centres on the email field there too.
+
+- **Card numbers are capped by type**: 15 digits for Amex, 19 for the
+  Maestro/UnionPay/Discover-65 ranges, 16 for everything else. A rare
+  19-digit Visa would be cut off; moot once a processor's hosted card field
+  replaces this one, which is still the plan (see validation.ts).
+- **Type sizes on phones are the file's ≤992px values, not its `vw`
+  scaling** below 420px; checked at 390, 360 and 320 for overflow.
+- **The CVC placeholder "(Back of card)" still truncates at 360px** — it
+  does in the file too.
+
+
 
 The fields the schema marks `adjustable` — vCard and Social profile photos
 (`circle`) and the multi-link cover (`wide`) — can now be repositioned and
