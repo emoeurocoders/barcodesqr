@@ -701,6 +701,70 @@ jQuery(document).ready(function($) {
 				$cr.find('.pvwSmsNum').text(theSn ? theScc + ' ' + theSn : '+1 555 123 4567');
 				$cr.find('.pvwSms .bub2 p').text($.trim($('#smsMsg').val()) || "Hi! I just scanned your QR code and I'd love to hear more — can you fill me in?");
 			}
+			//phone dialer
+			if ($('#telNum').length) {
+				var theTn = $.trim($('#telNum').val());
+				var theTcc = ($('#telCc').val() || '+1').split('-')[0];
+				$cr.find('.pvwTelNum').text(theTn ? theTcc + ' ' + theTn : '+1 555 555 0123');
+			}
+			//plain text note
+			if ($('#txMsg').length) {
+				$cr.find('.pvwTxTtl').text($.trim($('#txTitle').val()) || 'Note');
+				$cr.find('.pvwTxBody').text($.trim($('#txMsg').val()) || 'Welcome to the workshop! 👋\n\nWi-Fi: CozyCornerWiFi\nSchedule: kickoff at 9:30, demos after lunch.\nParking: the garage on 5th St — first hour is free.\n\nQuestions? Find anyone in a teal lanyard.');
+			}
+			//audio card title
+			if ($('#auTitle').length) {
+				var theAt = $.trim($('#auTitle').val());
+				var theAfn = $cr.data('audName') || '';
+				$cr.find('.pvwAudTtl').text(theAt || (theAfn ? theAfn.replace(/\.[^.]+$/, '') : 'Welcome Message'));
+			}
+			//event card
+			if ($('#evTitle').length) {
+				$cr.find('.pvwEvTtl').text($.trim($('#evTitle').val()) || 'Summer Networking Mixer');
+				var theEvD = $('#evStD').val();
+				var theEvDt = new Date((theEvD || '2024-06-09') + 'T12:00:00');
+				var theMo3 = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+				var theDw3 = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+				$cr.find('.pvwEvMon').text(theMo3[theEvDt.getMonth()]);
+				$cr.find('.pvwEvDay').text(('0' + theEvDt.getDate()).slice(-2));
+				$cr.find('.pvwEvDow').text(theDw3[theEvDt.getDay()]);
+				var theSt3 = $('#evStT').val();
+				var theEt3 = $('#evEnT').val();
+				var crEvT = function(theT) {
+					var theP2 = theT.split(':');
+					var theH2 = parseInt(theP2[0], 10);
+					return (theH2 % 12 || 12) + ':' + theP2[1] + ' ' + (theH2 >= 12 ? 'PM' : 'AM');
+				};
+				$cr.find('.pvwEvTime').text(theSt3 ? crEvT(theSt3) + (theEt3 ? ' – ' + crEvT(theEt3) : '') : '6:00 PM – 9:00 PM');
+				var theLoc2 = $.trim($('#evLoc').val());
+				var theDsc2 = $.trim($('#evDesc').val());
+				var theAnyEv = !!($.trim($('#evTitle').val()) || theEvD || theSt3 || theLoc2 || theDsc2);
+				var $elr = $cr.find('.pvwEvt .eloc');
+				if (theLoc2) {
+					$elr.show();
+					$elr.find('.pvwEvLoc').text(theLoc2);
+					$elr.find('.pvwEvLoc2').hide();
+				} else if (theAnyEv) {
+					$elr.hide();
+				} else {
+					$elr.show();
+					$elr.find('.pvwEvLoc').text('The Skyline Rooftop');
+					$elr.find('.pvwEvLoc2').show().text('123 Main St, New York, NY 10001');
+				}
+				var $eds = $cr.find('.pvwEvDsc');
+				if (theDsc2) {
+					$eds.show().text(theDsc2);
+				} else if (theAnyEv) {
+					$eds.hide();
+				} else {
+					$eds.show().text('Join us for an evening of great conversations, new connections, and summer vibes. Enjoy refreshments, meet industry professionals, and be part of our growing community!');
+				}
+			}
+			//feedback: the button uses the validated link
+			if ($('#fbUrl').length) {
+				var theFb = $.trim($('#fbUrl').val());
+				$cr.find('.pvwFb .fbb').attr('href', /^https:\/\//i.test(theFb) && crUrlOk(theFb) ? theFb : '#');
+			}
 			//payment, auto-detect recognized providers from the link
 			if ($('#paySel').length) {
 				var theLnk = $.trim($('#payLink').val());
@@ -793,15 +857,15 @@ jQuery(document).ready(function($) {
 				}
 			}
 		}
-		$cr.on('input', '#siteUrl, #vcFirst, #vcLast, #vcRole, #vcSummary, #mlTitle, #mlDesc, #smHeadline, #smDesc, #mnTitle, #mnCat, #wfSsid, #imTitle, #waMsg, #emTo, #emSubj, #emBody, #rvUrl, #smsNum, #smsMsg, #payLink, #cpTitle, #cpDisc, #cpCode, #cpTerms, #bzName, #bzDesc, #bzPhone, #bzEmail, #bzWeb, #bzAdr, .lnkNme, .mnPrc, .mnDsc', crPreview);
-		$cr.on('change', '#paySel, #cpExp, #bzOpen, #bzClose, #smsCc', crPreview);
+		$cr.on('input', '#siteUrl, #vcFirst, #vcLast, #vcRole, #vcSummary, #mlTitle, #mlDesc, #smHeadline, #smDesc, #mnTitle, #mnCat, #wfSsid, #imTitle, #waMsg, #emTo, #emSubj, #emBody, #rvUrl, #smsNum, #smsMsg, #telNum, #txMsg, #txTitle, #auTitle, #evTitle, #evLoc, #evDesc, #fbUrl, #payLink, #cpTitle, #cpDisc, #cpCode, #cpTerms, #bzName, #bzDesc, #bzPhone, #bzEmail, #bzWeb, #bzAdr, .lnkNme, .mnPrc, .mnDsc', crPreview);
+		$cr.on('change', '#paySel, #cpExp, #bzOpen, #bzClose, #smsCc, #telCc, #evStD, #evStT, #evEnD, #evEnT', crPreview);
 
 		//review link help + example-state button guards
 		$cr.find('.hlpLnk').on('click', function(e) {
 			e.preventDefault();
 			$cr.find('.hlpBox').stop(true, true).slideToggle(200);
 		});
-		$cr.on('click', '.pvwRev .wrb[href="#"], .pvwPay .ctp[href="#"]', function(e) {
+		$cr.on('click', '.pvwRev .wrb[href="#"], .pvwPay .ctp[href="#"], .pvwFb .fbb[href="#"], .pvwEvt .ecal', function(e) {
 			e.preventDefault();
 		});
 
@@ -817,6 +881,24 @@ jQuery(document).ready(function($) {
 			};
 			if (navigator.clipboard && navigator.clipboard.writeText) {
 				navigator.clipboard.writeText(theCode).then(theDone, theDone);
+			} else {
+				theDone();
+			}
+		});
+
+		//plain text: copy text button
+		$cr.on('click', '.pvwTxt .ncp', function(e) {
+			e.preventDefault();
+			var $theBtn = $(this);
+			var theTxt = $cr.find('.pvwTxBody').text();
+			var theDone = function() {
+				$theBtn.find('span').text('Copied!');
+				setTimeout(function() {
+					$theBtn.find('span').text('Copy text');
+				}, 1400);
+			};
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(theTxt).then(theDone, theDone);
 			} else {
 				theDone();
 			}
@@ -947,6 +1029,92 @@ jQuery(document).ready(function($) {
 			});
 		}
 
+		//audio: single upload, playable card preview
+		if ($('#auFile').length) {
+			var crAudUrl = null;
+			var crAudEl = null;
+			var crAudDefFic = $cr.find('.fileCrd .fic').html();
+			function crAudTime(theS) {
+				theS = Math.max(0, Math.floor(theS || 0));
+				return Math.floor(theS / 60) + ':' + ('0' + (theS % 60)).slice(-2);
+			}
+			function crAudStop() {
+				if (crAudEl) {
+					crAudEl.pause();
+					crAudEl.src = '';
+					crAudEl = null;
+				}
+				if (crAudUrl) {
+					URL.revokeObjectURL(crAudUrl);
+					crAudUrl = null;
+				}
+				$cr.find('.pvwAud .ply').removeClass('on');
+			}
+			$cr.on('change', '#auFile', function() {
+				var theFile = this.files && this.files[0];
+				this.value = '';
+				if (!theFile) return;
+				var $fld = $cr.find('.fileReq');
+				if (!/^audio\//.test(theFile.type) && !/\.(mp3|m4a|aac|wav|ogg|flac|aiff)$/i.test(theFile.name)) {
+					crFileErr($fld, 'Please choose an audio file (MP3, M4A, WAV, etc.).');
+					return;
+				}
+				if (theFile.size > 20 * 1048576) {
+					crFileErr($fld, 'That file is too large (max 20 MB).');
+					return;
+				}
+				crFileErr($fld, '');
+				crAudStop();
+				crAudUrl = URL.createObjectURL(theFile);
+				crAudEl = new Audio();
+				crAudEl.preload = 'metadata';
+				crAudEl.src = crAudUrl;
+				$fld.find('.fileCrd').addClass('on').find('.fnm').text(theFile.name).end().find('.fsz').text(crSizeTxt(theFile.size));
+				$cr.data('audName', theFile.name);
+				$cr.find('.pvwAudFn').text(theFile.name);
+				$cr.find('.pvwAud .fil').css('width', '0%');
+				$cr.find('.pvwAud .at1').text('0:00');
+				$cr.find('.pvwAud .at2').text('0:00');
+				crAudEl.addEventListener('loadedmetadata', function() {
+					if (crAudEl && isFinite(crAudEl.duration)) {
+						$cr.find('.pvwAud .at2').text(crAudTime(crAudEl.duration));
+					}
+				});
+				crAudEl.addEventListener('timeupdate', function() {
+					if (!crAudEl) return;
+					var thePc = crAudEl.duration ? (crAudEl.currentTime / crAudEl.duration) * 100 : 0;
+					$cr.find('.pvwAud .fil').css('width', Math.min(100, thePc) + '%');
+					$cr.find('.pvwAud .at1').text(crAudTime(crAudEl.currentTime));
+				});
+				crAudEl.addEventListener('ended', function() {
+					$cr.find('.pvwAud .ply').removeClass('on');
+				});
+				crPreview();
+			});
+			$cr.on('click', '.pvwAud .ply', function(e) {
+				e.preventDefault();
+				if (!crAudEl) return;
+				if (crAudEl.paused) {
+					crAudEl.play();
+					$(this).addClass('on');
+				} else {
+					crAudEl.pause();
+					$(this).removeClass('on');
+				}
+			});
+			$cr.on('click', '.fileCrd .frm2', function(e) {
+				e.preventDefault();
+				crAudStop();
+				$cr.removeData('audName');
+				$cr.find('.fileCrd').removeClass('on').find('.fic').html(crAudDefFic);
+				$cr.find('.pvwAudFn').text('welcome-message.mp3');
+				$cr.find('.pvwAud .fil').css('width', '12%');
+				$cr.find('.pvwAud .at1').text('0:00');
+				$cr.find('.pvwAud .at2').text('0:28');
+				crPreview();
+			});
+		}
+
 		//google maps: suggestion picker + keyless embed preview
 		if ($('#gmQ').length) {
 			var crPlaces = [
@@ -1003,8 +1171,38 @@ jQuery(document).ready(function($) {
 			});
 		}
 
+		//event: clear the end-time error on change, show the device time zone
+		if ($('#evStD').length) {
+			$cr.on('change', '#evStD, #evStT, #evEnD, #evEnT', function() {
+				$cr.find('.endChk').children('small.error').remove();
+			});
+			try {
+				var theTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+				if (theTz) {
+					$cr.find('.tzNm').text(theTz.replace(/_/g, ' '));
+				}
+			} catch (e) {}
+		}
+
+		//feedback link: prefill the protocol on focus, clear it back on blur
+		if ($('#fbUrl').length) {
+			$cr.on('focusin', '#fbUrl', function() {
+				var theV = $.trim(this.value);
+				if (!/^https:\/\//i.test(theV)) {
+					this.value = 'https://' + theV.replace(/^https?:\/\//i, '');
+					$(this).trigger('input');
+				}
+			});
+			$cr.on('focusout', '#fbUrl', function() {
+				if ($.trim(this.value).toLowerCase() === 'https://') {
+					this.value = '';
+					$(this).trigger('input');
+				}
+			});
+		}
+
 		//whatsapp / sms: suggest the visitor's country code
-		var $crCc = $('#waCc, #smsCc');
+		var $crCc = $('#waCc, #smsCc, #telCc');
 		if ($crCc.length) {
 			var theReg = ((navigator.language || '').split('-')[1] || '').toUpperCase();
 			var $theOpt = $crCc.first().find('option[data-reg="' + theReg + '"]').first();
@@ -1284,7 +1482,25 @@ jQuery(document).ready(function($) {
 					$mpr.append('<small class="error">' + $mpr.attr('data-msg') + '</small>');
 				}
 			}
-			if (!$bad.length && socOk && grpOk && imgOk && fileOk && mapOk) {
+			var endOk = true;
+			var $enr = $cr.find('.endChk');
+			if ($enr.length) {
+				var theSd4 = $('#evStD').val();
+				var theSt4 = $('#evStT').val();
+				var theEd4 = $('#evEnD').val();
+				var theEt4 = $('#evEnT').val();
+				if ((theEd4 || theEt4) && theSd4 && theSt4) {
+					var theS5 = new Date(theSd4 + 'T' + theSt4);
+					var theE5 = new Date((theEd4 || theSd4) + 'T' + (theEt4 || '23:59'));
+					endOk = theE5.getTime() > theS5.getTime();
+				}
+				if (endOk) {
+					$enr.children('small.error').remove();
+				} else if (!$enr.children('small.error').length) {
+					$enr.append('<small class="error">' + $enr.attr('data-msg') + '</small>');
+				}
+			}
+			if (!$bad.length && socOk && grpOk && imgOk && fileOk && mapOk && endOk) {
 				if (typeof fireModal === 'function') {
 					fireModal('modal_join.html');
 				}
@@ -1301,6 +1517,11 @@ jQuery(document).ready(function($) {
 			if (!$bad.length && !mapOk) {
 				$('#gmQ')[0].focus({ preventScroll: true });
 				$('#gmQ')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+				return;
+			}
+			if (!$bad.length && !endOk) {
+				$('#evEnD')[0].focus({ preventScroll: true });
+				$('#evEnD')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
 				return;
 			}
 			if (!$bad.length && !socOk) {
