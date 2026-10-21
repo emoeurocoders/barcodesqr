@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { parseStoredFile } from "../storedValues";
+import { cropStyle, parseStoredFile } from "../storedValues";
 import type { StoredFile } from "../storedValues";
+import { ImageAdjuster } from "../ImageAdjuster";
 import { useFileUpload } from "../useFileUpload";
 import { UploadError, uploadFile } from "../uploadFile";
 import { matchesAccept } from "@/lib/uploads";
@@ -390,6 +391,15 @@ export function galleryOf(values: Values): StoredFile[] {
   }
 }
 
+/**
+ * Lets the form turn the preview to the picture being reframed. The two sit
+ * in different subtrees and share only `values`, which is saved — a pick is
+ * not worth saving, so it travels as a window event instead.
+ */
+export const GALLERY_SHOW = "bqr:gallery-show";
+const showInPreview = (i: number) =>
+  window.dispatchEvent(new CustomEvent(GALLERY_SHOW, { detail: i }));
+
 const withGallery = (cur: Values, list: StoredFile[]): Values => ({
   ...cur,
   images: JSON.stringify(list),
@@ -407,6 +417,13 @@ export function ImageForm({ s }: { s: FormState }) {
   const [skipped, setSkipped] = useState(false);
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState<number | null>(null);
+  /** The picture being reframed; tapping a tile picks it (Tami, 2026-10-21). */
+  const [sel, setSel] = useState<number | null>(null);
+  const picked = sel !== null ? list[sel] : undefined;
+  const select = (i: number | null) => {
+    setSel(i);
+    if (i !== null) showInPreview(i);
+  };
   const nextId = useRef(0);
   const room = MAX_IMAGES - list.length - pending.length;
   const err = s.errors.imUpl;
@@ -455,21 +472,33 @@ export function ImageForm({ s }: { s: FormState }) {
     );
   };
 
-  const remove = (i: number) =>
+  const remove = (i: number) => {
+    if (sel !== null) setSel(i === sel ? null : i < sel ? sel - 1 : sel);
     s.patch((cur) =>
       withGallery(
         cur,
         galleryOf(cur).filter((_, j) => j !== i),
       ),
     );
+  };
 
-  const move = (from: number, to: number) =>
+  const reframe = (i: number, crop: StoredFile["crop"]) =>
+    s.patch((cur) =>
+      withGallery(
+        cur,
+        galleryOf(cur).map((f, j) => (j === i ? { ...f, crop } : f)),
+      ),
+    );
+
+  const move = (from: number, to: number) => {
+    setSel(null);
     s.patch((cur) => {
       const next = [...galleryOf(cur)];
       const [it] = next.splice(from, 1);
       next.splice(to, 0, it);
       return withGallery(cur, next);
     });
+  };
 
   /**
    * Reorder by dragging a thumbnail onto another. Their file uses HTML5
@@ -535,6 +564,8 @@ export function ImageForm({ s }: { s: FormState }) {
                 const to = tileAt(e.clientX, e.clientY);
                 if (dragFrom !== null && to !== null && to !== dragFrom)
                   move(dragFrom, to);
+                // Lifted where it was pressed: a tap, which picks it.
+                else if (dragFrom === i && to === i) select(sel === i ? null : i);
                 setDragFrom(null);
                 setDragOver(null);
               }}
@@ -543,7 +574,7 @@ export function ImageForm({ s }: { s: FormState }) {
                 setDragOver(null);
               }}
               className={`relative aspect-square cursor-grab overflow-hidden rounded-[8.1px] border ${
-                dragOver === i && dragFrom !== i
+                (dragOver === i && dragFrom !== i) || (sel === i && dragFrom === null)
                   ? "border-primary ring-2 ring-primary/40"
                   : "border-mc-acc-line"
               } ${dragFrom === i ? "opacity-50" : ""}`}
@@ -553,7 +584,8 @@ export function ImageForm({ s }: { s: FormState }) {
                 src={f.url ?? f.dataUrl}
                 alt=""
                 draggable={false}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full"
+                style={cropStyle(f)}
               />
               <a
                 href="#"
@@ -627,6 +659,27 @@ export function ImageForm({ s }: { s: FormState }) {
         {err && <FieldError>{err}</FieldError>}
         {/* Their `.imgCnt`: images, not characters, against the same 10. */}
         <Counter value={" ".repeat(list.length)} max={MAX_IMAGES} />
+        {/*
+          Reframing, which the file does not have: Tami found photos showing
+          only their middle with no way to move them. Unmocked — the hint
+          borrows the Sub line, the panel is the same ImageAdjuster the
+          single-photo fields use. See LAUNCH.md.
+        */}
+        {list.length > 0 && (
+          <Sub>
+            {picked
+              ? `Image ${sel! + 1}: drag to reposition, slide to zoom. Tap it again when done.`
+              : "Tap an image to adjust its position & zoom."}
+          </Sub>
+        )}
+        {picked && (
+          <ImageAdjuster
+            shape="wide"
+            stored={picked}
+            src={picked.url ?? picked.dataUrl ?? ""}
+            onChange={(crop) => reframe(sel!, crop)}
+          />
+        )}
       </div>
       <TextFld
         s={s}

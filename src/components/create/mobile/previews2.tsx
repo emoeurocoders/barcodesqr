@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { fileSrc, parseStoredFile } from "../storedValues";
+import { cropStyle, fileSrc, parseStoredFile } from "../storedValues";
 import { BarCaret, BarText, PreviewCard, Sample, qrGlyph } from "./previews";
-import { WA_DEFAULT, galleryOf } from "./forms2";
+import { GALLERY_SHOW, WA_DEFAULT, galleryOf } from "./forms2";
 
 /**
  * The collapsible previews for batch 2 (app link / PDF / image / WhatsApp),
@@ -192,9 +192,18 @@ const sampleGallery = [
 ];
 
 export function ImagePreview({ values, open, onToggle }: Props) {
-  const mine = galleryOf(values).map((f) => f.url ?? f.dataUrl ?? "");
+  const files = galleryOf(values);
+  const mine = files.map((f) => f.url ?? f.dataUrl ?? "");
   const list = mine.length ? mine : sampleGallery;
+  /** The uploaded picture's framing; samples stay centred. */
+  const fit = (j: number): React.CSSProperties =>
+    files[j] ? cropStyle(files[j]) : { objectFit: "cover" };
   const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const show = (e: Event) => setIdx((e as CustomEvent<number>).detail);
+    window.addEventListener(GALLERY_SHOW, show);
+    return () => window.removeEventListener(GALLERY_SHOW, show);
+  }, []);
   const i = idx < list.length ? idx : 0;
   const title = (values.title ?? "").trim() || "Summer Memories";
   const touchX = useRef<number | null>(null);
@@ -211,7 +220,7 @@ export function ImagePreview({ values, open, onToggle }: Props) {
         <>
           <span className="block h-[35.7px] w-[35.7px] shrink-0 overflow-hidden rounded-[8.1px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={list[0]} alt="" className="block h-full w-full object-cover" />
+            <img src={list[0]} alt="" className="block h-full w-full" style={fit(0)} />
           </span>
           <BarText open={open} title="Your Image Preview" base="See how your gallery looks" />
           <BarCaret open={open} />
@@ -230,7 +239,7 @@ export function ImagePreview({ values, open, onToggle }: Props) {
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={list[i]} alt="" className="block h-full w-full object-cover" />
+          <img src={list[i]} alt="" className="block h-full w-full" style={fit(i)} />
           {list.length > 1 && (
             <>
               <a href="#" aria-label="Previous image" className={`${nav} left-[6.5px]`} onClick={(e) => { e.preventDefault(); step(-1); }}>
@@ -258,7 +267,7 @@ export function ImagePreview({ values, open, onToggle }: Props) {
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="block h-full w-full object-cover" />
+              <img src={src} alt="" className="block h-full w-full" style={fit(j)} />
             </span>
           ))}
           {list.length > 5 && (

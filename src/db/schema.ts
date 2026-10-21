@@ -1,10 +1,13 @@
 import type { AdapterAccountType } from "next-auth/adapters";
 import {
+  index,
   integer,
+  jsonb,
   pgTable,
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -94,3 +97,42 @@ export const passwordResetTokens = pgTable("password_reset_token", {
     .notNull()
     .defaultNow(),
 });
+
+/**
+ * A customer's QR codes.
+ *
+ * `values` is the step-2 form exactly as the creator holds it — the same flat
+ * map of strings the encoder and the previews read — so a code can be
+ * re-encoded, re-rendered or re-opened for editing without a per-type schema.
+ * What the code encodes is derived from it (`encodeQr`), never stored, so a
+ * fix to the encoder reaches every saved code.
+ *
+ * `draftKey` is the random key the browser gives a draft before checkout.
+ * Claiming a draft twice — two tabs, a refresh mid-claim — hits the unique
+ * index and inserts nothing the second time.
+ */
+export const qrCodes = pgTable(
+  "qr_code",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    name: text("name").notNull(),
+    values: jsonb("values").$type<Record<string, string>>().notNull(),
+    draftKey: text("draft_key"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("qr_code_user_created_idx").on(t.userId, t.createdAt),
+    uniqueIndex("qr_code_user_draft_idx").on(t.userId, t.draftKey),
+  ],
+);

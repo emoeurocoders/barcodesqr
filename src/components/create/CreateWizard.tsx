@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { saveQrCode } from "@/app/actions/qr";
+import { stashPendingQr } from "@/lib/pendingQr";
 // `Download` is shelved with step 3.
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StepRail } from "./StepRail";
@@ -157,10 +159,30 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
    * With step 3 shelved there is nowhere further to send someone who has
    * already paid, so they go to the dashboard, which is where their codes
    * live and where checkout drops them anyway.
+   *
+   * Someone who has paid gets the code saved here and now. Anyone else gets
+   * it stashed in the browser first: every way out of the paywall ends on the
+   * dashboard, which claims the stash once they are signed in and paid.
    */
-  const finishStepTwo = () => {
-    if (entitled) router.push("/dashboard");
-    else paywall.show();
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const finishStepTwo = async () => {
+    if (saving) return;
+    const draft = { type, name: name.trim() || defaultName(type, isMobile), values };
+    if (!entitled) {
+      stashPendingQr(draft);
+      paywall.show();
+      return;
+    }
+    setSaving(true);
+    setSaveError(null);
+    const res = await saveQrCode(draft);
+    if ("id" in res) {
+      router.push(`/dashboard?new=${encodeURIComponent(res.id)}`);
+    } else {
+      setSaving(false);
+      setSaveError(res.error);
+    }
   };
 
   // Choosing a type advances immediately — on the live creator one click on a
@@ -319,7 +341,7 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
         {step === 1 ? (
           <span />
         ) : (
-          <Button size="lg" disabled={!complete} onClick={finishStepTwo}>
+          <Button size="lg" disabled={!complete || saving} onClick={finishStepTwo}>
             Next
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -345,6 +367,16 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
             </div>
         ------------------------------------------------------------------ */}
       </div>
+
+      {/* Saving runs on Next; this only shows if it fails. */}
+      {saveError && (
+        <div
+          role="alert"
+          className="fixed inset-x-4 bottom-20 z-40 mx-auto max-w-md rounded-xl bg-ink px-4 py-3 text-center text-sm text-white shadow-pop"
+        >
+          {saveError}
+        </div>
+      )}
 
       <Paywall
         open={paywall.open}

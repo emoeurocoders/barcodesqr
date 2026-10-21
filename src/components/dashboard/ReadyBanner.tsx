@@ -4,9 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { Check, Download, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { defaultQrStyle, downloadQr } from "@/components/create/QrPreview";
+import type { QrRow } from "./QrTable";
 
 /** Shown after a code is created; dismissible for the rest of the session. */
-export function ReadyBanner() {
+export function ReadyBanner({ row }: { row: QrRow }) {
   const [open, setOpen] = useState(true);
   if (!open) return null;
 
@@ -24,7 +26,7 @@ export function ReadyBanner() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button>
+        <Button onClick={() => downloadQr(row.qrValue, defaultQrStyle, row.name, "png")}>
           <Download className="h-4 w-4" />
           Download QR
         </Button>

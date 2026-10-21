@@ -31,7 +31,7 @@ const dynamicTypes = new Set([
  * `+1-CA` and friends so two countries can share a code without the select
  * collapsing them; only the digits before the dash are dialled.
  */
-function intlPhone(v: Record<string, string>, field = "phone") {
+export function intlPhone(v: Record<string, string>, field = "phone") {
   // An untouched picker has stored nothing yet; it shows its first option.
   const code = (v[`${field}Country`] ?? dialCodes[0].value).split("-")[0];
   const number = (v[field] ?? "").trim();

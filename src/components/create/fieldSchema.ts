@@ -812,7 +812,10 @@ export const fieldSchema: Record<string, Field[]> = {
       "accept": "image/*,.png,.jpg,.jpeg,.webp,.heic,.heif",
       "required": true,
       "maxSizeMb": 5,
-      "formats": "PNG, JPG, JPEG, etc."
+      "formats": "PNG, JPG, JPEG, etc.",
+      // Tami, 2026-10-21: uploaded photos showed only their middle with no
+      // way to reframe them.
+      "adjustable": "wide"
     },
     {
       "name": "title",

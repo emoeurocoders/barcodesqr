@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { eq } from "drizzle-orm";
+import { and, asc, desc, eq, ilike } from "drizzle-orm";
 
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { qrCodes, users } from "@/db/schema";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Toolbar } from "@/components/dashboard/Toolbar";
 import { ReadyBanner } from "@/components/dashboard/ReadyBanner";
 import { QrTable } from "@/components/dashboard/QrTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
-import type { QrRow } from "@/components/dashboard/QrTable";
+import { ClaimPendingQr } from "@/components/dashboard/ClaimPendingQr";
+import { NoMatches } from "@/components/dashboard/NoMatches";
+import { toQrRow } from "@/lib/qrRows";
 import { SlimFooter } from "@/components/layout/SlimFooter";
 import { ReviewPromptGate } from "@/components/review/ReviewPromptGate";
 
@@ -19,8 +21,27 @@ export const metadata: Metadata = {
   title: "My QR Codes — BarcodesQR",
 };
 
-export default async function DashboardPage() {
-  const session = await auth();
+const planLabel = {
+  free: "Free",
+  trial: "Trial",
+  quarterly: "Quarterly",
+  biannual: "Biannual",
+} as const;
+
+/** The sort menu's options; the first is what "Date created" means. */
+const sorts = {
+  newest: desc(qrCodes.createdAt),
+  oldest: asc(qrCodes.createdAt),
+  name: asc(qrCodes.name),
+} as const;
+export type DashboardSort = keyof typeof sorts;
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; sort?: string; new?: string }>;
+}) {
+  const [session, params] = await Promise.all([auth(), searchParams]);
   // Sign-in lives in a modal now, so send them home with it open.
   if (!session?.user) redirect("/?signin=1");
 
@@ -40,23 +61,53 @@ export default async function DashboardPage() {
     .limit(1);
   const paid = !!row && row.plan !== "free";
 
-  // Saving codes to an account lands next; until then there is nothing to
-  // list. Point this at the query when it exists — the table below already
-  // renders whatever rows it is handed.
-  const rows: QrRow[] = [];
+  const q = (params.q ?? "").trim().slice(0, 100);
+  const sort: DashboardSort =
+    params.sort && params.sort in sorts ? (params.sort as DashboardSort) : "newest";
+
+  // Search matches the name the customer gave the code. `%`/`_` are escaped
+  // so a search for "50%" means the characters, not a wildcard.
+  const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+  const saved = await db
+    .select({
+      id: qrCodes.id,
+      type: qrCodes.type,
+      name: qrCodes.name,
+      values: qrCodes.values,
+      createdAt: qrCodes.createdAt,
+    })
+    .from(qrCodes)
+    .where(
+      q
+        ? and(eq(qrCodes.userId, session.user.id!), ilike(qrCodes.name, pattern))
+        : eq(qrCodes.userId, session.user.id!),
+    )
+    .orderBy(sorts[sort], desc(qrCodes.createdAt))
+    .limit(500);
+  const rows = saved.map((r) => toQrRow(r, params.new));
+  const newRow = rows.find((r) => r.isNew);
 
   return (
     <>
       <div className="flex flex-1 bg-white">
-        <Sidebar current="My QR Codes" user={session.user} />
+        <Sidebar
+          current="My QR Codes"
+          // The plan from the row read above, not the token, which never
+          // carried one — the sidebar said "Free Plan" to paying customers.
+          user={{ ...session.user, plan: planLabel[row?.plan ?? "free"] }}
+        />
 
         <main className="min-w-0 flex-1">
-          <Toolbar />
+          <Toolbar q={q} sort={sort} />
+          {/* Codes made before checkout are saved here, on arrival. */}
+          <ClaimPendingQr />
           {rows.length > 0 ? (
             <>
-              <ReadyBanner />
+              {newRow && <ReadyBanner row={newRow} />}
               <QrTable rows={rows} />
             </>
+          ) : q ? (
+            <NoMatches q={q} />
           ) : (
             <EmptyState />
           )}

@@ -111,3 +111,29 @@ export function QrPreview({
 
   return <div ref={hostRef} className={className} aria-hidden="true" />;
 }
+
+/**
+ * Download a code at print size without one on screen — the dashboard's
+ * thumbnails are 36px, far too small to export from. Renders off-screen at
+ * 1024px through the same options the preview uses, so what downloads is what
+ * was shown.
+ */
+export async function downloadQr(
+  value: string,
+  style: QrStyle,
+  name: string,
+  ext: "png" | "jpeg" | "svg",
+) {
+  const mod = await import("qr-code-styling");
+  const QRCodeStyling = mod.default as unknown as new (
+    o: Record<string, unknown>,
+  ) => QrInstance;
+  const qr = new QRCodeStyling({
+    ...optionsFor(value, style, 1024),
+    // Raster formats need a canvas; SVG stays vector.
+    type: ext === "svg" ? "svg" : "canvas",
+    margin: 32,
+  });
+  const safe = name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") || "qr-code";
+  await qr.download({ name: safe, extension: ext });
+}

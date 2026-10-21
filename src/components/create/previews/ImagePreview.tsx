@@ -1,5 +1,5 @@
 import { PhoneFrame } from "../PhonePreview";
-import { fileSrc, parseStoredFile } from "../storedValues";
+import { cropStyle, fileSrc, parseStoredFile } from "../storedValues";
 
 /** The pale disc colour scattered behind the photo. */
 const BLOB = "#eceff2";
@@ -10,7 +10,8 @@ const BLOB = "#eceff2";
  * been uploaded, so the empty state still matches the mockup.
  */
 export function ImagePreview({ values }: { values: Record<string, string> }) {
-  const uploaded = fileSrc(parseStoredFile(values.file));
+  const stored = parseStoredFile(values.file);
+  const uploaded = fileSrc(stored);
   return (
     <PhoneFrame>
       <div className="relative flex h-full flex-col items-center overflow-hidden bg-white">
@@ -70,7 +71,7 @@ export function ImagePreview({ values }: { values: Record<string, string> }) {
                 alt=""
                 aria-hidden="true"
                 className="h-full w-full"
-                style={{ objectFit: "cover", objectPosition: "50% 50%" }}
+                style={uploaded ? cropStyle(stored) : { objectFit: "cover", objectPosition: "50% 50%" }}
               />
             </div>
           </div>

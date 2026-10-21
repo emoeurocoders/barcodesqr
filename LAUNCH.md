@@ -26,17 +26,43 @@ the raw R2 URL. A raw bucket URL is neither editable after printing nor
 countable, which contradicts the "dynamic" badge step 2 shows and the tracking
 the pricing page sells. See `src/components/create/encodeQr.ts`.
 
-### Nothing is saved, so every upload is orphaned
+### Saved codes: what landed 2026-10-21, and what is still missing
 
-There is no `qr_codes` table. `src/app/dashboard/page.tsx` renders a hardcoded
-empty `rows` array, and step 2's Next sends a paying customer to an empty
-dashboard. Every uploaded object therefore has no owner, no reference, and
-nothing that would ever delete it — the bucket only grows.
+Codes are saved now (Tami could pay but never got a code). The `qr_code`
+table holds each code's step-2 values as JSON; what it encodes is re-derived
+by `encodeQr` on every render, so an encoder fix reaches saved codes too.
+A paying customer's Next saves straight away (`saveQrCode`, which checks the
+session, the plan read fresh from the row, the type and a 64 KB cap). Anyone
+else has the draft stashed in localStorage before the paywall
+(`lib/pendingQr.ts`) and `ClaimPendingQr` saves it on arrival at
+/dashboard — so email checkout, Google, and signing in to an existing account
+all carry it over. A random `draftKey` + unique index makes a double claim a
+no-op. The dashboard lists them with working search (by name), sort, PNG
+download and SVG/JPEG from the ⋮ menu.
 
-Needs: the table, a save on completing the wizard, the dashboard query, and a
-reaper for objects no row references. Uploads keyed under `uploads/<type>/<uuid>`
-carry no user id, so decide whether the key should include one before there is
-production data to migrate.
+Still missing, in rough order:
+
+- **Uploads are still orphaned.** A saved code references its files by URL,
+  but nothing deletes an object no row references, and keys carry no user
+  id. The reaper and the key decision above both still stand.
+- **No editing, renaming, deleting.** The pencil, the password switch and
+  the rest of the ⋮ menu were removed from rows rather than left as controls
+  that do nothing. Password reads "Off", Status "Active", Health "Good"
+  (true of every code we draw), Scans is blank until short links exist.
+- **Codes download in the default black-on-white style.** Step 3 (colours,
+  frames) is shelved, so there is no style to save yet; a `style` column is
+  the place for it when it returns.
+- **Dynamic types save but scan to the placeholder** — the blocker above.
+  Their rows say "Hosted page — not live yet" rather than show a link.
+- **The dashboard has no phone layout.** The table scrolls sideways below
+  1100px; the ready banner's Download covers the new code. Needs a mobile
+  mockup of member_main.html.
+- **Unmocked:** the sort menu (the file draws only the closed "Date
+  created" control), the no-search-results card (borrows the empty state),
+  and the save-failed toast in the creator.
+- **A draft stashed by a free account stays stashed** until that account
+  starts a trial — deliberate, so paying later still brings the code — and
+  expires after a day.
 
 ### `/api/uploads` is open and unthrottled
 
@@ -438,6 +464,16 @@ seven up front and sixteen behind "View All 23 QR Types".
 - **Fixed px, not `vw`.** Their stylesheet scales this page with the screen
   width; the port is fixed at the 390px rendering, as the mobile homepage is.
   Below `md`, 360px and 700px were checked for overflow and footer overlap.
+
+## Image reframing — not in the file, added 2026-10-21
+
+Tami found uploaded photos showing only their middle in "Your Image
+Preview", with no way to move them. On phones, tapping a gallery thumbnail
+now opens the same ImageAdjuster the logo/cover fields use (drag, zoom,
+reset) and turns the preview to that picture; the crop is stored on each
+image and replayed in the tiles, the preview and its thumbnail strip. On
+desktop the Image field is now `adjustable: "wide"`. Unmocked: the hint
+line borrows the form's sub-label style — the designer should draw it.
 
 ## Paywall on phones — modal_join.html's ≤992px rules, ported 2026-10-20
 
