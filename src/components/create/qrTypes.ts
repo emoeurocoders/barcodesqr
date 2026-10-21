@@ -158,7 +158,8 @@ export const primaryTypes: CreateQrType[] = [
     desc: "Share a location",
     color: "#EA4335",
     icon: MapPin,
-    stepLabel: "Location",
+    // "Google Maps" on both layouts, default name included (JB, 2026-10-21);
+    // desktop used to say "Location" here.
     stepDesc: "Open a location on the map",
   },
   {
@@ -253,10 +254,10 @@ export const secondaryTypes: CreateQrType[] = [
 export const allTypes: CreateQrType[] = [...primaryTypes, ...secondaryTypes];
 
 /**
- * Where a mobile file names a format differently from desktop's step 2: the
- * form's title and the code's default name ("My Google Maps QR Code"), which
- * desktop deliberately calls "My Location QR Code".
+ * Where a mobile file titles its form differently from desktop's step 2.
+ * The title only: create_mobile_plaintext.html heads the form "Plain Text"
+ * yet still names the code "My Text QR Code".
  */
 export const mobileTypeTitle: Record<string, string> = {
-  location: "Google Maps",
+  text: "Plain Text",
 };

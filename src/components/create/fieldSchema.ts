@@ -36,6 +36,11 @@ export type Field = {
    * A flag rather than `required`, which would also star the label.
    */
   requireOneLink?: boolean;
+  /**
+   * The most UTF-8 bytes the field may hold, for text that goes into the code
+   * itself — past it the code cannot be drawn (see QR_TEXT_MAX_BYTES).
+   */
+  maxBytes?: number;
   /** Placeholder that follows another field's value, e.g. the payment provider. */
   placeholderFrom?: {
     field: string;
@@ -289,7 +294,10 @@ export const fieldSchema: Record<string, Field[]> = {
       "name": "text",
       "labelKey": "text",
       "type": "textarea",
-      "required": true
+      "required": true,
+      // QR_TEXT_MAX_BYTES (1,100) less the 40-character title and its newline,
+      // so desktop refuses what mobile refuses.
+      "maxBytes": 1059
     }
   ],
   "phone": [

@@ -54,18 +54,64 @@ const pinGlyph = (
 );
 
 /** A suggestion row: a place's name and the line under it. */
-export type Place = { name: string; address: string };
+export type Place = { name: string; address: string; placeId?: string };
+
+const TYPED = "Use this address";
+
+/** What was typed, offered as the place to use when Google has nothing. */
+const typed = (q: string): Place[] => (q.trim() ? [{ name: q.trim(), address: TYPED }] : []);
 
 /**
- * Where suggestions come from. Live autocomplete is not wired yet — no places
- * provider has been chosen (see LAUNCH.md) — so until then the only
- * suggestion is what was typed, offered as the place to use. The picker,
- * confirmation and map preview are the file's own and will not change when a
- * provider fills this list instead.
+ * Suggestions from Google Places (JB, 2026-10-21), through /api/places so
+ * the key stays server-side. Waits for three characters and a 250ms pause in
+ * typing; one session token per search, dropped once a place is picked, so
+ * Google bills the whole search as the single Details call that ends it.
+ *
+ * Falls back to offering what was typed when Places is not configured, is
+ * down, or finds nothing — the picker never dead-ends.
  */
-function suggestionsFor(q: string): Place[] {
+function usePlaceSuggestions(q: string, active: boolean) {
+  const [found, setFound] = useState<{ q: string; list: Place[] } | null>(null);
+  const token = useRef<string | null>(null);
+
+  useEffect(() => {
+    const t = q.trim();
+    if (!active || t.length < 3) return;
+    const timer = setTimeout(async () => {
+      token.current ??= crypto.randomUUID();
+      try {
+        const res = await fetch("/api/places", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "autocomplete", input: t, sessionToken: token.current }),
+        });
+        const data = res.ok ? ((await res.json()) as { suggestions: Place[] }) : null;
+        setFound({ q: t, list: data?.suggestions ?? [] });
+      } catch {
+        setFound({ q: t, list: [] });
+      }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [q, active]);
+
   const t = q.trim();
-  return t ? [{ name: t, address: "Use this address" }] : [];
+  // Google's list for this exact text if it has one; otherwise the typed
+  // fallback — shown at once, so short or unmatched input is never stuck.
+  const list = found && found.q === t && found.list.length ? found.list : typed(q);
+
+  /** Ends the session: the Details call is what Google bills it as. */
+  const confirm = (placeId: string) => {
+    const sessionToken = token.current;
+    token.current = null;
+    if (!sessionToken) return;
+    void fetch("/api/places", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "details", placeId, sessionToken }),
+    }).catch(() => {});
+  };
+
+  return { list, confirm };
 }
 
 /** "Name, rest of the address" → the map card's two lines. */
@@ -81,7 +127,8 @@ export function MapsForm({ s }: { s: FormState }) {
   const [listOpen, setListOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const err = s.errors.gmReq;
-  const list = picked ? [] : suggestionsFor(q);
+  const places = usePlaceSuggestions(q, !picked);
+  const list = picked ? [] : places.list;
 
   // Their script closes the list on any tap outside the search and list.
   useEffect(() => {
@@ -96,9 +143,13 @@ export function MapsForm({ s }: { s: FormState }) {
   const pick = (p: Place) => {
     s.patch((cur) => ({
       ...cur,
-      address: p.address && p.address !== "Use this address" ? `${p.name}, ${p.address}` : p.name,
+      address: p.address && p.address !== TYPED ? `${p.name}, ${p.address}` : p.name,
       addressPicked: "1",
+      // Google's id for the exact place, so the code opens that listing —
+      // not whatever a text search for the address finds first.
+      placeId: p.placeId ?? "",
     }));
+    if (p.placeId) places.confirm(p.placeId);
     setListOpen(false);
   };
 
@@ -132,7 +183,7 @@ export function MapsForm({ s }: { s: FormState }) {
             onFocus={() => setListOpen(true)}
             onChange={(e) => {
               setListOpen(true);
-              s.patch((cur) => ({ ...cur, address: e.target.value, addressPicked: "" }));
+              s.patch((cur) => ({ ...cur, address: e.target.value, addressPicked: "", placeId: "" }));
             }}
             className={`${textInput(!!err)} pr-[44.8px] pl-[46.4px]`}
           />
@@ -142,7 +193,7 @@ export function MapsForm({ s }: { s: FormState }) {
               aria-label="Clear location"
               onClick={(e) => {
                 e.preventDefault();
-                s.patch((cur) => ({ ...cur, address: "", addressPicked: "" }));
+                s.patch((cur) => ({ ...cur, address: "", addressPicked: "", placeId: "" }));
               }}
               className="absolute top-0 right-0 z-[2] flex h-[43.7px] w-[23.5px] items-center justify-center text-faint [&>svg]:block [&>svg]:h-[11.4px] [&>svg]:w-[11.4px]"
             >

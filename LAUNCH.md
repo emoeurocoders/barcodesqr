@@ -17,9 +17,10 @@ Status: written 2026-09-01, when file uploads were wired to Cloudflare R2.
 
 `encodeQr` returns the placeholder `https://barcodesqr.com/q/preview` for every
 dynamic type (`pdf`, `image`, `video`, `mp3`, `social`, `menu`, `business`,
-`coupon`, `feedback`, `multilink`, `payment`, `applink`). Uploads now land in
+`coupon`, `feedback`, `multilink`, `applink`). Uploads now land in
 R2, but nothing points a scan at them, so the core promise of those eleven
-formats is unfulfilled.
+formats is unfulfilled. (Payment left the list on 2026-10-21: it encodes the
+customer's payment link directly.)
 
 The fix is the short-link + hosted-landing-page service, not pointing the QR at
 the raw R2 URL. A raw bucket URL is neither editable after printing nor
@@ -300,14 +301,13 @@ seven up front and sixteen behind "View All 23 QR Types".
   form can be linked to. This applies to desktop too — it looks identical but
   now has working browser back. What was typed is kept per type: Back and
   reopening the same type finds it as left; another type starts fresh.
-- **Ported so far: fifteen of 23.** Batch 1 (Website, vCard, Multi-Link),
+- **Ported so far: nineteen of 23.** Batch 1 (Website, vCard, Multi-Link),
   batch 2 (App Link, PDF, Image, WhatsApp — Monday 5638161680), batch 3
-  (Social Media, Menu, WiFi, Video — 5642568390) and batch 4 (Google Maps,
-  Email, Google Review, SMS — 5646620665, 2026-10-20). The other 8 show the
-  old step-2 form inside the new rail and Back/Next bar, and keep the old
-  Next rule (disabled until complete). Mockups exist upstream for payment,
-  coupon, business, phone, audio, feedback and event but are not yet
-  approved; plain text has no file (404).
+  (Social Media, Menu, WiFi, Video — 5642568390), batch 4 (Google Maps,
+  Email, Google Review, SMS — 5646620665, 2026-10-20) and batch 5 (Phone,
+  Plain Text, Payment, Audio — 5650333076, 2026-10-21). The other 4 (Event,
+  Coupon, Feedback, Business) show the old step-2 form inside the new rail
+  and Back/Next bar, and keep the old Next rule (disabled until complete).
 - **The 2026-10-20 sync revised the eleven ported files' copy:** every
   "x — y" in tooltips and preview captions became "x. Y" (or "x: y"). All 16
   strings were updated to match; the three em dashes still in the files
@@ -432,19 +432,56 @@ seven up front and sixteen behind "View All 23 QR Types".
   - *Video* captures a 96px thumbnail from the file when picked and stores it
     with the upload; the preview plays the uploaded file with the phone's own
     player (`playsInline`, so iOS does not jump to fullscreen).
+- **Batch 5 notes:**
+  - *Phone* reuses the WhatsApp/SMS country + number component with the
+    file's placeholder and hint. The QR is `tel:+<code><number>`, spaces
+    stripped — it opens the dialer and never places the call. Desktop's
+    single field (typed whole, "+44 …") encodes the same way.
+  - *Plain Text stays a static code*: the text is in the code, as on
+    desktop, so no tracking badge on either layout (desktop's is removed).
+    The preview's "Copy text" note page is the file's picture of a hosted
+    note that does not exist — a scanner app shows the raw text instead.
+    **The file allows 2,000 characters; codes over ~1,100 bytes cannot be
+    drawn in the paywall's preview** (blank at 1,590) and scan badly once
+    printed, so Next refuses them with an unmocked message. Asked JB whether
+    to lower the field's limit to match.
+  - *Payment now encodes the payment link itself* — it used to be a
+    "dynamic" placeholder that scanned to nothing. JB: the QR goes to the
+    customer's own payment page. The file's tracking pill stays, which is as
+    untrue for Payment as for Website until the redirect service exists —
+    raised with JB. Their script writes "Secure Checkout" when no provider is
+    picked; JB ruled out unverified security claims, so the file's static
+    "Checkout on your provider's page" shows instead. Desktop's
+    per-provider placeholder is kept on mobile (JB: keep desktop features);
+    the link's host still auto-selects the provider, as in the file.
+  - *Audio* plays the uploaded copy (so it survives Back/Next) and never
+    autoplays; collapsing the preview pauses it. Checked in headless Chrome
+    only — playback on real iOS/Android devices still needs a hand test.
+    The QR is still the dynamic placeholder (first blocker above).
+  - *Header icons*: Phone, Plain Text and Audio head their forms with
+    different glyphs from the step-1 picker's; copied per file.
+  - Diffs at 390: closed views match apart from the site footer the files
+    carry; open previews 3.7–5.8%, of which the ~4px drop of every phone
+    frame is shared with the approved batches (SMS shows the same), and the
+    rest is the scripted vs static sample content.
 - **Batch 4 notes:**
-  - *Google Maps autocomplete is not live.* JB asked for address/business
-    autocomplete; the file fakes it with eight hard-coded landmarks. No places
-    provider is chosen yet (Google Places needs a billed API key; Photon/OSM
-    is free but weaker for businesses), so for now the suggestion list offers
-    exactly what was typed, to pick and confirm — the file's flow (type →
-    pick → "Location selected" → map) is intact and a provider only has to
-    fill that list (`suggestionsFor` in forms4.tsx). The map preview is the
-    file's keyless Google embed; the QR opens
-    `maps.google.com/?q=<place>`, as desktop's always has.
-  - *Google Maps is "Google Maps" on mobile* — title, and the default name
-    "My Google Maps QR Code" — where desktop says "Location". Its file has no
-    tracking pill, so mobile shows none; desktop still does.
+  - *Google Maps autocomplete — Google Places, built 2026-10-21, waiting on
+    a key.* JB chose Places. `/api/places` proxies Autocomplete and Place
+    Details (Places API (New)) so the key stays server-side; the picker
+    waits for 3 characters and a 250ms pause, uses one session token per
+    search and ends it with an Essentials-tier Details call, so a search is
+    billed as one Details request. A picked place stores Google's place id and
+    the QR opens that exact listing (`maps/search/?api=1&query_place_id=`).
+    **Until `GOOGLE_PLACES_API_KEY` is set (locally and on Vercel) the picker
+    offers what was typed, as before.** Tested against mocked Google
+    responses only — the real API is unverified until the key exists. Key
+    setup, quotas and budget alert: `.env.example`. Desktop's Location field
+    is still a plain text box (no picker), but encodes a place id the same
+    way if one is set.
+  - *"Google Maps" on both layouts* (JB, 2026-10-21): desktop's step-2 title
+    and default name ("My Google Maps QR Code") no longer say "Location".
+    The tracking badge is gone from both, since the code is a plain Maps
+    link with no redirect behind it — nothing to edit, no scans to count.
   - *Google Review's preview bar has our review glyph, not Google's "G"* that
     the file uses: the 2026-08-20 rule against Google's logo stands. Raise it
     with the designer.

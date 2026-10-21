@@ -33,6 +33,8 @@ import {
 } from "./previews3";
 import { EmailForm, MapsForm, ReviewForm, SmsForm, checksForBatch4 } from "./forms4";
 import { EmailPreview, MapsPreview, ReviewPreview, SmsPreview } from "./previews4";
+import { AudioForm, PaymentForm, PhoneForm, PlainTextForm, checksForBatch5 } from "./forms5";
+import { AudioPreview, PaymentPreview, PhonePreview, PlainTextPreview } from "./previews5";
 import {
   AppLinkPreview,
   ImagePreview,
@@ -48,8 +50,49 @@ const mobileHeaderDesc: Record<string, string> = {
   pdf: "Share a PDF document with one QR code",
   image: "Display an image or photo gallery",
   location: "Share a location or address",
+  phone: "Call a phone number with one scan",
+  text: "Share a message with one scan",
+  payment: "Share a payment link with one QR code",
 };
 import { ArrowLeft, ArrowRight, outlineBtn, smallBtn } from "./ui";
+
+const hdrSvg = {
+  width: "25",
+  height: "25",
+  viewBox: "0 0 24 24",
+  fill: "none",
+  xmlns: "http://www.w3.org/2000/svg",
+  strokeWidth: "2",
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  className: "h-[22.7px] w-[22.7px]",
+};
+
+/**
+ * Where a mobile file heads its form with a different glyph from the step-1
+ * picker's — copied from each file's `.hdr .ico`.
+ */
+const mobileHeaderIcon: Record<string, ReactNode> = {
+  phone: (
+    <svg {...hdrSvg} stroke="#16A34A">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  ),
+  text: (
+    <svg {...hdrSvg} stroke="#4B5563">
+      <path d="M12 4v16"></path>
+      <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"></path>
+      <path d="M9 20h6"></path>
+    </svg>
+  ),
+  mp3: (
+    <svg {...hdrSvg} stroke="#6366F1">
+      <path d="M9 18V5l12-2v13"></path>
+      <circle cx="6" cy="18" r="3"></circle>
+      <circle cx="18" cy="16" r="3"></circle>
+    </svg>
+  ),
+};
 
 type Values = Record<string, string>;
 
@@ -235,6 +278,7 @@ export function MobileStepTwo({
       ...checksFor(type, values),
       ...checksForBatch3(type, values),
       ...checksForBatch4(type, values),
+      ...checksForBatch5(type, values),
     ],
     [type, values],
   );
@@ -332,6 +376,18 @@ export function MobileStepTwo({
     } else if (type === "sms") {
       preview = <SmsPreview {...p} />;
       form = <SmsForm s={s} />;
+    } else if (type === "phone") {
+      preview = <PhonePreview {...p} />;
+      form = <PhoneForm s={s} />;
+    } else if (type === "text") {
+      preview = <PlainTextPreview {...p} />;
+      form = <PlainTextForm s={s} />;
+    } else if (type === "payment") {
+      preview = <PaymentPreview {...p} />;
+      form = <PaymentForm s={s} />;
+    } else if (type === "mp3") {
+      preview = <AudioPreview {...p} />;
+      form = <AudioForm s={s} />;
     }
   }
 
@@ -350,7 +406,7 @@ export function MobileStepTwo({
       {preview}
       <div className="mt-[13px] rounded-[13px] border border-mc-line bg-white px-[17px] pt-[16.2px] pb-[17px]">
         <FormHeader
-          icon={Glyph ? <Glyph className="h-[22.7px] w-[22.7px]" /> : null}
+          icon={mobileHeaderIcon[type] ?? (Glyph ? <Glyph className="h-[22.7px] w-[22.7px]" /> : null)}
           title={mobileTypeTitle[type] ?? meta?.stepLabel ?? meta?.label ?? type}
           desc={mobileHeaderDesc[type] ?? meta?.stepDesc ?? meta?.desc ?? ""}
         />

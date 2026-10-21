@@ -109,6 +109,20 @@ export const env = {
     return required("STORAGE_PUBLIC_BASE_URL").replace(/\/$/, "");
   },
 
+  /* --- Google Places (Maps type's address search) ----------------------- */
+
+  /**
+   * Server-side key for Places API (New). Absent means the Maps picker falls
+   * back to offering what was typed. Never sent to the browser — the route
+   * in app/api/places proxies every call.
+   */
+  get GOOGLE_PLACES_API_KEY() {
+    return process.env.GOOGLE_PLACES_API_KEY ?? "";
+  },
+  get placesConfigured() {
+    return !!process.env.GOOGLE_PLACES_API_KEY;
+  },
+
   /** True once a file picked in the creator has somewhere to go. */
   get storageConfigured() {
     return !!(

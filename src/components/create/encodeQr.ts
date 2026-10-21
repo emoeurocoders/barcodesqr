@@ -22,7 +22,6 @@ const dynamicTypes = new Set([
   "coupon",
   "feedback",
   "multilink",
-  "payment",
   "applink",
 ]);
 
@@ -105,8 +104,20 @@ export function encodeQr(
     case "text":
       return [v.title, v.text].filter(Boolean).join("\n");
 
-    case "phone":
-      return v.phone ? `tel:${v.phone}` : "";
+    case "phone": {
+      // The mobile form picks the country separately (`phoneCountry`), as
+      // WhatsApp and SMS do; desktop's single field is typed whole. Spaces
+      // and dashes go: some dialers stop reading a `tel:` at the first one.
+      // A `tel:` link opens the dialer — it never places the call itself.
+      const n = v.phoneCountry !== undefined ? intlPhone(v) : (v.phone ?? "").trim();
+      return n ? `tel:${n.replace(/[^\d+]/g, "")}` : "";
+    }
+
+    case "payment":
+      // Straight to the customer's own payment page (JB, 2026-10-21) — the
+      // same way Website encodes its link — until the short-link service
+      // exists to route it.
+      return withScheme(v.paymentLink);
 
     case "email": {
       if (!v.to) return "";
@@ -143,6 +154,11 @@ export function encodeQr(
 
     case "location": {
       if (!v.address) return "";
+      // Picked from Google's suggestions: open that exact place (Maps URLs,
+      // `query_place_id`), with the text as the fallback Maps itself uses.
+      if (v.placeId) {
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.address)}&query_place_id=${encodeURIComponent(v.placeId)}`;
+      }
       return `https://maps.google.com/?q=${encodeURIComponent(v.address)}`;
     }
 
@@ -163,18 +179,20 @@ export function isDynamic(type: string) {
 }
 
 /**
- * The five formats the creator does NOT badge as tracked, because they encode
+ * The formats the creator does NOT badge as tracked, because they encode
  * their content straight into the code and there is no hosted page to edit or
- * count scans on.
+ * count scans on. Google Maps and Plain Text joined on 2026-10-21: JB asked
+ * for the claim to go wherever the redirect system is not behind it, and
+ * their mobile files carry no badge.
  */
-const untrackedTypes = new Set(["wifi", "email", "sms", "whatsapp", "phone"]);
+const untrackedTypes = new Set(["wifi", "email", "sms", "whatsapp", "phone", "location", "text"]);
 
 /**
  * Types the creator advertises as tracked and editable in step 2.
  *
- * Deliberately not `isDynamic`: the creator serves vCard, Website, Location
- * and Text as hosted pages, while our encoder still writes their content
- * directly so a scan works without that service existing yet.
+ * Deliberately not `isDynamic`: the creator serves vCard, Website and Payment
+ * as hosted/redirected pages, while our encoder still writes their content
+ * directly so a scan works without that service existing yet. See LAUNCH.md.
  */
 export function hasTracking(type: string) {
   return !untrackedTypes.has(type);

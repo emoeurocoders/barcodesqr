@@ -117,6 +117,10 @@ export const mobileTypes = new Set([
   "email",
   "review",
   "sms",
+  "phone",
+  "text",
+  "payment",
+  "mp3",
 ]);
 
 

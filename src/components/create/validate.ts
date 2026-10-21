@@ -66,6 +66,7 @@ export const errorCopy = {
   email: "Enter a valid email address",
   phone: "Enter a valid phone number",
   link: "Add at least one link with a name and a URL",
+  tooLong: "This text is too long to fit in a QR code. Please shorten it.",
 } as const;
 
 /**
@@ -117,6 +118,7 @@ export function fieldError(f: Field, raw: string): string | null {
 
   const v = (raw ?? "").trim();
   if (!v) return f.required ? errorCopy.required : null;
+  if (f.maxBytes && new TextEncoder().encode(v).length > f.maxBytes) return errorCopy.tooLong;
 
   switch (f.type) {
     case "url":

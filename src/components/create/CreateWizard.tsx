@@ -45,7 +45,7 @@ import { WifiPreview } from "./previews/WifiPreview";
 import { GoogleReviewPreview } from "./previews/GoogleReviewPreview";
 import { QrPreview, defaultQrStyle } from "./QrPreview";
 import type { QrStyle } from "./QrPreview";
-import { allTypes, mobileTypeTitle } from "./qrTypes";
+import { allTypes } from "./qrTypes";
 import { encodeQr } from "./encodeQr";
 import { isComplete } from "./validate";
 import { Button } from "@/components/ui/Button";
@@ -54,12 +54,11 @@ import { usePaywall } from "@/components/paywall/usePaywall";
 
 type Values = Record<string, string>;
 
-const defaultName = (type: string, mobile = false) => {
-  // Below `md` a mobile file can name the format itself (Google Maps).
-  if (mobile && mobileTypeTitle[type]) return `My ${mobileTypeTitle[type]} QR Code`;
+const defaultName = (type: string) => {
   const meta = allTypes.find((t) => t.value === type);
   // The creator names the code after what step 2 calls the format, not what
-  // step 1's list calls it — "My Location QR Code", never "My Google Maps…".
+  // step 1's list calls it — "My Text QR Code", not "My Plain Text…". Both
+  // layouts agree on every name now (Google Maps was the last exception).
   return `My ${meta?.stepLabel ?? meta?.label ?? "QR"} QR Code`;
 };
 
@@ -91,20 +90,20 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
    * data); opening a different type starts that type fresh.
    */
   const [draft, setDraft] = useState<{ type: string; values: Values; name: string }>(
-    { type: "website", values: {}, name: defaultName("website", isMobile) },
+    { type: "website", values: {}, name: defaultName("website") },
   );
   const current =
-    draft.type === type ? draft : { type, values: {}, name: defaultName(type, isMobile) };
+    draft.type === type ? draft : { type, values: {}, name: defaultName(type) };
   const values = current.values;
   const name = current.name;
   const setValues: Dispatch<SetStateAction<Values>> = (u) =>
     setDraft((d) => {
-      const base = d.type === type ? d : { type, values: {}, name: defaultName(type, isMobile) };
+      const base = d.type === type ? d : { type, values: {}, name: defaultName(type) };
       return { ...base, values: typeof u === "function" ? u(base.values) : u };
     });
   const setName = (v: string) =>
     setDraft((d) => {
-      const base = d.type === type ? d : { type, values: {}, name: defaultName(type, isMobile) };
+      const base = d.type === type ? d : { type, values: {}, name: defaultName(type) };
       return { ...base, name: v };
     });
 
@@ -168,7 +167,7 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const finishStepTwo = async () => {
     if (saving) return;
-    const draft = { type, name: name.trim() || defaultName(type, isMobile), values };
+    const draft = { type, name: name.trim() || defaultName(type), values };
     if (!entitled) {
       stashPendingQr(draft);
       paywall.show();

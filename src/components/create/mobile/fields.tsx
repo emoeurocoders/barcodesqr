@@ -484,12 +484,17 @@ export function IntlNumberFld({
   numId,
   label,
   tip,
+  placeholder = "Enter mobile number",
+  hint,
 }: {
   s: FormState;
   ccId: string;
   numId: string;
   label: string;
-  tip: { label: string; text: string };
+  tip?: { label: string; text: string };
+  placeholder?: string;
+  /** Their `.fsub` under the number (Phone's file has one). */
+  hint?: string;
 }) {
   const dial = s.values.phoneCountry ?? dialCodes[0].value;
   const err = s.errors[numId];
@@ -517,12 +522,21 @@ export function IntlNumberFld({
           ))}
         </select>
       </Fld>
-      <Fld id={numId} label={label} required tip={tip} error={err} className="mt-[12.2px] min-w-0 flex-1">
+      <Fld
+        id={numId}
+        label={label}
+        required
+        tip={tip}
+        error={err}
+        // The hint sits where a counter would: after the control, in the .fld.
+        counter={hint ? <p className="mt-[3.04px] text-[10.14px] leading-[12.17px] text-muted">{hint}</p> : undefined}
+        className="mt-[12.2px] min-w-0 flex-1"
+      >
         <input
           type="tel"
           id={numId}
           value={s.values.phone ?? ""}
-          placeholder="Enter mobile number"
+          placeholder={placeholder}
           aria-invalid={!!err}
           onChange={(e) => s.set("phone", e.target.value)}
           className={textInput(!!err)}

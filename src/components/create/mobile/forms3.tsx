@@ -400,7 +400,7 @@ function grabThumb(file: File): Promise<string | undefined> {
   });
 }
 
-const sizeTxt = (b: number) =>
+export const sizeTxt = (b: number) =>
   b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`;
 
 export function VideoForm({ s }: { s: FormState }) {

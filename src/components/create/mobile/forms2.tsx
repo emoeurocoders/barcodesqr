@@ -104,7 +104,7 @@ export function checksForBatch2(type: string, values: Values): Check[] {
 
 /* ---- Shared ---------------------------------------------------------------- */
 
-const infoGlyph = (
+export const infoGlyph = (
   <svg
     width="18"
     height="18"
