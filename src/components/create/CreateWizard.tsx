@@ -2,15 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { saveQrCode } from "@/app/actions/qr";
 import { stashPendingQr } from "@/lib/pendingQr";
 // `Download` is shelved with step 3.
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StepRail } from "./StepRail";
-import { TypePicker } from "./TypePicker";
 import { MobileTypePicker } from "./MobileTypePicker";
+import { DesktopTypePicker } from "./DesktopTypePicker";
+import { CreateHeader } from "./CreateHeader";
+import { MainSlimFooter } from "@/components/layout/MainSlimFooter";
 import {
   MobileFallbackStepTwo,
   MobileStepTwo,
@@ -19,7 +20,6 @@ import { mobileTypes } from "./mobile/forms";
 import { useIsMobile } from "./useIsMobile";
 import { StepContent } from "./StepContent";
 // Shelved with step 3: import { StepCustomize } from "./StepCustomize";
-import { PreviewPanel } from "./PreviewPanel";
 import { VCardPreview } from "./VCardPreview";
 import { MultiLinkPreview } from "./MultiLinkPreview";
 import { SocialPreview } from "./SocialPreview";
@@ -81,7 +81,7 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
   const urlType = params.get("type");
   const step = urlType && allTypes.some((t) => t.value === urlType) ? 2 : 1;
 
-  // The desktop picker's highlight; the open form's type when on step 2.
+  // The last type chosen; the open form's type when on step 2.
   const [picked, setPicked] = useState("website");
   const type = step === 2 ? urlType! : picked;
 
@@ -191,20 +191,20 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
   // is how you end up unable to build anything.
   const chooseType = (next: string) => {
     setPicked(next);
-    // The desktop picker fires on both change and click; a second push of
-    // the same entry would make Back pop to a copy of the form.
+    // A second push of the same entry would make Back pop to a copy of the
+    // form.
     if (new URLSearchParams(window.location.search).get("type") === next) return;
     pushed.current = true;
     window.history.pushState(null, "", `/create?type=${encodeURIComponent(next)}`);
   };
 
-  // Below `md` the page itself scrolls, so a new step would otherwise open
-  // wherever the last one was left — at the very bottom, after Continue.
+  // The page itself scrolls (on desktop too, since step 1 became a page), so
+  // a new step would otherwise open wherever the last one was left.
   useEffect(() => {
     // Instant: the site scrolls smoothly, and gliding up a 2,000px page
     // reads as the new step loading from the bottom.
-    if (isMobile) window.scrollTo({ top: 0, behavior: "instant" });
-  }, [step, isMobile]);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [step]);
 
   // Back pops our own history entry, so the browser's back and ours agree.
   // Arriving straight on `?type=` there is none to pop — replace instead of
@@ -267,32 +267,52 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
     </div>
   );
 
+  const paywallLayer = (
+    <Paywall
+      open={paywall.open}
+      qrValue={qrValue}
+      qrStyle={style}
+      onClose={paywall.close}
+    />
+  );
+
+  // Step 1 at `md` and up is create_desktop.html (2026-10-21): a page, not
+  // the full-screen card — its own header with the steps and Back to Home,
+  // the 23-format grid on the grey page, the slim footer. Step 2 keeps the
+  // card until its desktop redesign lands (the createDsk2 rules are already
+  // in the synced CSS, but no page uses them yet).
+  if (step === 1) {
+    return (
+      <div className="flex min-h-dvh flex-col bg-white md:bg-cd-page">
+        <div className="md:hidden">
+          <MobileTypePicker onChoose={chooseType} />
+        </div>
+        <div className="hidden min-h-dvh flex-col md:flex">
+          <CreateHeader current={1} />
+          <section className="flex-1 bg-cd-page py-5">
+            <DesktopTypePicker onChoose={chooseType} />
+          </section>
+          <MainSlimFooter />
+        </div>
+        {paywallLayer}
+      </div>
+    );
+  }
+
   return (
     // Desktop: a full-screen card with its own scrolling body and a pinned
     // footer. Below `md` (create_mobile*.html) none of that — the page
-    // scrolls as a page, under the site header the route adds.
+    // scrolls as a page.
+    <div className="bg-white md:flex md:h-dvh md:flex-col md:bg-bg-alt md:p-4">
     <div className="bg-white md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-hidden md:rounded-2xl md:border md:border-line">
       <div className="hidden md:block">
         <StepRail current={step} />
       </div>
 
       <main className="md:min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
-      {/* Step 1 runs full width; steps 2 and 3 sit in a narrower centred
-          column, which is what makes the form read as a card rather than a
-          sheet. Both match the live creator. */}
-      {step === 1 ? (
-        <>
-          <div className="md:hidden">
-            <MobileTypePicker onChoose={chooseType} />
-          </div>
-          <div className="hidden px-4 py-5 sm:px-6 sm:py-8 md:block lg:px-8">
-            <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
-              <TypePicker selected={type} onSelect={chooseType} />
-              <PreviewPanel />
-            </div>
-          </div>
-        </>
-      ) : isMobile && mobileTypes.has(type) ? (
+      {/* Step 2 sits in a narrower centred column, which is what makes the
+          form read as a card rather than a sheet. */}
+      {isMobile && mobileTypes.has(type) ? (
         <MobileStepTwo
           type={type}
           values={values}
@@ -321,31 +341,19 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
           the mobile steps carry their own (cards that go straight into a form
           on step 1, the sticky Back/Next on step 2). */}
       <div className="hidden shrink-0 items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-6 md:flex lg:px-8">
-        {step === 1 ? (
-          <Link href="/">
-            <Button variant="outline" size="md">
-              Cancel
-            </Button>
-          </Link>
-        ) : (
-          <Button
-            variant="outline-primary"
-            size="md"
-            onClick={back}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back
-          </Button>
-        )}
+        <Button
+          variant="outline-primary"
+          size="md"
+          onClick={back}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back
+        </Button>
 
-        {step === 1 ? (
-          <span />
-        ) : (
-          <Button size="lg" disabled={!complete || saving} onClick={finishStepTwo}>
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        )}
+        <Button size="lg" disabled={!complete || saving} onClick={finishStepTwo}>
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </Button>
 
         {/* --- STEP 3 FOOTER — SHELVED ------------------------------------
             Kept against the PM changing their mind about dropping the
@@ -378,12 +386,8 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
         </div>
       )}
 
-      <Paywall
-        open={paywall.open}
-        qrValue={qrValue}
-        qrStyle={style}
-        onClose={paywall.close}
-      />
+      {paywallLayer}
+    </div>
     </div>
   );
 }

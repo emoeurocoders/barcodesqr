@@ -720,9 +720,11 @@ svg path,svg shape,svg lineargradient { shape-rendering: geometricPrecision; }
 #mainCreate .btm { display: flex; align-items: flex-start; padding: 2em; }
 #mainCreate .lft { flex: 1 0 0; min-width: 0; }
 #mainCreate .lft > .ln1 { font-size: 34px; font-weight: 800; color: #000000; letter-spacing: -0.02em; }
-#mainCreate .lft > .ln2 { font-size: 16px; color: #6b7280; margin-top: 0.5em; padding: 0; }
+#mainCreate .lft > .ln2 { font-size: 16.5px; color: #6b7280; margin-top: 0.5em; padding: 0; }
+.mainCreateDskV2  .lft > .ln1, .mainCreateDskV2  .lft > .ln2 { text-align: center; }
 #mainCreate .lft .lst { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 1.9em; }
 #mainCreate .lft .lst .itm { font-size: 10px; background: #ffffff; border: 1px solid #e8eaef; border-radius: 1.2em; }
+#mainCreate .lft .lst .itm:hover { border-color: #abc5ff; background: #fcfdff; }
 #mainCreate .lft .lst .itm label { display: flex; align-items: flex-start; padding: 1.2em; cursor: pointer; }
 #mainCreate .lft .lst .itm .ico { width: 3.4em; height: 3.4em; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 #mainCreate .lft .lst .itm .ico svg { display: block; width: 2.5em; height: 2.5em; }
@@ -734,6 +736,10 @@ svg path,svg shape,svg lineargradient { shape-rendering: geometricPrecision; }
 #mainCreate .lft .lst .itm input:checked { border: 1px solid #dfdfdf; background: #2563eb url("../images/create_ico_check.svg") center center no-repeat; background-size: 1.2em 1.2em; }
 #mainCreate .lft .lst .itm:has(input:checked) { background: #eff4ff; border-color: #2563eb; }
 #mainCreate .lft .lst .itm:has(input:checked) .ln1 { color: #1d4ed8; }
+#mainCreate.mainCreateDskV2 .lft .lst .itm > a { display: flex; align-items: center; padding: 1.2em; cursor: pointer; text-decoration: none; background: none!important;  }
+#mainCreate.mainCreateDskV2 .lft .lst .itm .chv { display: flex; flex-shrink: 0; }
+#mainCreate.mainCreateDskV2 .lft .lst .itm .chv svg { display: block; width: 1.7em; height: 1.7em; }
+#mainCreate.mainCreateDskV2 .lft .lst .itm:hover .chv svg path { stroke: #2563eb; }
 #mainCreate .lft .lnk { display: flex; justify-content: center; margin-top: 2.2em; }
 #mainCreate .lft .lnk a { display: flex; align-items: center; font-size: 16px; font-weight: 700; color: #000000; text-decoration: none; }
 #mainCreate .lft .lnk a img { width: 1.06em; height: 1.06em; margin-left: 0.31em; }
@@ -2819,7 +2825,8 @@ html:has(.mobHome) { scroll-behavior: smooth; }
 #mainCreate.createMob2 .pvwVcd .nm { font-size: 1.6em; font-weight: 700; color: #323232; letter-spacing: -0.01em; margin-top: 0.55em; }
 #mainCreate.createMob2 .pvwVcd .rl { font-size: 1.15em; color: #494949; padding: 0; margin-top: 0.25em; }
 #mainCreate.createMob2 .pvwVcd .dts { display: flex; justify-content: center; gap: 0.8em; margin-top: 0.9em; }
-#mainCreate.createMob2 .pvwVcd .dts i { display: block; width: 1.5em; height: 1.5em; border-radius: 100px; }
+#mainCreate.createMob2 .pvwVcd .dts i { display: flex; align-items: center; justify-content: center; width: 2em; height: 2em; border-radius: 100px; }
+#mainCreate.createMob2 .pvwVcd .dts i img { display: block; width: 1.15em; height: 1.15em; }
 #mainCreate.createMob2 .pvwVcd .sum { font-size: 1.05em; color: #6b7280; line-height: 1.6em; max-width: 24em; padding: 0; margin: 0.9em auto 0 auto; }
 #mainCreate.createMob2 .pvwVcd .rws { margin-top: 1.3em; }
 #mainCreate.createMob2 .pvwVcd .rws .rw { display: flex; align-items: center; background: #f2f2f7; border-radius: 1.3em; padding: 0.9em 1em; }
@@ -2843,6 +2850,10 @@ html:has(.mobHome) { scroll-behavior: smooth; }
 #mainCreate.createMob2 .pvwMl .lrow .ic, #mainCreate.createMob2 .pvwSoc .lrow .ic { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 2.3em; height: 2.3em; box-sizing: border-box; border: 1px solid #e7eaef; border-radius: 100px; color: #0e1311; }
 #mainCreate.createMob2 .pvwMl .lrow .ic svg, #mainCreate.createMob2 .pvwSoc .lrow .ic svg { display: block; width: 1.15em; height: 1.15em; }
 #mainCreate.createMob2 .pvwMl .lrow .dot, #mainCreate.createMob2 .pvwSoc .lrow .dot { display: block; flex-shrink: 0; width: 1.5em; height: 1.5em; border-radius: 100px; margin: 0.4em; }
+#mainCreate.createMob2 .pvwMl .lrow.pri { background: #166e53; }
+#mainCreate.createMob2 .pvwMl .lrow.pri .tx { color: #ffffff; }
+#mainCreate.createMob2 .pvwMl .lrow.pri .ic { border-color: rgba(255,255,255,0.4); color: #ffffff; }
+#mainCreate.createMob2 .pvwMl .lrow.pri > svg { color: rgba(255,255,255,0.85); }
 #mainCreate.createMob2 .pvwMl .lrow .tx, #mainCreate.createMob2 .pvwSoc .lrow .tx { flex: 1 0 0; min-width: 0; font-size: 1.2em; font-weight: 600; color: #374151; text-align: left; padding: 0 0.7em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #mainCreate.createMob2 .pvwMl .lrow > svg, #mainCreate.createMob2 .pvwSoc .lrow > svg { display: block; width: 1.4em; height: 1.4em; color: #9ca3af; flex-shrink: 0; }
 #mainCreate.createMob2 .pvwMl .fnd { font-size: 1.2em; font-weight: 700; color: #0e1311; padding: 1.25em 1.25em 0 1.25em; text-align: left; }
@@ -3322,3 +3333,67 @@ body.crKb #mainCreate.createMob2 .ftr { position: static; }
 #mainCreate.createMob2 .pvwFb .fbb svg { display: block; width: 1.1em; height: 1.1em; }
 #mainCreate.createMob2 .pvwFb .fo { display: flex; align-items: center; justify-content: center; gap: 0.5em; font-size: 1.15em; color: #6b7280; line-height: 1.4em; padding: 0; margin: 0.9em 0 0 0; }
 #mainCreate.createMob2 .pvwFb .fo svg { display: block; width: 1.1em; height: 1.1em; flex-shrink: 0; }
+
+
+/* ------------------------------------------------------------------------------------------------------------------------ */
+/* mainHdr Create Desktop (hdrCreate)
+/* ------------------------------------------------------------------------------------------------------------------------ */
+
+#mainHdr.hdrCreate .stps { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; }
+#mainHdr.hdrCreate .stps .stp { display: flex; align-items: center; }
+#mainHdr.hdrCreate .stps .stp:not(:last-child):after { content: ""; width: 38px; height: 2px; background: #e5e9ee; border-radius: 2px; margin: 0 14px; }
+#mainHdr.hdrCreate .stps .stp .num { display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex: 0 0 auto; width: 28px; height: 28px; font-size: 13px; font-weight: 700; color: #6b7280; background: #eef1f5; }
+#mainHdr.hdrCreate .stps .stp .ln1 { font-size: 15px; font-weight: 600; color: #9ca3af; white-space: nowrap; margin-left: 10px; }
+#mainHdr.hdrCreate .stps .stp.on .num { color: #ffffff; background: #2563eb; }
+#mainHdr.hdrCreate .stps .stp.on .ln1 { color: #2563eb; font-weight: 700; }
+#mainHdr.hdrCreate .bck { display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; color: #0e1311; text-decoration: none; background: #ffffff; border: 1px solid #e3e7ec; border-radius: 12px; padding: 10px 16px; margin: 10px 0; }
+#mainHdr.hdrCreate .bck svg { width: 16px; height: 16px; flex: 0 0 auto; }
+@media (max-width: 1150px){
+#mainHdr.hdrCreate .stps .stp .ln1 { display: none; }
+#mainHdr.hdrCreate .stps .stp:not(:last-child):after { width: 24px; margin: 0 10px; }
+}
+@media (max-width: 1150px){
+#mainHdr.hdrCreate .stps { display: none; }
+}
+
+/* createMob2 batch 10: desktop create pages (createDsk2) */
+#mainCreate.createDsk2 { background: #f5f7f9; }
+#mainCreate.createDsk2 .crd { background: #ffffff; border: 1px solid #e8eaef; border-radius: 18px; box-shadow: 0 1px 2px 0 rgba(14,19,17,0.04); }
+#mainCreate.createDsk2 .top { justify-content: flex-start; border-bottom: 1px solid #eceef2; padding: 1.7em 2.4em 1.8em 2.4em; }
+#mainCreate.createDsk2 .top .chv { display: none; }
+#mainCreate.createDsk2 .stp { max-width: none; }
+#mainCreate.createDsk2 .stp:not(:last-child) { flex: 1; }
+#mainCreate.createDsk2 .stp:not(:last-child):after { display: block; }
+#mainCreate.createDsk2 .stp .txt { display: block; }
+#mainCreate.createDsk2 .stp { font-size: 10px; }
+#mainCreate.createDsk2 .btm { align-items: stretch; }
+#mainCreate.createDsk2 .btm > .frm { margin-top: 0; }
+#mainCreate.createDsk2 .pvCol { width: 35em; font-size: 10px; box-sizing: border-box; flex-shrink: 0; margin-left: 2em; min-width: 0; }
+#mainCreate.createDsk2 .pvIn { position: sticky; top: 8em; }
+#mainCreate.createDsk2 .pvh { display: flex; align-items: center; gap: 0.5em; font-size: 1.7em; font-weight: 700; color: #0e1311; line-height: 1.3em; padding: 0; margin: 0 0 0.8em 0; }
+#mainCreate.createDsk2 .pvh .tipWrp { font-size: 0.59em; }
+#mainCreate.createDsk2 .pvCol .phn { margin-top: 0; }
+#mainCreate.createDsk2 .pvCol .smp { margin-top: 1.2em; }
+#mainCreate.createDsk2 .ftr { background: #fbfcfd; border-radius: 0 0 18px 18px; padding: 1.4rem 2rem; margin-top: 0; }
+
+/* website preview: mint browser chrome on desktop */
+#mainCreate.createDsk2 .pvwSite .url { background: #82d3c0; padding: 1.2em; }
+#mainCreate.createDsk2 .pvwSite .url .in { background: #ffffff; }
+#mainCreate.createDsk2 .pvwSite .url svg { color: #37917e; }
+
+/* vCard: platform-icon strip in the collapsed Social media row */
+#mainCreate.createDsk2 .acc .hd .socPvw { display: flex; align-items: center; gap: 0.5em; flex-shrink: 0; margin-right: 1em; }
+#mainCreate.createDsk2 .acc .hd .socPvw i { display: flex; align-items: center; justify-content: center; width: 2.2em; height: 2.2em; border-radius: 0.6em; }
+#mainCreate.createDsk2 .acc .hd .socPvw i img { display: block; width: 1.25em; height: 1.25em; }
+#mainCreate.createDsk2 .acc .hd .socPvw b { display: flex; align-items: center; justify-content: center; width: 2.2em; height: 2.2em; background: #eef1f5; border-radius: 0.6em; font-size: 0.95em; font-weight: 600; color: #6b7280; }
+
+/* multilink: link name + URL side by side */
+#mainCreate.createDsk2 .lnkRow { display: flex; flex-wrap: wrap; column-gap: 1.2em; }
+#mainCreate.createDsk2 .lnkRow .lhd { flex-basis: 100%; }
+#mainCreate.createDsk2 .lnkRow > .fld { flex: 1 1 0; min-width: 0; }
+
+@media (max-width: 992px){
+#mainCreate.createDsk2 .pvCol { width: 100%; margin: 2em 0 0 0; }
+#mainCreate.createDsk2 .pvIn { position: static; }
+#mainCreate.createDsk2 .pvCol .phn { max-width: 40em; margin-left: auto; margin-right: auto; }
+}

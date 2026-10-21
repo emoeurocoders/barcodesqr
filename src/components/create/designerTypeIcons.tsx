@@ -3,8 +3,8 @@
  * create_mobile.html (create.html carries the identical set). Generated, not
  * drawn: re-extract rather than edit if the designer changes one.
  *
- * Used by the mobile picker. The desktop picker still draws lucide stand-ins
- * for these — see LAUNCH.md.
+ * Used by both pickers; create_desktop.html (2026-10-21) carries the same
+ * path data, checked byte for byte.
  */
 
 type IconProps = { className?: string };

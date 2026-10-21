@@ -427,6 +427,17 @@
   --shadow-mc-row-soft: 0 1px 3px rgba(14, 19, 17, 0.06);
   --shadow-mc-pill: 0 1px 2px rgba(14, 19, 17, 0.16);
 
+  /* ---- create_desktop.html: step 1 at `md` and up (2026-10-21). ---- */
+  --color-cd-page: #f5f7f9;
+  --color-cd-card-line: #e8eaef;
+  --color-cd-hover-line: #abc5ff;
+  --color-cd-hover: #fcfdff;
+  --color-cd-tag: #dff3f0;
+  /* The header's step dots, the rule between them, the Back button's edge. */
+  --color-cd-step: #eef1f5;
+  --color-cd-step-rule: #e5e9ee;
+  --color-cd-btn-line: #e3e7ec;
+
   /* Typography */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

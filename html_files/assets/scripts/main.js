@@ -608,7 +608,7 @@ jQuery(document).ready(function($) {
 				$cr.find('.pvwDts').each(function() {
 					var $dts = $(this).empty();
 					for (var i = 0; i < theCols.length; i++) {
-						$dts.append($('<i>').css('background', crSocColors[theCols[i]]));
+						$dts.append($('<i>').css('background', crSocColors[theCols[i]]).append($('<img>').attr({ src: 'assets/images/create2_soc_' + theCols[i] + '.svg', alt: '' })));
 					}
 				});
 			}
@@ -626,7 +626,7 @@ jQuery(document).ready(function($) {
 				if (theRows.length) {
 					$lnks.empty();
 					for (var i = 0; i < theRows.length; i++) {
-						$lnks.append('<div class="lrow">' + crLnkSvg + '<span class="tx">' + crEsc(theRows[i]) + '</span>' + crChvSvg + '</div>');
+						$lnks.append('<div class="lrow' + (i === 0 ? ' pri' : '') + '">' + crLnkSvg + '<span class="tx">' + crEsc(theRows[i]) + '</span>' + crChvSvg + '</div>');
 					}
 				} else {
 					$lnks.html(crMlLnksDef);
@@ -636,7 +636,7 @@ jQuery(document).ready(function($) {
 				if (theSel2.length) {
 					$socs.empty();
 					for (var j = 0; j < theSel2.length; j++) {
-						$socs.append('<div class="lrow"><i class="dot" style="background:' + crSocColors[theSel2[j]] + ';"></i><span class="tx">' + crSocNames[theSel2[j]] + '</span>' + crChvSvg + '</div>');
+						$socs.append('<div class="lrow"><i class="bdg2" style="background:' + crSocColors[theSel2[j]] + ';"><img src="assets/images/create2_soc_' + theSel2[j] + '.svg" alt=""></i><span class="tx">' + crSocNames[theSel2[j]] + '</span>' + crChvSvg + '</div>');
 					}
 				} else {
 					$socs.html(crMlSocsDef);

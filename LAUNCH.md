@@ -379,10 +379,8 @@ seven up front and sixteen behind "View All 23 QR Types".
 - **Upload progress and errors in the mobile upload box are unmocked.** It
   reads "Uploading… n%" in place of "Click to upload…", and errors use the
   field-error style.
-- **The mobile picker uses the designer's icons; desktop still does not.**
-  `designerTypeIcons.tsx` is extracted from their file. Desktop's lucide
-  stand-ins (vCard, Multi-Link and App Link most visibly) were never a match —
-  `create.html` carries the same artwork as the mobile file. Not fixed here.
+- **Both pickers now use the designer's icons** — desktop since
+  create_desktop.html (2026-10-21) replaced its step 1.
 - **Batch 2 notes:**
   - *App Link* follows its mobile file: at least one store link required,
     fallback optional. Desktop still requires the fallback and leaves the
@@ -464,6 +462,35 @@ seven up front and sixteen behind "View All 23 QR Types".
 - **Fixed px, not `vw`.** Their stylesheet scales this page with the screen
   width; the port is fixed at the 390px rendering, as the mobile homepage is.
   Below `md`, 360px and 700px were checked for overflow and footer overlap.
+
+## Desktop step 1 — create_desktop.html, ported 2026-10-21
+
+Step 1 at `md` and up is now the file's page: its own pinned header (logo,
+the three steps centred, "Back to Home"), all 23 formats in one grid on the
+grey page, the slim footer. The radio cards, "More QR Types" tiles, preview
+panel and Cancel bar are gone, so `TypePicker` and `PreviewPanel` were
+deleted. Choosing a format goes straight to its form, as on mobile.
+
+- **"wan" → "want"** in the subtitle, per JB; the only copy change.
+- **Step 2 on desktop is unchanged** — still the full-screen card with the
+  old step rail. The sync brought `createDsk2` / `hdrCreate` rules for a
+  desktop step-2 redesign, but no page uses them yet. Until it arrives the
+  header changes between steps 1 and 2.
+- **The steps in the header are not links** (they are not in the file
+  either), and they vanish at 1150 and below, as in the file.
+- **Step 1 below `md` is unchanged** (create_mobile.html), checked 1.33%
+  before and after.
+- **Not ported from the same sync — script-only preview changes.**
+  main.js now (a) puts each platform's logo inside the vCard preview's
+  colour dots, (b) highlights the first typed link in the Multi-Link
+  preview in green (`.lrow.pri`), (c) swaps the Multi-Link social dots for
+  `i.bdg2` badges with logos. The HTML still shows the old dots, so the
+  static file and the scripted one disagree, and (c) has no CSS for
+  `.bdg2` in that preview — it would render the logo unstyled. Asked JB
+  whether these are final before porting.
+- Diffs: skeleton identical bar the routes and the typo; pixels 0.18–0.23%
+  at 1440, 1100, 800 and 768, all of it the subtitle and footer text
+  antialiasing. Heights match at every width.
 
 ## Image reframing — not in the file, added 2026-10-21
 

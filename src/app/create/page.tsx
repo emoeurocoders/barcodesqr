@@ -42,8 +42,7 @@ async function canDownload(session: Session | null) {
  */
 export default async function CreatePage() {
   return (
-    <div className="bg-white md:flex md:h-dvh md:flex-col md:bg-bg-alt md:p-4">
-      <CreateWizard entitled={await canDownload(await auth())} />
-    </div>
+    // The wizard draws its own shell: step 1 is a page, step 2 a card.
+    <CreateWizard entitled={await canDownload(await auth())} />
   );
 }
