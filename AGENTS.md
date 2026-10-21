@@ -318,5 +318,12 @@ Things worth knowing before changing any of it:
   case returns the same message as a validation failure for the same reason.
   Keep both if you touch that code.
 - **Migrations run over `DATABASE_URL_UNPOOLED`.** The pooler rejects some DDL.
+- **`npm run build` applies pending migrations first** (`drizzle-kit migrate
+  && next build`), so each Vercel environment migrates its own database on
+  deploy. Production is a different Neon database from the one in
+  `.env.local`: on 2026-10-21 the `qr_code` migration was applied locally
+  only and the deploy shipped code querying a table production did not have.
+  A failing migration now fails the deploy instead. Keep migrations additive
+  — the new code is not live yet while they run.
 - Pages guard themselves with `await auth()` server-side rather than via
   middleware, which keeps bcrypt out of the Edge bundle.
