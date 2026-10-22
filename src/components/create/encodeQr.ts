@@ -1,4 +1,5 @@
 import { dialCodes } from "./fieldSchema";
+import { socials } from "./mobile/socials";
 /**
  * Turns the step-2 form values into the string the QR actually encodes.
  *
@@ -71,7 +72,28 @@ function vcard(v: Record<string, string>) {
   if (v.website) lines.push(`URL:${v.website}`);
   const addr = [v.street, v.city, v.state, v.zip, v.country].filter(Boolean);
   if (addr.length) lines.push(`ADR:;;${addr.join(";")}`);
-  if (v.summary) lines.push(`NOTE:${v.summary}`);
+  // Social profiles (Tami, 2026-10-22: they never reached the contact). As
+  // labelled URLs — `itemN.URL` + `itemN.X-ABLabel` — which iPhone shows as
+  // "Facebook", "Instagram"… and Android imports as websites. Apple's own
+  // X-SOCIALPROFILE is skipped: Android drops it. Numbers and IDs become the
+  // app's own link where it has one; WeChat has none, so it goes in the note.
+  const extraNote: string[] = [];
+  let item = 0;
+  for (const p of socials) {
+    const raw = (v[p.key] ?? "").trim();
+    if (!raw || raw === "https://") continue;
+    let url = "";
+    if (p.key === "whatsapp") url = `https://wa.me/${raw.replace(/[^\d]/g, "")}`;
+    else if (p.key === "viber") url = `viber://chat?number=${encodeURIComponent(raw.replace(/[^\d+]/g, ""))}`;
+    else if (p.key === "line") url = `https://line.me/ti/p/~${encodeURIComponent(raw.replace(/^@/, ""))}`;
+    else if (p.key === "wechat") extraNote.push(`WeChat: ${raw}`);
+    else url = withScheme(raw);
+    if (!url) continue;
+    item++;
+    lines.push(`item${item}.URL:${url}`, `item${item}.X-ABLabel:${p.name}`);
+  }
+  const note = [v.summary, ...extraNote].filter(Boolean).join("\\n");
+  if (note) lines.push(`NOTE:${note}`);
   lines.push("END:VCARD");
   return lines.join("\n");
 }

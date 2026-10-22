@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { saveQrCode } from "@/app/actions/qr";
+import { saveQrCode, updateQrCode } from "@/app/actions/qr";
 import { stashPendingQr } from "@/lib/pendingQr";
 // `Download` is shelved with step 3.
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { StepRail } from "./StepRail";
 import { MobileTypePicker } from "./MobileTypePicker";
 import { DesktopTypePicker } from "./DesktopTypePicker";
@@ -46,7 +46,7 @@ import { GoogleReviewPreview } from "./previews/GoogleReviewPreview";
 import { QrPreview, defaultQrStyle } from "./QrPreview";
 import type { QrStyle } from "./QrPreview";
 import { allTypes } from "./qrTypes";
-import { encodeQr } from "./encodeQr";
+import { encodeQr, isDynamic } from "./encodeQr";
 import { isComplete } from "./validate";
 import { Button } from "@/components/ui/Button";
 import { Paywall } from "@/components/paywall/Paywall";
@@ -65,7 +65,16 @@ const defaultName = (type: string) => {
 // Completion lives in validate.ts now: every *visible* required field filled,
 // and nothing filled-but-malformed — so a URL without a TLD blocks Next.
 
-export function CreateWizard({ entitled }: { entitled: boolean }) {
+/** A saved code reopened from the dashboard's "Edit". */
+export type EditingCode = { id: string; type: string; name: string; values: Values };
+
+export function CreateWizard({
+  entitled,
+  editing,
+}: {
+  entitled: boolean;
+  editing?: EditingCode;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const isMobile = useIsMobile();
@@ -90,8 +99,13 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
    * data); opening a different type starts that type fresh.
    */
   const [draft, setDraft] = useState<{ type: string; values: Values; name: string }>(
-    { type: "website", values: {}, name: defaultName("website") },
+    editing
+      ? { type: editing.type, values: editing.values, name: editing.name }
+      : { type: "website", values: {}, name: defaultName("website") },
   );
+  // Editing applies to the saved code's own type only; anything else on the
+  // URL is an ordinary new code.
+  const isEditing = !!editing && step === 2 && type === editing.type;
   const current =
     draft.type === type ? draft : { type, values: {}, name: defaultName(type) };
   const values = current.values;
@@ -168,6 +182,18 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
   const finishStepTwo = async () => {
     if (saving) return;
     const draft = { type, name: name.trim() || defaultName(type), values };
+    if (isEditing) {
+      setSaving(true);
+      setSaveError(null);
+      const res = await updateQrCode({ id: editing!.id, name: draft.name, values });
+      if ("id" in res) {
+        router.push(`/dashboard?updated=${encodeURIComponent(res.id)}`);
+      } else {
+        setSaving(false);
+        setSaveError(res.error);
+      }
+      return;
+    }
     if (!entitled) {
       stashPendingQr(draft);
       paywall.show();
@@ -209,6 +235,11 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
   // Arriving straight on `?type=` there is none to pop — replace instead of
   // walking the visitor off the site.
   const back = () => {
+    // Editing started on the dashboard; that is where Back goes.
+    if (isEditing) {
+      router.push("/dashboard");
+      return;
+    }
     if (pushed.current) {
       pushed.current = false;
       window.history.back();
@@ -309,6 +340,23 @@ export function CreateWizard({ entitled }: { entitled: boolean }) {
       </div>
 
       <main className="md:min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
+      {/*
+        Editing a saved code. Unmocked — the designer has no edit flow — so
+        it borrows the info-note look. What it says depends on the type: a
+        static code carries its content, so the image changes and must be
+        downloaded again; a hosted one keeps its image.
+      */}
+      {isEditing && (
+        <div className="mx-[14.6px] mt-3 flex items-start gap-2 rounded-xl border border-mc-note-line bg-mc-note px-3 py-2.5 text-[13px] leading-snug text-prose md:mx-auto md:mt-6 md:max-w-6xl md:px-4">
+          <Info className="mt-px h-4 w-4 shrink-0 text-primary" />
+          <p>
+            <b className="font-semibold text-mc-note-ink">Editing “{editing!.name}”.</b>{" "}
+            {isDynamic(type)
+              ? "Saving updates what this code shows. The QR image stays the same."
+              : "This code holds its content directly, so saving changes the QR image. Download it again afterwards — copies already printed keep the old content."}
+          </p>
+        </div>
+      )}
       {/* Step 2 sits in a narrower centred column, which is what makes the
           form read as a card rather than a sheet. */}
       {isMobile && mobileTypes.has(type) ? (

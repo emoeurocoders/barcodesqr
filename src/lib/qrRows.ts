@@ -47,7 +47,7 @@ function summary(type: string, v: Record<string, string>, encoded: string) {
   }
 }
 
-export function toQrRow(row: Saved, newId?: string): QrRow {
+export function toQrRow(row: Saved, newId?: string, updatedId?: string): QrRow {
   const qrValue = encodeQr(row.type, row.values);
   const link =
     !isDynamic(row.type) && /^https?:\/\//.test(qrValue) ? qrValue : null;
@@ -59,6 +59,8 @@ export function toQrRow(row: Saved, newId?: string): QrRow {
     qrValue,
     createdAt: row.createdAt.toISOString(),
     type: row.type,
+    hosted: isDynamic(row.type),
     isNew: row.id === newId,
+    highlight: row.id === newId || row.id === updatedId,
   };
 }

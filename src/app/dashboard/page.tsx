@@ -39,7 +39,7 @@ export type DashboardSort = keyof typeof sorts;
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; sort?: string; new?: string }>;
+  searchParams: Promise<{ q?: string; sort?: string; new?: string; updated?: string }>;
 }) {
   const [session, params] = await Promise.all([auth(), searchParams]);
   // Sign-in lives in a modal now, so send them home with it open.
@@ -84,8 +84,8 @@ export default async function DashboardPage({
     )
     .orderBy(sorts[sort], desc(qrCodes.createdAt))
     .limit(500);
-  const rows = saved.map((r) => toQrRow(r, params.new));
-  const newRow = rows.find((r) => r.isNew);
+  const rows = saved.map((r) => toQrRow(r, params.new, params.updated));
+  const justSaved = rows.find((r) => r.highlight);
 
   return (
     <>
@@ -103,7 +103,7 @@ export default async function DashboardPage({
           <ClaimPendingQr />
           {rows.length > 0 ? (
             <>
-              {newRow && <ReadyBanner row={newRow} />}
+              {justSaved && <ReadyBanner row={justSaved} edited={!justSaved.isNew} />}
               <QrTable rows={rows} />
             </>
           ) : q ? (

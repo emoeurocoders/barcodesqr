@@ -46,10 +46,23 @@ Still missing, in rough order:
 - **Uploads are still orphaned.** A saved code references its files by URL,
   but nothing deletes an object no row references, and keys carry no user
   id. The reaper and the key decision above both still stand.
-- **No editing, renaming, deleting.** The pencil, the password switch and
-  the rest of the ⋮ menu were removed from rows rather than left as controls
-  that do nothing. Password reads "Off", Status "Active", Health "Good"
-  (true of every code we draw), Scans is blank until short links exist.
+- **Edit and Delete landed 2026-10-22** (Tami), in the ⋮ menu. Edit
+  reopens the creator on the saved values (`/create?type=…&edit=<id>`,
+  owner-checked server-side) and saves back to the same row; Back returns to
+  the dashboard. While editing, a note says what the edit does: a static
+  code carries its content, so its image changes and must be downloaded
+  again; a hosted one keeps its image. Delete asks first, and says the same
+  distinction. Both unmocked. The type cannot be changed by editing.
+- **Still no rename-in-place or password.** The pencil and the password
+  switch stay out of the rows (rename is the name field while editing).
+  Password reads "Off", Status "Active", Health "Good" (true of every code
+  we draw), Scans is blank until short links exist.
+- **The ⋮ menu renders at a fixed position in <body>**, opening upward when
+  there is no room below: inside the table's horizontal scroller it was
+  clipped on the last row. Scrolling closes it.
+- **"Create QR code" is back in the toolbar**, as the mockup draws it. The
+  PM had cut it, but the ready banner it relied on vanishes after a search
+  or sort, and phones have no sidebar — there was no way to create.
 - **Codes download in the default black-on-white style.** Step 3 (colours,
   frames) is shelved, so there is no style to save yet; a `style` column is
   the place for it when it returns.
@@ -432,6 +445,14 @@ seven up front and sixteen behind "View All 23 QR Types".
   - *Video* captures a 96px thumbnail from the file when picked and stores it
     with the upload; the preview plays the uploaded file with the phone's own
     player (`playsInline`, so iOS does not jump to fullscreen).
+- **vCard social profiles go into the contact since 2026-10-22** (Tami):
+  each as a labelled URL (`itemN.URL` + `X-ABLabel`), which iPhone lists as
+  "Facebook", "Instagram"… and Android imports as websites. WhatsApp →
+  wa.me link, Viber → viber:// link, LINE → line.me link, WeChat (no link
+  form) → the note. **The photo cannot be in a direct vCard QR**: an image
+  does not fit in a QR code, and phones ignore a photo given as a web link.
+  It needs the hosted vCard page, which can serve a .vcf with the photo
+  embedded (first blocker). Not yet tried on a real iPhone/Android.
 - **Batch 5 notes:**
   - *Phone* reuses the WhatsApp/SMS country + number component with the
     file's placeholder and hint. The QR is `tel:+<code><number>`, spaces

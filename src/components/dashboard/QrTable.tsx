@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { deleteQrCode } from "@/app/actions/qr";
 import { Download, ExternalLink, Copy, Check, EllipsisVertical } from "lucide-react";
 import { QrPreview, defaultQrStyle, downloadQr } from "@/components/create/QrPreview";
 import { allTypes } from "@/components/create/qrTypes";
@@ -22,7 +26,11 @@ export type QrRow = {
   /** ISO timestamp; shown in the viewer's own time zone. */
   createdAt: string;
   type: string;
+  /** Served from a hosted page (dynamic) rather than carried in the code. */
+  hosted: boolean;
   isNew?: boolean;
+  /** Just saved — new or edited — so the row is outlined. */
+  highlight?: boolean;
 };
 
 /** Column widths taken from the mockup's grid. */
@@ -101,63 +109,185 @@ function CopyLink({ link }: { link: string }) {
   );
 }
 
-/** The ⋮ menu: the other two formats. */
-function MoreFormats({ row }: { row: QrRow }) {
-  const [open, setOpen] = useState(false);
-  const wrap = useRef<HTMLDivElement>(null);
+const MENU_W = 176;
+
+/**
+ * The ⋮ menu: Edit, the other two download formats, Delete. Unmocked — the
+ * mockup draws the button only.
+ *
+ * Rendered into <body> at a fixed position: inside the table it was clipped
+ * by the table's horizontal scroller, so on the last row it opened into a
+ * box you could not see (Tami, 2026-10-22). It opens downward, or upward
+ * when there is not room below; scrolling or resizing closes it, since a
+ * fixed menu would otherwise float away from its button.
+ */
+function RowMenu({ row, onDelete }: { row: QrRow; onDelete: () => void }) {
+  const [pos, setPos] = useState<{ left: number; top?: number; bottom?: number } | null>(null);
+  const btn = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const open = !!pos;
+
   useEffect(() => {
     if (!open) return;
-    const close = (e: PointerEvent) => {
-      if (!wrap.current?.contains(e.target as Node)) setOpen(false);
+    const close = (e: Event) => {
+      const t = e.target as Node;
+      if (e.type === "pointerdown" && (menu.current?.contains(t) || btn.current?.contains(t))) return;
+      setPos(null);
     };
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setPos(null);
     document.addEventListener("pointerdown", close);
     document.addEventListener("keydown", esc);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
     return () => {
       document.removeEventListener("pointerdown", close);
       document.removeEventListener("keydown", esc);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
     };
   }, [open]);
 
+  const toggle = () => {
+    if (open) return setPos(null);
+    const r = btn.current!.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8));
+    // Four items at 36px plus padding.
+    const roomBelow = window.innerHeight - r.bottom;
+    setPos(roomBelow >= 170 ? { left, top: r.bottom + 4 } : { left, bottom: window.innerHeight - r.top + 4 });
+  };
+
+  const item = "block w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-bg-alt";
+
   return (
-    <div ref={wrap} className="relative">
+    <>
       <button
+        ref={btn}
         type="button"
-        aria-label="More download formats"
+        aria-label="More actions"
+        aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen(!open)}
+        onClick={toggle}
         className="cursor-pointer rounded-md p-1 text-faint transition-colors hover:bg-bg-alt hover:text-ink"
       >
         <EllipsisVertical className="h-4 w-4" />
       </button>
-      {open && (
-        <div role="menu" className="absolute right-0 z-20 mt-1 w-40 overflow-hidden rounded-lg border border-line bg-white py-1 shadow-pop">
-          {(["svg", "jpeg"] as const).map((ext) => (
+      {pos &&
+        createPortal(
+          <div
+            ref={menu}
+            role="menu"
+            className="fixed z-50 overflow-hidden rounded-lg border border-line bg-white py-1 shadow-pop"
+            style={{ left: pos.left, top: pos.top, bottom: pos.bottom, width: MENU_W }}
+          >
+            <Link role="menuitem" href={`/create?type=${encodeURIComponent(row.type)}&edit=${encodeURIComponent(row.id)}`} className={`${item} text-ink`}>
+              Edit
+            </Link>
+            {(["svg", "jpeg"] as const).map((ext) => (
+              <button
+                key={ext}
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setPos(null);
+                  downloadQr(row.qrValue, defaultQrStyle, row.name, ext);
+                }}
+                className={`${item} text-ink`}
+              >
+                Download {ext.toUpperCase()}
+              </button>
+            ))}
             <button
-              key={ext}
               type="button"
               role="menuitem"
               onClick={() => {
-                setOpen(false);
-                downloadQr(row.qrValue, defaultQrStyle, row.name, ext);
+                setPos(null);
+                onDelete();
               }}
-              className="block w-full cursor-pointer px-3 py-2 text-left text-sm text-ink hover:bg-bg-alt"
+              className={`${item} text-[#dc2626]`}
             >
-              Download {ext.toUpperCase()}
+              Delete
             </button>
-          ))}
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
+/**
+ * "Delete this code?" — unmocked; the paywall's lightbox look, small. What
+ * deleting does to a printed copy depends on the type, so it says which.
+ */
+function ConfirmDelete({ row, onClose }: { row: QrRow; onClose: () => void }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && !busy && onClose();
+    document.addEventListener("keydown", esc);
+    return () => document.removeEventListener("keydown", esc);
+  }, [busy, onClose]);
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/45 p-4" onClick={() => !busy && onClose()}>
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="del-title"
+        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="del-title" className="text-lg font-bold text-ink">
+          Delete “{row.name}”?
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted">
+          {row.hosted
+            ? "It will be removed from your account, and its page will stop working for anyone who scans it. This can't be undone."
+            : "It will be removed from your account. This can't be undone. Copies already printed keep working — their content is in the code itself."}
+        </p>
+        {error && <p className="mt-3 text-sm text-[#b91c1c]">{error}</p>}
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            autoFocus
+            disabled={busy}
+            onClick={onClose}
+            className="cursor-pointer rounded-btn border border-line bg-white px-4 py-2.5 text-sm font-medium text-ink hover:bg-bg-alt disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              const res = await deleteQrCode(row.id);
+              if ("ok" in res) {
+                onClose();
+                router.refresh();
+              } else {
+                setBusy(false);
+                setError(res.error);
+              }
+            }}
+            className="cursor-pointer rounded-btn bg-[#dc2626] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#b91c1c] disabled:opacity-50"
+          >
+            {busy ? "Deleting…" : "Delete"}
+          </button>
         </div>
-      )}
-    </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
 function Row({ row }: { row: QrRow }) {
+  const [confirming, setConfirming] = useState(false);
   return (
     <li
       id={`qr-${row.id}`}
       className={`grid items-center gap-x-3.5 ${
-        row.isNew
+        row.highlight
           ? "my-2.5 rounded-[14px] border-2 border-primary p-[11px] shadow-soft"
           : "border-b border-line/70 py-3"
       }`}
@@ -243,8 +373,9 @@ function Row({ row }: { row: QrRow }) {
           <Download className="h-3.5 w-3.5" />
           Download QR
         </button>
-        <MoreFormats row={row} />
+        <RowMenu row={row} onDelete={() => setConfirming(true)} />
       </div>
+      {confirming && <ConfirmDelete row={row} onClose={() => setConfirming(false)} />}
     </li>
   );
 }

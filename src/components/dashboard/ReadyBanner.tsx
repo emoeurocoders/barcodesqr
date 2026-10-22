@@ -8,7 +8,7 @@ import { defaultQrStyle, downloadQr } from "@/components/create/QrPreview";
 import type { QrRow } from "./QrTable";
 
 /** Shown after a code is created; dismissible for the rest of the session. */
-export function ReadyBanner({ row }: { row: QrRow }) {
+export function ReadyBanner({ row, edited = false }: { row: QrRow; edited?: boolean }) {
   const [open, setOpen] = useState(true);
   if (!open) return null;
 
@@ -19,9 +19,14 @@ export function ReadyBanner({ row }: { row: QrRow }) {
       </span>
 
       <div className="min-w-[12rem] flex-1">
-        <h2 className="text-base font-bold text-ink">Your QR code is ready</h2>
+        {/* After an edit (unmocked): same banner, saying what happened. */}
+        <h2 className="text-base font-bold text-ink">
+          {edited ? "Your changes are saved" : "Your QR code is ready"}
+        </h2>
         <p className="mt-0.5 text-sm text-muted">
-          Download it now or manage it anytime from your account.
+          {edited && !row.hosted
+            ? "This code's image changed — download it again to use the new version."
+            : "Download it now or manage it anytime from your account."}
         </p>
       </div>
 

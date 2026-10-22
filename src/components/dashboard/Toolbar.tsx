@@ -1,13 +1,15 @@
+import Link from "next/link";
 import { Search } from "lucide-react";
 import { SortMenu } from "./SortMenu";
 import type { DashboardSort } from "@/app/dashboard/page";
 
 /**
- * Title, sort control and search.
+ * Title, sort control, search and "Create QR code".
  *
- * The mockup also puts a "Create QR code" button at the right-hand end. The PM
- * cut it: the ready banner underneath already offers "Create Another QR", and
- * the sidebar has "Create QR", so a third one crowded the row.
+ * The button is the mockup's (`.btn.genBtn7.btnC3`). The PM had cut it, as
+ * the ready banner offered "Create Another QR" — but that banner is gone
+ * once you search or sort, which left no way to create from this page on a
+ * phone, where the sidebar is hidden (Tami, 2026-10-22). Back as drawn.
  */
 export function Toolbar({
   title = "My QR Codes",
@@ -52,6 +54,17 @@ export function Toolbar({
             <Search className="h-[17px] w-[17px]" />
           </button>
         </form>
+
+        <Link
+          href="/create"
+          className="inline-flex h-[41px] items-center gap-[8.25px] whitespace-nowrap rounded-btn bg-primary px-[27px] text-[15px] leading-[15px] font-medium text-white transition-colors hover:bg-primary-press"
+        >
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[17px] w-[17px]">
+            <path d="M3.54167 8.5H13.4583" stroke="currentColor" strokeWidth="1.41667" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M8.5 3.54167V13.4583" stroke="currentColor" strokeWidth="1.41667" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Create QR code
+        </Link>
       </div>
     </div>
   );

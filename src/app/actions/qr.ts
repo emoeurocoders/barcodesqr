@@ -48,7 +48,8 @@ function cleanValues(raw: unknown): Record<string, string> | null {
   return JSON.stringify(out).length <= MAX_VALUES_JSON ? out : null;
 }
 
-export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
+/** The signed-in, paying customer's id — or the message to show instead. */
+async function payingUser(): Promise<{ userId: string } | { error: string }> {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return { error: "Please sign in to save your QR code." };
@@ -62,6 +63,15 @@ export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
   if (!user || user.plan === "free") {
     return { error: "Start your trial to save this QR code." };
   }
+  return { userId };
+}
+
+const cleanName = (raw: unknown) => String(raw ?? "").trim().slice(0, 40) || "My QR Code";
+
+export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
+  const who = await payingUser();
+  if ("error" in who) return who;
+  const { userId } = who;
 
   const type = String(input?.type ?? "");
   if (!knownTypes.has(type)) return { error: "That QR code type isn't supported." };
@@ -69,7 +79,7 @@ export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
   const values = cleanValues(input?.values);
   if (!values) return { error: "That QR code couldn't be saved." };
 
-  const name = String(input?.name ?? "").trim().slice(0, 40) || "My QR Code";
+  const name = cleanName(input?.name);
   const draftKey =
     typeof input?.draftKey === "string" && /^[A-Za-z0-9-]{8,64}$/.test(input.draftKey)
       ? input.draftKey
@@ -92,4 +102,47 @@ export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
     if (existing) return { id: existing.id };
   }
   return { error: "That QR code couldn't be saved." };
+}
+
+/**
+ * Save changes to an existing code, from the creator opened with `?edit=`.
+ * The type cannot change: a different type is a different code.
+ *
+ * What an edit does to the printed code depends on the type — see the note
+ * the creator shows while editing. Static codes carry their content, so the
+ * image changes; hosted ones keep their image.
+ */
+export async function updateQrCode(input: {
+  id: string;
+  name: string;
+  values: Record<string, string>;
+}): Promise<SaveQrResult> {
+  const who = await payingUser();
+  if ("error" in who) return who;
+
+  const values = cleanValues(input?.values);
+  if (!values || typeof input?.id !== "string") return { error: "That QR code couldn't be saved." };
+
+  const [row] = await db
+    .update(qrCodes)
+    .set({ name: cleanName(input.name), values, updatedAt: new Date() })
+    .where(and(eq(qrCodes.id, input.id), eq(qrCodes.userId, who.userId)))
+    .returning({ id: qrCodes.id });
+  return row ? { id: row.id } : { error: "That QR code couldn't be found." };
+}
+
+/**
+ * Delete one of the customer's codes. Only the row goes: files it uploaded
+ * stay in the bucket until the reaper in LAUNCH.md exists.
+ */
+export async function deleteQrCode(id: string): Promise<{ ok: true } | { error: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: "Please sign in." };
+  if (typeof id !== "string") return { error: "That QR code couldn't be found." };
+  const [row] = await db
+    .delete(qrCodes)
+    .where(and(eq(qrCodes.id, id), eq(qrCodes.userId, userId)))
+    .returning({ id: qrCodes.id });
+  return row ? { ok: true } : { error: "That QR code couldn't be found." };
 }
