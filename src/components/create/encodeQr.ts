@@ -1,5 +1,6 @@
 import { dialCodes } from "./fieldSchema";
 import { socials } from "./mobile/socials";
+import { localTimeZone, zonedToUtc } from "@/lib/zoned";
 /**
  * Turns the step-2 form values into the string the QR actually encodes.
  *
@@ -21,7 +22,6 @@ const dynamicTypes = new Set([
   "menu",
   "business",
   "coupon",
-  "feedback",
   "multilink",
   "applink",
 ]);
@@ -98,16 +98,46 @@ function vcard(v: Record<string, string>) {
   return lines.join("\n");
 }
 
+/** "2026-06-09T18:00" (desktop) or a half-filled "2026-06-09T" (mobile). */
+export const splitWhen = (v?: string) => {
+  const [date = "", time = ""] = (v ?? "").split("T");
+  return { date, time: time.slice(0, 5) };
+};
+
+/**
+ * Start and end as iCalendar times. With the creator's zone known (saved
+ * with the code, or the browser's while editing) they are UTC — the same
+ * moment wherever the code is scanned. Without one, floating local time, as
+ * before. Either way with seconds: "T1800" was not a valid iCalendar time.
+ *
+ * The end follows create_mobile_event.html's rule: a missing end date means
+ * the start's day, a missing end time 23:59.
+ */
+export function eventTimes(v: Record<string, string>) {
+  const tz = v.timezone || localTimeZone();
+  const start = splitWhen(v.startsAt);
+  const endRaw = splitWhen(v.endsAt);
+  const end = endRaw.date || endRaw.time
+    ? { date: endRaw.date || start.date, time: endRaw.time || "23:59" }
+    : null;
+  const fmt = (w: { date: string; time: string }) => {
+    if (!w.date || !w.time) return "";
+    const ms = tz ? zonedToUtc(w.date, w.time, tz) : null;
+    if (ms !== null) return new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+    return `${w.date.replace(/-/g, "")}T${w.time.replace(":", "")}00`;
+  };
+  return { start: fmt(start), end: end ? fmt(end) : "" };
+}
+
 function calendar(v: Record<string, string>) {
-  const stamp = (s?: string) =>
-    s ? s.replace(/[-:]/g, "").replace(/\.\d+/, "") : "";
+  const { start, end } = eventTimes(v);
   const lines = [
     "BEGIN:VEVENT",
     `SUMMARY:${v.eventTitle ?? ""}`,
   ];
   if (v.location) lines.push(`LOCATION:${v.location}`);
-  if (v.startsAt) lines.push(`DTSTART:${stamp(v.startsAt)}`);
-  if (v.endsAt) lines.push(`DTEND:${stamp(v.endsAt)}`);
+  if (start) lines.push(`DTSTART:${start}`);
+  if (end) lines.push(`DTEND:${end}`);
   if (v.description) lines.push(`DESCRIPTION:${v.description}`);
   lines.push("END:VEVENT");
   return lines.join("\n");
@@ -134,6 +164,12 @@ export function encodeQr(
       const n = v.phoneCountry !== undefined ? intlPhone(v) : (v.phone ?? "").trim();
       return n ? `tel:${n.replace(/[^\d+]/g, "")}` : "";
     }
+
+    case "feedback":
+      // The file's own tip: "Scanners go straight there." So the code is the
+      // customer's form link itself, as Payment's is, until the redirect
+      // service exists. (Its preview pictures a hosted card — raised with JB.)
+      return withScheme(v.url);
 
     case "payment":
       // Straight to the customer's own payment page (JB, 2026-10-21) — the
@@ -217,5 +253,14 @@ const untrackedTypes = new Set(["wifi", "email", "sms", "whatsapp", "phone", "lo
  * directly so a scan works without that service existing yet. See LAUNCH.md.
  */
 export function hasTracking(type: string) {
-  return !untrackedTypes.has(type);
+  return TRACKING_LIVE && !untrackedTypes.has(type);
 }
+
+/**
+ * Whether the short-link/redirect service behind "Smart Tracking & Editing"
+ * exists. It does not yet, so no code can be edited after printing or have
+ * its scans counted — and JB's rule (2026-10-22) is that the badge shows only
+ * where the code really supports both. Off everywhere, desktop badge and the
+ * mobile pill alike; flip this when the service ships (see LAUNCH.md).
+ */
+export const TRACKING_LIVE = false;

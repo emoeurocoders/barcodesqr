@@ -147,6 +147,14 @@ export function hasSocialProfile(values: Values) {
     });
 }
 
+/** Phone, email, website or address — at least one filled. */
+export function hasBusinessContact(values: Values) {
+  return ["phone", "email", "website", "address"].some((k) => {
+    const v = (values[k] ?? "").trim();
+    return !!v && v !== "https://";
+  });
+}
+
 /**
  * A menu needs at least one item with a name and a price (the mobile
  * builder's rule, kept on desktop so the two agree). Spare empty rows are
@@ -169,6 +177,9 @@ export function isComplete(type: string, values: Values) {
     .every((f) => fieldError(f, values[f.name] ?? "") === null);
   if (!fieldsOk) return false;
   if (type === "social") return hasSocialProfile(values);
+  // A business page needs somewhere to send people (create_mobile_business:
+  // "at least one contact or destination method"), on both layouts.
+  if (type === "business") return hasBusinessContact(values);
   if (type === "menu") {
     const { rows, none } = menuIssues(values.items);
     return !none && rows.every((r) => !r.name && !r.price);

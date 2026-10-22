@@ -121,6 +121,10 @@ export const mobileTypes = new Set([
   "text",
   "payment",
   "mp3",
+  "event",
+  "coupon",
+  "feedback",
+  "business",
 ]);
 
 
@@ -275,7 +279,7 @@ export function SocialPicker({
 
 
 
-function SocialAcc({ s, idPrefix }: { s: FormState; idPrefix: string }) {
+export function SocialAcc({ s, idPrefix }: { s: FormState; idPrefix: string }) {
   return (
     <Acc
       icon={shareGlyph}
@@ -730,6 +734,8 @@ export const initiallyOpen: Record<string, string[]> = {
   multilink: ["links"],
   // create_mobile_menu.html opens "Menu Items".
   menu: ["items"],
+  // create_mobile_business.html opens "Basic information".
+  business: ["basic"],
 };
 
 export { Sep };

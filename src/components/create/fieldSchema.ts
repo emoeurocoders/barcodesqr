@@ -11,7 +11,7 @@
 export type FieldType =
   | "url" | "text" | "textarea" | "tel" | "email" | "phone-intl"
   | "select" | "checkbox" | "info" | "file" | "segment" | "country"
-  | "datetime-local" | "links" | "date";
+  | "datetime-local" | "links" | "date" | "time";
 
 export type Field = {
   name: string;
@@ -137,6 +137,9 @@ export const fieldLabels: Record<string, string> = {
   "linkName": "Name",
   "linkUrl": "URL",
   "cover": "Cover image",
+  "logo": "Logo",
+  "opensAt": "Opens at",
+  "closesAt": "Closes at",
   "category": "Category / Section name"
 };
 
@@ -254,6 +257,18 @@ export const sections: Record<string, { title: string; desc: string }> = {
   "image": {
     "title": "Image",
     "desc": "Upload a cover image"
+  },
+  "hours": {
+    "title": "Business hours",
+    "desc": "Set your opening hours (optional)"
+  },
+  "cover": {
+    "title": "Cover image",
+    "desc": "Upload a photo of your business (optional)"
+  },
+  "logo": {
+    "title": "Logo",
+    "desc": "Upload your business logo (optional)"
   }
 };
 
@@ -295,6 +310,7 @@ export const fieldSchema: Record<string, Field[]> = {
       "labelKey": "text",
       "type": "textarea",
       "required": true,
+      "maxLength": 1000,
       // QR_TEXT_MAX_BYTES (1,100) less the 40-character title and its newline,
       // so desktop refuses what mobile refuses.
       "maxBytes": 1059
@@ -1151,6 +1167,43 @@ export const fieldSchema: Record<string, Field[]> = {
       "type": "text",
       "half": true,
       "section": "contact"
+    },
+    // Added 2026-10-22 with create_mobile_business.html (JB: anything the
+    // mobile page adds works on desktop too). The social fields are vCard's,
+    // appended below the object.
+    {
+      "name": "opensAt",
+      "labelKey": "opensAt",
+      "type": "time",
+      "half": true,
+      "section": "hours"
+    },
+    {
+      "name": "closesAt",
+      "labelKey": "closesAt",
+      "type": "time",
+      "half": true,
+      "section": "hours"
+    },
+    {
+      "name": "cover",
+      "labelKey": "cover",
+      "type": "file",
+      "accept": "image/*",
+      "maxSizeMb": 5,
+      "formats": "PNG, JPG, JPEG, etc.",
+      "adjustable": "wide",
+      "section": "cover"
+    },
+    {
+      "name": "logo",
+      "labelKey": "logo",
+      "type": "file",
+      "accept": "image/*",
+      "maxSizeMb": 5,
+      "formats": "PNG, JPG, JPEG, etc.",
+      "adjustable": "circle",
+      "section": "logo"
     }
   ],
   "coupon": [
@@ -1467,3 +1520,14 @@ export const fieldSchema: Record<string, Field[]> = {
     }
   ]
 };
+
+/**
+ * Business takes vCard's social profiles (create_mobile_business.html has the
+ * same fifteen), placed after its contact details — before hours and images,
+ * as the mobile page orders them.
+ */
+{
+  const biz = fieldSchema.business;
+  const at = biz.findIndex((f) => f.section === "hours");
+  biz.splice(at, 0, ...fieldSchema.vcard.filter((f) => f.section === "social").map((f) => ({ ...f })));
+}

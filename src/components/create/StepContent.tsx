@@ -579,7 +579,7 @@ function FieldControl({
         <input
           {...common}
           type={
-            field.type === "datetime-local" || field.type === "date"
+            field.type === "datetime-local" || field.type === "date" || field.type === "time"
               ? field.type
               : field.type === "email"
                 ? "email"

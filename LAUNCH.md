@@ -314,13 +314,12 @@ seven up front and sixteen behind "View All 23 QR Types".
   form can be linked to. This applies to desktop too — it looks identical but
   now has working browser back. What was typed is kept per type: Back and
   reopening the same type finds it as left; another type starts fresh.
-- **Ported so far: nineteen of 23.** Batch 1 (Website, vCard, Multi-Link),
+- **All 23 ported** (2026-10-22). Batch 1 (Website, vCard, Multi-Link),
   batch 2 (App Link, PDF, Image, WhatsApp — Monday 5638161680), batch 3
   (Social Media, Menu, WiFi, Video — 5642568390), batch 4 (Google Maps,
-  Email, Google Review, SMS — 5646620665, 2026-10-20) and batch 5 (Phone,
-  Plain Text, Payment, Audio — 5650333076, 2026-10-21). The other 4 (Event,
-  Coupon, Feedback, Business) show the old step-2 form inside the new rail
-  and Back/Next bar, and keep the old Next rule (disabled until complete).
+  Email, Google Review, SMS — 5646620665), batch 5 (Phone, Plain Text,
+  Payment, Audio — 5650333076) and batch 6 (Event, Coupon, Feedback,
+  Business — 5654259822). `MobileFallbackStepTwo` now has no type to serve.
 - **The 2026-10-20 sync revised the eleven ported files' copy:** every
   "x — y" in tooltips and preview captions became "x. Y" (or "x: y"). All 16
   strings were updated to match; the three em dashes still in the files
@@ -453,6 +452,42 @@ seven up front and sixteen behind "View All 23 QR Types".
   does not fit in a QR code, and phones ignore a photo given as a web link.
   It needs the hosted vCard page, which can serve a .vcf with the photo
   embedded (first blocker). Not yet tried on a real iPhone/Android.
+- **"Smart Tracking & Editing" is hidden everywhere** (2026-10-22, JB: show
+  it only where the code really supports editing and scan counts). No type
+  does until the redirect service exists, so `TRACKING_LIVE` in encodeQr.ts
+  is false: the desktop badge and the mobile pill render nothing. The pills
+  stay in the code where the files draw them — flip the flag when the
+  service ships. Forms whose file has the pill sit higher by its height.
+- **Batch 6 notes:**
+  - *Event times carry a time zone now, on both layouts.* The creator's
+    browser zone is saved with the code (`timezone`) and DTSTART/DTEND are
+    encoded in UTC, so the event lands at the right hour wherever it is
+    scanned. Desktop's old encoding was floating local time and also
+    lacked seconds ("T1800"), which is not a valid iCalendar time — fixed.
+    The end rule is the file's: no end date means the start's day, no end
+    time 23:59; an end before the start is refused. "Add to Calendar" in
+    the preview downloads the same event as an .ics.
+  - *The date/time inputs are the file's 12px type,* smaller than its 16px
+    text inputs — iOS zooms the page when one is focused. Reproduced;
+    raised with JB.
+  - *Coupon:* code and expiry optional. Once anything is typed, the preview
+    stops showing the sample "SAVE20" / "Expires Dec 31, 2026" — a coupon
+    with no code shows no code box or Copy button (their tip: "Leave empty
+    for no code"; the file's Event and Business scripts drop samples the
+    same way). A past expiry shows "Expired …" in red. Copy code works.
+    Still a hosted type (placeholder QR).
+  - *Feedback now encodes the customer's form link itself* — its file's
+    tip says "Scanners go straight there." Its preview, though, pictures a
+    hosted card first; asked JB which is meant. No stars anywhere.
+  - *Business Page:* name + at least one of phone/email/website/address,
+    the latter three checked when filled. Socials, hours, cover and logo —
+    new on mobile — were added to desktop too (JB: parity), with the same
+    contact rule. Open/Closed shows only when both hours are set, worked
+    out in the saved zone; the file's sample "Open · Closes 3 PM" shows
+    only while nothing at all is typed (their script kept it even with real
+    content, which would claim the business is open). Still hosted.
+  - *Plain Text max is now 1,000 characters* on both layouts (JB); the
+    1,100-byte check stays for emoji and accents.
 - **Batch 5 notes:**
   - *Phone* reuses the WhatsApp/SMS country + number component with the
     file's placeholder and hint. The QR is `tel:+<code><number>`, spaces

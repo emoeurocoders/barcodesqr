@@ -35,6 +35,8 @@ import { EmailForm, MapsForm, ReviewForm, SmsForm, checksForBatch4 } from "./for
 import { EmailPreview, MapsPreview, ReviewPreview, SmsPreview } from "./previews4";
 import { AudioForm, PaymentForm, PhoneForm, PlainTextForm, checksForBatch5 } from "./forms5";
 import { AudioPreview, PaymentPreview, PhonePreview, PlainTextPreview } from "./previews5";
+import { BusinessForm, CouponForm, EventForm, FeedbackForm, checksForBatch6 } from "./forms6";
+import { BusinessPreview, CouponPreview, EventPreview, FeedbackPreview } from "./previews6";
 import {
   AppLinkPreview,
   ImagePreview,
@@ -53,6 +55,7 @@ const mobileHeaderDesc: Record<string, string> = {
   phone: "Call a phone number with one scan",
   text: "Share a message with one scan",
   payment: "Share a payment link with one QR code",
+  coupon: "Share a special offer with customers",
 };
 import { ArrowLeft, ArrowRight, outlineBtn, smallBtn } from "./ui";
 
@@ -83,6 +86,19 @@ const mobileHeaderIcon: Record<string, ReactNode> = {
       <path d="M12 4v16"></path>
       <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"></path>
       <path d="M9 20h6"></path>
+    </svg>
+  ),
+  event: (
+    <svg {...hdrSvg} stroke="#0E7490">
+      <path d="M8 2v4"></path>
+      <path d="M16 2v4"></path>
+      <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+      <path d="M3 10h18"></path>
+    </svg>
+  ),
+  feedback: (
+    <svg {...hdrSvg} stroke="#4B5563">
+      <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path>
     </svg>
   ),
   mp3: (
@@ -279,6 +295,7 @@ export function MobileStepTwo({
       ...checksForBatch3(type, values),
       ...checksForBatch4(type, values),
       ...checksForBatch5(type, values),
+      ...checksForBatch6(type, values),
     ],
     [type, values],
   );
@@ -387,7 +404,18 @@ export function MobileStepTwo({
       form = <PaymentForm s={s} />;
     } else if (type === "mp3") {
       preview = <AudioPreview {...p} />;
-      form = <AudioForm s={s} />;
+      form = <AudioForm s={s} />;    } else if (type === "event") {
+      preview = <EventPreview {...p} />;
+      form = <EventForm s={s} />;
+    } else if (type === "coupon") {
+      preview = <CouponPreview {...p} />;
+      form = <CouponForm s={s} />;
+    } else if (type === "feedback") {
+      preview = <FeedbackPreview {...p} />;
+      form = <FeedbackForm s={s} />;
+    } else if (type === "business") {
+      preview = <BusinessPreview {...p} selectedSocials={socialsOn} />;
+      form = <BusinessForm s={s} />;
     }
   }
 

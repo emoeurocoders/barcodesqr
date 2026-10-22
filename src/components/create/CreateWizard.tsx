@@ -5,6 +5,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { saveQrCode, updateQrCode } from "@/app/actions/qr";
 import { stashPendingQr } from "@/lib/pendingQr";
+import { localTimeZone } from "@/lib/zoned";
 // `Download` is shelved with step 3.
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { StepRail } from "./StepRail";
@@ -181,11 +182,17 @@ export function CreateWizard({
   const [saveError, setSaveError] = useState<string | null>(null);
   const finishStepTwo = async () => {
     if (saving) return;
-    const draft = { type, name: name.trim() || defaultName(type), values };
+    // Times typed into Event and Business mean the creator's own clock;
+    // the zone is saved with them so the code means the same moment for
+    // whoever scans it, and the dashboard can re-encode it server-side.
+    const zoned = (type === "event" || type === "business") && !values.timezone
+      ? { ...values, timezone: localTimeZone() }
+      : values;
+    const draft = { type, name: name.trim() || defaultName(type), values: zoned };
     if (isEditing) {
       setSaving(true);
       setSaveError(null);
-      const res = await updateQrCode({ id: editing!.id, name: draft.name, values });
+      const res = await updateQrCode({ id: editing!.id, name: draft.name, values: zoned });
       if ("id" in res) {
         router.push(`/dashboard?updated=${encodeURIComponent(res.id)}`);
       } else {

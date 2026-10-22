@@ -1,5 +1,7 @@
 "use client";
 
+import { TRACKING_LIVE } from "../encodeQr";
+
 import { useEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -128,6 +130,8 @@ export const TRACKING_TIP =
   "This is a dynamic QR code. You can edit where it points anytime (even after printing) and track every scan.";
 
 export function TrackingPill({ className = "" }: { className?: string }) {
+  // Kept wherever the files draw it, shown only once it is true.
+  if (!TRACKING_LIVE) return null;
   return (
     <div
       className={`flex h-[32.4px] w-fit items-center rounded-full border border-mc-pill-line bg-brand-soft px-[13px] ${className}`}

@@ -29,8 +29,9 @@ import { sizeTxt } from "./forms3";
  * codes hold 1,663 bytes and our 1024px download decodes at every length up
  * to that — but the paywall's 165px preview runs out of pixels per module
  * past about 1,150 bytes (blank at 1,590), and a code that dense scans badly
- * once printed anyway. Measured 2026-10-21; 1,100 leaves a margin. The
- * file's counter still says 2,000 — raised with JB rather than changed.
+ * once printed anyway. Measured 2026-10-21; 1,100 leaves a margin. The field
+ * takes 1,000 characters (JB, 2026-10-22; the file says 2,000), and the byte
+ * check still catches emoji and accents, which take 2–4 bytes each.
  */
 export const QR_TEXT_MAX_BYTES = 1100;
 
@@ -103,13 +104,13 @@ export function PlainTextForm({ s }: { s: FormState }) {
   const err = s.errors.txMsg;
   return (
     <>
-      <Fld id="txMsg" label="Text" required error={err} counter={<Counter value={value} max={2000} />}>
+      <Fld id="txMsg" label="Text" required error={err} counter={<Counter value={value} max={1000} />}>
         <textarea
           id="txMsg"
           name="txMsg"
           value={value}
           placeholder="Enter your message here…"
-          maxLength={2000}
+          maxLength={1000}
           aria-invalid={!!err}
           onChange={(e) => s.set("text", e.target.value)}
           className={`${textArea(!!err)} resize-y`}
