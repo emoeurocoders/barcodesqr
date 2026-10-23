@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import { cropStyle, fileSrc, filledLinks, linkCaption, parseMenuItems, parseStoredFile } from "../storedValues";
-import { BarCaret, BarText, Chip, PreviewCard, Sample, chevronRight, qrGlyph } from "./previews";
+import { BarCaret, BarText, Chip, PreviewCard, RowLink, Sample, chevronRight, hrefOf, qrGlyph } from "./previews";
+import { filledSocials, socialHref, usePageMode } from "./pageMode";
 import { socialByKey } from "./socials";
 
 /**
@@ -24,6 +25,8 @@ const svgProps = {
 };
 
 function Phone({ className = "", children }: { className?: string; children: ReactNode }) {
+  // As a hosted page the phone IS the screen: no frame.
+  if (usePageMode()) return <div className={`relative min-h-[var(--qh)] overflow-hidden ${className}`}>{children}</div>;
   return (
     <div className={`relative mx-auto mt-[4.1px] overflow-hidden rounded-[17.8px] border border-mc-pv-line shadow-mc-phone ${className}`}>
       {children}
@@ -45,14 +48,15 @@ function Thumb({ src, round, style }: { src: string; round?: boolean; style?: Re
 const sampleSocials = ["instagram", "tiktok", "whatsapp"];
 
 export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: Props & { selectedSocials: string[] }) {
+  const page = usePageMode();
   const stored = parseStoredFile(values.photo ?? "");
-  const photo = fileSrc(stored) ?? "/previews/portrait.jpg";
+  const photo = fileSrc(stored) ?? (page ? undefined : "/previews/portrait.jpg");
   const photoStyle = stored ? cropStyle(stored) : { objectFit: "cover" as const };
-  const name = (values.headline ?? "").trim() || "Kaia Bennett";
+  const name = (values.headline ?? "").trim() || (page ? "" : "Kaia Bennett");
   const bio =
     (values.description ?? "").trim() ||
-    "Creating a brighter, more connected world through content, community and good ideas.";
-  const socs = selectedSocials.length ? selectedSocials : sampleSocials;
+    (page ? "" : "Creating a brighter, more connected world through content, community and good ideas.");
+  const socs = page ? filledSocials(values) : selectedSocials.length ? selectedSocials : sampleSocials;
   const links = filledLinks(values.links ?? "");
 
   return (
@@ -61,7 +65,7 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
       onToggle={onToggle}
       bar={
         <>
-          <Thumb src={photo} round style={photoStyle} />
+          <Thumb src={photo ?? ""} round style={photoStyle} />
           <BarText open={open} title="Your Social Media Preview" base="See how your profile page looks" />
           <BarCaret open={open} />
         </>
@@ -80,9 +84,14 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
             <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
           </svg>
         </span>
-        <span className="relative mx-auto mt-[19.5px] block h-[61.7px] w-[61.7px] overflow-hidden rounded-full border-[2.8px] border-white shadow-mc-soc-photo">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photo} alt="" className="block h-full w-full" style={photoStyle} />
+        <span className="relative mx-auto mt-[19.5px] flex h-[61.7px] w-[61.7px] items-center justify-center overflow-hidden rounded-full border-[2.8px] border-white bg-mc-pv-band shadow-mc-soc-photo">
+          {photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photo} alt="" className="block h-full w-full" style={photoStyle} />
+          ) : (
+            // No photo on a hosted page: the initial (unmocked).
+            <span className="text-[20px] leading-none font-bold text-white">{name.charAt(0).toUpperCase()}</span>
+          )}
         </span>
         <h5 className="relative mt-[9.4px] flex items-center justify-center gap-[5px] px-[12.6px] text-[12.57px] leading-[normal] font-bold tracking-[-0.13px] text-mc-soc-name">
           <span className="block min-w-0 truncate">{name}</span>
@@ -92,6 +101,7 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
           </svg>
         </h5>
         {/* Their `.qot`: the bio between big blue quote marks. */}
+        {bio && (
         <div className="relative mx-[16.2px] mt-[9.7px]">
           <span className="absolute -top-[7.5px] -left-[5.5px] z-[1] font-serif text-[25.1px] leading-none text-mc-quote">“</span>
           <div className="rounded-[8.9px] bg-white/95 px-[8.9px] py-[7.3px] shadow-mc-row">
@@ -99,11 +109,13 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
           </div>
           <span className="absolute -right-[4.5px] -bottom-[10.5px] z-[1] font-serif text-[25.1px] leading-none text-mc-quote">”</span>
         </div>
+        )}
         <div className="relative px-[12.2px] pt-[12.7px] text-center text-[9.73px] leading-[normal] font-bold text-mc-soc-name">Find me on</div>
         <div className="relative px-[10.5px] pt-[7.3px]">
           {socs.map((k) => (
             <Row
               key={k}
+              href={page ? socialHref(k, values[k] ?? "") : undefined}
               lead={
                 <i className="m-[0.4px] flex h-[17.8px] w-[17.8px] shrink-0 items-center justify-center rounded-full" style={{ background: socialByKey[k]?.color }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -116,7 +128,7 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
           ))}
           {/* Desktop parity: custom links, once there are any. Unmocked. */}
           {links.map((l, i) => (
-            <Row key={`l${i}`} lead={<i className="m-[0.4px] block h-[17.8px] w-[17.8px] shrink-0 rounded-full bg-mc-well" />}>
+            <Row key={`l${i}`} href={page ? hrefOf(l.url) : undefined} lead={<i className="m-[0.4px] block h-[17.8px] w-[17.8px] shrink-0 rounded-full bg-mc-well" />}>
               {linkCaption(l)}
             </Row>
           ))}
@@ -128,13 +140,13 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
 }
 
 /** Their `.lrow`. */
-function Row({ lead, children }: { lead: ReactNode; children: ReactNode }) {
+function Row({ lead, href, children }: { lead: ReactNode; href?: string; children: ReactNode }) {
   return (
-    <div className="flex items-center rounded-full bg-white px-[8.1px] py-[5.7px] shadow-mc-row [&+&]:mt-[6.5px]">
+    <RowLink href={href} className="flex items-center rounded-full bg-white px-[8.1px] py-[5.7px] shadow-mc-row [&+&]:mt-[6.5px]">
       {lead}
       <span className="min-w-0 flex-1 truncate px-[6.8px] text-left text-[9.73px] leading-[normal] font-semibold text-body">{children}</span>
       <span className="shrink-0 text-faint [&>svg]:block [&>svg]:h-[11.4px] [&>svg]:w-[11.4px]">{chevronRight}</span>
-    </div>
+    </RowLink>
   );
 }
 
@@ -156,15 +168,16 @@ const utensils = (
 );
 
 export function MenuPreview({ values, open, onToggle }: Props) {
+  const page = usePageMode();
   const coverFile = parseStoredFile(values.cover ?? "");
-  const cover = fileSrc(coverFile) ?? "/previews/food.jpg";
+  const cover = fileSrc(coverFile) ?? (page ? undefined : "/previews/food.jpg");
   const coverStyle = coverFile ? cropStyle(coverFile) : { objectFit: "cover" as const };
-  const title = (values.title ?? "").trim() || "Bella Italia Menu";
-  const desc = (values.description ?? "").trim() || "Fresh, seasonal, and made to order.";
+  const title = (values.title ?? "").trim() || (page ? "" : "Bella Italia Menu");
+  const desc = (values.description ?? "").trim() || (page ? "" : "Fresh, seasonal, and made to order.");
   const cat = (values.category ?? "").trim();
   // Their script lists an item once it has both a name and a price.
   const mine = parseMenuItems(values.items).filter((i) => i.name && i.price);
-  const items = mine.length ? mine : sampleMenu;
+  const items = mine.length || page ? mine : sampleMenu;
 
   return (
     <PreviewCard
@@ -172,24 +185,30 @@ export function MenuPreview({ values, open, onToggle }: Props) {
       onToggle={onToggle}
       bar={
         <>
-          <Thumb src={cover} style={coverStyle} />
+          <Thumb src={cover ?? ""} style={coverStyle} />
           <BarText open={open} title="Your Menu Preview" base="See how your digital menu looks" />
           <BarCaret open={open} />
         </>
       }
     >
       <Phone className="max-w-[243.4px] bg-white">
-        <div className="relative mx-[8.1px] mt-[8.1px] h-[69px] overflow-hidden rounded-[11.4px]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
-          <span className="absolute bottom-[7.3px] left-[8.1px] flex items-center gap-[4.1px] rounded-full bg-white/92 px-[8.1px] py-[3.2px] text-[8.11px] leading-[normal] font-semibold text-ink [&>svg]:block [&>svg]:h-[8.9px] [&>svg]:w-[8.9px] [&>svg]:text-primary">
-            {utensils}
-            Bella Italia
-          </span>
-        </div>
+        {/* On a hosted page: the cover only if there is one, and no sample
+            "Bella Italia" badge — the file hard-codes it. */}
+        {cover && (
+          <div className="relative mx-[8.1px] mt-[8.1px] h-[69px] overflow-hidden rounded-[11.4px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
+            {!page && (
+              <span className="absolute bottom-[7.3px] left-[8.1px] flex items-center gap-[4.1px] rounded-full bg-white/92 px-[8.1px] py-[3.2px] text-[8.11px] leading-[normal] font-semibold text-ink [&>svg]:block [&>svg]:h-[8.9px] [&>svg]:w-[8.9px] [&>svg]:text-primary">
+                {utensils}
+                Bella Italia
+              </span>
+            )}
+          </div>
+        )}
         <div className="px-[11.4px] pt-[9.7px] text-left">
           <h5 className="text-[12.17px] leading-[normal] font-bold tracking-[-0.12px] text-ink">{title}</h5>
-          <p className="mt-[3px] text-[8.52px] leading-[12.8px] text-muted">{desc}</p>
+          {desc && <p className="mt-[3px] text-[8.52px] leading-[12.8px] text-muted">{desc}</p>}
         </div>
         <div className="mx-[11.4px] mt-[8.9px] h-px bg-mc-pv-ic-line" />
         {cat && (
@@ -207,10 +226,16 @@ export function MenuPreview({ values, open, onToggle }: Props) {
             </div>
           ))}
         </div>
-        <div className="mx-[11.9px] mt-[12.8px] mb-[13.6px] flex items-center justify-center gap-[4.3px] rounded-full bg-mc-tile p-[6.4px] text-[8.52px] leading-[normal] font-medium text-muted [&>svg]:block [&>svg]:h-[10.6px] [&>svg]:w-[10.6px]">
-          {utensils}
-          View full menu
-        </div>
+        {/* The page IS the full menu; the button only makes sense in the
+            preview's cut-down card. */}
+        {page ? (
+          <div className="h-[13.6px]" />
+        ) : (
+          <div className="mx-[11.9px] mt-[12.8px] mb-[13.6px] flex items-center justify-center gap-[4.3px] rounded-full bg-mc-tile p-[6.4px] text-[8.52px] leading-[normal] font-medium text-muted [&>svg]:block [&>svg]:h-[10.6px] [&>svg]:w-[10.6px]">
+            {utensils}
+            View full menu
+          </div>
+        )}
       </Phone>
       <Sample>Example preview. Your menu items replace it as you type.</Sample>
     </PreviewCard>

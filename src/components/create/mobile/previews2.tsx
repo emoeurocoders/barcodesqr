@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { cropStyle, fileSrc, parseStoredFile } from "../storedValues";
-import { BarCaret, BarText, PreviewCard, Sample, qrGlyph } from "./previews";
+import { BarCaret, BarText, PreviewCard, RowLink, Sample, hrefOf, qrGlyph } from "./previews";
+import { usePageMode } from "./pageMode";
 import { GALLERY_SHOW, WA_DEFAULT, galleryOf } from "./forms2";
 
 /**
@@ -26,6 +27,8 @@ const svgProps = {
 
 /** Their `.phn`, widened where a preview sets `max-width: 100%`. */
 function Phone({ className = "", children }: { className?: string; children: ReactNode }) {
+  // As a hosted page the phone IS the screen: no frame.
+  if (usePageMode()) return <div className={`relative min-h-[var(--qh)] overflow-hidden bg-white ${className}`}>{children}</div>;
   return (
     <div
       className={`relative mx-auto mt-[4.1px] overflow-hidden rounded-[17.8px] border border-mc-pv-line bg-white shadow-mc-phone ${className}`}
@@ -37,7 +40,13 @@ function Phone({ className = "", children }: { className?: string; children: Rea
 
 /* ---- App Link -------------------------------------------------------------- */
 
-export function AppLinkPreview({ open, onToggle }: Props) {
+/**
+ * As a hosted page this is what a desktop browser sees: a phone is sent
+ * straight to its store by /q/<slug> and never renders it. Each store button
+ * links to its listing; one without a link is left out.
+ */
+export function AppLinkPreview({ values, open, onToggle }: Props) {
+  const page = usePageMode();
   const ring = "absolute block rounded-full border-mc-app-ring";
   return (
     <PreviewCard
@@ -70,6 +79,7 @@ export function AppLinkPreview({ open, onToggle }: Props) {
           <i className="mx-auto mt-[6.5px] block h-[4.9px] w-[60%] rounded-full bg-mc-app-bar-2" />
           {[
             {
+              href: hrefOf(values.iosUrl ?? ""),
               s1: "Download on the",
               s2: "App Store",
               icon: (
@@ -81,6 +91,7 @@ export function AppLinkPreview({ open, onToggle }: Props) {
               ),
             },
             {
+              href: hrefOf(values.androidUrl ?? ""),
               s1: "Get it on",
               s2: "Google Play",
               icon: (
@@ -89,8 +100,9 @@ export function AppLinkPreview({ open, onToggle }: Props) {
                 </svg>
               ),
             },
-          ].map((st, i) => (
-            <div
+          ].filter((st) => !page || st.href).map((st, i) => (
+            <RowLink
+              href={page ? st.href : undefined}
               key={st.s2}
               className={`flex items-center justify-center gap-[7.3px] rounded-full bg-mc-app-store px-[11.4px] py-[6.5px] [&>svg]:block [&>svg]:h-[14.6px] [&>svg]:w-[14.6px] [&>svg]:shrink-0 [&>svg]:text-ink ${
                 i ? "mt-[8.9px]" : "mt-[13px]"
@@ -101,7 +113,7 @@ export function AppLinkPreview({ open, onToggle }: Props) {
                 <span className="block text-[6.9px] leading-[normal] text-prose">{st.s1}</span>
                 <span className="mt-[1px] block text-[10.14px] leading-[normal] font-semibold text-ink">{st.s2}</span>
               </span>
-            </div>
+            </RowLink>
           ))}
         </div>
       </Phone>
@@ -113,6 +125,7 @@ export function AppLinkPreview({ open, onToggle }: Props) {
 /* ---- PDF ------------------------------------------------------------------- */
 
 export function PdfPreview({ values, open, onToggle }: Props) {
+  const hosted = usePageMode();
   const stored = parseStoredFile(values.file ?? "");
   const url = fileSrc(stored);
   const pages = Number((stored as { pages?: number } | null)?.pages) || 1;
@@ -175,6 +188,18 @@ export function PdfPreview({ values, open, onToggle }: Props) {
           </a>
         </div>
       </Phone>
+      {/* Phones' built-in viewers often show a PDF poorly inline, or not at
+          all; the page needs a sure way in. Unmocked. */}
+      {hosted && url && (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener"
+          className="mx-[11.4px] mb-[12.2px] flex items-center justify-center rounded-full bg-primary px-[11.4px] py-[9.7px] text-[11.36px] leading-[normal] font-semibold text-white"
+        >
+          Open PDF
+        </a>
+      )}
       <Sample>Your uploaded document appears here. No sample is shown as your file.</Sample>
     </PreviewCard>
   );
@@ -192,7 +217,11 @@ const sampleGallery = [
 ];
 
 export function ImagePreview({ values, open, onToggle }: Props) {
-  const files = galleryOf(values);
+  const page = usePageMode();
+  // Desktop's Image form keeps one picture under `file`, no gallery.
+  const gallery = galleryOf(values);
+  const single = parseStoredFile(values.file ?? "");
+  const files = gallery.length ? gallery : single ? [single] : [];
   const mine = files.map((f) => f.url ?? f.dataUrl ?? "");
   const list = mine.length ? mine : sampleGallery;
   /** The uploaded picture's framing; samples stay centred. */
@@ -205,7 +234,7 @@ export function ImagePreview({ values, open, onToggle }: Props) {
     return () => window.removeEventListener(GALLERY_SHOW, show);
   }, []);
   const i = idx < list.length ? idx : 0;
-  const title = (values.title ?? "").trim() || "Summer Memories";
+  const title = (values.title ?? "").trim() || (page ? "" : "Summer Memories");
   const touchX = useRef<number | null>(null);
   const step = (by: number) => setIdx((i + by + list.length) % list.length);
 
@@ -254,9 +283,11 @@ export function ImagePreview({ values, open, onToggle }: Props) {
             {i + 1} / {list.length}
           </span>
         </div>
-        <h5 className="mx-[13.1px] mt-[12.5px] text-left text-[11.36px] leading-[normal] font-bold tracking-[-0.11px] text-ink">
-          {title}
-        </h5>
+        {title && (
+          <h5 className="mx-[13.1px] mt-[12.5px] text-left text-[11.36px] leading-[normal] font-bold tracking-[-0.11px] text-ink">
+            {title}
+          </h5>
+        )}
         <div className="flex gap-[5.7px] px-[13px] pt-[8.9px]">
           {list.slice(0, 5).map((src, j) => (
             <span

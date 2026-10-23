@@ -124,6 +124,14 @@ export const qrCodes = pgTable(
     name: text("name").notNull(),
     values: jsonb("values").$type<Record<string, string>>().notNull(),
     draftKey: text("draft_key"),
+    /**
+     * The short code a hosted type's QR points at: /q/<slug>. Random, not
+     * sequential, so codes cannot be walked. Set once at insert and never
+     * changed — it is printed.
+     */
+    slug: text("slug").notNull().unique(),
+    /** Times /q/<slug> was opened. Counted for hosted types only. */
+    scans: integer("scans").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

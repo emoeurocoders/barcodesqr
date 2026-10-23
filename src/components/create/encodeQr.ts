@@ -4,16 +4,27 @@ import { localTimeZone, zonedToUtc } from "@/lib/zoned";
 /**
  * Turns the step-2 form values into the string the QR actually encodes.
  *
- * Static types (a phone number, a Wi-Fi network, a vCard) encode their content
- * directly. Dynamic types resolve through a short link so the destination can
- * be edited after printing — until that service exists, they preview against a
- * placeholder so the code still renders and scans.
+ * Static types (a phone number, a Wi-Fi network, an event) encode their
+ * content directly. Hosted types encode their short link, /q/<slug>, which
+ * serves the page (app/q/[slug]). A code not saved yet has no slug, so the
+ * creator previews it against a placeholder; downloads only ever happen from
+ * the dashboard, after saving, when the slug exists.
  */
 
-const DYNAMIC_PLACEHOLDER = "https://barcodesqr.com/q/preview";
+/**
+ * The origin short links are printed with. Public and fixed: it ends up on
+ * paper. www, not the bare domain, which redirects there — one hop fewer
+ * for every scan. Override per environment only for QA.
+ */
+export const QR_BASE_URL = (process.env.NEXT_PUBLIC_QR_BASE_URL || "https://www.barcodesqr.com").replace(/\/$/, "");
+
+const DYNAMIC_PLACEHOLDER = `${QR_BASE_URL}/q/preview`;
 
 /** Types whose content lives on a hosted page rather than inside the code. */
 const dynamicTypes = new Set([
+  // Hosted since 2026-10-23 (JB): the page's "Add contact" hands over a .vcf
+  // with the photo inside, which no QR code can hold.
+  "vcard",
   "pdf",
   "image",
   "video",
@@ -52,7 +63,7 @@ const withScheme = (u?: string) => {
   return /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : `https://${v}`;
 };
 
-function vcard(v: Record<string, string>) {
+export function vcard(v: Record<string, string>) {
   const lines = [
     "BEGIN:VCARD",
     "VERSION:3.0",
@@ -146,8 +157,11 @@ function calendar(v: Record<string, string>) {
 export function encodeQr(
   type: string,
   values: Record<string, string>,
+  /** The saved code's short code; hosted types need it to point anywhere. */
+  slug?: string,
 ): string {
   const v = values ?? {};
+  if (dynamicTypes.has(type)) return slug ? `${QR_BASE_URL}/q/${slug}` : DYNAMIC_PLACEHOLDER;
 
   switch (type) {
     case "website":
@@ -219,9 +233,6 @@ export function encodeQr(
       }
       return `https://maps.google.com/?q=${encodeURIComponent(v.address)}`;
     }
-
-    case "vcard":
-      return vcard(v);
 
     case "event":
       return calendar(v);

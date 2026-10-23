@@ -7,6 +7,9 @@ import { cropStyle, fileSrc, parseStoredFile } from "../storedValues";
 import { localTimeZone, minutesInZone } from "@/lib/zoned";
 import { BarCaret, BarText, PreviewCard, Sample } from "./previews";
 import { eventEndOk } from "./forms6";
+import { RowLink, hrefOf } from "./previews";
+import { filledSocials, socialHref, usePageMode } from "./pageMode";
+import { socialByKey } from "./socials";
 
 /**
  * The previews for batch 6 (event / coupon / feedback / business), from the
@@ -41,6 +44,8 @@ function BarIcon({ tint, color, children }: { tint: string; color: string; child
 }
 
 function Phone({ className, children }: { className: string; children: ReactNode }) {
+  // As a hosted page the phone IS the screen: no frame.
+  if (usePageMode()) return <div className={`relative min-h-[var(--qh)] overflow-hidden ${className}`}>{children}</div>;
   return (
     <div className={`relative mx-auto mt-[4.06px] overflow-hidden rounded-[17.85px] border border-mc-pv-line shadow-mc-phone ${className}`}>
       {children}
@@ -223,6 +228,7 @@ const copyGlyph = (
 );
 
 export function CouponPreview({ values, open, onToggle }: Props) {
+  const page = usePageMode();
   const { copied, copy } = useCopied();
   // "Expired" is judged against when the preview opened — close enough.
   const [now] = useState(() => Date.now());
@@ -273,10 +279,13 @@ export function CouponPreview({ values, open, onToggle }: Props) {
         <div className="mt-[10.55px] overflow-hidden rounded-[11.36px] border border-[#e5e8ee] text-left">
           <div
             className="relative bg-cover bg-center bg-no-repeat px-[12.98px] pt-[24.34px] pb-[22.71px] after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgba(14,19,17,0.55)_0%,rgba(14,19,17,0.2)_60%,rgba(14,19,17,0.45)_100%)] after:content-['']"
-            style={{ backgroundImage: "url(/previews/cafe.jpg)" }}
+            // The file's café photo and "The Matcha Den" are its sample; a
+            // coupon has no image or business field, so the page shows a plain
+            // brand band and no name (unmocked).
+            style={page ? { backgroundColor: "var(--color-brand-dark)" } : { backgroundImage: "url(/previews/cafe.jpg)" }}
           >
             <div className="relative z-[1]">
-              <div className="text-[9.33px] leading-[normal] font-bold tracking-[1.12px] text-white/85 uppercase">The Matcha Den</div>
+              {!page && <div className="text-[9.33px] leading-[normal] font-bold tracking-[1.12px] text-white/85 uppercase">The Matcha Den</div>}
               <div className="mt-[4.62px] text-[15.41px] leading-[normal] font-bold break-words text-white">{title}</div>
               <div className="mt-[4.99px] text-[33.26px] leading-[normal] font-extrabold tracking-[-0.33px] break-words text-white [text-shadow:0_1px_3px_rgba(14,19,17,0.35)]">
                 {disc}
@@ -464,6 +473,15 @@ const bizRows: { key: string; t1: string; sample: string; tint: string; color: s
   },
 ];
 
+/** Where a business row goes on the hosted page. */
+function bizHref(key: string, v: string) {
+  if (!v) return "";
+  if (key === "phone") return `tel:${v.replace(/[^\d+]/g, "")}`;
+  if (key === "email") return `mailto:${v}`;
+  if (key === "website") return hrefOf(v);
+  return `https://maps.google.com/?q=${encodeURIComponent(v)}`;
+}
+
 /**
  * Open / Closed is worked out in the business's own zone — saved with the
  * code, or the creator's while editing — and shown only when both hours are
@@ -493,13 +511,15 @@ function useHours(values: Values, anyTyped: boolean) {
 }
 
 export function BusinessPreview({ values, open, onToggle }: Props & { selectedSocials?: string[] }) {
+  const page = usePageMode();
   const coverFile = parseStoredFile(values.cover ?? "");
-  const cover = fileSrc(coverFile) ?? "/previews/team.jpg";
+  const cover = fileSrc(coverFile) ?? (page ? undefined : "/previews/team.jpg");
   const coverStyle = coverFile ? cropStyle(coverFile) : { objectFit: "cover" as const };
   const logoFile = parseStoredFile(values.logo ?? "");
   const logo = fileSrc(logoFile);
-  const name = t(values.title) || "Harbor & Sage Co.";
-  const desc = t(values.description) || "Specialty coffee & all-day brunch in the heart of town.";
+  const name = t(values.title) || (page ? "" : "Harbor & Sage Co.");
+  const desc = t(values.description) || (page ? "" : "Specialty coffee & all-day brunch in the heart of town.");
+  const socs = page ? filledSocials(values) : [];
   const filled = (k: string) => {
     const v = t(values[k]);
     return v === "https://" ? "" : v;
@@ -516,7 +536,7 @@ export function BusinessPreview({ values, open, onToggle }: Props & { selectedSo
         <>
           <span className="block h-[35.7px] w-[35.7px] shrink-0 overflow-hidden rounded-[8.11px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
+            <img src={cover ?? ""} alt="" className="block h-full w-full" style={coverStyle} />
           </span>
           <BarText open={open} title="Your Business Page Preview" base="See how your business page will appear" />
           <BarCaret open={open} />
@@ -524,9 +544,12 @@ export function BusinessPreview({ values, open, onToggle }: Props & { selectedSo
       }
     >
       <Phone className="bg-white">
-        <div className="relative h-[190.63px] overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
+        <div className="relative h-[190.63px] overflow-hidden bg-mc-pv-band">
+          {/* No cover on a hosted page: the plain band (unmocked). */}
+          {cover && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
+          )}
           <span className="absolute top-[8.11px] right-[8.11px] flex h-[29.2px] w-[29.2px] items-center justify-center rounded-full bg-white/88 text-muted shadow-mc-chip [&>svg]:block [&>svg]:w-[53%]">
             <svg {...svgProps}>
               <circle cx="18" cy="5" r="3"></circle>
@@ -557,14 +580,15 @@ export function BusinessPreview({ values, open, onToggle }: Props & { selectedSo
           )}
         </div>
         <h5 className="mt-[8.25px] px-[15px] text-center text-[15px] leading-[normal] font-bold tracking-[-0.15px] break-words text-[#1f2937]">{name}</h5>
-        <p className="mt-[4.22px] px-[15.82px] text-center text-[10.55px] leading-[15.82px] break-words text-muted">{desc}</p>
+        {desc && <p className="mt-[4.22px] px-[15.82px] text-center text-[10.55px] leading-[15.82px] break-words text-muted">{desc}</p>}
         <div className="px-[12.17px] pt-[11.36px]">
           {bizRows.map((r) => {
             const v = filled(r.key);
             if (anyContact && !v) return null;
             return (
-              <div
+              <RowLink
                 key={r.key}
+                href={page ? bizHref(r.key, v) : undefined}
                 className="flex items-center rounded-[11.36px] border border-[#eef1f4] bg-[#f5f7f9] px-[9.73px] py-[8.92px] [&+&]:mt-[7.3px]"
               >
                 <span
@@ -580,10 +604,31 @@ export function BusinessPreview({ values, open, onToggle }: Props & { selectedSo
                   </span>
                 </span>
                 <span className="shrink-0 text-faint [&>svg]:block [&>svg]:h-[13.78px] [&>svg]:w-[13.78px]">{chevron}</span>
-              </div>
+              </RowLink>
             );
           })}
         </div>
+        {/* The business's socials — collected by the form, but the file's
+            preview has nowhere for them. Their picker's badges, as links.
+            Unmocked. */}
+        {socs.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-[7.3px] px-[12.17px] pt-[11.36px]">
+            {socs.map((k) => (
+              <a
+                key={k}
+                href={socialHref(k, values[k] ?? "") || undefined}
+                target="_blank"
+                rel="noopener"
+                aria-label={socialByKey[k]?.name}
+                className="flex h-[27.6px] w-[27.6px] items-center justify-center rounded-[8.1px]"
+                style={{ background: socialByKey[k]?.color }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/create/soc/${k}.svg`} alt="" className="block h-[15.4px] w-[15.4px]" />
+              </a>
+            ))}
+          </div>
+        )}
         {hours ? (
           <div className="mx-[15.33px] mt-[14.24px] mb-[18.62px] flex items-center justify-center gap-[5.48px] rounded-full bg-[#f1f3f6] p-[8.76px] text-[10.95px] leading-[normal] font-semibold text-prose [&>svg]:block [&>svg]:h-[14.78px] [&>svg]:w-[14.78px]">
             <svg {...svgProps}>

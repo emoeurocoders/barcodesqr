@@ -66,6 +66,15 @@ async function payingUser(): Promise<{ userId: string } | { error: string }> {
   return { userId };
 }
 
+const ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+/** 8 random base62 characters: short to print, impossible to guess or walk. */
+function newSlug() {
+  const bytes = crypto.getRandomValues(new Uint8Array(8));
+  // 256 % 62 skews a few characters very slightly; irrelevant for this.
+  return Array.from(bytes, (b) => ALPHABET[b % 62]).join("");
+}
+
 const cleanName = (raw: unknown) => String(raw ?? "").trim().slice(0, 40) || "My QR Code";
 
 export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
@@ -85,12 +94,22 @@ export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
       ? input.draftKey
       : null;
 
-  const [row] = await db
-    .insert(qrCodes)
-    .values({ userId, type, name, values, draftKey })
-    // A draft claimed twice inserts once; the second claim finds the first.
-    .onConflictDoNothing({ target: [qrCodes.userId, qrCodes.draftKey] })
-    .returning({ id: qrCodes.id });
+  // A fresh short code per attempt; 62^8 makes a clash vanishingly rare,
+  // but one is retried rather than surfacing as a failed save.
+  let row: { id: string } | undefined;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      [row] = await db
+        .insert(qrCodes)
+        .values({ userId, type, name, values, draftKey, slug: newSlug() })
+        // A draft claimed twice inserts once; the second claim finds the first.
+        .onConflictDoNothing({ target: [qrCodes.userId, qrCodes.draftKey] })
+        .returning({ id: qrCodes.id });
+      break;
+    } catch (e) {
+      if (attempt >= 3 || !String((e as Error)?.message ?? e).includes("slug")) throw e;
+    }
+  }
   if (row) return { id: row.id };
 
   if (draftKey) {

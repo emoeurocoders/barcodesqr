@@ -28,6 +28,8 @@ export type QrRow = {
   type: string;
   /** Served from a hosted page (dynamic) rather than carried in the code. */
   hosted: boolean;
+  /** Scans so far — hosted codes only; a direct code never reaches us. */
+  scans: number | null;
   isNew?: boolean;
   /** Just saved — new or edited — so the row is outlined. */
   highlight?: boolean;
@@ -360,8 +362,14 @@ function Row({ row }: { row: QrRow }) {
         <TypePill type={row.type} />
       </div>
 
-      {/* Scans — counted once codes route through our short links. */}
-      <div />
+      {/* Scans: hosted codes pass through /q/<slug>, which counts them. */}
+      <div>
+        {row.scans !== null && (
+          <span className="inline-flex rounded-full bg-bg-alt px-2.5 py-1 text-xs font-medium text-body">
+            {row.scans} {row.scans === 1 ? "scan" : "scans"}
+          </span>
+        )}
+      </div>
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-1">

@@ -13,19 +13,43 @@ Status: written 2026-09-01, when file uploads were wired to Cloudflare R2.
 
 ## Blockers — the product is broken or unsafe without these
 
-### A scanned file QR does not open the uploaded file
+### Hosted pages — built 2026-10-23; what is left
 
-`encodeQr` returns the placeholder `https://barcodesqr.com/q/preview` for every
-dynamic type (`pdf`, `image`, `video`, `mp3`, `social`, `menu`, `business`,
-`coupon`, `feedback`, `multilink`, `applink`). Uploads now land in
-R2, but nothing points a scan at them, so the core promise of those eleven
-formats is unfulfilled. (Payment left the list on 2026-10-21: it encodes the
-customer's payment link directly.)
+Hosted types (vCard, Multi-Link, PDF, Image, Video, Audio, Social Media,
+Menu, Coupon, Business, App Link) now encode
+`https://www.barcodesqr.com/q/<slug>` — an 8-character random code given
+to every saved code (`qr_code.slug`, never changed: it is printed).
+`app/q/[slug]` serves the page and counts the scan (dashboard "Scans").
+A code not saved yet previews against `/q/preview`, which shows "This QR
+code isn't active"; downloads only happen from the dashboard, after saving.
 
-The fix is the short-link + hosted-landing-page service, not pointing the QR at
-the raw R2 URL. A raw bucket URL is neither editable after printing nor
-countable, which contradicts the "dynamic" badge step 2 shows and the tracking
-the pricing page sells. See `src/components/create/encodeQr.ts`.
+- **The pages are the creator's previews, in page mode** (Emo's call: no
+  page mockups exist). Same markup, drawn at the preview's width and zoomed
+  to the screen (capped at 480px wide), without the bar, frame, sample
+  content or "Example preview" captions; rows and buttons are real links.
+  Unmocked additions, all flagged: initials where there is no photo, a
+  plain band where there is no cover, an "Open PDF" button (phones show
+  PDFs inline badly), Business socials as a row of badges, no "View full
+  menu" button (the page is the menu), no "Bella Italia" / "The Matcha
+  Den" / café photo (samples the files hard-code). The QR and share chips
+  on covers are still decorative.
+- **vCard is hosted now** (JB): "Add contact" serves `/q/<slug>/contact.vcf`
+  with the photo inside, cropped as framed in the creator and shrunk to
+  400px JPEG (sharp). The photo is only fetched from our own bucket
+  (`STORAGE_PUBLIC_BASE_URL`), never from whatever URL the browser saved.
+  vCards printed before today still work — they carry the contact in the
+  code — but downloading one again gives the hosted version.
+- **App Link** redirects iPhones to the App Store link and Android to
+  Google Play, falling back to the fallback URL; a desktop browser goes to
+  the fallback, or sees the store buttons when there is none.
+- **Every page view is a scan**, bots and link previewers included. Good
+  enough for a count; real analytics would need filtering.
+- **No owner checks yet**: a page stays up whatever the owner's plan. When
+  billing lands, decide what an expired subscription's codes show.
+- **`NEXT_PUBLIC_QR_BASE_URL`** overrides the printed origin (QA only).
+  www.barcodesqr.com already serves this app, so codes work now.
+- **Uploads are still never deleted** (see below) — deleting a code leaves
+  its files; its page goes 404 at once.
 
 ### Saved codes: what landed 2026-10-21, and what is still missing
 
@@ -66,8 +90,8 @@ Still missing, in rough order:
 - **Codes download in the default black-on-white style.** Step 3 (colours,
   frames) is shelved, so there is no style to save yet; a `style` column is
   the place for it when it returns.
-- **Dynamic types save but scan to the placeholder** — the blocker above.
-  Their rows say "Hosted page — not live yet" rather than show a link.
+- **Hosted types show their short link and scan count** in the
+  dashboard (since 2026-10-23).
 - **The dashboard has no phone layout.** The table scrolls sideways below
   1100px; the ready banner's Download covers the new code. Needs a mobile
   mockup of member_main.html.

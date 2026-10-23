@@ -6,6 +6,7 @@ import { dialCodes } from "../fieldSchema";
 import { fileSrc, parseStoredFile } from "../storedValues";
 import { BarCaret, BarText, PreviewCard, Sample } from "./previews";
 import { payProviders } from "./forms5";
+import { usePageMode } from "./pageMode";
 
 /**
  * The previews for batch 5 (phone / plain text / payment / audio), from the
@@ -44,6 +45,15 @@ function BarIcon({ tint, color, children }: { tint: string; color: string; child
  * rounder frame. Passed in rather than guessed.
  */
 function Phone({ className, children }: { className: string; children: ReactNode }) {
+  // As a hosted page the phone IS the screen: no frame, corners or shadow.
+  const page = usePageMode();
+  if (page) {
+    return (
+      <div className={`relative min-h-[var(--qh)] overflow-hidden ${className.replace(/\b(mt|rounded)-\[[^\]]+\]/g, "")}`}>
+        {children}
+      </div>
+    );
+  }
   return (
     <div className={`relative mx-auto overflow-hidden border border-mc-pv-line shadow-mc-phone ${className}`}>
       {children}

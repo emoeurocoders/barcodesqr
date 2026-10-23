@@ -75,6 +75,8 @@ export default async function DashboardPage({
       name: qrCodes.name,
       values: qrCodes.values,
       createdAt: qrCodes.createdAt,
+      slug: qrCodes.slug,
+      scans: qrCodes.scans,
     })
     .from(qrCodes)
     .where(

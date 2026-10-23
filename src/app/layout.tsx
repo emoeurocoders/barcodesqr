@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Anton, Caveat } from "next/font/google";
 import "./globals.css";
 import { CrispChat } from "@/components/support/CrispChat";
+import { CrispGate } from "@/components/support/CrispGate";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,14 +50,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // suppressHydrationWarning: the hosted QR pages' first-paint script sets
+    // --qw on <html> before React hydrates (app/q/[slug]). Covers this
+    // element's own attributes only, not its children.
     <html
+      suppressHydrationWarning
       lang="en"
       dir="ltr"
       className={`${inter.variable} ${anton.variable} ${caveat.variable} h-full`}
     >
       <body className="min-h-full flex flex-col bg-bg text-body antialiased">
         {children}
-        <CrispChat />
+        <CrispGate>
+          <CrispChat />
+        </CrispGate>
       </body>
     </html>
   );

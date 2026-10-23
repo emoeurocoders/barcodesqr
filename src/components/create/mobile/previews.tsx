@@ -6,6 +6,7 @@ import { socialByKey } from "./socials";
 import { cropStyle, fileSrc, filledLinks, linkCaption, parseStoredFile } from "../storedValues";
 import { dialCodes } from "../fieldSchema";
 import { isValidUrl } from "../validate";
+import { filledSocials, socialHref, usePageMode } from "./pageMode";
 
 /**
  * "Your … Preview" — the collapsible card above each create_mobile_*.html
@@ -75,6 +76,10 @@ export function Chip({ round, className, children }: { round?: boolean; classNam
 
 /** Their `.phn`: the phone-shaped card the expanded preview draws in. */
 export function Phone({ className = "", children }: { className?: string; children: ReactNode }) {
+  // As a hosted page the phone IS the screen: no frame.
+  if (usePageMode()) {
+    return <div className={`relative min-h-[var(--qh)] max-w-[243.4px] overflow-hidden bg-white ${className}`}>{children}</div>;
+  }
   return (
     <div
       className={`relative mx-auto mt-[4.1px] max-w-[243.4px] overflow-hidden rounded-[17.8px] border border-mc-pv-line bg-white shadow-mc-phone ${className}`}
@@ -86,6 +91,8 @@ export function Phone({ className = "", children }: { className?: string; childr
 
 /** Their `.smp`: the grey caption under the phone. */
 export function Sample({ children }: { children: ReactNode }) {
+  // Not on a hosted page.
+  if (usePageMode()) return null;
   return (
     <p className="mt-[12.2px] text-center text-[10.14px] leading-[normal] text-faint">
       {children}
@@ -195,6 +202,20 @@ export function WebsitePreview({
   );
 }
 
+/**
+ * A preview row that is a real link on a hosted page and a plain row in the
+ * creator. External links leave in a new tab; tel:/mailto: open their app.
+ */
+export function RowLink({ href, className, children }: { href?: string; className: string; children: ReactNode }) {
+  if (!href) return <div className={className}>{children}</div>;
+  const web = /^https?:/i.test(href);
+  return (
+    <a href={href} className={className} {...(web ? { target: "_blank", rel: "noopener" } : {})}>
+      {children}
+    </a>
+  );
+}
+
 /* ---- vCard ----------------------------------------------------------------- */
 
 const DEFAULT_DOTS = ["instagram", "facebook", "linkedin", "youtube"];
@@ -232,17 +253,25 @@ export function VCardPreview({
   open: boolean;
   onToggle: () => void;
 }) {
-  const name =
-    [values.firstName, values.lastName].map((s) => (s ?? "").trim()).filter(Boolean).join(" ") ||
-    "Ava Whitfield";
-  const role = (values.jobTitle ?? "").trim() || "Senior Product Designer";
-  const summary =
-    (values.summary ?? "").trim() ||
-    "Designing thoughtful, human-centered products — pairing research and craft to turn rough ideas into polished experiences.";
+  // As a hosted page there are no samples: only what was entered.
+  const page = usePageMode();
+  const sample = (v: string, s: string) => v || (page ? "" : s);
+  const name = sample(
+    [values.firstName, values.lastName].map((s) => (s ?? "").trim()).filter(Boolean).join(" "),
+    "Ava Whitfield",
+  );
+  const role = sample((values.jobTitle ?? "").trim(), "Senior Product Designer");
+  const summary = sample(
+    (values.summary ?? "").trim(),
+    "Designing thoughtful, human-centered products — pairing research and craft to turn rough ideas into polished experiences.",
+  );
   const stored = parseStoredFile(values.photo ?? "");
-  const photo = fileSrc(stored) ?? "/previews/portrait.jpg";
+  const photo = fileSrc(stored) ?? (page ? undefined : "/previews/portrait.jpg");
   const photoStyle = stored ? cropStyle(stored) : { objectFit: "cover" as const };
-  const dots = dotColors(selectedSocials);
+  const initials = [values.firstName, values.lastName].map((s) => (s ?? "").trim().charAt(0)).join("").toUpperCase();
+  // On the page the dots are the profiles themselves, as links.
+  const pageSocials = page ? filledSocials(values) : [];
+  const dots = page ? pageSocials.slice(0, 4).map((k) => socialByKey[k]?.color ?? "#000000") : dotColors(selectedSocials);
 
   // JB, 2026-10-15: the three rows keep their labels and show what was
   // entered underneath — contact: a phone, else the email; company: the
@@ -258,10 +287,13 @@ export function VCardPreview({
       ? (values.addressUrl ?? "").trim()
       : clean([values.city, values.state], ", ") ||
         clean([values.street, clean([values.zip, values.country], " ")], ", ");
+  const tel = phoneOf(values, "phone") || phoneOf(values, "mobile") || phoneOf(values, "work");
+  const website = (values.website ?? "").trim();
   const rows = [
     {
       label: "Contact",
       detail: contact,
+      href: tel ? `tel:${tel.replace(/[^\d+]/g, "")}` : (values.email ?? "").trim() ? `mailto:${(values.email ?? "").trim()}` : "",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -271,6 +303,7 @@ export function VCardPreview({
     {
       label: "Company info",
       detail: (values.organization ?? "").trim(),
+      href: website && website !== "https://" ? (/^https?:\/\//i.test(website) ? website : `https://${website}`) : "",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
@@ -282,6 +315,12 @@ export function VCardPreview({
     {
       label: "Address",
       detail: address,
+      href:
+        values.addressMode === "url"
+          ? address
+          : address
+            ? `https://maps.google.com/?q=${encodeURIComponent(clean([values.street, values.zip, values.city, values.state, values.country], ", "))}`
+            : "",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
@@ -349,30 +388,59 @@ export function VCardPreview({
           <Chip round className="top-[8.1px] left-[8.1px] text-primary-dark">
             {qrGlyph}
           </Chip>
-          <span className="absolute top-[8.5px] right-[8.5px] flex h-[23px] items-center rounded-full bg-brand-dark px-[10.6px] text-[8.52px] leading-[normal] font-semibold text-white shadow-mc-pill">
-            Add contact
-          </span>
+          {page ? (
+            // Saves the contact, photo included — the reason vCard is hosted.
+            <a
+              href={`/q/${page.slug}/contact.vcf`}
+              className="absolute top-[8.5px] right-[8.5px] flex h-[23px] items-center rounded-full bg-brand-dark px-[10.6px] text-[8.52px] leading-[normal] font-semibold text-white shadow-mc-pill"
+            >
+              Add contact
+            </a>
+          ) : (
+            <span className="absolute top-[8.5px] right-[8.5px] flex h-[23px] items-center rounded-full bg-brand-dark px-[10.6px] text-[8.52px] leading-[normal] font-semibold text-white shadow-mc-pill">
+              Add contact
+            </span>
+          )}
         </div>
         <div className="relative -mt-[13px] rounded-t-[16.2px] bg-white px-[11.4px] pb-[13.8px] text-center">
-          <span className="mx-auto -mt-[31.6px] block h-[60px] w-[60px] overflow-hidden rounded-full border-[3.2px] border-white shadow-mc-photo">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo} alt="" className="block h-full w-full" style={photoStyle} />
+          <span className="mx-auto -mt-[31.6px] flex h-[60px] w-[60px] items-center justify-center overflow-hidden rounded-full border-[3.2px] border-white bg-mc-pv-band shadow-mc-photo">
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photo} alt="" className="block h-full w-full" style={photoStyle} />
+            ) : (
+              // A page without a photo: initials (unmocked).
+              <span className="text-[18px] leading-none font-bold text-white">{initials}</span>
+            )}
           </span>
           <h5 className="mt-[7.1px] text-[12.98px] leading-[normal] font-bold tracking-[-0.13px] text-mc-pv-name">
             {name}
           </h5>
-          <p className="mt-[2.3px] text-[9.33px] leading-[normal] text-mc-pv-role">{role}</p>
-          <div className="mt-[7.3px] flex justify-center gap-[6.5px]">
-            {dots.map((c, i) => (
-              <i key={i} className="block h-[12.2px] w-[12.2px] rounded-full" style={{ background: c }} />
-            ))}
-          </div>
-          <p className="mx-auto mt-[7.7px] max-w-[204.4px] text-[8.52px] leading-[13.63px] text-muted">
-            {summary}
-          </p>
+          {role && <p className="mt-[2.3px] text-[9.33px] leading-[normal] text-mc-pv-role">{role}</p>}
+          {dots.length > 0 && (
+            <div className="mt-[7.3px] flex justify-center gap-[6.5px]">
+              {page
+                ? pageSocials.slice(0, 4).map((k) => (
+                    <a
+                      key={k}
+                      href={socialHref(k, values[k] ?? "") || undefined}
+                      aria-label={socialByKey[k]?.name}
+                      className="block h-[12.2px] w-[12.2px] rounded-full"
+                      style={{ background: socialByKey[k]?.color }}
+                    />
+                  ))
+                : dots.map((c, i) => (
+                    <i key={i} className="block h-[12.2px] w-[12.2px] rounded-full" style={{ background: c }} />
+                  ))}
+            </div>
+          )}
+          {summary && (
+            <p className="mx-auto mt-[7.7px] max-w-[204.4px] text-[8.52px] leading-[13.63px] text-muted">
+              {summary}
+            </p>
+          )}
           <div className="mt-[10.5px]">
-            {rows.map((r, i) => (
-              <div key={i} className={`flex items-center rounded-[10.5px] bg-mc-pv-row px-[8.1px] py-[7.3px] ${i ? "mt-[6.5px]" : ""}`}>
+            {(page ? rows.filter((r) => r.detail) : rows).map((r, i) => (
+              <RowLink key={i} href={page ? r.href : ""} className={`flex items-center rounded-[10.5px] bg-mc-pv-row px-[8.1px] py-[7.3px] ${i ? "mt-[6.5px]" : ""}`}>
                 <span className="flex h-[21.1px] w-[21.1px] shrink-0 items-center justify-center rounded-[6.5px] bg-white text-ink shadow-mc-tick [&>svg]:block [&>svg]:h-[10.5px] [&>svg]:w-[10.5px]">
                   {r.icon}
                 </span>
@@ -388,7 +456,7 @@ export function VCardPreview({
                   )}
                 </span>
                 <span className="shrink-0 text-muted [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px]">{chevronRight}</span>
-              </div>
+              </RowLink>
             ))}
           </div>
         </div>
@@ -439,18 +507,25 @@ const linkGlyph = (
 
 const sampleSocials = ["instagram", "tiktok"];
 
-/** Their `.lrow`: a white pill row in the phone. */
-function LinkRow({ lead, children }: { lead: ReactNode; children: ReactNode }) {
+/** Their `.lrow`: a white pill row in the phone — a link on a hosted page. */
+function LinkRow({ lead, href, children }: { lead: ReactNode; href?: string; children: ReactNode }) {
   return (
-    <div className="flex items-center rounded-full bg-white px-[8.1px] py-[5.7px] shadow-mc-row [&+&]:mt-[6.5px]">
+    <RowLink href={href} className="flex items-center rounded-full bg-white px-[8.1px] py-[5.7px] shadow-mc-row [&+&]:mt-[6.5px]">
       {lead}
       <span className="min-w-0 flex-1 truncate px-[6.8px] text-left text-[9.73px] leading-[normal] font-semibold text-body">
         {children}
       </span>
       <span className="shrink-0 text-faint [&>svg]:block [&>svg]:h-[11.4px] [&>svg]:w-[11.4px]">{chevronRight}</span>
-    </div>
+    </RowLink>
   );
 }
+
+/** A typed link as somewhere to go: a bare host gets https://. */
+export const hrefOf = (u: string) => {
+  const v = u.trim();
+  if (!v || v === "https://") return "";
+  return /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : `https://${v}`;
+};
 
 const ic =
   "flex h-[18.7px] w-[18.7px] shrink-0 items-center justify-center rounded-full border border-mc-pv-ic-line text-ink [&>svg]:block [&>svg]:h-[9.3px] [&>svg]:w-[9.3px]";
@@ -466,15 +541,16 @@ export function MultiLinkPreview({
   open: boolean;
   onToggle: () => void;
 }) {
-  const title = (values.title ?? "").trim() || "The Matcha Den";
+  const page = usePageMode();
+  const title = (values.title ?? "").trim() || (page ? "" : "The Matcha Den");
   const desc =
     (values.description ?? "").trim() ||
-    "A cozy matcha bar pouring comforting, Japanese-inspired drinks all day long.";
+    (page ? "" : "A cozy matcha bar pouring comforting, Japanese-inspired drinks all day long.");
   const coverFile = parseStoredFile(values.image ?? "");
-  const cover = fileSrc(coverFile) ?? "/previews/cafe.jpg";
+  const cover = fileSrc(coverFile) ?? (page ? undefined : "/previews/cafe.jpg");
   const coverStyle = coverFile ? cropStyle(coverFile) : { objectFit: "cover" as const };
   const links = filledLinks(values.links ?? "");
-  const soc = selectedSocials.length ? selectedSocials : sampleSocials;
+  const soc = page ? filledSocials(values) : selectedSocials.length ? selectedSocials : sampleSocials;
 
   return (
     <PreviewCard
@@ -492,21 +568,25 @@ export function MultiLinkPreview({
       }
     >
       <Phone className="bg-[linear-gradient(115deg,#ffffff_30%,var(--color-mc-pv-sheen)_50%,#ffffff_70%)] pb-[13.8px]">
-        <div className="relative mx-[8.1px] mt-[8.1px] h-[81.1px] overflow-hidden rounded-[13px]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
+        <div className="relative mx-[8.1px] mt-[8.1px] h-[81.1px] overflow-hidden rounded-[13px] bg-mc-pv-band">
+          {/* No cover on a hosted page: the plain band (unmocked). */}
+          {cover && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
+          )}
           <Chip className="top-[8.1px] left-[8.1px] text-primary-dark">{qrGlyph}</Chip>
           <Chip round className="top-[8.1px] right-[8.1px] text-muted">{shareGlyph}</Chip>
         </div>
         <div className="px-[12.2px] pt-[9.7px]">
           <h5 className="text-[12.98px] leading-[normal] font-bold tracking-[-0.13px] text-mc-pv-title">{title}</h5>
-          <p className="mt-[4px] text-[8.92px] leading-[13.83px] text-muted">{desc}</p>
+          {desc && <p className="mt-[4px] text-[8.92px] leading-[13.83px] text-muted">{desc}</p>}
         </div>
         <div className="px-[10.5px] pt-[9.7px]">
           {links.length
             ? links.map((l, i) => (
                 <LinkRow
                   key={i}
+                  href={page ? hrefOf(l.url) : undefined}
                   lead={
                     <span className={`${ic} overflow-hidden`}>
                       {l.logo ? (
@@ -521,12 +601,14 @@ export function MultiLinkPreview({
                   {linkCaption(l)}
                 </LinkRow>
               ))
-            : sampleLinks.map((l) => (
+            : !page && sampleLinks.map((l) => (
                 <LinkRow key={l.label} lead={<span className={ic}>{l.icon}</span>}>
                   {l.label}
                 </LinkRow>
               ))}
         </div>
+        {soc.length > 0 && (
+        <>
         <div className="px-[12.2px] pt-[12.2px] text-left text-[9.73px] leading-[normal] font-bold text-ink">
           Find me on
         </div>
@@ -534,12 +616,15 @@ export function MultiLinkPreview({
           {soc.map((k) => (
             <LinkRow
               key={k}
+              href={page ? socialHref(k, values[k] ?? "") : undefined}
               lead={<i className="m-[3.2px] block h-[12.2px] w-[12.2px] shrink-0 rounded-full" style={{ background: socialByKey[k]?.color }} />}
             >
               {socialByKey[k]?.name}
             </LinkRow>
           ))}
         </div>
+        </>
+        )}
       </Phone>
       <Sample>Example preview. Your links and details replace it as you type.</Sample>
     </PreviewCard>
@@ -583,6 +668,8 @@ export function PreviewCard({
   barClassName?: string;
   children: ReactNode;
 }) {
+  // As a hosted page: the content alone.
+  if (usePageMode()) return <>{children}</>;
   return (
     <div className="mt-[13px] rounded-[13px] border border-mc-line bg-white">
       <a

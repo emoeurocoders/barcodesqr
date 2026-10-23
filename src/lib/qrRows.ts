@@ -15,14 +15,28 @@ type Saved = {
   name: string;
   values: Record<string, string>;
   createdAt: Date;
+  slug: string;
+  scans: number;
 };
 
 /** One line saying what the code holds — the bit someone scans for. */
 function summary(type: string, v: Record<string, string>, encoded: string) {
   if (isDynamic(type)) {
-    // These encode a placeholder until hosted pages exist; say so plainly
-    // rather than show a link that goes nowhere useful. See LAUNCH.md.
-    return "Hosted page — not live yet";
+    // The page's own headline: its title, name, or the file it serves.
+    const file = (() => {
+      try {
+        return (JSON.parse(v.file || "null") as { name?: string } | null)?.name ?? "";
+      } catch {
+        return "";
+      }
+    })();
+    return (
+      v.title ||
+      v.headline ||
+      [v.firstName, v.lastName].filter(Boolean).join(" ") ||
+      file ||
+      ""
+    );
   }
   switch (type) {
     case "text":
@@ -48,9 +62,9 @@ function summary(type: string, v: Record<string, string>, encoded: string) {
 }
 
 export function toQrRow(row: Saved, newId?: string, updatedId?: string): QrRow {
-  const qrValue = encodeQr(row.type, row.values);
-  const link =
-    !isDynamic(row.type) && /^https?:\/\//.test(qrValue) ? qrValue : null;
+  const qrValue = encodeQr(row.type, row.values, row.slug);
+  // Hosted codes link to their page; direct ones to where they point.
+  const link = /^https?:\/\//.test(qrValue) ? qrValue : null;
   return {
     id: row.id,
     name: row.name,
@@ -60,6 +74,8 @@ export function toQrRow(row: Saved, newId?: string, updatedId?: string): QrRow {
     createdAt: row.createdAt.toISOString(),
     type: row.type,
     hosted: isDynamic(row.type),
+    // Counted only where a scan passes through us.
+    scans: isDynamic(row.type) ? row.scans : null,
     isNew: row.id === newId,
     highlight: row.id === newId || row.id === updatedId,
   };
