@@ -46,8 +46,14 @@ code isn't active"; downloads only happen from the dashboard, after saving.
   enough for a count; real analytics would need filtering.
 - **No owner checks yet**: a page stays up whatever the owner's plan. When
   billing lands, decide what an expired subscription's codes show.
-- **`NEXT_PUBLIC_QR_BASE_URL`** overrides the printed origin (QA only).
-  www.barcodesqr.com already serves this app, so codes work now.
+- **www.barcodesqr.com does not serve this deployment yet — blocker.** It
+  answers with an older build of this app (the pre-2026-10-21 creator, no
+  /q route), so a scanned hosted code gets a 404 there until the domain is
+  attached to the current Vercel project. barcodesqr.vercel.app/q/<slug>
+  works. For QA before then, `NEXT_PUBLIC_QR_BASE_URL` can point codes at
+  barcodesqr.vercel.app — downloads re-encode from the slug, so codes
+  downloaded again after switching back get the real domain (printed ones
+  do not).
 - **Uploads are still never deleted** (see below) — deleting a code leaves
   its files; its page goes 404 at once.
 
