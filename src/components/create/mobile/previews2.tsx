@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { cropStyle, fileSrc, parseStoredFile } from "../storedValues";
-import { BarCaret, BarText, PreviewCard, RowLink, Sample, hrefOf, qrGlyph } from "./previews";
+import { BarCaret, BarText, PreviewCard, RowLink, Sample, ScanNote, hrefOf, qrGlyph } from "./previews";
 import { usePageMode } from "./pageMode";
+import { isValidUrl } from "../validate";
 import { GALLERY_SHOW, WA_DEFAULT, galleryOf } from "./forms2";
 
 /**
@@ -47,7 +48,38 @@ function Phone({ className = "", children }: { className?: string; children: Rea
  */
 export function AppLinkPreview({ values, open, onToggle }: Props) {
   const page = usePageMode();
-  const ring = "absolute block rounded-full border-mc-app-ring";
+  const ios = hrefOf(values.iosUrl ?? "");
+  const android = hrefOf(values.androidUrl ?? "");
+  const stores = [
+    {
+      href: ios,
+      s1: "Download on the",
+      s2: "App Store",
+      icon: (
+        <svg className="block h-[17.03px] w-[17.03px] shrink-0 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.702z"></path>
+        </svg>
+      ),
+    },
+    {
+      href: android,
+      s1: "Get it on",
+      s2: "Google Play",
+      icon: (
+        <svg className="block h-[15.81px] w-[15.81px] shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="8 7 32 34">
+          <path fill="#ea4335" d="M23.1,23.3l-12.9,13.6c.5,1.9,2.5,3,4.3,2.4.3,0,.6-.2.8-.3l14.6-8.3-6.8-7.3Z"></path>
+          <path fill="#fbbc04" d="M36.2,21l-6.3-3.6-7.1,6.2,7.1,7,6.2-3.6c1.7-.9,2.3-2.9,1.4-4.6-.3-.6-.8-1.1-1.4-1.4h0Z"></path>
+          <path fill="#4285f4" d="M10.1,11.1c0,.3-.1.6-.1.9v23.9c0,.3,0,.6.1.9l13.4-13.2-13.4-12.5Z"></path>
+          <path fill="#34a853" d="M23.2,24l6.7-6.6-14.5-8.3c-.5-.3-1.2-.5-1.8-.5-1.6,0-3,1-3.4,2.6l13,12.9Z"></path>
+        </svg>
+      ),
+    },
+  ];
+  // Their script: once either store link is in, the one still missing is
+  // dimmed. Valid link = what validation would accept.
+  const anyStore = !!(values.iosUrl?.trim() || values.androidUrl?.trim());
+  const dimmed = (st: { href: string }) => !page && anyStore && !(st.href && isValidUrl(st.href));
+  const ring = "absolute block rounded-full border-[#e2e9f7]";
   return (
     <PreviewCard
       open={open}
@@ -66,55 +98,40 @@ export function AppLinkPreview({ values, open, onToggle }: Props) {
         </>
       }
     >
-      <Phone className="max-w-[243.4px] pb-[16.2px]">
+      <Phone className="max-w-[243.4px] bg-[#eef3fb] pb-[16.2px]">
         <i className={`${ring} -top-[36.5px] -left-[36.5px] h-[105.5px] w-[105.5px] border-[16.2px]`} />
         <i className={`${ring} -top-[20.3px] -right-[36.5px] h-[97.3px] w-[97.3px] border-[17.8px]`} />
         <i className={`${ring} -bottom-[48.7px] -left-[24.3px] h-[121.7px] w-[121.7px] border-[17.8px]`} />
         <i className={`${ring} -right-[32.4px] -bottom-[28.4px] h-[97.3px] w-[97.3px] border-[14.6px]`} />
-        <div className="relative mx-auto mt-[24.3px] flex h-[51.9px] w-[51.9px] items-center justify-center rounded-[13px] bg-white text-primary-dark shadow-mc-app-icon [&>svg]:block [&>svg]:h-[26px] [&>svg]:w-[26px]">
+        <div className="relative mx-auto mt-[24.3px] flex h-[51.9px] w-[51.9px] items-center justify-center rounded-[13px] bg-white text-[#0f766e] shadow-[0_12px_26px_-12px_rgba(30,41,59,0.35)] [&>svg]:block [&>svg]:h-[26px] [&>svg]:w-[26px]">
           {qrGlyph}
         </div>
-        <div className="relative mx-[13px] mt-[16.2px] rounded-[13px] bg-white p-[13px] shadow-mc-app-card">
-          <i className="mx-auto block h-[4.9px] w-[38%] rounded-full bg-mc-app-bar" />
-          <i className="mx-auto mt-[6.5px] block h-[4.9px] w-[60%] rounded-full bg-mc-app-bar-2" />
-          {[
-            {
-              href: hrefOf(values.iosUrl ?? ""),
-              s1: "Download on the",
-              s2: "App Store",
-              icon: (
-                <svg {...svgProps}>
-                  <path d="M12 15V3" />
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <path d="m7 10 5 5 5-5" />
+        {/* 2026-10-29 sync: the white card and skeleton bars gave way to a
+            title, a strap line, and the two store buttons — App Store dark. */}
+        <div className="relative mx-[13px] mt-[16.2px]">
+          <h5 className="text-center text-[13.38px] leading-[17.4px] font-extrabold text-ink">Your App</h5>
+          <p className="mt-[3.41px] text-center text-[9.73px] leading-[14.11px] text-muted">Get our app for a better experience</p>
+          {stores.filter((st) => !page || st.href).map((st, i) => {
+            const dark = st.s2 === "App Store";
+            return (
+              <RowLink
+                href={page ? st.href : undefined}
+                key={st.s2}
+                className={`flex items-center justify-start gap-[7.3px] rounded-[8.92px] border px-[9.73px] py-[6.49px] shadow-[0_8px_18px_-12px_rgba(30,41,59,0.3)] ${
+                  dark ? "border-ink bg-ink" : "border-mc-pv-line bg-white"
+                } ${i ? "mt-[8.92px]" : "mt-[12.98px]"} ${dimmed(st) ? "opacity-45" : ""}`}
+              >
+                {st.icon}
+                <span className="min-w-0 flex-[1_0_0] text-left">
+                  <span className={`block text-[6.9px] leading-[normal] ${dark ? "text-[#c7cbd4]" : "text-prose"}`}>{st.s1}</span>
+                  <span className={`mt-[1.01px] block text-[10.14px] leading-[normal] font-semibold ${dark ? "text-white" : "text-ink"}`}>{st.s2}</span>
+                </span>
+                <svg {...svgProps} className={`block h-[7.3px] w-[7.3px] shrink-0 ${dark ? "text-[#9aa3b2]" : "text-faint"}`}>
+                  <path d="m9 18 6-6-6-6"></path>
                 </svg>
-              ),
-            },
-            {
-              href: hrefOf(values.androidUrl ?? ""),
-              s1: "Get it on",
-              s2: "Google Play",
-              icon: (
-                <svg {...svgProps} fill="currentColor">
-                  <polygon points="6 3 20 12 6 21 6 3" />
-                </svg>
-              ),
-            },
-          ].filter((st) => !page || st.href).map((st, i) => (
-            <RowLink
-              href={page ? st.href : undefined}
-              key={st.s2}
-              className={`flex items-center justify-center gap-[7.3px] rounded-full bg-mc-app-store px-[11.4px] py-[6.5px] [&>svg]:block [&>svg]:h-[14.6px] [&>svg]:w-[14.6px] [&>svg]:shrink-0 [&>svg]:text-ink ${
-                i ? "mt-[8.9px]" : "mt-[13px]"
-              }`}
-            >
-              {st.icon}
-              <span className="text-left">
-                <span className="block text-[6.9px] leading-[normal] text-prose">{st.s1}</span>
-                <span className="mt-[1px] block text-[10.14px] leading-[normal] font-semibold text-ink">{st.s2}</span>
-              </span>
-            </RowLink>
-          ))}
+              </RowLink>
+            );
+          })}
         </div>
       </Phone>
       <Sample>This is a preview of your app download page.</Sample>
@@ -177,13 +194,13 @@ export function PdfPreview({ values, open, onToggle }: Props) {
           )}
         </div>
         <div className="mt-[11.4px] flex items-center justify-center gap-[13px]">
-          <a href="#" aria-label="Previous page" className={nav} onClick={(e) => { e.preventDefault(); if (url) setPage(Math.max(1, cur - 1)); }}>
+          <a href="#" aria-label="Previous page" className={`${nav} ${!url || cur <= 1 ? "pointer-events-none opacity-40" : ""}`} onClick={(e) => { e.preventDefault(); if (url) setPage(Math.max(1, cur - 1)); }}>
             <svg {...svgProps}><path d="m15 18-6-6 6-6" /></svg>
           </a>
           <span className="min-w-[40.6px] text-center text-[10.14px] leading-[normal] font-semibold text-ink">
-            {url ? `${cur} / ${pages}` : "– / –"}
+            {url ? `${cur} of ${pages}` : "– of –"}
           </span>
-          <a href="#" aria-label="Next page" className={nav} onClick={(e) => { e.preventDefault(); if (url) setPage(Math.min(pages, cur + 1)); }}>
+          <a href="#" aria-label="Next page" className={`${nav} ${!url || cur >= pages ? "pointer-events-none opacity-40" : ""}`} onClick={(e) => { e.preventDefault(); if (url) setPage(Math.min(pages, cur + 1)); }}>
             <svg {...svgProps}><path d="m9 18 6-6-6-6" /></svg>
           </a>
         </div>
@@ -280,7 +297,10 @@ export function ImagePreview({ values, open, onToggle }: Props) {
             </>
           )}
           <span className="absolute bottom-[7.3px] left-1/2 -translate-x-1/2 rounded-full bg-ink/60 px-[8.1px] py-[2.1px] text-[8.52px] leading-[normal] font-semibold whitespace-nowrap text-white">
-            {i + 1} / {list.length}
+            {/* The file's script writes "of 10" whatever the count — the
+                gallery's limit, not its size. Reproduced in the creator,
+                raised with the designer; a hosted page says the real count. */}
+            {i + 1} of {page ? list.length : 10}
           </span>
         </div>
         {title && (
@@ -288,7 +308,8 @@ export function ImagePreview({ values, open, onToggle }: Props) {
             {title}
           </h5>
         )}
-        <div className="flex gap-[5.7px] px-[13px] pt-[8.9px]">
+        {/* No strip for a single picture (2026-10-29). */}
+        <div className={`flex gap-[5.7px] px-[13px] pt-[8.9px] ${list.length > 1 ? "" : "hidden"}`}>
           {list.slice(0, 5).map((src, j) => (
             <span
               key={j}
@@ -397,6 +418,7 @@ export function WhatsAppPreview({ values, open, onToggle }: Props) {
         </div>
       </Phone>
       <Sample>Example preview. Your number and message replace this as you type.</Sample>
+      <ScanNote>Scanning opens WhatsApp with your message ready to send. It will not send automatically.</ScanNote>
     </PreviewCard>
   );
 }

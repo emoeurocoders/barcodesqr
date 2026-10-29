@@ -296,8 +296,10 @@ export function MobileStepTwo({
       ...checksForBatch4(type, values),
       ...checksForBatch5(type, values),
       ...checksForBatch6(type, values),
+      // Last, so a missing name is only scrolled to once the form is right.
+      { id: "qrName", msg: name.trim() ? null : "Please name your QR code." },
     ],
-    [type, values],
+    [type, values, name],
   );
   const errors = useMemo(() => {
     if (!submitted) return {};
@@ -441,7 +443,7 @@ export function MobileStepTwo({
         <Sep />
         {form}
         <Sep />
-        <NameField name={name} setName={setName} />
+        <NameField name={name} setName={setName} error={errors.qrName} />
       </div>
       <MobileFooter onBack={onBack} onNext={next} />
       {/* Lets the keyboard's Go key submit; the footer is an <a>, as theirs. */}

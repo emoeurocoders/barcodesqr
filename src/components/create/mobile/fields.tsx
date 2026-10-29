@@ -118,20 +118,24 @@ export function FormHeader({
 export function NameField({
   name,
   setName,
+  error,
 }: {
   name: string;
   setName: (v: string) => void;
+  error?: string;
 }) {
+  // Required since the 2026-10-29 sync ("Please name your QR code.").
   return (
-    <Fld id="qrName" label="Name your QR Code" tip={NAME_TIP} counter={<Counter value={name} max={40} />}>
+    <Fld id="qrName" label="Name your QR Code" required tip={NAME_TIP} error={error} counter={<Counter value={name} max={40} />}>
       <input
         type="text"
         id="qrName"
         name="qrName"
         maxLength={40}
         value={name}
+        aria-invalid={!!error}
         onChange={(e) => setName(e.target.value)}
-        className={textInput(false)}
+        className={textInput(!!error)}
       />
     </Fld>
   );

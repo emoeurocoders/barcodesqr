@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { eventTimes, splitWhen } from "../encodeQr";
 import { cropStyle, fileSrc, parseStoredFile } from "../storedValues";
 import { localTimeZone, minutesInZone } from "@/lib/zoned";
-import { BarCaret, BarText, PreviewCard, Sample } from "./previews";
+import { BarCaret, BarText, PreviewCard, Sample, ScanNote } from "./previews";
 import { eventEndOk } from "./forms6";
 import { RowLink, hrefOf } from "./previews";
 import { filledSocials, socialHref, usePageMode } from "./pageMode";
@@ -213,7 +213,8 @@ export function EventPreview({ values, open, onToggle }: Props) {
           </div>
         </div>
       </Phone>
-      <Sample>Example event. Your details replace it as you type.</Sample>
+      <Sample>Example event. Your details change it as you type.</Sample>
+      <ScanNote>Scanning opens your event details, where attendees can add the event to their calendar.</ScanNote>
     </PreviewCard>
   );
 }
@@ -238,7 +239,10 @@ export function CouponPreview({ values, open, onToggle }: Props) {
   // Code and expiry are optional. Once anything is typed, the samples for
   // them go — a coupon with no code must not show "SAVE20" to copy (the
   // file's own Event and Business previews drop samples the same way).
-  const any = !!(t(values.title) || t(values.discount) || t(values.code) || exp || t(values.terms));
+  const any = !!(t(values.title) || t(values.discount) || t(values.code) || exp || t(values.terms) || t(values.businessName));
+  const biz = t(values.businessName) || (page ? "" : "The Matcha Den");
+  const coverFile = parseStoredFile(values.cover ?? "");
+  const coverUrl = fileSrc(coverFile);
   const code = t(values.code) || (any ? "" : "SAVE20");
   const terms = t(values.terms) || (any ? "" : "One per customer. Cannot be combined with other offers.");
   const expDate = exp ? new Date(`${exp}T23:59:59`) : null;
@@ -279,13 +283,19 @@ export function CouponPreview({ values, open, onToggle }: Props) {
         <div className="mt-[10.55px] overflow-hidden rounded-[11.36px] border border-[#e5e8ee] text-left">
           <div
             className="relative bg-cover bg-center bg-no-repeat px-[12.98px] pt-[24.34px] pb-[22.71px] after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgba(14,19,17,0.55)_0%,rgba(14,19,17,0.2)_60%,rgba(14,19,17,0.45)_100%)] after:content-['']"
-            // The file's café photo and "The Matcha Den" are its sample; a
-            // coupon has no image or business field, so the page shows a plain
-            // brand band and no name (unmocked).
-            style={page ? { backgroundColor: "var(--color-brand-dark)" } : { backgroundImage: "url(/previews/cafe.jpg)" }}
+            // The customer's cover (Coupon branding), else the file's café
+            // sample in the creator; a hosted coupon without one gets a plain
+            // brand band (unmocked).
+            style={
+              coverUrl
+                ? { backgroundImage: `url(${coverUrl})`, backgroundPosition: coverFile?.crop ? `${coverFile.crop.x}% ${coverFile.crop.y}%` : "center" }
+                : page
+                  ? { backgroundColor: "var(--color-brand-dark)" }
+                  : { backgroundImage: "url(/previews/cafe.jpg)" }
+            }
           >
             <div className="relative z-[1]">
-              {!page && <div className="text-[9.33px] leading-[normal] font-bold tracking-[1.12px] text-white/85 uppercase">The Matcha Den</div>}
+              {biz && <div className="text-[9.33px] leading-[normal] font-bold tracking-[1.12px] text-white/85 uppercase">{biz}</div>}
               <div className="mt-[4.62px] text-[15.41px] leading-[normal] font-bold break-words text-white">{title}</div>
               <div className="mt-[4.99px] text-[33.26px] leading-[normal] font-extrabold tracking-[-0.33px] break-words text-white [text-shadow:0_1px_3px_rgba(14,19,17,0.35)]">
                 {disc}
@@ -332,6 +342,7 @@ export function CouponPreview({ values, open, onToggle }: Props) {
         </div>
       </Phone>
       <Sample>Example preview. Your details replace it as you type.</Sample>
+      <ScanNote>Scanning opens this coupon on the visitor’s device so they can view the offer and copy the code.</ScanNote>
     </PreviewCard>
   );
 }

@@ -100,6 +100,24 @@ export function Sample({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Their `.nte3` (2026-10-29 sync): what a scan does, under the preview's
+ * caption. Creator-only — on a hosted page the visitor is already there.
+ */
+export function ScanNote({ children }: { children: ReactNode }) {
+  if (usePageMode()) return null;
+  return (
+    <div className="mt-[12.17px] flex items-start gap-[7.3px] rounded-[8.11px] border border-[#c9ddfb] bg-[#eaf2fe] px-[9.73px] py-[8.92px]">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-[1.22px] block h-[12.97px] w-[12.97px] shrink-0 text-primary">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M12 16v-4"></path>
+        <path d="M12 8h.01"></path>
+      </svg>
+      <p className="text-[10.55px] leading-[15.82px] text-primary">{children}</p>
+    </div>
+  );
+}
+
 /** The bar's two subtitles: one while collapsed, "Tap to collapse" while open. */
 function BarSub({ open, base, className }: { open: boolean; base: string; className: string }) {
   return <span className={`block text-muted ${className}`}>{open ? "Tap to collapse" : base}</span>;
@@ -271,6 +289,7 @@ export function VCardPreview({
   const initials = [values.firstName, values.lastName].map((s) => (s ?? "").trim().charAt(0)).join("").toUpperCase();
   // On the page the dots are the profiles themselves, as links.
   const pageSocials = page ? filledSocials(values) : [];
+  const dotKeys = page ? pageSocials.slice(0, 4) : selectedSocials.length ? selectedSocials.slice(0, 4) : DEFAULT_DOTS;
   const dots = page ? pageSocials.slice(0, 4).map((k) => socialByKey[k]?.color ?? "#000000") : dotColors(selectedSocials);
 
   // JB, 2026-10-15: the three rows keep their labels and show what was
@@ -417,20 +436,27 @@ export function VCardPreview({
           </h5>
           {role && <p className="mt-[2.3px] text-[9.33px] leading-[normal] text-mc-pv-role">{role}</p>}
           {dots.length > 0 && (
-            <div className="mt-[7.3px] flex justify-center gap-[6.5px]">
-              {page
-                ? pageSocials.slice(0, 4).map((k) => (
-                    <a
-                      key={k}
-                      href={socialHref(k, values[k] ?? "") || undefined}
-                      aria-label={socialByKey[k]?.name}
-                      className="block h-[12.2px] w-[12.2px] rounded-full"
-                      style={{ background: socialByKey[k]?.color }}
-                    />
-                  ))
-                : dots.map((c, i) => (
-                    <i key={i} className="block h-[12.2px] w-[12.2px] rounded-full" style={{ background: c }} />
-                  ))}
+            // 2026-10-29: each dot carries its platform's logo.
+            <div className="mt-[7.3px] flex justify-center gap-[6.49px]">
+              {dotKeys.map((k) =>
+                page ? (
+                  <a
+                    key={k}
+                    href={socialHref(k, values[k] ?? "") || undefined}
+                    aria-label={socialByKey[k]?.name}
+                    className="flex h-[16.22px] w-[16.22px] items-center justify-center rounded-full"
+                    style={{ background: socialByKey[k]?.color }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/create/soc/${k}.svg`} alt="" className="block h-[9.33px] w-[9.33px]" />
+                  </a>
+                ) : (
+                  <i key={k} className="flex h-[16.22px] w-[16.22px] items-center justify-center rounded-full" style={{ background: socialByKey[k]?.color }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/create/soc/${k}.svg`} alt="" className="block h-[9.33px] w-[9.33px]" />
+                  </i>
+                ),
+              )}
             </div>
           )}
           {summary && (
@@ -469,6 +495,17 @@ export function VCardPreview({
 /* ---- Multi-Link ------------------------------------------------------------ */
 
 const sampleLinks: { label: string; icon: ReactNode }[] = [
+  // 2026-10-29 sync: a highlighted first row.
+  {
+    label: "View Menu",
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+        <path d="M7 2v20" />
+        <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+      </svg>
+    ),
+  },
   {
     label: "Prices",
     icon: (
@@ -507,15 +544,23 @@ const linkGlyph = (
 
 const sampleSocials = ["instagram", "tiktok"];
 
-/** Their `.lrow`: a white pill row in the phone — a link on a hosted page. */
-function LinkRow({ lead, href, children }: { lead: ReactNode; href?: string; children: ReactNode }) {
+/**
+ * Their `.lrow`: a white pill row in the phone — a link on a hosted page.
+ * `pri` is their `.lrow.pri` (2026-10-29): the first link, in deep green.
+ */
+function LinkRow({ lead, href, pri, children }: { lead: ReactNode; href?: string; pri?: boolean; children: ReactNode }) {
   return (
-    <RowLink href={href} className="flex items-center rounded-full bg-white px-[8.1px] py-[5.7px] shadow-mc-row [&+&]:mt-[6.5px]">
+    <RowLink
+      href={href}
+      className={`flex items-center rounded-full px-[8.1px] py-[5.7px] shadow-mc-row [&+&]:mt-[6.5px] ${
+        pri ? "bg-[#166e53] [&_.ic]:border-white/40 [&_.ic]:text-white" : "bg-white"
+      }`}
+    >
       {lead}
-      <span className="min-w-0 flex-1 truncate px-[6.8px] text-left text-[9.73px] leading-[normal] font-semibold text-body">
+      <span className={`min-w-0 flex-1 truncate px-[6.8px] text-left text-[9.73px] leading-[normal] font-semibold ${pri ? "text-white" : "text-body"}`}>
         {children}
       </span>
-      <span className="shrink-0 text-faint [&>svg]:block [&>svg]:h-[11.4px] [&>svg]:w-[11.4px]">{chevronRight}</span>
+      <span className={`shrink-0 [&>svg]:block [&>svg]:h-[11.4px] [&>svg]:w-[11.4px] ${pri ? "text-white/85" : "text-faint"}`}>{chevronRight}</span>
     </RowLink>
   );
 }
@@ -528,7 +573,7 @@ export const hrefOf = (u: string) => {
 };
 
 const ic =
-  "flex h-[18.7px] w-[18.7px] shrink-0 items-center justify-center rounded-full border border-mc-pv-ic-line text-ink [&>svg]:block [&>svg]:h-[9.3px] [&>svg]:w-[9.3px]";
+  "ic flex h-[18.7px] w-[18.7px] shrink-0 items-center justify-center rounded-full border border-mc-pv-ic-line text-ink [&>svg]:block [&>svg]:h-[9.3px] [&>svg]:w-[9.3px]";
 
 export function MultiLinkPreview({
   values,
@@ -586,6 +631,7 @@ export function MultiLinkPreview({
             ? links.map((l, i) => (
                 <LinkRow
                   key={i}
+                  pri={i === 0}
                   href={page ? hrefOf(l.url) : undefined}
                   lead={
                     <span className={`${ic} overflow-hidden`}>
@@ -601,8 +647,8 @@ export function MultiLinkPreview({
                   {linkCaption(l)}
                 </LinkRow>
               ))
-            : !page && sampleLinks.map((l) => (
-                <LinkRow key={l.label} lead={<span className={ic}>{l.icon}</span>}>
+            : !page && sampleLinks.map((l, i) => (
+                <LinkRow key={l.label} pri={i === 0} lead={<span className={ic}>{l.icon}</span>}>
                   {l.label}
                 </LinkRow>
               ))}
@@ -617,7 +663,13 @@ export function MultiLinkPreview({
             <LinkRow
               key={k}
               href={page ? socialHref(k, values[k] ?? "") : undefined}
-              lead={<i className="m-[3.2px] block h-[12.2px] w-[12.2px] shrink-0 rounded-full" style={{ background: socialByKey[k]?.color }} />}
+              lead={
+                // Their `.bdg2` (2026-10-29): the platform's logo on its colour.
+                <i className="m-[0.4px] flex h-[17.85px] w-[17.85px] shrink-0 items-center justify-center rounded-full" style={{ background: socialByKey[k]?.color }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/create/soc/${k}.svg`} alt="" className="block h-[9.73px] w-[9.73px]" />
+                </i>
+              }
             >
               {socialByKey[k]?.name}
             </LinkRow>

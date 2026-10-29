@@ -66,11 +66,13 @@ export function checksForBatch6(type: string, values: Values): Check[] {
 
 /* ---- Shared ---------------------------------------------------------------- */
 
-/** Their `input[type=date|time]`: 1.5em type, 3.13em tall — smaller than a text input. */
-const dateInput = (invalid: boolean) =>
-  `mt-[7.3px] block h-[38.08px] w-full rounded-[5px] border bg-white px-[12.17px] text-[12.17px] leading-[normal] tracking-[0.12px] text-ink shadow-mc-input outline-none transition-[border-color] duration-150 ${
-    invalid ? "border-mc-error" : "border-mc-input-line focus:border-primary"
-  }`;
+/**
+ * Date and time inputs. The files draw them at 1.5em (12px) and 3.13em
+ * tall — smaller than their text inputs, and below the 16px iOS needs to
+ * not zoom the page on focus. JB (2026-10-29): 16px and the same height as
+ * every other input. So they are the text input, nothing smaller.
+ */
+const dateInput = (invalid: boolean) => textInput(invalid);
 
 /** Their `.fsub`. */
 function Sub({ children }: { children: React.ReactNode }) {
@@ -243,6 +245,29 @@ export function CouponForm({ s }: { s: FormState }) {
           />
         </Fld>
       </Acc>
+      {/* 2026-10-29 sync: the name and photo the coupon card shows. */}
+      <Acc
+        icon={
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+            <circle cx="9" cy="9" r="2" />
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+          </svg>
+        }
+        title="Coupon branding"
+        desc="Business name and cover photo (optional)"
+        open={s.isOpen("branding")}
+        onToggle={() => s.toggle("branding")}
+      >
+        <TextFld s={s} id="cpBiz" k="businessName" label="Business name" placeholder="e.g. The Matcha Den" max={40} counter />
+        <Upload
+          type="coupon"
+          field={schemaField("coupon", "cover")}
+          value={s.values.cover ?? ""}
+          onChange={(v) => s.set("cover", v)}
+          what="your cover photo"
+        />
+      </Acc>
     </>
   );
 }
@@ -264,7 +289,7 @@ export function FeedbackForm({ s }: { s: FormState }) {
         counter={<Sub>Link to your survey or feedback form.</Sub>}
       >
         <input
-          type="text"
+          type="url"
           id="fbUrl"
           name="fbUrl"
           value={v}

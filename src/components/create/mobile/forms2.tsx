@@ -594,7 +594,7 @@ export function ImageForm({ s }: { s: FormState }) {
                   e.preventDefault();
                   remove(i);
                 }}
-                className="absolute top-[3.2px] right-[3.2px] flex h-[15.4px] w-[15.4px] items-center justify-center rounded-full bg-ink/55 text-white [&>svg]:block [&>svg]:h-[8.5px] [&>svg]:w-[8.5px]"
+                className="absolute top-[3.2px] right-[3.2px] flex h-[16.22px] w-[16.22px] items-center justify-center rounded-full bg-white text-muted shadow-[1px_1px_3.5px_0_rgba(0,0,0,0.45)] [&>svg]:block [&>svg]:h-[8.5px] [&>svg]:w-[8.5px]"
               >
                 {closeGlyph}
               </a>

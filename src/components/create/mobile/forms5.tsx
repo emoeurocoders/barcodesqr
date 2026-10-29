@@ -2,7 +2,8 @@
 
 import { encodeQr } from "../encodeQr";
 import { errorCopy } from "../validate";
-import { parseStoredFile } from "../storedValues";
+import { useEffect, useState } from "react";
+import { fileSrc, parseStoredFile } from "../storedValues";
 import { useFileUpload } from "../useFileUpload";
 import { Counter, Fld, FieldError, Label, TrackingPill, textArea, textInput } from "./ui";
 import {
@@ -68,6 +69,9 @@ export function checksForBatch5(type: string, values: Values): Check[] {
       return [
         { id: "paySel", msg: trimmed(values.provider) ? null : "Please select a payment provider." },
         { id: "payLink", msg: httpsOk(trimmed(values.paymentLink)) ? null : "Please enter a valid https:// payment link." },
+        // 2026-10-29: a link on another provider's site is refused — PayPal
+        // picked, a Stripe link pasted. Providers with no known hosts pass.
+        { id: "payLink", key: "payMis", msg: providerMatches(values) ? null : "This link does not match the selected provider." },
       ];
     case "mp3":
       return [{ id: "auUpl", msg: parseStoredFile(values.file) ? null : "Please upload an audio file." }];
@@ -91,7 +95,7 @@ export function PhoneForm({ s }: { s: FormState }) {
       numId="telNum"
       label="Phone number"
       placeholder="555 555 0123"
-      hint="Enter a valid phone number and area code."
+      hint="Enter a valid phone number, including area code."
       tip={{ label: "About the phone number", text: "The number people call after scanning." }}
     />
   );
@@ -162,6 +166,14 @@ const payPlaceholders: Record<string, string> = {
   stripe: "e.g. https://buy.stripe.com/…",
 };
 
+/** The link's host belongs to the picked provider, where we know its hosts. */
+function providerMatches(values: Values) {
+  const p = payProviders[values.provider ?? ""];
+  const host = ((values.paymentLink ?? "").trim().match(/^https?:\/\/([^/?#]+)/i) ?? [])[1]?.toLowerCase();
+  if (!p || values.provider === "other" || !host || !p.d.length) return true;
+  return p.d.some((d) => host.includes(d));
+}
+
 /** Their script: a recognised host switches the provider to match. */
 function detectProvider(link: string) {
   const host = (link.match(/^https?:\/\/([^/?#]+)/i) ?? [])[1]?.toLowerCase();
@@ -176,7 +188,7 @@ export function PaymentForm({ s }: { s: FormState }) {
   const provider = s.values.provider ?? "";
   const link = s.values.paymentLink ?? "";
   const selErr = s.errors.paySel;
-  const linkErr = s.errors.payLink;
+  const linkErr = s.errors.payLink ?? s.errors.payMis;
   const setLink = (v: string) =>
     s.patch((cur) => {
       const found = detectProvider(v.trim());
@@ -240,6 +252,28 @@ export function PaymentForm({ s }: { s: FormState }) {
 
 /* ---- Audio ----------------------------------------------------------------- */
 
+/** "m:ss" of an audio file, read from its metadata; "" until known. */
+function useDuration(src: string | undefined) {
+  const [found, setFound] = useState<{ src: string; text: string } | null>(null);
+  useEffect(() => {
+    if (!src) return;
+    const a = new Audio();
+    a.preload = "metadata";
+    const done = () => {
+      if (!isFinite(a.duration)) return;
+      const t = Math.round(a.duration);
+      setFound({ src, text: `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}` });
+    };
+    a.addEventListener("loadedmetadata", done);
+    a.src = src;
+    return () => {
+      a.removeEventListener("loadedmetadata", done);
+      a.src = "";
+    };
+  }, [src]);
+  return found && found.src === src ? found.text : "";
+}
+
 /** One file, 20 MB at most (the schema's limit, which the upload route enforces too). */
 export function AudioForm({ s }: { s: FormState }) {
   const { take, clear, error, progress, pending, stored } = useFileUpload({
@@ -254,6 +288,8 @@ export function AudioForm({ s }: { s: FormState }) {
   });
   const shown = pending ?? stored;
   const err = error ?? s.errors.auUpl;
+  // Their file card adds the length once it is known: "3.2 MB · 1:04".
+  const length = useDuration(stored ? fileSrc(stored) : undefined);
 
   return (
     <>
@@ -296,7 +332,10 @@ export function AudioForm({ s }: { s: FormState }) {
             </span>
             <span className="min-w-0 flex-1 px-[7.3px]">
               <span className="block truncate text-[10.95px] leading-[normal] font-semibold text-ink">{shown.name}</span>
-              <span className="mt-[1.5px] block text-[9.73px] leading-[normal] text-muted">{sizeTxt(shown.size)}</span>
+              <span className="mt-[1.5px] block text-[9.73px] leading-[normal] text-muted">
+                {sizeTxt(shown.size)}
+                {length && !pending ? ` · ${length}` : ""}
+              </span>
             </span>
             <a
               href="#"
@@ -313,7 +352,7 @@ export function AudioForm({ s }: { s: FormState }) {
         )}
         {err && <FieldError>{err}</FieldError>}
       </div>
-      <TextFld s={s} id="auTitle" k="title" label="Title" placeholder="e.g. Welcome Message" max={40} counter />
+      <TextFld s={s} id="auTitle" k="title" label="Title" placeholder="e.g. My Audio Recording" max={40} counter />
     </>
   );
 }

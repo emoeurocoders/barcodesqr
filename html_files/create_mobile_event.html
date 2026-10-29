@@ -142,7 +142,13 @@
 							<!--end ecd-->
 						</div>
 						<!--end phn-->
-						<p class="smp">Example event. Your details replace it as you type.</p>
+						<p class="smp">Example event. Your details change it as you type.</p>
+						<!--nte3-->
+						<div class="nte3">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+							<p>Scanning opens your event details, where attendees can add the event to their calendar.</p>
+						</div>
+						<!--end nte3-->
 					</div>
 				</div>
 				<!--end pvwCmp-->
@@ -247,10 +253,10 @@
 					<div class="fld">
 						<div class="row">
 							<div class="lbl">
-								<label for="qrName">Name your QR Code</label>
+								<label for="qrName">Name your QR Code <em>*</em></label>
 								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About the QR code name"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Only you can see this. It helps you find the code later.</span></span>
 							</div>
-							<input type="text" name="qrName" id="qrName" value="My Event QR Code" maxlength="40">
+							<input type="text" name="qrName" id="qrName" value="My Event QR Code" maxlength="40" data-req="text" data-msg="Please name your QR code.">
 						</div>
 						<p class="cnt">16/40</p>
 					</div>

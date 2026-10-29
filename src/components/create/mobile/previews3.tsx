@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { cropStyle, fileSrc, filledLinks, linkCaption, parseMenuItems, parseStoredFile } from "../storedValues";
-import { BarCaret, BarText, Chip, PreviewCard, RowLink, Sample, chevronRight, hrefOf, qrGlyph } from "./previews";
+import { BarCaret, BarText, Chip, PreviewCard, RowLink, Sample, ScanNote, chevronRight, hrefOf, qrGlyph } from "./previews";
 import { filledSocials, socialHref, usePageMode } from "./pageMode";
 import { socialByKey } from "./socials";
 
@@ -173,6 +173,7 @@ export function MenuPreview({ values, open, onToggle }: Props) {
   const cover = fileSrc(coverFile) ?? (page ? undefined : "/previews/food.jpg");
   const coverStyle = coverFile ? cropStyle(coverFile) : { objectFit: "cover" as const };
   const title = (values.title ?? "").trim() || (page ? "" : "Bella Italia Menu");
+  const badge = ((values.title ?? "").trim() || (page ? "" : "Bella Italia")).replace(/\s+menu$/i, "");
   const desc = (values.description ?? "").trim() || (page ? "" : "Fresh, seasonal, and made to order.");
   const cat = (values.category ?? "").trim();
   // Their script lists an item once it has both a name and a price.
@@ -192,16 +193,17 @@ export function MenuPreview({ values, open, onToggle }: Props) {
       }
     >
       <Phone className="max-w-[243.4px] bg-white">
-        {/* On a hosted page: the cover only if there is one, and no sample
-            "Bella Italia" badge — the file hard-codes it. */}
+        {/* On a hosted page: the cover only if there is one. The badge is
+            the menu's title less a trailing "menu" (2026-10-29 sync; it used
+            to be a hard-coded "Bella Italia"). */}
         {cover && (
-          <div className="relative mx-[8.1px] mt-[8.1px] h-[69px] overflow-hidden rounded-[11.4px]">
+          <div className="relative mx-[8.1px] mt-[8.1px] h-[69px] overflow-hidden rounded-t-[11.4px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={cover} alt="" className="block h-full w-full" style={coverStyle} />
-            {!page && (
+            {badge && (
               <span className="absolute bottom-[7.3px] left-[8.1px] flex items-center gap-[4.1px] rounded-full bg-white/92 px-[8.1px] py-[3.2px] text-[8.11px] leading-[normal] font-semibold text-ink [&>svg]:block [&>svg]:h-[8.9px] [&>svg]:w-[8.9px] [&>svg]:text-primary">
                 {utensils}
-                Bella Italia
+                {badge}
               </span>
             )}
           </div>
@@ -220,7 +222,7 @@ export function MenuPreview({ values, open, onToggle }: Props) {
               <div className="flex items-baseline gap-[4.1px]">
                 <span className="max-w-[70%] shrink-0 truncate text-[9.73px] leading-[normal] font-semibold text-ink">{it.name}</span>
                 <span className="flex-1 -translate-y-[2px] border-b border-dotted border-mc-menu-dots" />
-                <span className="shrink-0 text-[9.73px] leading-[normal] font-bold text-primary">{it.price}</span>
+                <span className="shrink-0 text-[9.73px] leading-[normal] font-bold text-black">{it.price}</span>
               </div>
               {it.desc && <p className="mt-[1.9px] text-[7.71px] leading-[10.8px] text-muted">{it.desc}</p>}
             </div>
@@ -322,6 +324,7 @@ export function VideoPreview({ values, open, onToggle }: Props) {
         </div>
       </Phone>
       <Sample>Example preview. Your video plays here once uploaded.</Sample>
+      <ScanNote>Scanning opens the video in your device’s browser. It will not download automatically.</ScanNote>
     </PreviewCard>
   );
 }

@@ -119,6 +119,7 @@ export function fieldError(f: Field, raw: string): string | null {
   const v = (raw ?? "").trim();
   if (!v) return f.required ? errorCopy.required : null;
   if (f.maxBytes && new TextEncoder().encode(v).length > f.maxBytes) return errorCopy.tooLong;
+  if (f.minLength && v.length < f.minLength) return f.lengthMessage ?? errorCopy.required;
 
   switch (f.type) {
     case "url":

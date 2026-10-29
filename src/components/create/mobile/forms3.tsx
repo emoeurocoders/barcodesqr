@@ -62,7 +62,12 @@ export function checksForBatch3(type: string, values: Values): Check[] {
         { id: "wfSsid", msg: trimmed(values.ssid) ? null : "Please enter your network name." },
         {
           id: "wfPass",
-          msg: values.encryption === "nopass" || trimmed(values.password) ? null : "Please enter the network password.",
+          // WPA keys are 8–63 characters; the 2026-10-29 file checks that
+          // for every secured network ("wpa" rule), WEP included.
+          msg:
+            values.encryption === "nopass" || ((values.password ?? "").length >= 8 && (values.password ?? "").length <= 63)
+              ? null
+              : "Please enter the network password (8–63 characters).",
         },
       ];
     case "video":

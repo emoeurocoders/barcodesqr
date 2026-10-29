@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { dialCodes } from "../fieldSchema";
 import { isValidUrl } from "../validate";
 import { designerTypeIcons } from "../designerTypeIcons";
-import { BarCaret, BarText, PreviewCard, Sample } from "./previews";
+import { BarCaret, BarText, PreviewCard, Sample, ScanNote } from "./previews";
 import { splitPlace } from "./forms4";
 
 /**
@@ -103,6 +103,7 @@ export function MapsPreview({ values, open, onToggle }: Props) {
         </div>
       </Phone>
       <Sample>Example preview. Select your location to update the map.</Sample>
+      <ScanNote>Scanning opens this location in Google Maps so customers can get directions, view details, and more.</ScanNote>
     </PreviewCard>
   );
 }
@@ -158,6 +159,7 @@ export function EmailPreview({ values, open, onToggle }: Props) {
         </div>
       </Phone>
       <Sample>Example preview. Your details update as you type.</Sample>
+      <ScanNote>Scanning opens an email draft with your details pre-filled. Nothing is sent automatically.</ScanNote>
     </PreviewCard>
   );
 }
@@ -286,6 +288,7 @@ export function SmsPreview({ values, open, onToggle }: Props) {
         </div>
       </Phone>
       <Sample>This is a preview of how your message will look. It is not sent yet.</Sample>
+      <ScanNote>Scanning opens a text message ready to send. Nothing is sent automatically.</ScanNote>
     </PreviewCard>
   );
 }

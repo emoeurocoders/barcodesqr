@@ -128,9 +128,9 @@
 								<span class="key"><span class="d">7</span><span class="l">PQRS</span></span>
 								<span class="key"><span class="d">8</span><span class="l">TUV</span></span>
 								<span class="key"><span class="d">9</span><span class="l">WXYZ</span></span>
-								<span class="key"><span class="d">*</span><span class="l">&nbsp;</span></span>
-								<span class="key"><span class="d">0</span><span class="l">+</span></span>
-								<span class="key"><span class="d">#</span><span class="l">&nbsp;</span></span>
+								<span class="key"><span class="d"><span style="font-size: 1.4em;  line-height: 1em; position: relative; top: 0.15em;">*</span></span></span>
+							<span class="key"><span class="d">0</span><span class="l">+</span></span>
+								<span class="key"><span class="d">#</span></span>
 							</div>
 							<span class="cic cic2">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
@@ -139,6 +139,12 @@
 						</div>
 						<!--end phn-->
 						<p class="smp">This is a preview of the dialer. Scanning opens it without placing a call.</p>
+						<!--nte3-->
+						<div class="nte3">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+							<p>Scanning opens your phone&rsquo;s dialer with this number ready to call.</p>
+						</div>
+						<!--end nte3-->
 					</div>
 				</div>
 				<!--end pvwCmp-->
@@ -208,7 +214,7 @@
 								</div>
 								<input type="tel" name="telNum" id="telNum" value="" placeholder="555 555 0123" data-req="wap" data-msg="Please enter a valid phone number (without the country code).">
 							</div>
-							<p class="fsub">Enter a valid phone number and area code.</p>
+							<p class="fsub">Enter a valid phone number, including area code.</p>
 						</div>
 						<!--end fld-->
 					</div>
@@ -218,10 +224,10 @@
 					<div class="fld">
 						<div class="row">
 							<div class="lbl">
-								<label for="qrName">Name your QR Code</label>
+								<label for="qrName">Name your QR Code <em>*</em></label>
 								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About the QR code name"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Only you can see this. It helps you find the code later.</span></span>
 							</div>
-							<input type="text" name="qrName" id="qrName" value="My Phone QR Code" maxlength="40">
+							<input type="text" name="qrName" id="qrName" value="My Phone QR Code" maxlength="40" data-req="text" data-msg="Please name your QR code.">
 						</div>
 						<p class="cnt">16/40</p>
 					</div>

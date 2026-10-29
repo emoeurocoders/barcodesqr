@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { dialCodes } from "../fieldSchema";
 import { fileSrc, parseStoredFile } from "../storedValues";
-import { BarCaret, BarText, PreviewCard, Sample } from "./previews";
+import { BarCaret, BarText, PreviewCard, Sample, ScanNote } from "./previews";
 import { payProviders } from "./forms5";
 import { usePageMode } from "./pageMode";
 
@@ -73,7 +73,8 @@ const keys: [string, string][] = [
   ["1", " "], ["2", "ABC"], ["3", "DEF"],
   ["4", "GHI"], ["5", "JKL"], ["6", "MNO"],
   ["7", "PQRS"], ["8", "TUV"], ["9", "WXYZ"],
-  ["*", " "], ["0", "+"], ["#", " "],
+  // 2026-10-29: * and # lost their blank letter row; * drawn larger.
+  ["*", ""], ["0", "+"], ["#", ""],
 ];
 
 export function PhonePreview({ values, open, onToggle }: Props) {
@@ -101,8 +102,10 @@ export function PhonePreview({ values, open, onToggle }: Props) {
         <div className="mt-[14.2px] grid grid-cols-[repeat(3,48.67px)] justify-center gap-x-[17.75px] gap-y-[9.63px]">
           {keys.map(([d, l]) => (
             <span key={d} className="flex h-[48.67px] w-[48.67px] flex-col items-center justify-center rounded-full bg-[#f3f4f6]">
-              <span className="block text-[17.24px] leading-[17.24px] font-medium text-ink">{d}</span>
-              <span className="mt-[2.84px] block text-[8.11px] leading-[8.11px] font-semibold tracking-[0.97px] text-muted">{l}</span>
+              <span className="block text-[17.24px] leading-[17.24px] font-medium text-ink">
+                {d === "*" ? <span className="relative top-[0.15em] text-[1.4em] leading-[1em]">*</span> : d}
+              </span>
+              {l && <span className="mt-[2.84px] block text-[8.11px] leading-[8.11px] font-semibold tracking-[0.97px] text-muted">{l}</span>}
             </span>
           ))}
         </div>
@@ -112,6 +115,7 @@ export function PhonePreview({ values, open, onToggle }: Props) {
         <p className="mt-[6.16px] text-[13.69px] leading-[19.16px] text-ink">Call</p>
       </Phone>
       <Sample>This is a preview of the dialer. Scanning opens it without placing a call.</Sample>
+      <ScanNote>Scanning opens your phone’s dialer with this number ready to call.</ScanNote>
     </PreviewCard>
   );
 }
@@ -197,6 +201,7 @@ export function PlainTextPreview({ values, open, onToggle }: Props) {
         </div>
       </Phone>
       <Sample>Example note. Your message replaces this as you type.</Sample>
+      <ScanNote>Scanning shows this text on the visitor’s device. Nothing is opened automatically.</ScanNote>
     </PreviewCard>
   );
 }
@@ -264,13 +269,14 @@ export function PaymentPreview({ values, open, onToggle }: Props) {
               </svg>
             </a>
           </div>
-          <div className="w-[128.97px] shrink-0">
+          <div className="w-[96.53px] shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/create/payment.svg" alt="" className="block w-full" />
           </div>
         </div>
       </Phone>
       <Sample>Example preview. The button opens your payment link once added.</Sample>
+      <ScanNote>Scanning opens your selected provider’s payment page. Payments are completed on the provider’s website.</ScanNote>
     </PreviewCard>
   );
 }
@@ -298,8 +304,8 @@ const clock = (s: number) => {
 export function AudioPreview({ values, open, onToggle }: Props) {
   const stored = parseStoredFile(values.file ?? "");
   const src = fileSrc(stored);
-  const fileName = stored?.name ?? "welcome-message.mp3";
-  const title = (values.title ?? "").trim() || (stored ? stored.name.replace(/\.[^.]+$/, "") : "Welcome Message");
+  const fileName = stored?.name ?? "audio-recording.mp3";
+  const title = (values.title ?? "").trim() || (stored ? stored.name.replace(/\.[^.]+$/, "") : "My Audio Recording");
 
   return (
     <PreviewCard
@@ -319,6 +325,7 @@ export function AudioPreview({ values, open, onToggle }: Props) {
         <AudioCard key={src ?? "sample"} src={src} open={open} title={title} fileName={fileName} />
       </Phone>
       <Sample>Example preview. Your audio plays here once uploaded.</Sample>
+      <ScanNote>Scanning opens the audio player so visitors can listen to your recording.</ScanNote>
     </PreviewCard>
   );
 }
@@ -338,6 +345,8 @@ function AudioCard({
   const [playing, setPlaying] = useState(false);
   const [at, setAt] = useState(0);
   const [dur, setDur] = useState(0);
+  // Their `.vol` (2026-10-29 sync): mute, kept on the element itself.
+  const [muted, setMuted] = useState(false);
 
   // Collapsing the preview stops the sound; unmounting (leaving the step)
   // takes the element, and the sound, with it.
@@ -403,6 +412,31 @@ function AudioCard({
             <span>{src ? clock(dur) : "0:28"}</span>
           </div>
         </div>
+            <a
+              href="#"
+              aria-label={muted ? "Unmute audio" : "Mute audio"}
+              onClick={(e) => {
+                e.preventDefault();
+                const next = !muted;
+                setMuted(next);
+                if (el.current) el.current.muted = next;
+              }}
+              className="flex shrink-0 items-center justify-center text-muted [&>svg]:block [&>svg]:h-[13.79px] [&>svg]:w-[13.79px]"
+            >
+              {muted ? (
+                <svg {...svgProps}>
+                  <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"></path>
+                  <line x1="22" x2="16" y1="9" y2="15"></line>
+                  <line x1="16" x2="22" y1="9" y2="15"></line>
+                </svg>
+              ) : (
+                <svg {...svgProps}>
+                  <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"></path>
+                  <path d="M16 9a5 5 0 0 1 0 6"></path>
+                  <path d="M19.364 18.364a9 9 0 0 0 0-12.728"></path>
+                </svg>
+              )}
+            </a>
       </div>
       {src && (
         <audio

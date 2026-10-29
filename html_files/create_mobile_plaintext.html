@@ -126,13 +126,7 @@
 								</div>
 								<div class="nbd">
 									<p class="tm">Today &middot; 9:12 AM</p>
-									<div class="msg pvwTxBody">Welcome to the workshop! &#128075;
-
-Wi-Fi: CozyCornerWiFi
-Schedule: kickoff at 9:30, demos after lunch.
-Parking: the garage on 5th St &mdash; first hour is free.
-
-Questions? Find anyone in a teal lanyard.</div>
+									<div class="msg pvwTxBody">Welcome to the workshop! &#128075;<br><br>Wi-Fi: CozyCornerWiFi Schedule: kickoff at 9:30, demos after lunch. Parking: the garage on 5th St &mdash; first hour is free.<br><br>Questions? Find anyone in a teal lanyard.</div>
 									<a href="#" class="ncp">
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
 										<span>Copy text</span>
@@ -143,6 +137,12 @@ Questions? Find anyone in a teal lanyard.</div>
 						</div>
 						<!--end phn-->
 						<p class="smp">Example note. Your message replaces this as you type.</p>
+						<!--nte3-->
+						<div class="nte3">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+							<p>Scanning shows this text on the visitor&rsquo;s device. Nothing is opened automatically.</p>
+						</div>
+						<!--end nte3-->
 					</div>
 				</div>
 				<!--end pvwCmp-->
@@ -166,9 +166,9 @@ Questions? Find anyone in a teal lanyard.</div>
 							<div class="lbl">
 								<label for="txMsg">Text <em>*</em></label>
 							</div>
-							<textarea name="txMsg" id="txMsg" placeholder="Enter your message here&hellip;" maxlength="2000" data-req="text" data-msg="Please enter your text."></textarea>
+							<textarea name="txMsg" id="txMsg" placeholder="Enter your message here&hellip;" maxlength="1000" data-req="text" data-msg="Please enter your text."></textarea>
 						</div>
-						<p class="cnt">0/2000</p>
+						<p class="cnt">0/1000</p>
 					</div>
 					<!--end fld-->
 					<!--fld-->
@@ -187,10 +187,10 @@ Questions? Find anyone in a teal lanyard.</div>
 					<div class="fld">
 						<div class="row">
 							<div class="lbl">
-								<label for="qrName">Name your QR Code</label>
+								<label for="qrName">Name your QR Code <em>*</em></label>
 								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About the QR code name"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Only you can see this. It helps you find the code later.</span></span>
 							</div>
-							<input type="text" name="qrName" id="qrName" value="My Text QR Code" maxlength="40">
+							<input type="text" name="qrName" id="qrName" value="My Text QR Code" maxlength="40" data-req="text" data-msg="Please name your QR code.">
 						</div>
 						<p class="cnt">15/40</p>
 					</div>

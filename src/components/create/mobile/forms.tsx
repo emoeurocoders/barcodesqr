@@ -162,6 +162,9 @@ export function SocialPicker({
     const on = s.socialsOn.includes(key);
     // Updater form: two taps inside one render must not overwrite each other.
     if (on) {
+      // 2026-10-29: taking a platform off throws its link away — ask first.
+      const name = socialByKey[key]?.name ?? key;
+      if ((s.values[key] ?? "").trim() && !window.confirm(`Remove ${name}? The link you entered will be discarded.`)) return;
       s.setSocialsOn((cur) => cur.filter((k) => k !== key));
       s.set(key, "");
     } else {

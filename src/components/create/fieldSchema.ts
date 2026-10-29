@@ -41,6 +41,9 @@ export type Field = {
    * itself — past it the code cannot be drawn (see QR_TEXT_MAX_BYTES).
    */
   maxBytes?: number;
+  /** Fewest characters accepted, with the message when short (or long). */
+  minLength?: number;
+  lengthMessage?: string;
   /** Placeholder that follows another field's value, e.g. the payment provider. */
   placeholderFrom?: {
     field: string;
@@ -53,6 +56,7 @@ export type Field = {
 export const fieldLabels: Record<string, string> = {
   "reviewUrl": "Enter your Google review link",
   "businessName": "Business name",
+  "coverPhoto": "Cover photo",
   "reviewPrompt": "Message shown to customers",
   "websiteUrl": "Enter your website",
   "reviewRedirect": "Scanning sends customers directly to your Google review page so they can leave a rating and review.",
@@ -424,7 +428,10 @@ export const fieldSchema: Record<string, Field[]> = {
       "labelKey": "password",
       "type": "text",
       "required": true,
-      "maxLength": 40,
+      "maxLength": 63,
+      // WPA's own limits; the mobile file checks the same (2026-10-29).
+      "minLength": 8,
+      "lengthMessage": "Please enter the network password (8–63 characters).",
       "placeholder": "Cappuccino123",
       "tip": "wifiPassword",
       "showIf": {
@@ -1236,6 +1243,24 @@ export const fieldSchema: Record<string, Field[]> = {
       "name": "expiry",
       "labelKey": "expiry",
       "type": "date"
+    },
+    // Coupon branding, added with the 2026-10-29 mobile sync (both layouts):
+    // the name and photo on the coupon's card, which used to be samples.
+    {
+      "name": "businessName",
+      "labelKey": "businessName",
+      "type": "text",
+      "maxLength": 40,
+      "placeholder": "e.g. The Matcha Den"
+    },
+    {
+      "name": "cover",
+      "labelKey": "coverPhoto",
+      "type": "file",
+      "accept": "image/*",
+      "maxSizeMb": 5,
+      "formats": "PNG, JPG, JPEG, etc.",
+      "adjustable": "wide"
     }
   ],
   "feedback": [

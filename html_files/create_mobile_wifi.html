@@ -176,7 +176,7 @@
 								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About the password"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Scanners connect to your WiFi automatically using this password.</span></span>
 							</div>
 							<span class="pwdWrp">
-							<input type="password" name="wfPass" id="wfPass" value="" placeholder="Cappuccino123" maxlength="63" data-req="text" data-msg="Please enter the network password.">
+							<input type="password" name="wfPass" id="wfPass" value="" placeholder="Cappuccino123" maxlength="63" data-req="wpa" data-msg="Please enter the network password (8&ndash;63 characters).">
 							<a href="#" class="passwordToggle" aria-label="Show password">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
 							</a>
@@ -194,10 +194,10 @@
 					<div class="fld">
 						<div class="row">
 							<div class="lbl">
-								<label for="qrName">Name your QR Code</label>
+								<label for="qrName">Name your QR Code <em>*</em></label>
 								<span class="tipWrp"><a href="#" class="tipIco" aria-label="About the QR code name"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.5 15.5833C12.412 15.5833 15.5833 12.412 15.5833 8.5C15.5833 4.58798 12.412 1.41667 8.5 1.41667C4.58798 1.41667 1.41667 4.58798 1.41667 8.5C1.41667 12.412 4.58798 15.5833 8.5 15.5833Z" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.3333V8.5" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 5.66667H8.50708" stroke="#9CA3AF" stroke-width="1.41667" stroke-linecap="round" stroke-linejoin="round"/></g></svg></a><span class="tipBox">Only you can see this. It helps you find the code later.</span></span>
 							</div>
-							<input type="text" name="qrName" id="qrName" value="My WiFi QR Code" maxlength="40">
+							<input type="text" name="qrName" id="qrName" value="My WiFi QR Code" maxlength="40" data-req="text" data-msg="Please name your QR code.">
 						</div>
 						<p class="cnt">15/40</p>
 					</div>

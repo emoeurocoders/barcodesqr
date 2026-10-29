@@ -488,6 +488,31 @@ seven up front and sixteen behind "View All 23 QR Types".
   is false: the desktop badge and the mobile pill render nothing. The pills
   stay in the code where the files draw them — flip the flag when the
   service ships. Forms whose file has the pill sit higher by its height.
+- **2026-10-29 mobile sync, ported** (JB, Monday 5675049195):
+  App Link's page restyled (title, strap line, dark App Store and white
+  Google Play buttons with their marks — the Google Play triangle and the
+  Apple logo are the designer's; a store without a link dims once the other
+  is set); a "Scanning opens…" note under twelve previews (Google Review's
+  sits in its form) — creator-only, not on hosted pages; "Name your QR
+  Code" required (mobile; desktop still falls back to the default name);
+  WiFi passwords 8–63 characters on both layouts (desktop's limit was 40);
+  a payment link on another provider's site refused (mobile only — desktop's
+  per-field errors cannot see the provider); Coupon branding (business name
+  + cover photo, both layouts) replaces the card's samples, on the hosted
+  page too; Menu's badge is its title; Audio gains mute and shows its
+  length; PDF counts "x of y" with dead-end arrows dimmed; Multi-Link's
+  first link is green and its socials carry logos; vCard's dots too; the
+  keypad's * and # lost their letter row; the gallery's remove button is
+  white. Everything for `createDsk2` (the desktop step-2 redesign) is in
+  the CSS but unused until those pages arrive.
+  - *The gallery counter is the file's "1 of 10"* — its script writes the
+    limit, not the count. Reproduced in the creator, raised with the
+    designer; hosted pages show the real count.
+  - *Event's note says scanning "opens your event details"* — the code is
+    a calendar entry the phone offers to add, not a page. Raised.
+- **Date and time inputs are 16px, 43.7px tall** (JB, 2026-10-29) — the
+  text input, so iOS no longer zooms on focus. The files still draw them
+  at 12px.
 - **Batch 6 notes:**
   - *Event times carry a time zone now, on both layouts.* The creator's
     browser zone is saved with the code (`timezone`) and DTSTART/DTEND are

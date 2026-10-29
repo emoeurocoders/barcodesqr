@@ -476,8 +476,11 @@ jQuery(document).ready(function($) {
 			var $itm = $(this).closest('.itm');
 			var theSoc = $itm.attr('data-soc');
 			var on = !$itm.hasClass('on');
-			$itm.toggleClass('on', on);
 			var $fld = $cr.find('.socFlds .fld[data-soc="' + theSoc + '"]');
+			if (!on && $.trim($fld.find('input').val()) && !window.confirm('Remove ' + (crSocNames[theSoc] || theSoc) + '? The link you entered will be discarded.')) {
+				return;
+			}
+			$itm.toggleClass('on', on);
 			$fld.toggleClass('on', on).stop(true, true)[on ? 'slideDown' : 'slideUp'](200);
 			if (on) {
 				$fld.find('input').trigger('focus');
@@ -645,6 +648,7 @@ jQuery(document).ready(function($) {
 			//menu
 			if ($('#mnTitle').length) {
 				$cr.find('.pvwMenu .ttl').text($.trim($('#mnTitle').val()) || 'Bella Italia Menu');
+				$cr.find('.pvwMnBdg').text(($.trim($('#mnTitle').val()) || 'Bella Italia').replace(/\s+menu$/i, ''));
 				var theCat = $.trim($('#mnCat').val());
 				$cr.find('.pvwMenu .cat').text(theCat).toggleClass('on', !!theCat);
 				var theIts = [];
@@ -674,14 +678,24 @@ jQuery(document).ready(function($) {
 					theMeta += ' · Hidden network';
 				}
 				$cr.find('.pvwWifi .meta').text(theMeta);
+				$cr.find('.pvwWfS').text(theSec === 'nopass' ? 'Open network' : (theSec === 'WEP' ? 'WEP' : 'WPA/WPA2'));
+				var theWp = $('#wfPass').val() || '';
+				$cr.find('.pvwWfP').text(theSec === 'nopass' ? 'None' : Array(Math.min(Math.max(theWp.length, 8), 14) + 1).join('\u2022'));
 			}
 			//image gallery title
 			if ($('#imTitle').length) {
 				$cr.find('.pvwGal .gt').text($.trim($('#imTitle').val()) || 'Summer Memories');
 			}
+			//video title under the player
+			if ($('#vidTitle').length) {
+				$cr.find('.pvwVidTtl').text($.trim($('#vidTitle').val()) || 'Happy Moments');
+			}
 			//whatsapp
 			if ($('#waMsg').length) {
 				$cr.find('.pvwWa .bub p').text($.trim($('#waMsg').val()) || "Hi! 👋 I just scanned your QR code and I'd love to hear more — can you fill me in?");
+				var theWn = $.trim($('#waNum').val());
+				var theWcc = ($('#waCc').val() || '+1').split('-')[0];
+				$cr.find('.pvwWaNum').text(theWn ? theWcc + ' ' + theWn : '+1 555 123 4567');
 			}
 			//email draft
 			if ($('#emTo').length) {
@@ -716,7 +730,7 @@ jQuery(document).ready(function($) {
 			if ($('#auTitle').length) {
 				var theAt = $.trim($('#auTitle').val());
 				var theAfn = $cr.data('audName') || '';
-				$cr.find('.pvwAudTtl').text(theAt || (theAfn ? theAfn.replace(/\.[^.]+$/, '') : 'Welcome Message'));
+				$cr.find('.pvwAudTtl').text(theAt || (theAfn ? theAfn.replace(/\.[^.]+$/, '') : 'My Audio Recording'));
 			}
 			//event card
 			if ($('#evTitle').length) {
@@ -735,7 +749,7 @@ jQuery(document).ready(function($) {
 					var theH2 = parseInt(theP2[0], 10);
 					return (theH2 % 12 || 12) + ':' + theP2[1] + ' ' + (theH2 >= 12 ? 'PM' : 'AM');
 				};
-				$cr.find('.pvwEvTime').text(theSt3 ? crEvT(theSt3) + (theEt3 ? ' – ' + crEvT(theEt3) : '') : '6:00 PM – 9:00 PM');
+				$cr.find('.pvwEvTime').text($('#evAllDay').prop('checked') ? 'All day' : (theSt3 ? crEvT(theSt3) + (theEt3 ? ' – ' + crEvT(theEt3) : '') : '6:00 PM – 9:00 PM'));
 				var theLoc2 = $.trim($('#evLoc').val());
 				var theDsc2 = $.trim($('#evDesc').val());
 				var theAnyEv = !!($.trim($('#evTitle').val()) || theEvD || theSt3 || theLoc2 || theDsc2);
@@ -765,6 +779,18 @@ jQuery(document).ready(function($) {
 				var theFb = $.trim($('#fbUrl').val());
 				$cr.find('.pvwFb .fbb').attr('href', /^https:\/\//i.test(theFb) && crUrlOk(theFb) ? theFb : '#');
 			}
+			//app link: dim store buttons that are not configured yet
+			if ($('#alIos').length) {
+				var theIo = $.trim($('#alIos').val());
+				var theGp2 = $.trim($('#alAndroid').val());
+				var $sts = $cr.find('.pvwApp .store');
+				if (theIo || theGp2) {
+					$sts.eq(0).toggleClass('dim2', !crUrlOk(theIo));
+					$sts.eq(1).toggleClass('dim2', !crUrlOk(theGp2));
+				} else {
+					$sts.removeClass('dim2');
+				}
+			}
 			//payment, auto-detect recognized providers from the link
 			if ($('#paySel').length) {
 				var theLnk = $.trim($('#payLink').val());
@@ -787,12 +813,21 @@ jQuery(document).ready(function($) {
 			}
 			//coupon
 			if ($('#cpTitle').length) {
-				$cr.find('.pvwCpTtl').text($.trim($('#cpTitle').val()) || 'Weekend Special');
-				$cr.find('.pvwCpDsc').text($.trim($('#cpDisc').val()) || '20% OFF');
-				$cr.find('.pvwCpCod').text($.trim($('#cpCode').val()) || 'SAVE20');
-				$cr.find('.pvwCpTrm').text($.trim($('#cpTerms').val()) || 'One per customer. Cannot be combined with other offers.');
+				var theCpT = $.trim($('#cpTitle').val());
+				var theCpD = $.trim($('#cpDisc').val());
+				var theCpC = $.trim($('#cpCode').val());
+				var theCpTr = $.trim($('#cpTerms').val());
+				var theCpB = $.trim($('#cpBiz').val());
 				var theEx = $('#cpExp').val();
+				var theCpAny = !!(theCpT || theCpD || theCpC || theCpTr || theCpB || theEx);
+				$cr.find('.pvwCpTtl').text(theCpT || 'Weekend Special');
+				$cr.find('.pvwCpDsc').text(theCpD || '20% OFF');
+				$cr.find('.pvwCpn .cbz').text(theCpB || 'The Matcha Den');
+				$cr.find('.pvwCpCod').text(theCpC || 'SAVE20');
+				$cr.find('.pvwCpn .pcl, .pvwCpn .pcb, .pvwCpn .cpyb').toggle(!theCpAny || !!theCpC);
+				$cr.find('.pvwCpTrm').text(theCpTr || 'One per customer. Cannot be combined with other offers.').toggle(!theCpAny || !!theCpTr);
 				var $exr = $cr.find('.pvwCpn .cexp');
+				$exr.toggle(!theCpAny || !!theEx);
 				if (theEx) {
 					var theDt = new Date(theEx + 'T23:59:59');
 					var theOld = theDt.getTime() < new Date().getTime();
@@ -841,6 +876,13 @@ jQuery(document).ready(function($) {
 					$cr.find('.pvwBzHrs').html('<b>Open</b> &middot; Closes 3 PM');
 				}
 			}
+			var crSocLbl = function(theK) {
+				if (!$cr.hasClass('createDsk2')) {
+					return crSocNames[theK];
+				}
+				var theActs = { instagram: 'Follow on', tiktok: 'Follow on', facebook: 'Follow on', x: 'Follow on', pinterest: 'Follow on', snapchat: 'Add on', whatsapp: 'Chat on', telegram: 'Chat on', messenger: 'Chat on', wechat: 'Chat on', line: 'Chat on', viber: 'Chat on', youtube: 'Watch on', linkedin: 'Connect on', reddit: 'Join on' };
+				return (theActs[theK] ? theActs[theK] + ' ' : '') + crSocNames[theK];
+			};
 			//social media
 			if ($('#smHeadline').length) {
 				$cr.find('.pvwNm').text($.trim($('#smHeadline').val()) || 'Kaia Bennett');
@@ -850,15 +892,15 @@ jQuery(document).ready(function($) {
 				if (theSel3.length) {
 					$socs2.empty();
 					for (var n = 0; n < theSel3.length; n++) {
-						$socs2.append('<div class="lrow"><i class="bdg2" style="background:' + crSocColors[theSel3[n]] + ';"><img src="assets/images/create2_soc_' + theSel3[n] + '.svg" alt=""></i><span class="tx">' + crSocNames[theSel3[n]] + '</span>' + crChvSvg + '</div>');
+						$socs2.append('<div class="lrow"><i class="bdg2" style="background:' + crSocColors[theSel3[n]] + ';"><img src="assets/images/create2_soc_' + theSel3[n] + '.svg" alt=""></i><span class="tx">' + crSocLbl(theSel3[n]) + '</span>' + crChvSvg + '</div>');
 					}
 				} else {
 					$socs2.html(crSmSocsDef);
 				}
 			}
 		}
-		$cr.on('input', '#siteUrl, #vcFirst, #vcLast, #vcRole, #vcSummary, #mlTitle, #mlDesc, #smHeadline, #smDesc, #mnTitle, #mnCat, #wfSsid, #imTitle, #waMsg, #emTo, #emSubj, #emBody, #rvUrl, #smsNum, #smsMsg, #telNum, #txMsg, #txTitle, #auTitle, #evTitle, #evLoc, #evDesc, #fbUrl, #payLink, #cpTitle, #cpDisc, #cpCode, #cpTerms, #bzName, #bzDesc, #bzPhone, #bzEmail, #bzWeb, #bzAdr, .lnkNme, .mnPrc, .mnDsc', crPreview);
-		$cr.on('change', '#paySel, #cpExp, #bzOpen, #bzClose, #smsCc, #telCc, #evStD, #evStT, #evEnD, #evEnT', crPreview);
+		$cr.on('input', '#siteUrl, #vcFirst, #vcLast, #vcRole, #vcSummary, #mlTitle, #mlDesc, #smHeadline, #smDesc, #mnTitle, #mnCat, #wfSsid, #imTitle, #waMsg, #waNum, #wfPass, #vidTitle, #emTo, #emSubj, #emBody, #rvUrl, #smsNum, #smsMsg, #telNum, #txMsg, #txTitle, #auTitle, #evTitle, #evLoc, #evDesc, #fbUrl, #alIos, #alAndroid, #alFall, #payLink, #cpTitle, #cpDisc, #cpCode, #cpTerms, #cpBiz, #bzName, #bzDesc, #bzPhone, #bzEmail, #bzWeb, #bzAdr, .lnkNme, .mnPrc, .mnDsc', crPreview);
+		$cr.on('change', '#paySel, #cpExp, #bzOpen, #bzClose, #smsCc, #telCc, #waCc, #evStD, #evStT, #evEnD, #evEnT', crPreview);
 
 		//review link help + example-state button guards
 		$cr.find('.hlpLnk').on('click', function(e) {
@@ -923,7 +965,9 @@ jQuery(document).ready(function($) {
 			var crPdfDefDoc = $cr.find('.pvwPdf .doc').html();
 			function crPdfObj() {
 				$cr.find('.pvwPdf .doc').html('<object class="pdfObj" type="application/pdf" data="' + crPdfUrl + '#toolbar=0&navpanes=0&page=' + crPdfPage + '"></object>');
-				$cr.find('.pvwPdf .pcnt').text(crPdfPage + ' / ' + crPdfPages);
+				$cr.find('.pvwPdf .pcnt').text(crPdfPage + ' of ' + crPdfPages);
+				$cr.find('.pvwPdf .pdfPrev').toggleClass('off3', crPdfPage <= 1);
+				$cr.find('.pvwPdf .pdfNxt').toggleClass('off3', crPdfPage >= crPdfPages);
 			}
 			$cr.on('change', '#pdfFile', function() {
 				var theFile = this.files && this.files[0];
@@ -953,7 +997,8 @@ jQuery(document).ready(function($) {
 					if (theM && theM.length) {
 						crPdfPages = theM.length;
 					}
-					$cr.find('.pvwPdf .pcnt').text(crPdfPage + ' / ' + crPdfPages);
+					$cr.find('.fileCrd .fsz').text(crSizeTxt(theFile.size) + ' \u00b7 ' + crPdfPages + (crPdfPages === 1 ? ' page' : ' pages'));
+				crPdfObj();
 				};
 				theReader.readAsText(theFile);
 			});
@@ -971,7 +1016,8 @@ jQuery(document).ready(function($) {
 				}
 				$cr.find('.fileCrd').removeClass('on');
 				$cr.find('.pvwPdf .doc').html(crPdfDefDoc);
-				$cr.find('.pvwPdf .pcnt').html('&ndash; / &ndash;');
+				$cr.find('.pvwPdf .pcnt').html('&ndash; of &ndash;');
+				$cr.find('.pvwPdf .nv2').addClass('off3');
 			});
 		}
 
@@ -998,6 +1044,9 @@ jQuery(document).ready(function($) {
 					URL.revokeObjectURL(crVidUrl);
 				}
 				crVidUrl = URL.createObjectURL(theFile);
+				$cr.find('.pvwVidNm').text(theFile.name);
+				$cr.find('.pvwVidSz').text(crSizeTxt(theFile.size));
+				$cr.find('.pvwVidFm').text((theFile.name.split('.').pop() || 'MP4').toUpperCase());
 				$fld.find('.fileCrd').addClass('on').find('.fnm').text(theFile.name).end().find('.fsz').text(crSizeTxt(theFile.size));
 				$cr.find('.pvwVid .vidWrp').html('<video controls preload="metadata" src="' + crVidUrl + '"></video>');
 				//grab a frame for the file card thumbnail, fall back to the icon
@@ -1006,6 +1055,10 @@ jQuery(document).ready(function($) {
 				theV.src = crVidUrl;
 				theV.addEventListener('loadeddata', function() {
 					try { theV.currentTime = 0.1; } catch (e) {}
+					try {
+						var theDu = Math.round(theV.duration || 0);
+						$cr.find('.pvwVidDur').text(Math.floor(theDu / 60) + ':' + ('0' + (theDu % 60)).slice(-2));
+					} catch (e2) {}
 				});
 				theV.addEventListener('seeked', function() {
 					try {
@@ -1026,6 +1079,10 @@ jQuery(document).ready(function($) {
 				}
 				$cr.find('.fileCrd').removeClass('on').find('.fic').html(crVidDefFic);
 				$cr.find('.pvwVid .vidWrp').html(crVidDefWrp);
+				$cr.find('.pvwVidNm').text('Happy Moments.mp4');
+				$cr.find('.pvwVidSz').text('24.5 MB');
+				$cr.find('.pvwVidDur').text('0:24');
+				$cr.find('.pvwVidFm').text('MP4');
 			});
 		}
 
@@ -1078,6 +1135,7 @@ jQuery(document).ready(function($) {
 				crAudEl.addEventListener('loadedmetadata', function() {
 					if (crAudEl && isFinite(crAudEl.duration)) {
 						$cr.find('.pvwAud .at2').text(crAudTime(crAudEl.duration));
+						$cr.find('.fileCrd .fsz').text(crSizeTxt(theFile.size) + ' \u00b7 ' + crAudTime(crAudEl.duration));
 					}
 				});
 				crAudEl.addEventListener('timeupdate', function() {
@@ -1090,6 +1148,13 @@ jQuery(document).ready(function($) {
 					$cr.find('.pvwAud .ply').removeClass('on');
 				});
 				crPreview();
+			});
+			$cr.on('click', '.pvwAud .vol', function(e) {
+				e.preventDefault();
+				$(this).toggleClass('mut');
+				if (crAudEl) {
+					crAudEl.muted = $(this).hasClass('mut');
+				}
 			});
 			$cr.on('click', '.pvwAud .ply', function(e) {
 				e.preventDefault();
@@ -1107,7 +1172,7 @@ jQuery(document).ready(function($) {
 				crAudStop();
 				$cr.removeData('audName');
 				$cr.find('.fileCrd').removeClass('on').find('.fic').html(crAudDefFic);
-				$cr.find('.pvwAudFn').text('welcome-message.mp3');
+				$cr.find('.pvwAudFn').text('audio-recording.mp3');
 				$cr.find('.pvwAud .fil').css('width', '12%');
 				$cr.find('.pvwAud .at1').text('0:00');
 				$cr.find('.pvwAud .at2').text('0:28');
@@ -1201,6 +1266,67 @@ jQuery(document).ready(function($) {
 			});
 		}
 
+		//event desktop: all-day toggle hides the time inputs
+		if ($('#evAllDay').length) {
+			$cr.on('change', '#evAllDay', function() {
+				var theAd = this.checked;
+				$cr.find('.dtPair').toggleClass('allday', theAd);
+				if (theAd) {
+					$('#evStT').removeAttr('data-req').removeClass('error').val('').closest('.row').find('small.error').remove();
+					$('#evEnT').val('');
+				} else {
+					$('#evStT').attr('data-req', 'text');
+				}
+				$cr.find('.endChk').children('small.error').remove();
+				crPreview();
+			});
+		}
+
+		//event desktop: time zone selector, defaults to the detected zone
+		if ($('#evTz').length) {
+			var crTzs = ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/Anchorage', 'Pacific/Honolulu', 'America/Toronto', 'America/Vancouver', 'America/Mexico_City', 'America/Sao_Paulo', 'Europe/London', 'Europe/Dublin', 'Europe/Paris', 'Europe/Berlin', 'Europe/Madrid', 'Europe/Rome', 'Europe/Amsterdam', 'Europe/Stockholm', 'Europe/Warsaw', 'Europe/Athens', 'Africa/Johannesburg', 'Asia/Dubai', 'Asia/Kolkata', 'Asia/Singapore', 'Asia/Hong_Kong', 'Asia/Shanghai', 'Asia/Tokyo', 'Asia/Seoul', 'Australia/Perth', 'Australia/Sydney', 'Pacific/Auckland'];
+			var theDet2 = '';
+			try {
+				theDet2 = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+			} catch (e) {}
+			if (theDet2 && crTzs.indexOf(theDet2) === -1) {
+				crTzs.unshift(theDet2);
+			}
+			for (var tz = 0; tz < crTzs.length; tz++) {
+				var theOff = '';
+				try {
+					var thePrt = new Intl.DateTimeFormat('en-US', { timeZone: crTzs[tz], timeZoneName: 'longOffset' }).formatToParts(new Date());
+					for (var tp = 0; tp < thePrt.length; tp++) {
+						if (thePrt[tp].type === 'timeZoneName') {
+							theOff = thePrt[tp].value;
+						}
+					}
+				} catch (e2) {}
+				var theCty = crTzs[tz].split('/').pop().replace(/_/g, ' ');
+				$('#evTz').append($('<option>').val(crTzs[tz]).text((theOff ? '(' + theOff + ') ' : '') + theCty));
+			}
+			if (theDet2) {
+				$('#evTz').val(theDet2);
+			}
+		}
+
+		//coupon branding: cover photo swaps the card background
+		if ($('#cpCover').length) {
+			var crCpDef = 'assets/images/create2_pvw_cafe.jpg';
+			$cr.on('change', '#cpCover', function() {
+				var theFile = this.files && this.files[0];
+				if (!theFile || !window.FileReader) return;
+				var theReader = new FileReader();
+				theReader.onload = function(ev) {
+					$cr.find('.pvwCpn .cvr2').css('background-image', 'url(' + ev.target.result + ')');
+				};
+				theReader.readAsDataURL(theFile);
+			});
+			$cr.on('click', '.uplPrv .rmv', function() {
+				$cr.find('.pvwCpn .cvr2').css('background-image', 'url(' + crCpDef + ')');
+			});
+		}
+
 		//whatsapp / sms: suggest the visitor's country code
 		var $crCc = $('#waCc, #smsCc, #telCc');
 		if ($crCc.length) {
@@ -1227,7 +1353,7 @@ jQuery(document).ready(function($) {
 					crGalIx = 0;
 				}
 				$cr.find('.pvwGal .cvw > img').attr('src', theLst[crGalIx]);
-				$cr.find('.pvwGal .cntr').text((crGalIx + 1) + ' / ' + theLst.length);
+				$cr.find('.pvwGal .cntr').text((crGalIx + 1) + ' of 10');
 				$cr.find('.pvwCmp .bar .tmb img').attr('src', theLst[0]);
 				var $ths = $cr.find('.pvwGal .thumbs').empty();
 				for (var i = 0; i < theLst.length && i < 5; i++) {
@@ -1237,6 +1363,7 @@ jQuery(document).ready(function($) {
 					$ths.append('<span class="th more"><span>+' + (theLst.length - 5) + '</span></span>');
 				}
 				$cr.find('.pvwGal .nv').toggle(theLst.length > 1);
+				$cr.find('.pvwGal .thumbs').toggle(theLst.length > 1);
 			}
 			function crImgForm() {
 				$cr.find('.imgGrd .tmb2').remove();
@@ -1330,7 +1457,7 @@ jQuery(document).ready(function($) {
 				$fld.find('small.error').remove();
 				$fld.stop(true, true).slideUp(200);
 			} else {
-				$fld.find('input').attr('data-req', 'text');
+				$fld.find('input').attr('data-req', 'wpa');
 				$fld.stop(true, true).slideDown(200);
 			}
 			crPreview();
@@ -1358,6 +1485,9 @@ jQuery(document).ready(function($) {
 			if (theType === 'tel') {
 				var theTd = theVal.replace(/\D/g, '');
 				ok = theTd.length >= 5 && theTd.length <= 15;
+			}
+			if (theType === 'wpa') {
+				ok = theVal.length >= 8 && theVal.length <= 63;
 			}
 			//optional fields only validate once something is entered
 			if (!$in.attr('data-req') && (!theVal || theVal === 'https://')) {
@@ -1489,8 +1619,8 @@ jQuery(document).ready(function($) {
 				var theSt4 = $('#evStT').val();
 				var theEd4 = $('#evEnD').val();
 				var theEt4 = $('#evEnT').val();
-				if ((theEd4 || theEt4) && theSd4 && theSt4) {
-					var theS5 = new Date(theSd4 + 'T' + theSt4);
+				if ((theEd4 || theEt4) && theSd4 && (theSt4 || $('#evAllDay').prop('checked'))) {
+					var theS5 = new Date(theSd4 + 'T' + (theSt4 || '00:00'));
 					var theE5 = new Date((theEd4 || theSd4) + 'T' + (theEt4 || '23:59'));
 					endOk = theE5.getTime() > theS5.getTime();
 				}
@@ -1500,7 +1630,28 @@ jQuery(document).ready(function($) {
 					$enr.append('<small class="error">' + $enr.attr('data-msg') + '</small>');
 				}
 			}
-			if (!$bad.length && socOk && grpOk && imgOk && fileOk && mapOk && endOk) {
+			var payOk = true;
+			if ($('#paySel').length) {
+				var thePp = $('#paySel').val();
+				var thePl2 = $.trim($('#payLink').val());
+				var theHost2 = (thePl2.match(/^https?:\/\/([^\/?#]+)/i) || [])[1] || '';
+				if (thePp && thePp !== 'other' && theHost2 && crPayProv[thePp] && crPayProv[thePp].d && crPayProv[thePp].d.length) {
+					payOk = false;
+					for (var pd = 0; pd < crPayProv[thePp].d.length; pd++) {
+						if (theHost2.toLowerCase().indexOf(crPayProv[thePp].d[pd]) > -1) {
+							payOk = true;
+						}
+					}
+				}
+				var $plr = $('#payLink').closest('.row');
+				if (payOk) {
+					$plr.find('small.mis').remove();
+				} else if (!$plr.find('small.mis').length) {
+					$('#payLink').addClass('error');
+					$plr.append('<small class="error mis">This link does not match the selected provider.</small>');
+				}
+			}
+			if (!$bad.length && socOk && grpOk && imgOk && fileOk && mapOk && endOk && payOk) {
 				if (typeof fireModal === 'function') {
 					fireModal('modal_join.html');
 				}
@@ -1522,6 +1673,11 @@ jQuery(document).ready(function($) {
 			if (!$bad.length && !endOk) {
 				$('#evEnD')[0].focus({ preventScroll: true });
 				$('#evEnD')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+				return;
+			}
+			if (!$bad.length && !payOk) {
+				$('#payLink')[0].focus({ preventScroll: true });
+				$('#payLink')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
 				return;
 			}
 			if (!$bad.length && !socOk) {

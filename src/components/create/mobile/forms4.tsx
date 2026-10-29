@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { isValidEmail, isValidUrl } from "../validate";
 import { Counter, FieldError, Fld, Slide, TrackingPill, textArea, textInput } from "./ui";
 import { IntlNumberFld, TextFld, mobileNumberOk, trimmed } from "./fields";
+import { ScanNote } from "./previews";
 import type { Check, FormState, Values } from "./fields";
 
 /**
@@ -370,6 +371,8 @@ export function ReviewForm({ s }: { s: FormState }) {
           </HelpLine>
         </div>
       </Slide>
+      {/* Their `.nte3` sits in this form, under the help, not in the preview. */}
+      <ScanNote>Scanning sends customers directly to your Google review page so they can leave their own rating and review.</ScanNote>
     </>
   );
 }
