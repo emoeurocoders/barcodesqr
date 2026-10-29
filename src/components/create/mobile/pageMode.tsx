@@ -31,3 +31,17 @@ export function socialHref(key: string, raw: string) {
 /** The platforms a saved code has filled in, in the picker's order. */
 export const filledSocials = (values: Record<string, string>) =>
   socials.filter((p) => (values[p.key] ?? "").trim() && values[p.key] !== "https://").map((p) => p.key);
+
+/**
+ * Desktop step 2 (create_desktop_*.html) shows the preview as a column beside
+ * the form rather than a collapsible card: a heading ("Website Preview"),
+ * sometimes with a tip, then the phone and its caption — which some files
+ * word differently from their mobile twin. Set by DesktopStepTwo.
+ */
+export const DesktopPreview = createContext<{ title: string; tip?: string; caption?: string } | null>(null);
+
+export const useDesktopPreview = () => useContext(DesktopPreview);
+
+/** True inside desktop step 2 — forms and previews that lay out differently there. */
+export const DesktopLayout = createContext(false);
+export const useDesktop = () => useContext(DesktopLayout);

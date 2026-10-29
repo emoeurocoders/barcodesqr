@@ -640,6 +640,40 @@ deleted. Choosing a format goes straight to its form, as on mobile.
   at 1440, 1100, 800 and 768, all of it the subtitle and footer text
   antialiasing. Heights match at every width.
 
+## Desktop step 2, group 1 — create_desktop_*.html, ported 2026-10-29
+
+Website, vCard, Multi-Link, Social Media, App Link and PDF have the new
+desktop step 2 (JB, Monday 5675060339); the other 17 keep the old card
+until their files arrive. The desktop files are the mobile files at a fixed
+10px em (mobile's is 8.112px), so desktop renders the SAME form and preview
+components zoomed ×10/8.112 — one implementation, as JB asked. The sizes
+the files fix in px (inputs 15px/46.94px, labels 14px, textarea, the
+header's subtitle weight) come back through CSS variables in mobile/ui.tsx,
+divided by the zoom. Validation, saving, editing, uploads and previews are
+the mobile ones; only layout differs (`useDesktop()`).
+
+- **Desktop-only differences, ported:** logo-only header; a step rail with
+  labels inside the card; preview as a sticky column with a heading (and a
+  tip on Website/vCard), below the form from 992px down; Website's mint URL
+  bar; vCard first/last side by side and Social media before Address, with
+  the file's static platform strip ("+6") in that header; Multi-Link's name
+  and URL side by side; Social Media six to a row with a "More Platforms"
+  tile and its own order, "Selected profiles" over the fields, action
+  labels in the preview ("Follow on Instagram"), no verified tick; App
+  Link's larger layout with QR/share chips; PDF's sample brochure cover
+  until a file is in.
+- **Kept beyond the files (parity):** Multi-Link's per-link logo and Social
+  Media's "Your Links" — features the forms had before; the files draw
+  neither. Raised with JB.
+- **The rail uses the PM's step names** ("Add Content", "Customize &
+  Download"), as step 1's header does; the files still say "Complete
+  Content" / "Customize & Protect".
+- **No tracking badge** (TRACKING_LIVE), so these forms sit ~55px shorter
+  than the files.
+- Diffs at 1440: 1.1% (Website) to 3.0% (Social Media), the rest being the
+  hidden badge and the parity extras. Checked for horizontal overflow at
+  1180, 1024, 900 and 800; mobile unchanged (skeleton identical).
+
 ## Image reframing — not in the file, added 2026-10-21
 
 Tami found uploaded photos showing only their middle in "Your Image

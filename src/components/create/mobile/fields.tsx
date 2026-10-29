@@ -106,7 +106,7 @@ export function FormHeader({
         <h4 className="text-[22.71px] leading-[normal] font-extrabold tracking-[-0.57px] text-ink">
           {title}
         </h4>
-        <p className="mt-[3.2px] text-[12.98px] leading-[normal] font-medium text-muted">
+        <p className="mt-[3.2px] text-[12.98px] leading-[normal] [font-weight:var(--mc-hd-w,500)] text-muted">
           {desc}
         </p>
       </div>

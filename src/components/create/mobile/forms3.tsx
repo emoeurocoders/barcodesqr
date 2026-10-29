@@ -1,5 +1,7 @@
 "use client";
 
+import { useDesktop } from "./pageMode";
+
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { parseStoredFile, parseMenuItems, serializeMenuItems } from "../storedValues";
@@ -21,6 +23,12 @@ import { LinkList, SocialPicker } from "./forms";
 export const socialMediaOrder = [
   "instagram", "tiktok", "whatsapp", "youtube", "linkedin", "facebook", "x", "telegram",
   "reddit", "snapchat", "pinterest", "messenger", "line", "wechat", "viber",
+];
+
+/** create_desktop_social_media.html's order — eleven, then More, then the rest. */
+export const socialMediaOrderDesktop = [
+  "instagram", "tiktok", "whatsapp", "youtube", "facebook", "linkedin", "x", "snapchat",
+  "pinterest", "telegram", "reddit", "messenger", "wechat", "line", "viber",
 ];
 
 /* ---- Validation ------------------------------------------------------------ */
@@ -107,17 +115,18 @@ const linkGlyph = (
 
 export function SocialMediaForm({ s }: { s: FormState }) {
   const err = s.errors.smSocials;
+  const desk = useDesktop();
   return (
     <>
       <TrackingPill />
-      <TextFld s={s} id="smHeadline" k="headline" label="Headline" placeholder="e.g. Kaia Bennett" max={40} required counter />
+      <TextFld s={s} id="smHeadline" k="headline" label="Headline" placeholder={desk ? "e.g. Olivia Bennett" : "e.g. Kaia Bennett"} max={40} required counter />
       {/* Their `.fld.socReq`. */}
       <div id="smSocials" tabIndex={-1} className="mt-[12.2px] outline-none">
         <div className="flex items-center">
           <Label required>Social media</Label>
         </div>
         <Sub>Select icons below to add your social channels.</Sub>
-        <SocialPicker s={s} idPrefix="smSoc" order={socialMediaOrder} />
+        <SocialPicker s={s} idPrefix="smSoc" order={desk ? socialMediaOrderDesktop : socialMediaOrder} tile={desk} />
         {err && <FieldError>{err}</FieldError>}
       </div>
       <Acc icon={docGlyph} title="Description" desc="Add a short bio (optional)" open={s.isOpen("desc")} onToggle={() => s.toggle("desc")}>

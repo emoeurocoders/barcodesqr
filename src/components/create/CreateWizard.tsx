@@ -16,6 +16,7 @@ import { MainSlimFooter } from "@/components/layout/MainSlimFooter";
 import {
   MobileFallbackStepTwo,
   MobileStepTwo,
+  desktopTypes,
 } from "./mobile/MobileStepTwo";
 import { mobileTypes } from "./mobile/forms";
 import { useIsMobile } from "./useIsMobile";
@@ -336,6 +337,64 @@ export function CreateWizard({
     );
   }
 
+  // Shared by both step-2 shells.
+  const editNote = (
+    <>
+    {/*
+            Editing a saved code. Unmocked — the designer has no edit flow — so
+            it borrows the info-note look. What it says depends on the type: a
+            static code carries its content, so the image changes and must be
+            downloaded again; a hosted one keeps its image.
+          */}
+          {isEditing && (
+            <div className="mx-[14.6px] mt-3 flex items-start gap-2 rounded-xl border border-mc-note-line bg-mc-note px-3 py-2.5 text-[13px] leading-snug text-prose md:mx-auto md:mt-6 md:max-w-6xl md:px-4">
+              <Info className="mt-px h-4 w-4 shrink-0 text-primary" />
+              <p>
+                <b className="font-semibold text-mc-note-ink">Editing “{editing!.name}”.</b>{" "}
+                {isDynamic(type)
+                  ? "Saving updates what this code shows. The QR image stays the same."
+                  : "This code holds its content directly, so saving changes the QR image. Download it again afterwards — copies already printed keep the old content."}
+              </p>
+            </div>
+          )}
+    </>
+  );
+  const saveToast = (
+    <>
+    {/* Saving runs on Next; this only shows if it fails. */}
+          {saveError && (
+            <div
+              role="alert"
+              className="fixed inset-x-4 bottom-20 z-40 mx-auto max-w-md rounded-xl bg-ink px-4 py-3 text-center text-sm text-white shadow-pop"
+            >
+              {saveError}
+            </div>
+          )}
+    </>
+  );
+
+  // create_desktop_*.html (JB, 2026-10-29): the mobile form, as a desktop
+  // page. Only the types those files cover; the rest keep the old step 2.
+  if (!isMobile && desktopTypes.has(type)) {
+    return (
+      <>
+        <MobileStepTwo
+          layout="desktop"
+          type={type}
+          values={values}
+          setValues={setValues}
+          name={name}
+          setName={setName}
+          onBack={back}
+          onNext={finishStepTwo}
+          notice={isEditing ? editNote : undefined}
+        />
+        {saveToast}
+        {paywallLayer}
+      </>
+    );
+  }
+
   return (
     // Desktop: a full-screen card with its own scrolling body and a pinned
     // footer. Below `md` (create_mobile*.html) none of that — the page
@@ -347,23 +406,7 @@ export function CreateWizard({
       </div>
 
       <main className="md:min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
-      {/*
-        Editing a saved code. Unmocked — the designer has no edit flow — so
-        it borrows the info-note look. What it says depends on the type: a
-        static code carries its content, so the image changes and must be
-        downloaded again; a hosted one keeps its image.
-      */}
-      {isEditing && (
-        <div className="mx-[14.6px] mt-3 flex items-start gap-2 rounded-xl border border-mc-note-line bg-mc-note px-3 py-2.5 text-[13px] leading-snug text-prose md:mx-auto md:mt-6 md:max-w-6xl md:px-4">
-          <Info className="mt-px h-4 w-4 shrink-0 text-primary" />
-          <p>
-            <b className="font-semibold text-mc-note-ink">Editing “{editing!.name}”.</b>{" "}
-            {isDynamic(type)
-              ? "Saving updates what this code shows. The QR image stays the same."
-              : "This code holds its content directly, so saving changes the QR image. Download it again afterwards — copies already printed keep the old content."}
-          </p>
-        </div>
-      )}
+      {editNote}
       {/* Step 2 sits in a narrower centred column, which is what makes the
           form read as a card rather than a sheet. */}
       {isMobile && mobileTypes.has(type) ? (
@@ -430,15 +473,7 @@ export function CreateWizard({
         ------------------------------------------------------------------ */}
       </div>
 
-      {/* Saving runs on Next; this only shows if it fails. */}
-      {saveError && (
-        <div
-          role="alert"
-          className="fixed inset-x-4 bottom-20 z-40 mx-auto max-w-md rounded-xl bg-ink px-4 py-3 text-center text-sm text-white shadow-pop"
-        >
-          {saveError}
-        </div>
-      )}
+      {saveToast}
 
       {paywallLayer}
     </div>

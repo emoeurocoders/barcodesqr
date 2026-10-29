@@ -1,12 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Caret, Slide } from "./ui";
+import { Caret, Slide, Tip } from "./ui";
 import { socialByKey } from "./socials";
 import { cropStyle, fileSrc, filledLinks, linkCaption, parseStoredFile } from "../storedValues";
 import { dialCodes } from "../fieldSchema";
 import { isValidUrl } from "../validate";
-import { filledSocials, socialHref, usePageMode } from "./pageMode";
+import { filledSocials, socialHref, useDesktop, useDesktopPreview, usePageMode } from "./pageMode";
 
 /**
  * "Your … Preview" — the collapsible card above each create_mobile_*.html
@@ -76,13 +76,15 @@ export function Chip({ round, className, children }: { round?: boolean; classNam
 
 /** Their `.phn`: the phone-shaped card the expanded preview draws in. */
 export function Phone({ className = "", children }: { className?: string; children: ReactNode }) {
+  // Desktop's `.pvCol .phn { margin-top: 0 }`: the heading spaces it.
+  const desk = useDesktop();
   // As a hosted page the phone IS the screen: no frame.
   if (usePageMode()) {
     return <div className={`relative min-h-[var(--qh)] max-w-[243.4px] overflow-hidden bg-white ${className}`}>{children}</div>;
   }
   return (
     <div
-      className={`relative mx-auto mt-[4.1px] max-w-[243.4px] overflow-hidden rounded-[17.8px] border border-mc-pv-line bg-white shadow-mc-phone ${className}`}
+      className={`relative mx-auto ${desk ? "" : "mt-[4.1px]"} max-w-[243.4px] overflow-hidden rounded-[17.8px] border border-mc-pv-line bg-white shadow-mc-phone ${className}`}
     >
       {children}
     </div>
@@ -91,8 +93,11 @@ export function Phone({ className = "", children }: { className?: string; childr
 
 /** Their `.smp`: the grey caption under the phone. */
 export function Sample({ children }: { children: ReactNode }) {
-  // Not on a hosted page.
-  if (usePageMode()) return null;
+  // Not on a hosted page; on desktop, the file's own caption where it differs.
+  const page = usePageMode();
+  const desk = useDesktopPreview();
+  if (page) return null;
+  if (desk?.caption) children = desk.caption;
   return (
     <p className="mt-[12.2px] text-center text-[10.14px] leading-[normal] text-faint">
       {children}
@@ -142,6 +147,7 @@ export function WebsitePreview({
   open: boolean;
   onToggle: () => void;
 }) {
+  const desk = useDesktop();
   const url = (values.url ?? "").trim();
   // Their `.pvwSite.has`: the sample site swaps in once the address is real.
   const has = isValidUrl(url) && url !== "https://";
@@ -164,10 +170,11 @@ export function WebsitePreview({
         </>
       }
     >
-      <div className="relative mx-auto mt-[4.1px] overflow-hidden rounded-[13px] border border-mc-pv-line bg-white shadow-mc-phone">
-        <div className="bg-white px-[9.7px] pt-[9.7px]">
-          <span className="flex items-center rounded-full bg-mc-well px-[10.5px] py-[6.5px]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="block h-[11.4px] w-[11.4px] shrink-0 text-prose">
+      <div className={`relative mx-auto ${desk ? "" : "mt-[4.1px]"} overflow-hidden rounded-[13px] border border-mc-pv-line bg-white shadow-mc-phone`}>
+        {/* Desktop (`createDsk2 .pvwSite .url`): the bar sits in a mint band. */}
+        <div className={desk ? "bg-[#82d3c0] p-[9.73px]" : "bg-white px-[9.7px] pt-[9.7px]"}>
+          <span className={`flex items-center rounded-full px-[10.5px] py-[6.5px] ${desk ? "bg-white" : "bg-mc-well"}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`block h-[11.4px] w-[11.4px] shrink-0 ${desk ? "text-[#37917e]" : "text-prose"}`}>
               <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
@@ -721,7 +728,21 @@ export function PreviewCard({
   children: ReactNode;
 }) {
   // As a hosted page: the content alone.
-  if (usePageMode()) return <>{children}</>;
+  const page = usePageMode();
+  const desk = useDesktopPreview();
+  if (page) return <>{children}</>;
+  // Desktop: a heading over the open preview — their `.pvh` — no toggle.
+  if (desk) {
+    return (
+      <>
+        <h3 className="mb-[11.03px] flex items-center gap-[6.9px] text-[13.79px] leading-[17.93px] font-bold text-ink">
+          {desk.title}
+          {desk.tip && <Tip label="About the preview" text={desk.tip} />}
+        </h3>
+        {children}
+      </>
+    );
+  }
   return (
     <div className="mt-[13px] rounded-[13px] border border-mc-line bg-white">
       <a

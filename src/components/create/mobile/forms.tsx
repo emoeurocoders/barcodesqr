@@ -14,6 +14,7 @@ import {
   outlineBtn,
   textInput,
 } from "./ui";
+import { useDesktop } from "./pageMode";
 import { socialByKey, socials } from "./socials";
 
 import {
@@ -128,6 +129,15 @@ export const mobileTypes = new Set([
 ]);
 
 
+/**
+ * Desktop's `.rowCols` / `.lnkRow`: two fields side by side, 1.2em apart.
+ * On mobile, nothing — not even a wrapper, so the markup stays the file's.
+ */
+function DeskRow({ on, children }: { on: boolean; children: React.ReactNode }) {
+  if (!on) return <>{children}</>;
+  return <div className="flex gap-x-[9.73px] [&>*]:min-w-0 [&>*]:flex-1">{children}</div>;
+}
+
 /* ---- Social platforms ------------------------------------------------------ */
 
 const closeGlyph = (
@@ -146,6 +156,7 @@ export function SocialPicker({
   s,
   idPrefix,
   order,
+  tile = false,
 }: {
   s: FormState;
   idPrefix: string;
@@ -154,9 +165,18 @@ export function SocialPicker({
    * The first eight show; the rest wait behind "More Platforms".
    */
   order?: string[];
+  /**
+   * create_desktop_social_media.html: eleven platforms, then "More
+   * Platforms" as the twelfth tile, the rest after it; and a "Selected
+   * profiles" heading over the fields once one is picked.
+   */
+  tile?: boolean;
 }) {
+  // Desktop draws six to a row (`createDsk2 .socGrd`).
+  const desk = useDesktop();
+  const shown = tile ? 11 : 8;
   const list = order
-    ? order.map((k, i) => ({ ...socialByKey[k], extra: i >= 8 }))
+    ? order.map((k, i) => ({ ...socialByKey[k], extra: i >= shown }))
     : socials;
   const toggle = (key: string) => {
     const on = s.socialsOn.includes(key);
@@ -174,13 +194,40 @@ export function SocialPicker({
     }
   };
 
+  // Their `.itm.itmMore`: the tile version of "More Platforms".
+  const moreTile = (
+    <li key="__more">
+      <a
+        href="#"
+        role="button"
+        aria-expanded={s.moreSocials}
+        onClick={(e) => {
+          e.preventDefault();
+          s.setMoreSocials(!s.moreSocials);
+        }}
+        className="flex flex-col items-center rounded-[9.7px] border border-mc-acc-line px-[3.2px] pt-[8.1px] pb-[7.3px]"
+      >
+        <i className="flex h-[27.6px] w-[27.6px] items-center justify-center rounded-[8.1px] bg-[#eef1f5] text-prose not-italic [&>svg]:block [&>svg]:h-[12.17px] [&>svg]:w-[12.17px]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="19" cy="12" r="1"></circle>
+            <circle cx="5" cy="12" r="1"></circle>
+          </svg>
+        </i>
+        <span className="mt-[5.4px] block max-w-full truncate text-[8.92px] leading-[normal] font-semibold text-body">More Platforms</span>
+      </a>
+    </li>
+  );
+
   return (
     <>
-      <ul className="mt-[11.4px] grid grid-cols-4 gap-[8.1px]">
-        {list.map((p) => {
+      <ul className={`mt-[11.4px] grid gap-[8.1px] ${desk ? "grid-cols-6" : "grid-cols-4"}`}>
+        {list.flatMap((p, idx) => {
+          const more = tile && idx === shown ? [moreTile] : [];
           const on = s.socialsOn.includes(p.key);
-          if (p.extra && !s.moreSocials) return null;
-          return (
+          if (p.extra && !s.moreSocials) return more;
+          return [
+            ...more,
             <li key={p.key}>
               <a
                 href="#"
@@ -207,10 +254,11 @@ export function SocialPicker({
                   {p.name}
                 </span>
               </a>
-            </li>
-          );
+            </li>,
+          ];
         })}
       </ul>
+      {!tile && (
       <a
         href="#"
         aria-expanded={s.moreSocials}
@@ -225,6 +273,16 @@ export function SocialPicker({
           <path d="m6 9 6 6 6-6" />
         </svg>
       </a>
+      )}
+      {/* Their `.selHd` (desktop Social Media), once a platform is on. */}
+      {tile && s.socialsOn.length > 0 && (
+        <div className="mt-[13.79px]">
+          <span className="block text-[12.17px] leading-[normal] font-bold text-ink">Selected profiles</span>
+          <span className="mt-[2.03px] block text-[10.14px] leading-[14.7px] text-muted">
+            Add your username or profile link for each selected platform.
+          </span>
+        </div>
+      )}
       <div>
         {list
           .filter((p) => s.socialsOn.includes(p.key))
@@ -282,7 +340,24 @@ export function SocialPicker({
 
 
 
-export function SocialAcc({ s, idPrefix }: { s: FormState; idPrefix: string }) {
+/**
+ * create_desktop_vcard.html's `.acc .hd .socPvw`: five platform badges and
+ * "+6" in the collapsed Social media header. Static in the file — a hint of
+ * what is inside, not the selection — and reproduced as such.
+ */
+const socPvw = (
+  <span className="mr-[8.11px] flex shrink-0 items-center gap-[4.06px]">
+    {["instagram", "facebook", "linkedin", "youtube", "x"].map((k) => (
+      <i key={k} className="flex h-[17.85px] w-[17.85px] items-center justify-center rounded-[4.87px] not-italic" style={{ background: socialByKey[k]?.color }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`/create/soc/${k}.svg`} alt="" className="block h-[10.14px] w-[10.14px]" />
+      </i>
+    ))}
+    <b className="flex h-[16.95px] w-[16.95px] items-center justify-center rounded-[4.62px] bg-[#eef1f5] text-[7.71px] font-semibold text-muted">+6</b>
+  </span>
+);
+
+export function SocialAcc({ s, idPrefix, badges = false }: { s: FormState; idPrefix: string; badges?: boolean }) {
   return (
     <Acc
       icon={shareGlyph}
@@ -290,6 +365,7 @@ export function SocialAcc({ s, idPrefix }: { s: FormState; idPrefix: string }) {
       desc="Add your social channels"
       open={s.isOpen("social")}
       onToggle={() => s.toggle("social")}
+      extra={badges ? socPvw : undefined}
     >
       <SocialPicker s={s} idPrefix={idPrefix} />
     </Acc>
@@ -320,6 +396,9 @@ export function WebsiteForm({ s }: { s: FormState }) {
 
 export function VCardForm({ s }: { s: FormState }) {
   const mode = s.values.addressMode === "url" ? "url" : "manual";
+  // create_desktop_vcard.html orders Social media before Address.
+  const desk = useDesktop();
+  const social = <SocialAcc s={s} idPrefix="vcSoc" badges={desk} />;
   return (
     <>
       <Acc
@@ -338,8 +417,11 @@ export function VCardForm({ s }: { s: FormState }) {
         onToggle={() => s.toggle("personal")}
       >
         <TrackingPill className="mt-[11.4px]" />
-        <TextFld s={s} id="vcFirst" k="firstName" label="First name" placeholder="John" max={40} required counter />
-        <TextFld s={s} id="vcLast" k="lastName" label="Last name" placeholder="Doe" max={40} required counter />
+        {/* Desktop puts the two side by side (`.rowCols`). */}
+        <DeskRow on={desk}>
+          <TextFld s={s} id="vcFirst" k="firstName" label="First name" placeholder="John" max={40} required counter />
+          <TextFld s={s} id="vcLast" k="lastName" label="Last name" placeholder="Doe" max={40} required counter />
+        </DeskRow>
       </Acc>
 
       <Acc
@@ -404,6 +486,8 @@ export function VCardForm({ s }: { s: FormState }) {
         <TextAreaFld s={s} id="vcSummary" k="summary" label="Summary" placeholder="e.g. About my company" max={200} />
       </Acc>
 
+      {desk && social}
+
       <Acc
         icon={
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -451,7 +535,7 @@ export function VCardForm({ s }: { s: FormState }) {
         )}
       </Acc>
 
-      <SocialAcc s={s} idPrefix="vcSoc" />
+      {!desk && social}
     </>
   );
 }
@@ -568,6 +652,7 @@ export function LinkList({
   /** Social Media's links: nothing required, so no stars. */
   optional?: boolean;
 }) {
+  const desk = useDesktop();
   const rows = linkRows(s.values);
   const write = (next: StoredLink[]) => s.set("links", JSON.stringify(next));
   const update = (i: number, patch: Partial<StoredLink>) =>
@@ -613,6 +698,8 @@ export function LinkList({
                   </span>
                 )}
               </div>
+              {/* Desktop sets name and URL side by side (`.lnkRow > .fld`). */}
+              <DeskRow on={desk}>
               <Fld id={`lnkNme${i}`} label="Link name" required={!optional} error={nameErr}>
                 <input
                   type="text"
@@ -636,6 +723,7 @@ export function LinkList({
                   {...urlHandlers(row.url, (v) => update(i, { url: v }))}
                 />
               </Fld>
+              </DeskRow>
               <LinkLogo s={s} i={i} logo={row.logo} type={type} />
             </div>
           );

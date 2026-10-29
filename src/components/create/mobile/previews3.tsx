@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { cropStyle, fileSrc, filledLinks, linkCaption, parseMenuItems, parseStoredFile } from "../storedValues";
 import { BarCaret, BarText, Chip, PreviewCard, RowLink, Sample, ScanNote, chevronRight, hrefOf, qrGlyph } from "./previews";
-import { filledSocials, socialHref, usePageMode } from "./pageMode";
+import { filledSocials, socialHref, useDesktop, usePageMode } from "./pageMode";
 import { socialByKey } from "./socials";
 
 /**
@@ -25,10 +25,11 @@ const svgProps = {
 };
 
 function Phone({ className = "", children }: { className?: string; children: ReactNode }) {
+  const desk = useDesktop();
   // As a hosted page the phone IS the screen: no frame.
   if (usePageMode()) return <div className={`relative min-h-[var(--qh)] overflow-hidden ${className}`}>{children}</div>;
   return (
-    <div className={`relative mx-auto mt-[4.1px] overflow-hidden rounded-[17.8px] border border-mc-pv-line shadow-mc-phone ${className}`}>
+    <div className={`relative mx-auto ${desk ? "" : "mt-[4.1px]"} overflow-hidden rounded-[17.8px] border border-mc-pv-line shadow-mc-phone ${className}`}>
       {children}
     </div>
   );
@@ -46,6 +47,18 @@ function Thumb({ src, round, style }: { src: string; round?: boolean; style?: Re
 /* ---- Social Media ---------------------------------------------------------- */
 
 const sampleSocials = ["instagram", "tiktok", "whatsapp"];
+/** Desktop's sample shows two more. */
+const sampleSocialsDesktop = ["instagram", "tiktok", "whatsapp", "youtube", "linkedin"];
+
+/**
+ * Desktop words each row as an action ("Follow on Instagram"), from their
+ * script's `crSocLbl`; mobile shows the name alone.
+ */
+const socAction: Record<string, string> = {
+  instagram: "Follow on", tiktok: "Follow on", facebook: "Follow on", x: "Follow on", pinterest: "Follow on",
+  snapchat: "Add on", whatsapp: "Chat on", telegram: "Chat on", messenger: "Chat on", wechat: "Chat on",
+  line: "Chat on", viber: "Chat on", youtube: "Watch on", linkedin: "Connect on", reddit: "Join on",
+};
 
 export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: Props & { selectedSocials: string[] }) {
   const page = usePageMode();
@@ -56,7 +69,9 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
   const bio =
     (values.description ?? "").trim() ||
     (page ? "" : "Creating a brighter, more connected world through content, community and good ideas.");
-  const socs = page ? filledSocials(values) : selectedSocials.length ? selectedSocials : sampleSocials;
+  const desk = useDesktop();
+  const socs = page ? filledSocials(values) : selectedSocials.length ? selectedSocials : desk ? sampleSocialsDesktop : sampleSocials;
+  const label = (k: string) => (desk && socAction[k] ? `${socAction[k]} ` : "") + (socialByKey[k]?.name ?? k);
   const links = filledLinks(values.links ?? "");
 
   return (
@@ -95,7 +110,8 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
         </span>
         <h5 className="relative mt-[9.4px] flex items-center justify-center gap-[5px] px-[12.6px] text-[12.57px] leading-[normal] font-bold tracking-[-0.13px] text-mc-soc-name">
           <span className="block min-w-0 truncate">{name}</span>
-          <svg {...svgProps} className="block h-[13.2px] w-[13.2px] shrink-0 text-mc-verified">
+          {/* Desktop drops the verified tick (`createDsk2 .pvwSoc .nm > svg`). */}
+          <svg {...svgProps} className={`block h-[13.2px] w-[13.2px] shrink-0 text-mc-verified ${desk ? "hidden" : ""}`}>
             <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
             <path d="m9 12 2 2 4-4" />
           </svg>
@@ -123,7 +139,7 @@ export function SocialMediaPreview({ values, selectedSocials, open, onToggle }: 
                 </i>
               }
             >
-              {socialByKey[k]?.name}
+              {label(k)}
             </Row>
           ))}
           {/* Desktop parity: custom links, once there are any. Unmocked. */}

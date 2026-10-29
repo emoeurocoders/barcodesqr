@@ -161,8 +161,14 @@ export function TrackingPill({ className = "" }: { className?: string }) {
  * zoom on focus), blue border while focused, red once Next has found it
  * wanting.
  */
+/*
+ * The few sizes the files fix in px rather than in the form's em. Desktop
+ * (create_desktop_*.html) draws the same form zoomed ×10/8.112 — its em is
+ * 10px where mobile's is 8.112px — so a fixed size has to be divided by that
+ * zoom to come out right. DesktopStepTwo sets these; unset, they are mobile's.
+ */
 export function inputClass(invalid: boolean) {
-  return `mt-[9.6px] block w-full rounded-[5px] border bg-white px-4 text-base leading-6 tracking-[0.16px] text-ink shadow-mc-input transition-[border-color,box-shadow] duration-150 outline-none placeholder:text-mc-placeholder focus:placeholder:text-mc-placeholder/58 ${
+  return `mt-[var(--mc-in-mt,9.6px)] block w-full rounded-[5px] border bg-white px-[var(--mc-in-px,16px)] text-[length:var(--mc-in-fs,16px)] leading-[1.5] tracking-[0.01em] text-ink shadow-mc-input transition-[border-color,box-shadow] duration-150 outline-none placeholder:text-mc-placeholder focus:placeholder:text-mc-placeholder/58 ${
     invalid
       ? "border-mc-error focus:border-error focus:shadow-[0_5px_10px_-5px_rgba(0,0,0,0.1),inset_0_0_0_1px_#cc0000]"
       : "border-mc-input-line focus:border-primary"
@@ -170,10 +176,10 @@ export function inputClass(invalid: boolean) {
 }
 
 export const textInput = (invalid: boolean) =>
-  `${inputClass(invalid)} h-[43.7px]`;
+  `${inputClass(invalid)} h-[var(--mc-in-h,43.7px)]`;
 
 export const textArea = (invalid: boolean) =>
-  `${inputClass(invalid)} min-h-[102.4px] px-4 py-[11.2px]`;
+  `${inputClass(invalid)} min-h-[var(--mc-ta-h,102.4px)] py-[var(--mc-ta-py,11.2px)]`;
 
 /** Their `.lbl label`: 14px/600 slate, a red star when required. */
 export function Label({
@@ -190,7 +196,7 @@ export function Label({
   return (
     <label
       htmlFor={htmlFor}
-      className={`text-[14px] leading-[normal] font-semibold text-body ${className}`}
+      className={`text-[length:var(--mc-lb,14px)] leading-[normal] font-semibold text-body ${className}`}
     >
       {children}
       {required && (
@@ -313,6 +319,7 @@ export function Acc({
   desc,
   open,
   onToggle,
+  extra,
   children,
 }: {
   icon: ReactNode;
@@ -320,6 +327,8 @@ export function Acc({
   desc: string;
   open: boolean;
   onToggle: () => void;
+  /** Drawn between the title and the caret (desktop vCard's platform strip). */
+  extra?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -344,6 +353,7 @@ export function Acc({
             {desc}
           </span>
         </span>
+        {extra}
         <i
           className={`flex shrink-0 text-muted not-italic transition-transform duration-[250ms] ease-out ${
             open ? "rotate-180" : ""

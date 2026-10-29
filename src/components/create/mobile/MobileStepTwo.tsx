@@ -24,6 +24,7 @@ import {
   WifiForm,
   checksForBatch3,
   socialMediaOrder,
+  socialMediaOrderDesktop,
 } from "./forms3";
 import {
   MenuPreview,
@@ -58,6 +59,9 @@ const mobileHeaderDesc: Record<string, string> = {
   coupon: "Share a special offer with customers",
 };
 import { ArrowLeft, ArrowRight, outlineBtn, smallBtn } from "./ui";
+import { DesktopLayout, DesktopPreview } from "./pageMode";
+import { CreateHeader } from "../CreateHeader";
+import { MainSlimFooter } from "@/components/layout/MainSlimFooter";
 
 const hdrSvg = {
   width: "25",
@@ -248,6 +252,123 @@ export function MobileFooter({
   );
 }
 
+/* ---- Desktop (create_desktop_*.html) ----------------------------------------- */
+
+/**
+ * The desktop files are the mobile form at a fixed 10px em where mobile's
+ * is 8.112px (2.08vw at 390). So the same components are drawn zoomed by
+ * 10/8.112 — one form, two sizes. The handful of sizes the files fix in px
+ * (inputs, labels, the header's subtitle weight) are set back through the
+ * variables in ui.tsx, divided by that zoom so they land on the file's px.
+ */
+const Z = 10 / 8.112;
+const DESK_ZOOM = {
+  zoom: Z,
+  "--mc-in-h": `${46.94 / Z}px`,
+  "--mc-in-fs": `${15 / Z}px`,
+  "--mc-in-px": `${15 / Z}px`,
+  "--mc-in-mt": `${9 / Z}px`,
+  "--mc-ta-h": `${96 / Z}px`,
+  "--mc-ta-py": `${10.5 / Z}px`,
+  "--mc-lb": `${14 / Z}px`,
+  "--mc-hd-w": "400",
+} as React.CSSProperties;
+
+/** Each desktop file's `.pvh` heading, its tip, and a caption that differs from mobile's. */
+const desktopPreview: Record<string, { title: string; tip?: string; caption?: string }> = {
+  website: {
+    title: "Website Preview",
+    tip: "A sample layout. Your real website opens when the code is scanned.",
+    caption: "This is a preview of your website link.",
+  },
+  vcard: { title: "vCard Preview", tip: "This is how your digital business card will look after scanning." },
+  multilink: { title: "Multi-Link Preview" },
+  social: { title: "Social Media Preview" },
+  applink: { title: "App Link Preview" },
+  pdf: { title: "PDF Preview", caption: "Example cover. Your PDF replaces it once uploaded." },
+};
+
+/** The types whose desktop step 2 is create_desktop_*.html so far (JB, 2026-10-29). */
+export const desktopTypes = new Set(Object.keys(desktopPreview));
+
+const deskSteps = [
+  // The PM's names (2026-10-12), as on step 1's header; the files still
+  // carry "Complete Content" / "Customize & Protect".
+  { step: "Step 1", title: "Choose QR Type" },
+  { step: "Step 2", title: "Add Content" },
+  { step: "Step 3", title: "Customize & Download" },
+];
+
+/** Their `.crd > .top` on desktop: icon, "Step n" and its name, joined by rules. */
+function DesktopRail() {
+  const icons = [
+    <path key="a" d="M17.5 5.25L7.875 14.875L3.5 10.5" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />,
+    <g key="b">
+      <path d="M10.5 2.625H4.375C3.91087 2.625 3.46575 2.80937 3.13756 3.13756C2.80937 3.46575 2.625 3.91087 2.625 4.375V16.625C2.625 17.0891 2.80937 17.5342 3.13756 17.8624C3.46575 18.1906 3.91087 18.375 4.375 18.375H16.625C17.0891 18.375 17.5342 18.1906 17.8624 17.8624C18.1906 17.5342 18.375 17.0891 18.375 16.625V10.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16.1 2.275C16.4481 1.9269 16.9202 1.73134 17.4125 1.73134C17.9048 1.73134 18.3769 1.9269 18.725 2.275C19.0731 2.6231 19.2687 3.09522 19.2687 3.5875C19.2687 4.07978 19.0731 4.5519 18.725 4.9L10.85 12.775L7.35 13.65L8.225 10.15L16.1 2.275Z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+    </g>,
+    <path key="c" d="M17.5 11.375C17.5 15.75 14.4375 17.9375 10.7975 19.2062C10.6069 19.2708 10.3998 19.2678 10.2113 19.1975C6.5625 17.9375 3.5 15.75 3.5 11.375V5.25C3.5 5.01794 3.59219 4.79538 3.75628 4.63128C3.92038 4.46719 4.14294 4.375 4.375 4.375C6.125 4.375 8.3125 3.325 9.835 1.995C9.91714 1.89894 10.0191 1.82182 10.1339 1.76894C10.2487 1.71606 10.3736 1.68868 10.5 1.68868C10.6264 1.68868 10.7513 1.71606 10.8661 1.76894C10.9809 1.82182 11.0829 1.89894 11.165 1.995C12.6963 3.33375 14.875 4.375 16.625 4.375C16.8571 4.375 17.0796 4.46719 17.2437 4.63128C17.4078 4.79538 17.5 5.01794 17.5 5.25V11.375Z" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />,
+  ];
+  return (
+    <ol className="flex items-center border-b border-[#eceef2] px-6 pt-[17px] pb-[18px]">
+      {deskSteps.map((st, i) => {
+        const on = i < 2;
+        const last = i === deskSteps.length - 1;
+        return (
+          <li
+            key={st.step}
+            aria-current={i === 1 ? "step" : undefined}
+            className={`flex items-center ${last ? "" : "flex-1 after:mx-[18px] after:h-px after:flex-1 after:bg-[#e5e9ee] after:content-['']"}`}
+          >
+            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${on ? "bg-primary text-white" : "bg-[#f1f3f5] text-muted"}`}>
+              <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg" className="block h-[21px] w-[21px]">
+                {icons[i]}
+              </svg>
+            </div>
+            <div className="pl-[9px]">
+              <p className="text-[13px] leading-[normal] text-faint">{st.step}</p>
+              <h5 className={`mt-[2.02px] text-[15.5px] leading-[normal] font-bold ${on ? "text-ink" : "text-muted"}`}>{st.title}</h5>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+const deskBtn =
+  "inline-flex h-[42px] cursor-pointer items-center justify-center gap-[9px] rounded-[10.5px] px-[27px] text-[15px] leading-[15px] font-medium transition-colors [&>svg]:block [&>svg]:h-[18px] [&>svg]:w-[18px]";
+
+/** Their `.ftr`: Back (outline) and Next (blue), under the card. */
+function DesktopFooter({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+  return (
+    <div className="flex items-center justify-between rounded-b-[18px] border-t border-[#eceef2] bg-[#fbfcfd] px-5 pt-[14px] pb-[14px]">
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          onBack();
+        }}
+        className={`${deskBtn} border border-primary bg-white text-primary hover:bg-primary hover:text-white`}
+      >
+        <ArrowLeft />
+        Back
+      </a>
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          onNext();
+        }}
+        className={`${deskBtn} bg-primary text-white hover:bg-primary-press`}
+      >
+        Next
+        <ArrowRight />
+      </a>
+    </div>
+  );
+}
+
 /* ---- The page -------------------------------------------------------------- */
 
 /**
@@ -267,6 +388,8 @@ export function MobileStepTwo({
   setName,
   onBack,
   onNext,
+  layout = "mobile",
+  notice,
 }: {
   type: string;
   values: Values;
@@ -275,6 +398,10 @@ export function MobileStepTwo({
   setName: (v: string) => void;
   onBack: () => void;
   onNext: () => void;
+  /** "desktop": create_desktop_*.html's two-column page, same form. */
+  layout?: "mobile" | "desktop";
+  /** Shown above the card on desktop (the editing note). */
+  notice?: ReactNode;
 }) {
   const meta = allTypes.find((t) => t.value === type);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -371,7 +498,7 @@ export function MobileStepTwo({
       form = <WhatsAppForm s={s} />;
     } else if (type === "social") {
       // The preview lists platforms in the order the picker shows them.
-      const ordered = socialMediaOrder.filter((k) => socialsOn.includes(k));
+      const ordered = (layout === "desktop" ? socialMediaOrderDesktop : socialMediaOrder).filter((k) => socialsOn.includes(k));
       preview = <SocialMediaPreview {...p} selectedSocials={ordered} />;
       form = <SocialMediaForm s={s} />;
     } else if (type === "menu") {
@@ -421,6 +548,64 @@ export function MobileStepTwo({
     }
   }
 
+  const header = (
+    <FormHeader
+      icon={mobileHeaderIcon[type] ?? (Glyph ? <Glyph className="h-[22.7px] w-[22.7px]" /> : null)}
+      title={mobileTypeTitle[type] ?? meta?.stepLabel ?? meta?.label ?? type}
+      desc={mobileHeaderDesc[type] ?? meta?.stepDesc ?? meta?.desc ?? ""}
+    />
+  );
+
+  if (layout === "desktop") {
+    const d = desktopPreview[type] ?? { title: `${meta?.label ?? ""} Preview` };
+    return (
+      <div className="flex min-h-dvh flex-col bg-cd-page">
+        <CreateHeader logoOnly />
+        <section className="flex-1 py-5">
+          <div className="mx-auto max-w-[1240px] px-5">
+            {notice && <div className="mb-4 [&>div]:!mx-0 [&>div]:!mt-0 [&>div]:!max-w-none">{notice}</div>}
+            <DesktopLayout.Provider value={true}>
+            <form
+              noValidate
+              onSubmit={(e) => {
+                e.preventDefault();
+                next();
+              }}
+              className="rounded-[18px] border border-cd-card-line bg-white shadow-[0_1px_2px_0_rgba(14,19,17,0.04)]"
+            >
+              <DesktopRail />
+              {/* Their `.btm`: the form, and the preview beside it — below
+                  it from 992px down. */}
+              <div className="flex items-stretch p-5 [@media(max-width:992px)]:flex-col">
+                <div className="min-w-0 flex-1" style={DESK_ZOOM}>
+                  {/* Stretched to the preview column's height, as their `.btm`. */}
+                  <div className="h-full rounded-[13px] border border-mc-line bg-white px-[17px] pt-[16.2px] pb-[17px]">
+                    {header}
+                    <Sep />
+                    {form}
+                    <Sep />
+                    <NameField name={name} setName={setName} error={errors.qrName} />
+                  </div>
+                </div>
+                <div className="ml-5 w-[350px] shrink-0 [@media(max-width:992px)]:mt-5 [@media(max-width:992px)]:ml-0 [@media(max-width:992px)]:w-full">
+                  <div className="sticky top-[80px] [@media(max-width:992px)]:static">
+                    <div className="mx-auto [@media(max-width:992px)]:max-w-[400px]" style={{ zoom: Z }}>
+                      <DesktopPreview.Provider value={d}>{preview}</DesktopPreview.Provider>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DesktopFooter onBack={onBack} onNext={next} />
+              <button type="submit" hidden />
+            </form>
+            </DesktopLayout.Provider>
+          </div>
+        </section>
+        <MainSlimFooter />
+      </div>
+    );
+  }
+
   return (
     // A real form, as theirs is, so the keyboard's Go/Enter runs the same
     // check as Next.
@@ -435,11 +620,7 @@ export function MobileStepTwo({
       <IconRail />
       {preview}
       <div className="mt-[13px] rounded-[13px] border border-mc-line bg-white px-[17px] pt-[16.2px] pb-[17px]">
-        <FormHeader
-          icon={mobileHeaderIcon[type] ?? (Glyph ? <Glyph className="h-[22.7px] w-[22.7px]" /> : null)}
-          title={mobileTypeTitle[type] ?? meta?.stepLabel ?? meta?.label ?? type}
-          desc={mobileHeaderDesc[type] ?? meta?.stepDesc ?? meta?.desc ?? ""}
-        />
+        {header}
         <Sep />
         {form}
         <Sep />

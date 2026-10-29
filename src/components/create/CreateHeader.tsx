@@ -13,7 +13,7 @@ import Link from "next/link";
 
 const steps = ["Choose QR Type", "Add Content", "Customize & Download"];
 
-export function CreateHeader({ current = 1 }: { current?: number }) {
+export function CreateHeader({ current = 1, logoOnly = false }: { current?: number; logoOnly?: boolean }) {
   return (
     <>
       <div aria-hidden="true" className="h-[71px] min-[1300px]:h-[83px]" />
@@ -28,6 +28,9 @@ export function CreateHeader({ current = 1 }: { current?: number }) {
             </Link>
           </h1>
 
+          {/* create_desktop_*.html (step 2) has the logo alone: the card carries
+              its own step rail, and Back is in its footer. */}
+          {!logoOnly && (
           <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center [@media(max-width:1150px)]:hidden">
             {steps.map((label, i) => {
               const on = i + 1 === current;
@@ -56,6 +59,9 @@ export function CreateHeader({ current = 1 }: { current?: number }) {
             })}
           </div>
 
+          )}
+
+          {!logoOnly && (
           <Link
             href="/"
             className="my-2.5 flex items-center gap-2 rounded-[12px] border border-cd-btn-line bg-white px-4 py-2.5 text-[14.5px] leading-[normal] font-semibold text-ink"
@@ -75,6 +81,7 @@ export function CreateHeader({ current = 1 }: { current?: number }) {
             </svg>
             Back to Home
           </Link>
+          )}
         </div>
       </header>
     </>
