@@ -6,6 +6,7 @@ import { isValidUrl } from "../validate";
 import { designerTypeIcons } from "../designerTypeIcons";
 import { BarCaret, BarText, PreviewCard, Sample, ScanNote } from "./previews";
 import { splitPlace } from "./forms4";
+import { useDesktop } from "./pageMode";
 
 /**
  * The previews for batch 4 (Google Maps / email / Google Review / SMS), from
@@ -175,6 +176,8 @@ export function ReviewPreview({ values, open, onToggle }: Props) {
   const url = (values.reviewUrl ?? "").trim();
   const href = url && isValidUrl(url) ? url : undefined;
   const Review = designerTypeIcons.review;
+  // create_desktop_google_review.html: larger type, more air (`.pvwRev`).
+  const desk = useDesktop();
   return (
     <PreviewCard
       open={open}
@@ -189,7 +192,7 @@ export function ReviewPreview({ values, open, onToggle }: Props) {
         </>
       }
     >
-      <Phone className="bg-[linear-gradient(180deg,var(--color-mc-rev-top)_0%,#ffffff_100%)] px-[13px] pt-[16.2px] pb-[14.6px] text-center">
+      <Phone className={`bg-[linear-gradient(180deg,var(--color-mc-rev-top)_0%,#ffffff_100%)] text-center ${desk ? "px-[16.22px] pt-[22.71px] pb-[21.09px]" : "px-[13px] pt-[16.2px] pb-[14.6px]"}`}>
         <div className="mx-auto flex h-[68.1px] w-[113.6px] items-center justify-center gap-[8.1px] rounded-[50%_50%_46%_46%/60%_60%_40%_40%] bg-white shadow-mc-rev">
           <span className="flex h-[35.7px] w-[35.7px] items-center justify-center rounded-[9.7px] bg-primary text-white [&>svg]:block [&>svg]:h-[19.5px] [&>svg]:w-[19.5px]">
             <svg {...svgProps}>
@@ -206,8 +209,10 @@ export function ReviewPreview({ values, open, onToggle }: Props) {
             </svg>
           </span>
         </div>
-        <h5 className="mt-[14.3px] text-[12.98px] leading-[normal] font-bold tracking-[-0.13px] text-ink">Share your experience</h5>
-        <p className="mt-[3.4px] text-[9.73px] leading-[normal] text-muted">Your feedback helps this business.</p>
+        {/* Their margins are in each element's own em, so they grow with
+            desktop's larger type. */}
+        <h5 className={`leading-[normal] font-bold text-ink ${desk ? "mt-[17.84px] text-[16.22px] tracking-[-0.16px]" : "mt-[14.3px] text-[12.98px] tracking-[-0.13px]"}`}>Share your experience</h5>
+        <p className={`leading-[normal] text-muted ${desk ? "mt-[3.98px] text-[11.36px]" : "mt-[3.4px] text-[9.73px]"}`}>Your feedback helps this business.</p>
         {/* Live once the link is valid, as their script does. */}
         <a
           href={href ?? "#"}
@@ -216,14 +221,18 @@ export function ReviewPreview({ values, open, onToggle }: Props) {
           onClick={(e) => {
             if (!href) e.preventDefault();
           }}
-          className="mx-auto mt-[12px] flex max-w-[175.3px] items-center justify-center gap-[6.6px] rounded-[10.95px] bg-primary px-[10.95px] py-[9.3px] text-[10.95px] leading-[normal] font-semibold text-white [&>svg]:block [&>svg]:h-[12px] [&>svg]:w-[12px]"
+          className={`mx-auto flex items-center justify-center bg-primary leading-[normal] font-semibold text-white [&>svg]:block ${
+            desk
+              ? "mt-[13.34px] max-w-[206.86px] gap-[7.3px] rounded-[12.17px] px-[12.17px] py-[10.34px] text-[12.17px] [&>svg]:h-[13.38px] [&>svg]:w-[13.38px]"
+              : "mt-[12px] max-w-[175.3px] gap-[6.6px] rounded-[10.95px] px-[10.95px] py-[9.3px] text-[10.95px] [&>svg]:h-[12px] [&>svg]:w-[12px]"
+          }`}
         >
           <svg {...svgProps}>
             <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
           </svg>
           Write a Review
         </a>
-        <p className="mt-[8px] text-[8.92px] leading-[normal] text-faint">Opens Google Reviews.</p>
+        <p className={`leading-[normal] text-faint ${desk ? "mt-[8.76px] text-[9.73px]" : "mt-[8px] text-[8.92px]"}`}>Opens Google Reviews.</p>
       </Phone>
       <Sample>Example preview. The button uses your review link once it’s added.</Sample>
     </PreviewCard>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { isValidEmail, isValidUrl } from "../validate";
+import { isValidEmail, isValidUrl, isGoogleReviewUrl } from "../validate";
 import { Counter, FieldError, Fld, Slide, TrackingPill, textArea, textInput } from "./ui";
 import { IntlNumberFld, TextFld, mobileNumberOk, trimmed } from "./fields";
 import { ScanNote } from "./previews";
@@ -29,7 +29,17 @@ export function checksForBatch4(type: string, values: Values): Check[] {
       return [{ id: "emTo", msg: isValidEmail(trimmed(values.to)) ? null : "Please enter a valid email address." }];
     case "review": {
       const v = trimmed(values.reviewUrl);
-      return [{ id: "rvUrl", msg: v && v !== "https://" && isValidUrl(v) ? null : "Please enter a valid review link." }];
+      return [
+        {
+          id: "rvUrl",
+          msg:
+            !v || v === "https://" || !isValidUrl(v)
+              ? "Please enter a valid review link."
+              : isGoogleReviewUrl(v)
+                ? null
+                : "This isn’t a Google link. Copy your review link from your Google Business Profile.",
+        },
+      ];
     }
     case "sms":
       return [

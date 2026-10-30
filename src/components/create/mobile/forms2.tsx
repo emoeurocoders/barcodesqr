@@ -1,5 +1,7 @@
 "use client";
 
+import { useDesktop } from "./pageMode";
+
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { cropStyle, parseStoredFile } from "../storedValues";
@@ -18,8 +20,7 @@ import {
   schemaField,
   trimmed,
   uploadGlyph,
-  urlOk,
-} from "./fields";
+  urlOk, dropFiles } from "./fields";
 import type { Check, FormState, Values } from "./fields";
 
 /**
@@ -169,16 +170,20 @@ function BlueDrop({
   children,
   input,
   disabled,
+  onFiles,
 }: {
   id: string;
   children: ReactNode;
   input: ReactNode;
   disabled?: boolean;
+  /** Files dropped on the box, as if picked. */
+  onFiles?: (files: File[]) => void;
 }) {
   return (
     <label
       id={id}
       tabIndex={-1}
+      {...(onFiles ? dropFiles(onFiles) : {})}
       className={`relative mt-[12.2px] block cursor-pointer rounded-[9.7px] border-2 border-dashed border-mc-drop-line bg-mc-drop px-[11.4px] py-[16.2px] text-center outline-none [&>svg]:mx-auto [&>svg]:block [&>svg]:h-[21.1px] [&>svg]:w-[21.1px] [&>svg]:text-primary ${
         disabled ? "pointer-events-none opacity-45" : ""
       }`}
@@ -272,6 +277,7 @@ async function countPages(file: File) {
 
 export function PdfForm({ s }: { s: FormState }) {
   const field = schemaField("pdf", "file");
+  const desk = useDesktop();
   const { take, clear, error, progress, pending, stored } = useFileUpload({
     type: "pdf",
     field,
@@ -305,6 +311,7 @@ export function PdfForm({ s }: { s: FormState }) {
               }}
             />
           }
+          onFiles={async ([file]) => take(file, { pages: await countPages(file) })}
         >
           <span className="mt-[7.9px] block text-[11.36px] leading-[normal] font-semibold text-body">
             <b className="font-black text-primary">
@@ -334,6 +341,8 @@ export function PdfForm({ s }: { s: FormState }) {
               </span>
               <span className="mt-[1.5px] block text-[9.73px] leading-[normal] text-muted">
                 {sizeTxt(shown.size)}
+                {/* Desktop's `.fileCrd.on .fsz:after`, once it has landed. */}
+                {desk && !pending && " \u00b7  Uploaded successfully"}
               </span>
             </span>
             <a
@@ -412,6 +421,7 @@ const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp";
 type Pending = { id: number; src: string; progress: number };
 
 export function ImageForm({ s }: { s: FormState }) {
+  const desk = useDesktop();
   const list = galleryOf(s.values);
   const [pending, setPending] = useState<Pending[]>([]);
   const [skipped, setSkipped] = useState(false);
@@ -540,18 +550,23 @@ export function ImageForm({ s }: { s: FormState }) {
           <Label required>Images</Label>
         </div>
         <Sub>Upload up to 10 images · Max 5 MB each · PNG, JPG, JPEG, WEBP</Sub>
-        <BlueDrop id="imUpl" input={input} disabled={room <= 0}>
+        <BlueDrop id="imUpl" input={input} disabled={room <= 0} onFiles={add}>
+          {/* create_desktop_image.html words the box for a mouse. */}
           <span className="mt-[7.9px] block text-[11.36px] leading-[normal] font-semibold text-body">
-            <b className="font-black text-primary">Click to upload images</b>
+            <b className="font-black text-primary">{desk ? "Upload your images" : "Click to upload images"}</b>
           </span>
           <span className="mt-[3.4px] block text-[9.73px] leading-[normal] text-faint">
-            or tap to browse
+            {desk ? "Click to upload or drag & drop · Up to 10 images · Max 5 MB each" : "or tap to browse"}
           </span>
         </BlueDrop>
+        {/* Their desktop `.upLbl`, shown once a picture is in. */}
+        {desk && list.length > 0 && (
+          <p className="mt-[17.03px] text-[11.36px] leading-[15.9px] font-bold text-ink">Uploaded Images</p>
+        )}
 
         {/* Always in the flow, as theirs is: its top margin is what spaces the
             counter even while it holds nothing. */}
-        <ul className="mt-[9.7px] grid touch-none grid-cols-3 gap-[8.1px] select-none">
+        <ul className={`mt-[9.7px] grid touch-none gap-[8.1px] select-none ${desk ? "grid-cols-5" : "grid-cols-3"}`}>
           {list.map((f, i) => (
             <li
               key={f.key ?? f.url ?? i}
@@ -700,6 +715,7 @@ export const WA_DEFAULT =
 
 export function WhatsAppForm({ s }: { s: FormState }) {
   const message = s.values.message ?? WA_DEFAULT;
+  const desk = useDesktop();
 
   // Their file prefills the message as a real value, so it reaches the code.
   const { values, patch } = s;
@@ -717,6 +733,8 @@ export function WhatsAppForm({ s }: { s: FormState }) {
         ccId="waCc"
         numId="waNum"
         label="WhatsApp number"
+        // create_desktop_whatsapp.html's format hint under the number.
+        hint={desk ? "e.g. 201 555 0123" : undefined}
         tip={{
           label: "About your WhatsApp number",
           text: "The number people message on WhatsApp after scanning.",

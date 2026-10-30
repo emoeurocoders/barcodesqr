@@ -287,6 +287,13 @@ const desktopPreview: Record<string, { title: string; tip?: string; caption?: st
   social: { title: "Social Media Preview" },
   applink: { title: "App Link Preview" },
   pdf: { title: "PDF Preview", caption: "Example cover. Your PDF replaces it once uploaded." },
+  // Group 2 (JB, Monday 5679427845).
+  image: { title: "Image Gallery Preview" },
+  whatsapp: { title: "WhatsApp Preview" },
+  menu: { title: "Menu Preview" },
+  wifi: { title: "WiFi Preview" },
+  video: { title: "Video Preview" },
+  review: { title: "Preview" },
 };
 
 /** The types whose desktop step 2 is create_desktop_*.html so far (JB, 2026-10-29). */

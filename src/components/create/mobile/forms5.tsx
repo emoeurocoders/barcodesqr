@@ -14,8 +14,7 @@ import {
   trimmed,
   uploadGlyph,
   urlHandlers,
-  urlOk,
-} from "./fields";
+  urlOk, dropFiles } from "./fields";
 import type { Check, FormState, Values } from "./fields";
 import { infoGlyph } from "./forms2";
 import { sizeTxt } from "./forms3";
@@ -301,6 +300,7 @@ export function AudioForm({ s }: { s: FormState }) {
         <label
           id="auUpl"
           tabIndex={-1}
+          {...dropFiles(([f]) => take(f))}
           className="relative mt-[12.2px] block cursor-pointer rounded-[9.7px] border-2 border-dashed border-mc-drop-line bg-mc-drop px-[11.4px] py-[16.2px] text-center outline-none [&>svg]:text-primary"
         >
           {uploadGlyph}

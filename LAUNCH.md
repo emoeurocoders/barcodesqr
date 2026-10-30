@@ -717,6 +717,41 @@ the mobile ones; only layout differs (`useDesktop()`).
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
 
+## Desktop step 2, group 2 — create_desktop_*.html, ported 2026-10-30
+
+Image, WhatsApp, Menu, WiFi, Video and Google Review (JB, Monday
+5679427845), the same way as group 1: the mobile forms and previews,
+zoomed, with `useDesktop()` variants taken from the files' `createDsk2`
+rules. Pixel diffs at 1440: WhatsApp 0.43%, WiFi 0.85%, Video 1.3%, Menu
+2.3%, Image 2.5%, Review 2.6% — the hidden tracking badge, Menu's "Add
+Section", and the items below. No overflow at 1180/1024/900/800.
+
+- **Departures JB asked for, against the files:**
+  - WhatsApp's bubble has no delivery ticks (nothing has been sent).
+  - WiFi's preview draws the real code once the network is complete; the
+    file's sample picture until then. The caption still says "Sample code
+    shown…" — the file's string; raised with JB.
+  - Video no longer offers AVI ("MP4, MOV, WEBM"): nothing converts
+    uploads and no browser plays AVI. A file this browser cannot decode is
+    refused before upload. An iPhone HEVC .mov can still fail on some
+    Android browsers — real conversion needs a transcoding service.
+  - The gallery counter gives the real count once pictures are in (the
+    file's script always says "of 10"); one picture shows no arrows,
+    counter or strip.
+- **Country list:** the files list 30 countries; all ~230 now, theirs
+  first. JB asked for a *searchable* picker — that replaces the files'
+  `<select>` with unmocked UI, so it is a question, not built.
+- **Shared fixes that reach mobile too:** national numbers ("07700…",
+  "081…") lose their trunk 0 in the code (not in Italy); WiFi checks 32
+  BYTES of SSID, WPA 8–63 or a 64-hex key, WEP 5/13 or 10/26 hex; Google
+  Review links must be on a Google host (g.page, maps.app.goo.gl,
+  search.google.com, google.*, share.google, goo.gl, g.co); drag & drop
+  now works on every upload box (it never did; the copy promised it).
+- **WiFi passwords are stored** with the code so Edit can restore them,
+  readable only by the owner's session, like every other saved value.
+- **Menu's "View full menu"** stays decorative in the creator preview; the
+  hosted page is the full menu and has no such button.
+
 ## Image reframing — not in the file, added 2026-10-21
 
 Tami found uploaded photos showing only their middle in "Your Image

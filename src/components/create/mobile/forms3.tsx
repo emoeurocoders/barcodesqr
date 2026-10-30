@@ -7,10 +7,10 @@ import type { ReactNode } from "react";
 import { parseStoredFile, parseMenuItems, serializeMenuItems } from "../storedValues";
 import type { MenuItem } from "../storedValues";
 import { useFileUpload } from "../useFileUpload";
-import { hasSocialProfile, linkIssues, menuIssues } from "../validate";
+import { hasSocialProfile, linkIssues, menuIssues, wifiIssues } from "../validate";
 import { parseLinks } from "../storedValues";
 import { Acc, FieldError, Fld, Label, Slide, TrackingPill, outlineBtn, textArea, textInput } from "./ui";
-import { TextAreaFld, TextFld, Upload, imageGlyph, schemaField, trashGlyph, trimmed, uploadGlyph } from "./fields";
+import { TextAreaFld, TextFld, Upload, imageGlyph, schemaField, trashGlyph, trimmed, uploadGlyph, dropFiles } from "./fields";
 import type { Check, FormState, Values } from "./fields";
 import { LinkList, SocialPicker } from "./forms";
 
@@ -67,19 +67,14 @@ export function checksForBatch3(type: string, values: Values): Check[] {
         ),
       ];
     }
-    case "wifi":
+    case "wifi": {
+      // Shared with the save check (validate.ts), so both layouts agree.
+      const w = wifiIssues(values);
       return [
-        { id: "wfSsid", msg: trimmed(values.ssid) ? null : "Please enter your network name." },
-        {
-          id: "wfPass",
-          // WPA keys are 8–63 characters; the 2026-10-29 file checks that
-          // for every secured network ("wpa" rule), WEP included.
-          msg:
-            values.encryption === "nopass" || ((values.password ?? "").length >= 8 && (values.password ?? "").length <= 63)
-              ? null
-              : "Please enter the network password (8–63 characters).",
-        },
+        { id: "wfSsid", msg: w.ssid },
+        { id: "wfPass", msg: w.password },
       ];
+    }
     case "video":
       return [{ id: "vidUpl", msg: parseStoredFile(values.file) ? null : "Please upload a video." }];
     default:
@@ -367,7 +362,7 @@ export function WifiForm({ s }: { s: FormState }) {
               id="wfPass"
               value={s.values.password ?? ""}
               placeholder="Cappuccino123"
-              maxLength={63}
+              maxLength={64}
               autoComplete="off"
               aria-invalid={!!passErr}
               onChange={(e) => s.set("password", e.target.value)}
@@ -407,6 +402,30 @@ export function WifiForm({ s }: { s: FormState }) {
 /* ---- Video ----------------------------------------------------------------- */
 
 /** Their frame grab: a 96px square from 0.1s in, for the file card. */
+/**
+ * The first frame as a thumbnail, the running time, and whether this browser
+ * can play the file at all. Nothing converts uploads (JB, 2026-10-30: only
+ * offer what plays), so a file that will not even decode here — an AVI, an
+ * odd codec — is turned away before it is uploaded.
+ */
+function probeVideo(file: File): Promise<{ thumb?: string; duration?: number; playable: boolean }> {
+  return new Promise((resolve) => {
+    let duration: number | undefined;
+    const url = URL.createObjectURL(file);
+    const v = document.createElement("video");
+    v.muted = true;
+    v.preload = "metadata";
+    v.src = url;
+    v.addEventListener("loadedmetadata", () => {
+      if (Number.isFinite(v.duration)) duration = Math.round(v.duration);
+    });
+    grabThumb(file).then((thumb) => {
+      URL.revokeObjectURL(url);
+      resolve({ thumb, duration, playable: !!thumb || duration !== undefined });
+    });
+  });
+}
+
 function grabThumb(file: File): Promise<string | undefined> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
@@ -451,11 +470,18 @@ export function VideoForm({ s }: { s: FormState }) {
     field: schemaField("video", "file"),
     value: s.values.file ?? "",
     onChange: (v) => s.set("file", v),
-    messages: { type: "Please choose a video file (MP4, MOV, AVI, etc.).", size: "That file is too large (max 50 MB)." },
+    messages: { type: "Please choose a video file (MP4, MOV or WEBM).", size: "That file is too large (max 50 MB)." },
   });
   const shown = pending ?? stored;
   const thumb = (stored as { thumb?: string } | null)?.thumb;
-  const err = error ?? s.errors.vidUpl;
+  const desk = useDesktop();
+  const [unplayable, setUnplayable] = useState(false);
+  const err = (unplayable ? "This video can’t be played in a browser. Please upload an MP4 (H.264)." : null) ?? error ?? s.errors.vidUpl;
+  const pick = async (file: File) => {
+    const p = await probeVideo(file);
+    setUnplayable(!p.playable);
+    if (p.playable) take(file, { thumb: p.thumb, duration: p.duration });
+  };
 
   return (
     <>
@@ -464,6 +490,7 @@ export function VideoForm({ s }: { s: FormState }) {
         <label
           id="vidUpl"
           tabIndex={-1}
+          {...dropFiles(([f]) => pick(f))}
           className="relative mt-[12.2px] block cursor-pointer rounded-[9.7px] border-2 border-dashed border-mc-drop-line bg-mc-drop px-[11.4px] py-[16.2px] text-center outline-none [&>svg]:mx-auto [&>svg]:block [&>svg]:h-[21.1px] [&>svg]:w-[21.1px] [&>svg]:text-primary"
         >
           {uploadGlyph}
@@ -471,17 +498,19 @@ export function VideoForm({ s }: { s: FormState }) {
             <b className="font-black text-primary">{progress !== null ? `Uploading… ${progress}%` : "Upload your video"}</b>
           </span>
           <span className="mt-[3.4px] block text-[9.73px] leading-[normal] text-faint">
-            Click to upload or drag &amp; drop · Max size: 50 MB · MP4, MOV, AVI, etc.
+            {/* The files say "MP4, MOV, AVI, etc."; no AVI plays in a browser
+                and nothing converts, so it is not offered (JB, 2026-10-30). */}
+            Click to upload or drag &amp; drop · Max size: 50 MB · MP4, MOV, WEBM
           </span>
           <input
             type="file"
             id="vidFile"
-            accept="video/*,.mp4,.mov,.m4v,.avi,.webm"
+            accept="video/mp4,video/quicktime,video/webm,video/x-m4v,.mp4,.mov,.m4v,.webm"
             className="absolute top-0 left-0 h-px w-px border-0 opacity-0"
-            onChange={async (e) => {
+            onChange={(e) => {
               const file = e.currentTarget.files?.[0];
               e.currentTarget.value = "";
-              if (file) take(file, { thumb: await grabThumb(file) });
+              if (file) pick(file);
             }}
           />
         </label>
@@ -493,7 +522,10 @@ export function VideoForm({ s }: { s: FormState }) {
             </span>
             <span className="min-w-0 flex-1 px-[7.3px]">
               <span className="block truncate text-[10.95px] leading-[normal] font-semibold text-ink">{shown.name}</span>
-              <span className="mt-[1.5px] block text-[9.73px] leading-[normal] text-muted">{sizeTxt(shown.size)}</span>
+              <span className="mt-[1.5px] block text-[9.73px] leading-[normal] text-muted">
+                {sizeTxt(shown.size)}
+                {desk && !pending && " \u00b7  Uploaded successfully"}
+              </span>
             </span>
             <a
               href="#"

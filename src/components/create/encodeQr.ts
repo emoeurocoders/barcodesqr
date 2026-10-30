@@ -44,7 +44,18 @@ export function intlPhone(v: Record<string, string>, field = "phone") {
   const code = (v[`${field}Country`] ?? dialCodes[0].value).split("-")[0];
   const number = (v[field] ?? "").trim();
   if (!number) return "";
-  return number.startsWith("+") ? number : `${code}${number}`;
+  if (number.startsWith("+")) return `+${number.replace(/\D/g, "")}`;
+  if (number.startsWith("00")) return `+${number.replace(/\D/g, "").slice(2)}`;
+  // Numbers are written the national way more often than not (JB,
+  // 2026-10-30): "07700 900123" in the UK, "081 234 5678" in Thailand. That
+  // leading 0 is a trunk prefix the international form drops — except in
+  // Italy, San Marino and the Vatican, where it is part of the number.
+  const cc = code.replace(/\D/g, "");
+  let digits = number.replace(/\D/g, "");
+  if (digits.startsWith("0") && !["39", "378", "379"].includes(cc)) digits = digits.replace(/^0+/, "");
+  // …or with the country code typed again ("44 7700 900123" under +44).
+  else if (digits.startsWith(cc) && digits.length - cc.length >= 8) digits = digits.slice(cc.length);
+  return `+${cc}${digits}`;
 }
 
 const esc = (s: string) => s.replace(/([\\;,:"])/g, "\\$1");

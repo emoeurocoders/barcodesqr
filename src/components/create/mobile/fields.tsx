@@ -62,6 +62,20 @@ export const urlOk = (v: string) => v !== "https://" && isValidUrl(v);
  * clears it again, a pasted full address does not end up as
  * "https://https://…", and stray spaces go on blur.
  */
+/**
+ * Drag-and-drop onto an upload box. Their copy promises it ("Click to upload
+ * or drag & drop") and it matters on desktop; dropping on the box itself
+ * otherwise makes the browser open the file in place of the page.
+ */
+export const dropFiles = (on: (files: File[]) => void) => ({
+  onDragOver: (e: React.DragEvent) => e.preventDefault(),
+  onDrop: (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files ?? []);
+    if (files.length) on(files);
+  },
+});
+
 export function urlHandlers(value: string, onChange: (v: string) => void) {
   return {
     inputMode: "url" as const,

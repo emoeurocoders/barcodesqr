@@ -7,6 +7,7 @@ import { BarCaret, BarText, PreviewCard, RowLink, Sample, ScanNote, hrefOf, qrGl
 import { useDesktop, usePageMode } from "./pageMode";
 import { isValidUrl } from "../validate";
 import { GALLERY_SHOW, WA_DEFAULT, galleryOf } from "./forms2";
+import { intlPhone } from "../encodeQr";
 
 /**
  * The collapsible previews for batch 2 (app link / PDF / image / WhatsApp),
@@ -33,7 +34,9 @@ function Phone({ className = "", children }: { className?: string; children: Rea
   if (usePageMode()) return <div className={`relative min-h-[var(--qh)] overflow-hidden bg-white ${className}`}>{children}</div>;
   return (
     <div
-      className={`relative mx-auto ${desk ? "" : "mt-[4.1px]"} overflow-hidden rounded-[17.8px] border border-mc-pv-line bg-white shadow-mc-phone ${className}`}
+      // White unless the card brings its own (WhatsApp's chat beige): two bg
+      // utilities would leave the winner to stylesheet order.
+      className={`relative mx-auto ${desk ? "" : "mt-[4.1px]"} overflow-hidden rounded-[17.8px] border border-mc-pv-line shadow-mc-phone ${/(^|\s)bg-/.test(className) ? "" : "bg-white"} ${className}`}
     >
       {children}
     </div>
@@ -317,9 +320,15 @@ export function ImagePreview({ values, open, onToggle }: Props) {
   const title = (values.title ?? "").trim() || (page ? "" : "Summer Memories");
   const touchX = useRef<number | null>(null);
   const step = (by: number) => setIdx((i + by + list.length) % list.length);
+  // create_desktop_image.html (`createDsk2 .pvwGal`): the same gallery,
+  // larger, title centred; values are its em over the zoom.
+  const desk = useDesktop();
+  // One real picture is not a gallery: no arrows, counter or strip (JB).
+  const lone = mine.length === 1;
 
-  const nav =
-    "absolute top-1/2 flex h-[21.9px] w-[21.9px] -translate-y-1/2 items-center justify-center rounded-full bg-white/92 text-body shadow-mc-gal-nav [&>svg]:block [&>svg]:h-[11.4px] [&>svg]:w-[11.4px]";
+  const nav = `absolute top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full bg-white/92 text-body shadow-mc-gal-nav [&>svg]:block ${
+    desk ? "h-[29.2px] w-[29.2px] [&>svg]:h-[13.79px] [&>svg]:w-[13.79px]" : "h-[21.9px] w-[21.9px] [&>svg]:h-[11.4px] [&>svg]:w-[11.4px]"
+  }`;
 
   return (
     <PreviewCard
@@ -336,9 +345,9 @@ export function ImagePreview({ values, open, onToggle }: Props) {
         </>
       }
     >
-      <Phone className="max-w-[243.4px] pb-[13px]">
+      <Phone className={desk ? "pb-[16.22px]" : "max-w-[243.4px] pb-[13px]"}>
         <div
-          className="relative mx-[8.1px] mt-[8.1px] h-[113.6px] overflow-hidden rounded-[9.7px]"
+          className={`relative overflow-hidden ${desk ? "mx-[11.36px] mt-[11.36px] h-[194.69px] rounded-[11.36px]" : "mx-[8.1px] mt-[8.1px] h-[113.6px] rounded-[9.7px]"}`}
           onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
           onTouchEnd={(e) => {
             if (touchX.current === null) return;
@@ -351,33 +360,46 @@ export function ImagePreview({ values, open, onToggle }: Props) {
           <img src={list[i]} alt="" className="block h-full w-full" style={fit(i)} />
           {list.length > 1 && (
             <>
-              <a href="#" aria-label="Previous image" className={`${nav} left-[6.5px]`} onClick={(e) => { e.preventDefault(); step(-1); }}>
+              <a href="#" aria-label="Previous image" className={`${nav} ${desk ? "left-[8.92px]" : "left-[6.5px]"}`} onClick={(e) => { e.preventDefault(); step(-1); }}>
                 <svg {...svgProps}><path d="m15 18-6-6 6-6" /></svg>
               </a>
-              <a href="#" aria-label="Next image" className={`${nav} right-[6.5px]`} onClick={(e) => { e.preventDefault(); step(1); }}>
+              <a href="#" aria-label="Next image" className={`${nav} ${desk ? "right-[8.92px]" : "right-[6.5px]"}`} onClick={(e) => { e.preventDefault(); step(1); }}>
                 <svg {...svgProps}><path d="m9 18 6-6-6-6" /></svg>
               </a>
             </>
           )}
-          <span className="absolute bottom-[7.3px] left-1/2 -translate-x-1/2 rounded-full bg-ink/60 px-[8.1px] py-[2.1px] text-[8.52px] leading-[normal] font-semibold whitespace-nowrap text-white">
-            {/* The file's script writes "of 10" whatever the count — the
-                gallery's limit, not its size. Reproduced in the creator,
-                raised with the designer; a hosted page says the real count. */}
-            {i + 1} of {page ? list.length : 10}
-          </span>
+          {!lone && (
+            <span className={`absolute left-1/2 -translate-x-1/2 rounded-full bg-ink/60 leading-[normal] font-semibold whitespace-nowrap text-white ${desk ? "bottom-[10.71px] px-[10.71px] py-[3.41px] text-[9.73px]" : "bottom-[7.3px] px-[8.1px] py-[2.1px] text-[8.52px]"}`}>
+              {/* The file's script writes "of 10" whatever the count — the
+                  gallery's limit. Kept for the sample; real pictures get the
+                  real count (JB, 2026-10-30: "accurate image counters"). */}
+              {i + 1} of {mine.length ? list.length : 10}
+            </span>
+          )}
         </div>
         {title && (
-          <h5 className="mx-[13.1px] mt-[12.5px] text-left text-[11.36px] leading-[normal] font-bold tracking-[-0.11px] text-ink">
+          <h5
+            className={`leading-[normal] font-bold text-ink ${
+              desk
+                ? "mx-[20.44px] mt-[17.52px] text-center text-[14.6px] tracking-[-0.15px]"
+                : "mx-[13.1px] mt-[12.5px] text-left text-[11.36px] tracking-[-0.11px]"
+            }`}
+          >
             {title}
           </h5>
         )}
-        {/* No strip for a single picture (2026-10-29). */}
-        <div className={`flex gap-[5.7px] px-[13px] pt-[8.9px] ${list.length > 1 ? "" : "hidden"}`}>
+        {/* No strip for a single picture (2026-10-29). Desktop's sample has
+            none either: its strip is drawn from the uploads. */}
+        <div
+          className={`flex ${desk ? "justify-center gap-[6.49px] px-[11.36px] pt-[10.55px]" : "gap-[5.7px] px-[13px] pt-[8.9px]"} ${
+            list.length > 1 && !lone && (mine.length || !desk) ? "" : "hidden"
+          }`}
+        >
           {list.slice(0, 5).map((src, j) => (
             <span
               key={j}
               onClick={() => setIdx(j)}
-              className={`block h-[29.2px] w-[29.2px] shrink-0 cursor-pointer overflow-hidden rounded-[7.3px] border-2 ${
+              className={`block shrink-0 cursor-pointer overflow-hidden border-2 ${desk ? "h-[38.13px] w-[38.13px] rounded-[8.11px]" : "h-[29.2px] w-[29.2px] rounded-[7.3px]"} ${
                 j === i ? "border-primary" : "border-transparent"
               }`}
             >
@@ -386,7 +408,7 @@ export function ImagePreview({ values, open, onToggle }: Props) {
             </span>
           ))}
           {list.length > 5 && (
-            <span className="flex h-[29.2px] w-[29.2px] shrink-0 items-center justify-center rounded-[7.3px] border-2 border-transparent bg-mc-well">
+            <span className={`flex shrink-0 items-center justify-center border-2 border-transparent bg-mc-well ${desk ? "h-[38.13px] w-[38.13px] rounded-[8.11px]" : "h-[29.2px] w-[29.2px] rounded-[7.3px]"}`}>
               <span className="text-[8.92px] leading-[normal] font-bold text-prose">+{list.length - 5}</span>
             </span>
           )}
@@ -401,6 +423,13 @@ export function ImagePreview({ values, open, onToggle }: Props) {
 
 export function WhatsAppPreview({ values, open, onToggle }: Props) {
   const message = (values.message ?? "").trim() || WA_DEFAULT;
+  // create_desktop_whatsapp.html heads the chat with the number itself (their
+  // `pvwWaNum`): the one the code will open, normalised, after the country
+  // code. The sample stands in until one is typed; it never reaches a code.
+  const desk = useDesktop();
+  const full = intlPhone(values);
+  const code = (values.phoneCountry ?? "+1").split("-")[0];
+  const number = full ? (full.startsWith(code) ? `${code} ${full.slice(code.length)}` : full) : "+1 555 123 4567";
   return (
     <PreviewCard
       open={open}
@@ -416,15 +445,15 @@ export function WhatsAppPreview({ values, open, onToggle }: Props) {
         </>
       }
     >
-      <Phone className="max-w-[243.4px] bg-mc-wa-bg">
+      <Phone className={desk ? "bg-mc-wa-bg" : "max-w-[243.4px] bg-mc-wa-bg"}>
         <div className="flex items-center bg-mc-wa-head px-[9.7px] py-[8.1px]">
           <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-mc-wa-brand">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/create/soc/whatsapp.svg" alt="" className="block h-[15.4px] w-[15.4px]" />
           </span>
           <span className="min-w-0 flex-1 pr-[8.1px] pl-[6.5px] text-left">
-            <span className="block truncate text-[10.14px] leading-[normal] font-bold text-white">Cafe Bella</span>
-            <span className="mt-[0.8px] block text-[8.11px] leading-[normal] text-white/85">online</span>
+            <span className="block truncate text-[10.14px] leading-[normal] font-bold text-white">{desk ? number : "Cafe Bella"}</span>
+            {!desk && <span className="mt-[0.8px] block text-[8.11px] leading-[normal] text-white/85">online</span>}
           </span>
           <span className="flex shrink-0 items-center gap-[9.7px] text-white [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px]">
             <svg {...svgProps}>
@@ -441,15 +470,14 @@ export function WhatsAppPreview({ values, open, onToggle }: Props) {
             </svg>
           </span>
         </div>
-        <div className="min-h-[73px] px-[10.5px] pt-[12.2px] pb-[8.9px] text-left">
+        <div className={`px-[10.5px] pt-[12.2px] pb-[8.9px] text-left ${desk ? "min-h-[194.69px]" : "min-h-[73px]"}`}>
           <div className="inline-block max-w-[88%] rounded-[8.1px] rounded-tl-[2.4px] bg-mc-wa-bubble px-[8.1px] pt-[6.9px] pb-[4.1px] shadow-mc-bubble">
-            <p className="text-[9.33px] leading-[14px] break-words text-mc-wa-ink">{message}</p>
-            <span className="mt-[2.7px] flex items-center justify-end gap-[2.7px] text-[7.71px] leading-[normal] text-mc-wa-time [&>svg]:block [&>svg]:h-[9.6px] [&>svg]:w-[9.6px] [&>svg]:text-mc-wa-tick">
+            {/* Line breaks as typed: they reach the chat too. */}
+            <p className="text-[9.33px] leading-[14px] break-words whitespace-pre-wrap text-mc-wa-ink">{message}</p>
+            {/* No delivery ticks (JB, 2026-10-30): nothing has been sent —
+                the scanner still has to press send. The files draw them. */}
+            <span className="mt-[2.7px] flex items-center justify-end gap-[2.7px] text-[7.71px] leading-[normal] text-mc-wa-time">
               10:24
-              <svg {...svgProps}>
-                <path d="M2 12.5 7 17.5 17.5 7" />
-                <path d="m11.5 15.5 2 2L22 9" />
-              </svg>
             </span>
           </div>
         </div>

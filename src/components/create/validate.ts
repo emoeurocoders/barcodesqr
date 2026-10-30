@@ -192,7 +192,61 @@ export function isComplete(type: string, values: Values) {
   if (type === "business") return hasBusinessContact(values);
   if (type === "menu") {
     const { rows, none } = menuIssues(values.items);
-    return !none && rows.every((r) => !r.name && !r.price);
+    return !none && rows.every((r) => !r.name && !r.price && !r.section);
+  }
+  if (type === "review") return isGoogleReviewUrl(values.reviewUrl ?? "");
+  if (type === "wifi") {
+    const w = wifiIssues(values);
+    return !w.ssid && !w.password;
   }
   return true;
+}
+
+const utf8Bytes = (s: string) => new TextEncoder().encode(s).length;
+
+/**
+ * A link that lands on Google (JB, 2026-10-30: reject unrelated links without
+ * refusing real Google formats). What Google Business Profile hands out —
+ * g.page/r/…/review, search.google.com/local/writereview?placeid=…,
+ * maps.app.goo.gl/…, share.google/…, google.<any country>/maps/… — plus the
+ * older goo.gl/maps and g.co short links. The host is all that is checked;
+ * Google changes its paths.
+ */
+export function isGoogleReviewUrl(raw: string) {
+  if (!isValidUrl(raw)) return false;
+  const v = raw.trim();
+  const host = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : `https://${v}`).hostname.toLowerCase();
+  return (
+    /(^|\.)google\.[a-z]{2,3}(\.[a-z]{2})?$/.test(host) ||
+    ["g.page", "maps.app.goo.gl", "goo.gl", "g.co", "share.google"].some((d) => host === d || host.endsWith(`.${d}`))
+  );
+}
+
+/**
+ * What a phone will actually join (JB, 2026-10-30): an SSID is at most 32
+ * BYTES (an emoji is 4); a WPA/WPA2 passphrase is 8–63 characters, or the
+ * raw 64-hex-digit key; WEP takes 5 or 13 characters, or 10 or 26 hex
+ * digits. An open network has no password.
+ */
+export function wifiIssues(v: Values): { ssid: string | null; password: string | null } {
+  const ssid = v.ssid ?? "";
+  const pass = v.password ?? "";
+  const enc = v.encryption || "WPA";
+  return {
+    ssid: !ssid.trim()
+      ? "Please enter your network name."
+      : utf8Bytes(ssid) > 32
+        ? "Network names are at most 32 bytes. Remove a few characters (emoji count as 4)."
+        : null,
+    password:
+      enc === "nopass"
+        ? null
+        : enc === "WEP"
+          ? /^(.{5}|.{13}|[0-9a-f]{10}|[0-9a-f]{26})$/iu.test(pass)
+            ? null
+            : "WEP keys are 5 or 13 characters, or 10 or 26 hex digits."
+          : (pass.length >= 8 && pass.length <= 63) || /^[0-9a-f]{64}$/i.test(pass)
+            ? null
+            : "Please enter the network password (8–63 characters).",
+  };
 }
