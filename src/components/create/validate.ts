@@ -42,9 +42,12 @@ export function isValidUrl(raw: string): boolean {
     return false;
   }
   if (!/^https?:$/.test(url.protocol)) return false;
+  // "user:pass@host" is how a link disguises where it goes.
+  if (url.username || url.password) return false;
   // URL() punycodes the host, so ASCII is all there is; the TLD is either
   // letters or an `xn--` international one.
-  return /^[a-z0-9-]+(\.[a-z0-9-]+)*\.(xn--[a-z0-9-]+|[a-z]{2,})$/i.test(
+  // Each label letters/digits/hyphens, never starting or ending with one.
+  return /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+(xn--[a-z0-9-]+|[a-z]{2,})$/i.test(
     url.hostname,
   );
 }
@@ -162,12 +165,18 @@ export function hasBusinessContact(values: Values) {
  * ignored; a half-filled one is not.
  */
 export function menuIssues(raw: string | undefined) {
-  const rows = parseMenuItems(raw).map((i) => ({
-    name: !i.name && (i.price || i.desc) ? ("missing" as const) : undefined,
-    price: i.name && !i.price ? ("missing" as const) : undefined,
-    blank: !i.name && !i.price && !i.desc,
-    complete: !!i.name && !!i.price,
-  }));
+  const rows = parseMenuItems(raw).map((raw) => {
+    const i = { name: raw.name.trim(), price: raw.price.trim(), desc: raw.desc.trim() };
+    if (raw.heading)
+      return { name: undefined, price: undefined, blank: true, complete: false, section: i.name ? undefined : ("missing" as const) };
+    return {
+      name: !i.name && (i.price || i.desc) ? ("missing" as const) : undefined,
+      price: i.name && !i.price ? ("missing" as const) : undefined,
+      blank: !i.name && !i.price && !i.desc,
+      complete: !!i.name && !!i.price,
+      section: undefined,
+    };
+  });
   return { rows, none: !rows.some((r) => r.complete) };
 }
 

@@ -27,12 +27,20 @@ type QrInstance = {
   download: (opts: { name: string; extension: string }) => Promise<void>;
 };
 
+/**
+ * The text as UTF-8 bytes, one per character. qr-code-styling writes each
+ * character's low byte, so anything past ASCII — an emoji in an SMS, "é" in
+ * a vCard name — came out as garbage or nothing (Tami, 2026-10-30). Handing
+ * it bytes makes the code UTF-8, which phone readers recognise.
+ */
+const utf8 = (s: string) => unescape(encodeURIComponent(s));
+
 function optionsFor(value: string, style: QrStyle, size: number) {
   return {
     width: size,
     height: size,
     type: "svg" as const,
-    data: value || " ",
+    data: utf8(value || " "),
     margin: 8,
     qrOptions: { errorCorrectionLevel: "Q" as const },
     dotsOptions: { color: style.fg, type: style.dots },

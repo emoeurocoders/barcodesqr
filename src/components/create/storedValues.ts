@@ -112,15 +112,29 @@ export function linkCaption(l: StoredLink): string {
  * builder and the desktop textarea read and write the same value, and menus
  * saved before the builder existed open in it unchanged.
  */
-export type MenuItem = { name: string; price: string; desc: string };
+export type MenuItem = {
+  name: string;
+  price: string;
+  desc: string;
+  /**
+   * A section heading rather than an item (JB, 2026-10-30: menus have more
+   * than one section). Stored as a `## Name` line; the items after it, up to
+   * the next heading, are its items. Items before the first heading belong
+   * to the `category` field's section, as before.
+   */
+  heading?: boolean;
+};
 
 export function parseMenuItems(raw: string | undefined): MenuItem[] {
   return (raw ?? "")
     .split("\n")
     .filter((line) => line.trim())
-    .map((line) => {
-      const [name = "", price = "", ...rest] = line.split("|");
-      return { name: name.trim(), price: price.trim(), desc: rest.join("|").trim() };
+    .map((line): MenuItem => {
+      if (line.startsWith("## ")) return { name: line.slice(3), price: "", desc: "", heading: true };
+      // Only the separator's own spaces go: trimming every cell ate the
+      // space a visitor had just typed after a word (Tami, 2026-10-30).
+      const [name = "", price = "", ...rest] = line.split(/ ?\| ?/);
+      return { name, price, desc: rest.join(" | ") };
     });
 }
 
@@ -134,6 +148,7 @@ const cell = (s: string) => s.replace(/[|\r\n]+/g, " ");
 export function serializeMenuItems(items: MenuItem[]): string {
   return items
     .map((i) => {
+      if (i.heading) return `## ${cell(i.name)}`;
       const line = `${cell(i.name)} | ${cell(i.price)}`;
       return i.desc.trim() ? `${line} | ${cell(i.desc)}` : line;
     })

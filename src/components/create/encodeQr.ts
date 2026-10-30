@@ -1,5 +1,5 @@
 import { dialCodes } from "./fieldSchema";
-import { socials } from "./mobile/socials";
+import { normalizeSocial, socials } from "./mobile/socials";
 import { localTimeZone, zonedToUtc } from "@/lib/zoned";
 /**
  * Turns the step-2 form values into the string the QR actually encodes.
@@ -22,9 +22,6 @@ const DYNAMIC_PLACEHOLDER = `${QR_BASE_URL}/q/preview`;
 
 /** Types whose content lives on a hosted page rather than inside the code. */
 const dynamicTypes = new Set([
-  // Hosted since 2026-10-23 (JB): the page's "Add contact" hands over a .vcf
-  // with the photo inside, which no QR code can hold.
-  "vcard",
   "pdf",
   "image",
   "video",
@@ -98,7 +95,11 @@ export function vcard(v: Record<string, string>) {
     else if (p.key === "viber") url = `viber://chat?number=${encodeURIComponent(raw.replace(/[^\d+]/g, ""))}`;
     else if (p.key === "line") url = `https://line.me/ti/p/~${encodeURIComponent(raw.replace(/^@/, ""))}`;
     else if (p.key === "wechat") extraNote.push(`WeChat: ${raw}`);
-    else url = withScheme(raw);
+    else {
+      // Old saves may hold a bare username; make it the profile link.
+      const n = normalizeSocial(p.key, raw);
+      url = n.ok ? n.value : withScheme(raw);
+    }
     if (!url) continue;
     item++;
     lines.push(`item${item}.URL:${url}`, `item${item}.X-ABLabel:${p.name}`);
@@ -162,6 +163,10 @@ export function encodeQr(
 ): string {
   const v = values ?? {};
   if (dynamicTypes.has(type)) return slug ? `${QR_BASE_URL}/q/${slug}` : DYNAMIC_PLACEHOLDER;
+  // vCard is a direct contact card again (JB, 2026-10-30: phones import it
+  // natively). It was hosted 2026-10-23 → 10-30 for the photo, which no QR
+  // code can hold; codes printed then still open its page (app/q/[slug]).
+  if (type === "vcard") return vcard(v);
 
   switch (type) {
     case "website":

@@ -521,7 +521,7 @@ function useHours(values: Values, anyTyped: boolean) {
   return anyTyped ? null : { isOpen: true, text: "Closes 3 PM" };
 }
 
-export function BusinessPreview({ values, open, onToggle }: Props & { selectedSocials?: string[] }) {
+export function BusinessPreview({ values, open, onToggle, selectedSocials }: Props & { selectedSocials?: string[] }) {
   const page = usePageMode();
   const coverFile = parseStoredFile(values.cover ?? "");
   const cover = fileSrc(coverFile) ?? (page ? undefined : "/previews/team.jpg");
@@ -530,7 +530,9 @@ export function BusinessPreview({ values, open, onToggle }: Props & { selectedSo
   const logo = fileSrc(logoFile);
   const name = t(values.title) || (page ? "" : "Harbor & Sage Co.");
   const desc = t(values.description) || (page ? "" : "Specialty coffee & all-day brunch in the heart of town.");
-  const socs = page ? filledSocials(values) : [];
+  // The profiles filled in so far (Tami, 2026-10-30: the editor's preview
+  // showed none, only the published page did).
+  const socs = filledSocials(values).filter((k) => page || !selectedSocials || selectedSocials.includes(k));
   const filled = (k: string) => {
     const v = t(values[k]);
     return v === "https://" ? "" : v;

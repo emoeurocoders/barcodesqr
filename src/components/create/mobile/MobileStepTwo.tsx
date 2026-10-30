@@ -11,6 +11,7 @@ import {
   VCardForm,
   WebsiteForm,
   checksFor,
+  socialChecks,
   initiallyOpen,
 } from "./forms";
 import { FormHeader, NameField } from "./fields";
@@ -423,10 +424,11 @@ export function MobileStepTwo({
       ...checksForBatch4(type, values),
       ...checksForBatch5(type, values),
       ...checksForBatch6(type, values),
+      ...socialChecks(type, values, socialsOn),
       // Last, so a missing name is only scrolled to once the form is right.
       { id: "qrName", msg: name.trim() ? null : "Please name your QR code." },
     ],
-    [type, values, name],
+    [type, values, name, socialsOn],
   );
   const errors = useMemo(() => {
     if (!submitted) return {};

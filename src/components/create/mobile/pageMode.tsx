@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { socials } from "./socials";
+import { normalizeSocial, socials } from "./socials";
 
 /**
  * The previews double as the hosted pages a scan opens (app/q/[slug]). The
@@ -25,6 +25,9 @@ export function socialHref(key: string, raw: string) {
   if (key === "viber") return `viber://chat?number=${encodeURIComponent(v.replace(/[^\d+]/g, ""))}`;
   if (key === "line") return `https://line.me/ti/p/~${encodeURIComponent(v.replace(/^@/, ""))}`;
   if (key === "wechat") return "";
+  // A username saved before 2026-10-30 ("@kaia") becomes the profile link.
+  const n = normalizeSocial(key, v);
+  if (n.ok && n.value) return n.value;
   return /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : `https://${v}`;
 }
 

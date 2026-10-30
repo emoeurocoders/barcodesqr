@@ -62,7 +62,8 @@ export default async function QrPage({ params }: { params: Promise<{ slug: strin
   }
 
   // A direct type never points here, but an old code might: send it on.
-  if (!isDynamic(row.type)) {
+  // vCards printed while vCard was hosted (2026-10-23 → 10-30) keep their page.
+  if (!isDynamic(row.type) && row.type !== "vcard") {
     const target = encodeQr(row.type, v);
     if (/^https?:\/\//i.test(target)) redirect(target);
     notFound();

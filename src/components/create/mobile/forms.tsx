@@ -7,6 +7,7 @@ import { errorCopy, isValidEmail, isValidUrl, linkIssues } from "../validate";
 import { UploadError, uploadLinkLogo } from "../uploadFile";
 import {
   Acc,
+  FieldError,
   Fld,
   Label,
   Sep,
@@ -15,7 +16,7 @@ import {
   textInput,
 } from "./ui";
 import { useDesktop } from "./pageMode";
-import { socialByKey, socials } from "./socials";
+import { normalizeSocial, socialByKey, socials } from "./socials";
 
 import {
   PhoneFld,
@@ -99,6 +100,33 @@ export function checksFor(type: string, values: Values): Check[] {
     default:
       return checksForBatch2(type, values);
   }
+}
+
+/** Where each type keeps its social picker: the inputs' id prefix and accordion. */
+const socialPickers: Record<string, { prefix: string; acc?: string }> = {
+  vcard: { prefix: "vcSoc", acc: "social" },
+  multilink: { prefix: "mlSoc", acc: "social" },
+  business: { prefix: "bzSoc", acc: "social" },
+  social: { prefix: "smSoc" },
+};
+
+/**
+ * Every filled-in social profile is a username or a link on that platform's
+ * own site (a phone number for WhatsApp and Viber) — not just "has a dot".
+ */
+export function socialChecks(type: string, values: Values, on: string[]): Check[] {
+  const picker = socialPickers[type];
+  if (!picker) return [];
+  return on.map((k) => {
+    const n = normalizeSocial(k, values[k] ?? "");
+    const p = socialByKey[k];
+    const msg = n.ok
+      ? null
+      : p?.tel
+        ? `Please enter a valid ${p.name} number.`
+        : `Please enter a valid ${p?.name ?? k} link or username.`;
+    return { id: `${picker.prefix}${k}`, acc: picker.acc, msg };
+  });
 }
 
 /** The types create_mobile_*.html has designed and we have ported so far. */
@@ -322,11 +350,21 @@ export function SocialPicker({
                     name={id}
                     value={value}
                     placeholder={p.placeholder}
-                    className={textInput(false)}
+                    aria-invalid={!!s.errors[id]}
+                    className={textInput(!!s.errors[id])}
                     {...(p.url
-                      ? urlHandlers(value, set)
+                      ? {
+                          ...urlHandlers(value, set),
+                          // A username or a bare link becomes the full
+                          // profile link as they leave the field.
+                          onBlur: () => {
+                            const n = normalizeSocial(p.key, value);
+                            set(n.ok ? n.value : value.trim());
+                          },
+                        }
                       : { onChange: (e: React.ChangeEvent<HTMLInputElement>) => set(e.target.value) })}
                   />
+                  {s.errors[id] && <FieldError>{s.errors[id]}</FieldError>}
                 </div>
               </div>
             );

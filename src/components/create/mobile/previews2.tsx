@@ -177,6 +177,8 @@ export function PdfPreview({ values, open, onToggle }: Props) {
   const pages = Number((stored as { pages?: number } | null)?.pages) || 1;
   const [page, setPage] = useState(1);
   const cur = Math.min(page, pages);
+  const title = (values.title ?? "").trim();
+  const desc = (values.description ?? "").trim();
 
   const nav =
     "flex h-[24.3px] w-[24.3px] items-center justify-center rounded-full border border-mc-acc-line bg-white text-body shadow-mc-nav [&>svg]:block [&>svg]:h-[11.4px] [&>svg]:w-[11.4px]";
@@ -198,6 +200,15 @@ export function PdfPreview({ values, open, onToggle }: Props) {
     >
       {/* Their `.pvwPdf` is the one phone card at full width. */}
       <Phone className="max-w-full px-[11.4px] pt-[13px] pb-[12.2px]">
+        {/* The form's Title and Description (Tami, 2026-10-30: they were
+            asked for and shown nowhere). Unmocked — the Menu preview's
+            title style; nothing until filled, so no sample text. */}
+        {(title || desc) && (
+          <div className="mx-auto mb-[9.7px] max-w-[227.1px] text-left">
+            {title && <h5 className="text-[12.17px] leading-[normal] font-bold tracking-[-0.12px] break-words text-ink">{title}</h5>}
+            {desc && <p className="mt-[3px] text-[8.52px] leading-[12.8px] break-words whitespace-pre-line text-muted">{desc}</p>}
+          </div>
+        )}
         <div className="mx-auto max-w-[227.1px]">
           {url ? (
             // Their embed. Phones' built-in viewers mostly ignore `#page`

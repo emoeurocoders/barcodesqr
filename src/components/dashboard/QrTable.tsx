@@ -54,6 +54,15 @@ const headings = [
 const noop = () => () => {};
 
 /**
+ * Below md a row is a card rather than a 1100px table row (Tami, 2026-10-30:
+ * on a phone, Scans, Actions and Download QR were off to the right behind a
+ * sideways scroll). Each cell then wears its column heading above it, from
+ * `data-label`. Unmocked: member_main.html has no phone layout.
+ */
+const cell =
+  "max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-1.5 max-md:gap-y-1 max-md:before:basis-full max-md:before:text-[10.5px] max-md:before:font-semibold max-md:before:uppercase max-md:before:tracking-wide max-md:before:text-muted max-md:before:content-[attr(data-label)]";
+
+/**
  * "Aug 19, 2024" over "10:24 AM", as the mockup writes it — in the browser's
  * time zone, so it is only filled in once mounted; the server's clock is UTC
  * and would show someone in California tomorrow's date.
@@ -62,7 +71,7 @@ function Created({ iso }: { iso: string }) {
   const mounted = useSyncExternalStore(noop, () => true, () => false);
   const d = new Date(iso);
   return (
-    <div className="min-w-0">
+    <div data-label="Created" className={`min-w-0 ${cell}`}>
       <p className="truncate text-xs text-ink">
         {mounted ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "\u00a0"}
       </p>
@@ -288,15 +297,15 @@ function Row({ row }: { row: QrRow }) {
   return (
     <li
       id={`qr-${row.id}`}
-      className={`grid items-center gap-x-3.5 ${
+      className={`grid items-center gap-x-3.5 max-md:grid-cols-2 max-md:gap-y-3.5 md:[grid-template-columns:var(--qr-grid)] ${
         row.highlight
-          ? "my-2.5 rounded-[14px] border-2 border-primary p-[11px] shadow-soft"
-          : "border-b border-line/70 py-3"
+          ? "my-2.5 rounded-[14px] border-2 border-primary p-[11px] shadow-soft max-md:p-3.5"
+          : "border-b border-line/70 py-3 max-md:py-4"
       }`}
-      style={{ gridTemplateColumns: GRID }}
+      style={{ "--qr-grid": GRID } as React.CSSProperties}
     >
       {/* Name */}
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3 max-md:col-span-2">
         <span className="relative grid h-[50px] w-[50px] shrink-0 place-items-center rounded-lg border border-line bg-white">
           {/* Drawn at 200 and shrunk: drawn at 40 the modules round to
               under a pixel and the thumbnail stops being a working code. */}
@@ -319,7 +328,7 @@ function Row({ row }: { row: QrRow }) {
       </div>
 
       {/* Link */}
-      <div className="flex min-w-0 items-center gap-1.5">
+      <div data-label="Your Link" className={`flex min-w-0 items-center gap-1.5 max-md:col-span-2 ${cell}`}>
         {row.link ? (
           <>
             <ExternalLink className="h-3.5 w-3.5 shrink-0 text-faint" />
@@ -343,40 +352,50 @@ function Row({ row }: { row: QrRow }) {
 
       {/* Password — not built yet; shown as off rather than as a switch
           that would pretend to protect anything. */}
-      <span className="text-xs text-muted">Off</span>
+      <span data-label="Password" className={`text-xs text-muted ${cell}`}>Off</span>
 
       {/* Status */}
-      <div className="flex items-center gap-1.5">
+      <div data-label="Status" className={`flex items-center gap-1.5 ${cell}`}>
         <span className="h-2 w-2 shrink-0 rounded-full bg-[#16a34a]" />
         <span className="text-xs text-ink">Active</span>
       </div>
 
       {/* Health: every code we draw is a valid, scannable code. */}
-      <div className="flex items-center gap-1.5">
+      <div data-label="QR Health" className={`flex items-center gap-1.5 ${cell}`}>
         <span className="h-2 w-2 shrink-0 rounded-full bg-[#16a34a]" />
         <span className="text-xs text-ink">Good</span>
       </div>
 
       {/* Type */}
-      <div>
+      <div data-label="Type" className={cell}>
         <TypePill type={row.type} />
       </div>
 
-      {/* Scans: hosted codes pass through /q/<slug>, which counts them. */}
-      <div>
-        {row.scans !== null && (
+      {/* Scans: hosted codes pass through /q/<slug>, which counts them. A
+          direct code (Website, WiFi, SMS…) goes straight to its content, so
+          it can never be counted: "N/A", not a zero that reads as "nobody
+          scanned it" (JB, 2026-10-30). */}
+      <div data-label="Scans" className={cell}>
+        {row.scans !== null ? (
           <span className="inline-flex rounded-full bg-bg-alt px-2.5 py-1 text-xs font-medium text-body">
             {row.scans} {row.scans === 1 ? "scan" : "scans"}
+          </span>
+        ) : (
+          <span
+            title="Not counted: this code opens its content directly, without passing through BarcodesQR."
+            className="inline-flex rounded-full bg-bg-alt px-2.5 py-1 text-xs font-medium text-faint"
+          >
+            N/A
           </span>
         )}
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-1">
+      <div className="flex items-center justify-end gap-1 max-md:col-span-2 max-md:gap-2">
         <button
           type="button"
           onClick={() => downloadQr(row.qrValue, defaultQrStyle, row.name, "png")}
-          className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
+          className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg max-md:flex-1 max-md:justify-center max-md:py-2.5 bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
         >
           <Download className="h-3.5 w-3.5" />
           Download QR
@@ -391,10 +410,10 @@ function Row({ row }: { row: QrRow }) {
 export function QrTable({ rows }: { rows: QrRow[] }) {
   return (
     <div className="px-6 pb-8 pt-6">
-      <div className="overflow-x-auto">
-        <div className="min-w-[1100px]">
+      <div className="md:overflow-x-auto">
+        <div className="md:min-w-[1100px]">
           <div
-            className="grid gap-x-3.5 border-b border-line pb-3"
+            className="grid gap-x-3.5 border-b border-line pb-3 max-md:hidden"
             style={{ gridTemplateColumns: GRID }}
           >
             {headings.map((h) => (

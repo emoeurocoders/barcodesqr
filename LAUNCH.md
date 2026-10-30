@@ -15,7 +15,15 @@ Status: written 2026-09-01, when file uploads were wired to Cloudflare R2.
 
 ### Hosted pages — built 2026-10-23; what is left
 
-Hosted types (vCard, Multi-Link, PDF, Image, Video, Audio, Social Media,
+**`www.barcodesqr.com` still serves an older deployment with no `/q`
+route, so every hosted code 404s when scanned** (Tami's iPhone QA,
+2026-10-30: all ten hosted types). `barcodesqr.vercel.app` serves the
+current build and its `/q` pages work. The fix is in Vercel, not the code:
+attach `barcodesqr.com` and `www.barcodesqr.com` to this project. Codes
+already printed then start working as they are — they point at the domain,
+and their slugs are in the production database.
+
+Hosted types (Multi-Link, PDF, Image, Video, Audio, Social Media,
 Menu, Coupon, Business, App Link) now encode
 `https://www.barcodesqr.com/q/<slug>` — an 8-character random code given
 to every saved code (`qr_code.slug`, never changed: it is printed).
@@ -33,12 +41,13 @@ code isn't active"; downloads only happen from the dashboard, after saving.
   menu" button (the page is the menu), no "Bella Italia" / "The Matcha
   Den" / café photo (samples the files hard-code). The QR and share chips
   on covers are still decorative.
-- **vCard is hosted now** (JB): "Add contact" serves `/q/<slug>/contact.vcf`
-  with the photo inside, cropped as framed in the creator and shrunk to
-  400px JPEG (sharp). The photo is only fetched from our own bucket
-  (`STORAGE_PUBLIC_BASE_URL`), never from whatever URL the browser saved.
-  vCards printed before today still work — they carry the contact in the
-  code — but downloading one again gives the hosted version.
+- **vCard is direct again** (JB, 2026-10-30: restore the phone's own
+  contact import). The code carries the contact, so the profile photo does
+  not reach the phone — a QR code cannot hold an image; it shows in the
+  creator's preview only. Asked JB whether to keep the photo field.
+  vCards saved 2026-10-23 → 10-30 were hosted: those printed codes still
+  open their page (`/q/<slug>`, whose "Add contact" serves a .vcf with the
+  photo), but downloading one again gives the direct version.
 - **App Link** redirects iPhones to the App Store link and Android to
   Google Play, falling back to the fallback URL; a desktop browser goes to
   the fallback, or sees the store buttons when there is none.
@@ -128,6 +137,15 @@ reads it in one place (`publicUrl` in `src/lib/storage.ts`). Do this in every
 environment, and remember Vercel needs its own value.
 
 ---
+
+### Waiting on others (Tami's QA, 2026-10-30)
+
+- **Google Places key.** The Google Maps picker is built (Batch 4 notes)
+  and offers only what was typed until `GOOGLE_PLACES_API_KEY` exists,
+  locally and on Vercel.
+- **Plain Text scans as text**, which an iPhone camera offers to search
+  the web. The design shows a note page; that would make Text a hosted
+  type. Recommended to JB; not built until they decide.
 
 ## Should fix, not release-blocking
 
@@ -673,6 +691,31 @@ the mobile ones; only layout differs (`useDesktop()`).
 - Diffs at 1440: 1.1% (Website) to 3.0% (Social Media), the rest being the
   hidden badge and the parity extras. Checked for horizontal overflow at
   1180, 1024, 900 and 800; mobile unchanged (skeleton identical).
+
+## Fixes from Tami's iPhone QA, 2026-10-30
+
+- **QR text is UTF-8.** qr-code-styling wrote each character's low byte,
+  so emoji and accents came out as garbage (SMS, also any vCard name with
+  an accent). `QrPreview` now hands it UTF-8 bytes; checked by decoding
+  the drawn code (Chrome's BarcodeDetector). Not yet on a real iPhone.
+- **Social profiles are checked.** A username ("kaia", "@kaia", "u/kaia")
+  becomes the profile link as the field is left; a link must be on that
+  platform's own site; WhatsApp/Viber need 7–15 digits. Saved usernames
+  from before are turned into links when published. `isValidUrl` also now
+  refuses `user:pass@` links and labels starting or ending with "-"; it
+  never required ".com".
+- **Menu:** spaces typed at the end of a word survive (the stored format
+  trimmed every cell on every keystroke). Several sections: "Add Section"
+  (unmocked) adds a heading card and an item; the Category field still
+  names the first section. Stored as `## Name` lines in the same value.
+- **Business:** filled social profiles show in the creator's preview
+  (unmocked badges, as on the published page).
+- **PDF:** Title and Description show above the document once filled
+  (unmocked; the file's preview has neither).
+- **My QR Codes on phones** is a card per code (unmocked — member_main.html
+  has no phone layout): name, link, then the columns in pairs with their
+  headings, then a full-width Download QR. Direct codes show Scans "N/A";
+  hosted codes count real visits (zero so far because of the domain).
 
 ## Image reframing — not in the file, added 2026-10-21
 

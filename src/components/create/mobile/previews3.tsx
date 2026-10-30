@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { cropStyle, fileSrc, filledLinks, linkCaption, parseMenuItems, parseStoredFile } from "../storedValues";
+import type { MenuItem } from "../storedValues";
 import { BarCaret, BarText, Chip, PreviewCard, RowLink, Sample, ScanNote, chevronRight, hrefOf, qrGlyph } from "./previews";
 import { filledSocials, socialHref, useDesktop, usePageMode } from "./pageMode";
 import { socialByKey } from "./socials";
@@ -193,8 +194,10 @@ export function MenuPreview({ values, open, onToggle }: Props) {
   const desc = (values.description ?? "").trim() || (page ? "" : "Fresh, seasonal, and made to order.");
   const cat = (values.category ?? "").trim();
   // Their script lists an item once it has both a name and a price.
-  const mine = parseMenuItems(values.items).filter((i) => i.name && i.price);
-  const items = mine.length || page ? mine : sampleMenu;
+  // Headings stay in, so the list can break into sections.
+  const all = parseMenuItems(values.items).map((i) => ({ ...i, name: i.name.trim(), price: i.price.trim(), desc: i.desc.trim() }));
+  const mine = all.filter((i) => (i.heading ? i.name : i.name && i.price));
+  const items: MenuItem[] = mine.some((i) => !i.heading) || page ? mine : sampleMenu;
 
   return (
     <PreviewCard
@@ -233,7 +236,10 @@ export function MenuPreview({ values, open, onToggle }: Props) {
           <p className="px-[11.4px] pt-[10.5px] text-left text-[8.11px] leading-[normal] font-bold tracking-[0.65px] text-faint uppercase">{cat}</p>
         )}
         <div className="px-[11.4px] pt-[1.6px] text-left">
-          {items.map((it, i) => (
+          {items.map((it, i) =>
+            it.heading ? (
+              <p key={i} className="pt-[12.2px] text-[8.11px] leading-[normal] font-bold tracking-[0.65px] text-faint uppercase">{it.name}</p>
+            ) : (
             <div key={i} className="mt-[9.7px]">
               <div className="flex items-baseline gap-[4.1px]">
                 <span className="max-w-[70%] shrink-0 truncate text-[9.73px] leading-[normal] font-semibold text-ink">{it.name}</span>
@@ -242,7 +248,8 @@ export function MenuPreview({ values, open, onToggle }: Props) {
               </div>
               {it.desc && <p className="mt-[1.9px] text-[7.71px] leading-[10.8px] text-muted">{it.desc}</p>}
             </div>
-          ))}
+            ),
+          )}
         </div>
         {/* The page IS the full menu; the button only makes sense in the
             preview's cut-down card. */}

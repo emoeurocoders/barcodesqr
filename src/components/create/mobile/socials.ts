@@ -1,3 +1,5 @@
+import { isValidUrl } from "../validate";
+
 /**
  * The fifteen platforms the mobile social picker offers, in the designer's
  * order. The first eight show by default; the rest sit behind "More
@@ -38,3 +40,60 @@ export const socials: Social[] = [
 ];
 
 export const socialByKey = Object.fromEntries(socials.map((s) => [s.key, s]));
+
+/**
+ * Where each link-type platform's profiles live, and how a bare username
+ * becomes one. People type "@kaia" or "kaia" as often as a link; both used to
+ * be stored as written and published as "https://@kaia" (Tami, 2026-10-30).
+ */
+const profiles: Record<string, { hosts: string[]; url: (h: string) => string }> = {
+  facebook: { hosts: ["facebook.com", "fb.com", "fb.me"], url: (h) => `https://facebook.com/${h}` },
+  instagram: { hosts: ["instagram.com", "instagr.am"], url: (h) => `https://instagram.com/${h}` },
+  tiktok: { hosts: ["tiktok.com"], url: (h) => `https://tiktok.com/@${h}` },
+  youtube: { hosts: ["youtube.com", "youtu.be"], url: (h) => `https://youtube.com/@${h}` },
+  linkedin: { hosts: ["linkedin.com", "lnkd.in"], url: (h) => `https://linkedin.com/in/${h}` },
+  x: { hosts: ["x.com", "twitter.com"], url: (h) => `https://x.com/${h}` },
+  telegram: { hosts: ["t.me", "telegram.me"], url: (h) => `https://t.me/${h}` },
+  messenger: { hosts: ["m.me", "messenger.com", "facebook.com"], url: (h) => `https://m.me/${h}` },
+  snapchat: { hosts: ["snapchat.com"], url: (h) => `https://snapchat.com/add/${h}` },
+  pinterest: { hosts: ["pinterest.com", "pin.it"], url: (h) => `https://pinterest.com/${h}` },
+  reddit: { hosts: ["reddit.com", "redd.it"], url: (h) => `https://reddit.com/user/${h}` },
+};
+
+const HANDLE = /^[a-z0-9._-]{1,100}$/i;
+
+/**
+ * A social field's value as a link, or `ok: false` when it is neither a
+ * username nor a link on that platform's own site. Number and ID platforms
+ * (WhatsApp, Viber, LINE, WeChat) pass through; their own rules apply.
+ */
+export function normalizeSocial(key: string, raw: string): { value: string; ok: boolean } {
+  const v = raw.trim();
+  if (!v || /^https?:\/\/$/i.test(v)) return { value: "", ok: true };
+  const p = profiles[key];
+  if (!p) {
+    if (socialByKey[key]?.tel) {
+      const digits = v.replace(/\D/g, "").length;
+      return { value: v, ok: digits >= 7 && digits <= 15 && /^\+?[\d\s().-]+$/.test(v) };
+    }
+    return { value: v, ok: true };
+  }
+  const rest = v.replace(/^https?:\/\//i, "");
+  const host = rest.split(/[/?#]/)[0].toLowerCase().replace(/^www\.|^m\.|^mobile\./, "");
+  // Pinterest runs a site per country (pinterest.co.uk, pinterest.de…).
+  const own = (h: string) => p.hosts.some((d) => h === d || h.endsWith(`.${d}`)) || (key === "pinterest" && /^([a-z]{2}\.)?pinterest\.[a-z.]{2,6}$/.test(h));
+  if (own(host)) {
+    const value = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+    return { value, ok: isValidUrl(value) };
+  }
+  // No path — a username ("kaia", "@kaia", "u/kaia" on Reddit). Unless it
+  // reads as some other site ("www.kaia.com", "kaia.co"): that is a wrong
+  // link, not a username with a dot in it ("kaia.bennett" is one).
+  if (!rest.includes("/") || (key === "reddit" && /^u\/[^/]+$/i.test(rest))) {
+    const at = rest.startsWith("@");
+    const h = rest.replace(/^@/, "").replace(key === "reddit" ? /^u\//i : /^$/, "");
+    const site = /^www\./i.test(h) || /\.(com|net|org|info|biz|io|co|app|dev|me|ly|[a-z]{2})$/i.test(h);
+    if ((at || !site) && HANDLE.test(h) && !/^[._-]|[._-]$/.test(h)) return { value: p.url(h), ok: true };
+  }
+  return { value: v, ok: false };
+}

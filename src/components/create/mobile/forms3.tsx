@@ -54,9 +54,11 @@ export function checksForBatch3(type: string, values: Values): Check[] {
       const allBlank = none && rows.every((r) => r.blank);
       return [
         { id: "mnTitle", msg: trimmed(values.title) ? null : "Please enter a title." },
-        ...(items.length ? rows : [{ blank: true, name: undefined, price: undefined }]).flatMap(
+        ...(items.length ? rows : [{ blank: true, name: undefined, price: undefined, section: undefined }]).flatMap(
           (r, i): Check[] => {
-            const flag = allBlank && i === 0;
+            const flag = allBlank && i === 0 && !items[0]?.heading;
+            if (items[i]?.heading)
+              return [{ id: `mnSec${i}`, acc: "items", msg: r.section ? "Please enter a section name." : null }];
             return [
               { id: `mnName${i}`, acc: "items", msg: r.name || flag ? "Please enter an item name." : null },
               { id: `mnPrice${i}`, acc: "items", msg: r.price || flag ? "Please enter a price." : null },
@@ -179,11 +181,14 @@ function MenuItems({ s }: { s: FormState }) {
       {rows.map((row, i) => {
         const nameErr = s.errors[`mnName${i}`];
         const priceErr = s.errors[`mnPrice${i}`];
+        const secErr = s.errors[`mnSec${i}`];
+        // Items are numbered within their own section.
+        const num = i - rows.slice(0, i).map((r) => !!r.heading).lastIndexOf(true);
         return (
-          <div key={i} className="mt-[11.4px] rounded-[9.7px] border border-mc-card-line bg-mc-row px-[9.7px] pt-[1.6px] pb-[12.2px]">
+          <div key={i} className={`mt-[11.4px] rounded-[9.7px] border px-[9.7px] pt-[1.6px] pb-[12.2px] ${row.heading ? "border-mc-acc-line bg-white" : "border-mc-card-line bg-mc-row"}`}>
             <div className="mt-[9.7px] flex items-center justify-between">
-              <span className="text-[11.76px] leading-[normal] font-bold text-ink">Item {i + 1}</span>
-              {rows.length > 1 && (
+              <span className="text-[11.76px] leading-[normal] font-bold text-ink">{row.heading ? "New section" : `Item ${num}`}</span>
+              {(rows.length > 1 || row.heading) && (
                 <span className="flex items-center gap-[2.4px] text-muted">
                   <a href="#" aria-label="Move item up" className={ctlBtn} onClick={(e) => { e.preventDefault(); move(i, -1); }}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg>
@@ -197,6 +202,12 @@ function MenuItems({ s }: { s: FormState }) {
                 </span>
               )}
             </div>
+            {row.heading ? (
+              <Fld id={`mnSec${i}`} label="Section name" required error={secErr}>
+                <input type="text" id={`mnSec${i}`} value={row.name} placeholder="e.g. Desserts" maxLength={40} aria-invalid={!!secErr} onChange={(e) => update(i, { name: e.target.value })} className={textInput(!!secErr)} />
+              </Fld>
+            ) : (
+            <>
             {/* Their `.rowCols`: name beside a 36% price. */}
             <div className="flex gap-[9.7px]">
               <Fld id={`mnName${i}`} label="Item name" required error={nameErr} className="mt-[12.2px] min-w-0 flex-1">
@@ -209,6 +220,8 @@ function MenuItems({ s }: { s: FormState }) {
             <Fld id={`mnDesc${i}`} label="Description">
               <textarea id={`mnDesc${i}`} value={row.desc} placeholder="Short description (optional)" maxLength={100} onChange={(e) => update(i, { desc: e.target.value })} className={`${textArea(false)} resize-y`} />
             </Fld>
+            </>
+            )}
           </div>
         );
       })}
@@ -223,6 +236,21 @@ function MenuItems({ s }: { s: FormState }) {
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
         Add Another Item
+      </a>
+      {/* Unmocked (JB, 2026-10-30: several sections per menu). A heading
+          card, then an empty item under it; the items after a heading are
+          that section's. The Category field names the first section. */}
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          write([...rows, { name: "", price: "", desc: "", heading: true }, emptyItem]);
+          requestAnimationFrame(() => document.getElementById(`mnSec${rows.length}`)?.focus());
+        }}
+        className={`${outlineBtn} mt-[9.7px] flex h-[35.1px] w-full gap-[6.5px] [&>svg]:h-[14.3px] [&>svg]:w-[14.3px]`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" /><path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /></svg>
+        Add Section
       </a>
     </>
   );
