@@ -94,7 +94,7 @@ export function PhoneForm({ s }: { s: FormState }) {
       numId="telNum"
       label="Phone number"
       placeholder="555 555 0123"
-      hint="Enter a valid phone number, including area code."
+      hint="Enter a valid phone number and area code."
       tip={{ label: "About the phone number", text: "The number people call after scanning." }}
     />
   );

@@ -602,7 +602,8 @@ export function BusinessPreview({ values, open, onToggle, selectedSocials }: Pro
               <RowLink
                 key={r.key}
                 href={page ? bizHref(r.key, v) : undefined}
-                className="flex items-center rounded-[11.36px] border border-[#eef1f4] bg-[#f5f7f9] px-[9.73px] py-[8.92px] [&+&]:mt-[7.3px]"
+                // White pills since the 2026-11-02 sync (`.rw2`: #fff, 4.4em).
+                className="flex items-center rounded-[35.69px] border border-[#eef1f4] bg-white px-[9.73px] py-[8.92px] [&+&]:mt-[7.3px]"
               >
                 <span
                   className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full [&>svg]:block [&>svg]:h-[14.59px] [&>svg]:w-[14.59px]"
@@ -621,23 +622,22 @@ export function BusinessPreview({ values, open, onToggle, selectedSocials }: Pro
             );
           })}
         </div>
-        {/* The business's socials — collected by the form, but the file's
-            preview has nowhere for them. Their picker's badges, as links.
-            Unmocked. */}
+        {/* The business's socials: their `.bzSocs` (2026-11-02 sync, batch
+            17) — round badges, the first six, once one is filled in. */}
         {socs.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-[7.3px] px-[12.17px] pt-[11.36px]">
-            {socs.map((k) => (
+          <div className="mt-[10.55px] flex items-center justify-center gap-[6.49px] px-[11.36px]">
+            {socs.slice(0, 6).map((k) => (
               <a
                 key={k}
                 href={socialHref(k, values[k] ?? "") || undefined}
                 target="_blank"
                 rel="noopener"
                 aria-label={socialByKey[k]?.name}
-                className="flex h-[27.6px] w-[27.6px] items-center justify-center rounded-[8.1px]"
+                className="flex h-[23.52px] w-[23.52px] items-center justify-center rounded-full"
                 style={{ background: socialByKey[k]?.color }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/create/soc/${k}.svg`} alt="" className="block h-[15.4px] w-[15.4px]" />
+                <img src={`/create/soc/${k}.svg`} alt="" className="block h-[12.17px] w-[12.17px]" />
               </a>
             ))}
           </div>

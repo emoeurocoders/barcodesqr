@@ -65,7 +65,9 @@ const shareGlyph = (
 export function Chip({ round, className, children }: { round?: boolean; className: string; children: ReactNode }) {
   return (
     <span
-      className={`absolute flex h-[21.9px] w-[21.9px] items-center justify-center bg-white/88 shadow-mc-chip [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px] ${
+      // `.phn .chip`: 3.6em with the glyph at 53% (it was 2.7em / 1.5em
+      // before the 2026-10-20 sync; caught 2026-11-02).
+      className={`absolute flex h-[29.2px] w-[29.2px] items-center justify-center bg-white/88 shadow-mc-chip [&>svg]:block [&>svg]:h-[15.48px] [&>svg]:w-[15.48px] ${
         round ? "rounded-full" : "rounded-[6.5px]"
       } ${className}`}
     >
@@ -620,7 +622,8 @@ export function MultiLinkPreview({
       }
     >
       <Phone className="bg-[linear-gradient(115deg,#ffffff_30%,var(--color-mc-pv-sheen)_50%,#ffffff_70%)] pb-[13.8px]">
-        <div className="relative mx-[8.1px] mt-[8.1px] h-[81.1px] overflow-hidden rounded-[13px] bg-mc-pv-band">
+        {/* 18em since the 2026-11-02 sync (was 10em). */}
+        <div className="relative mx-[8.1px] mt-[8.1px] h-[146.02px] overflow-hidden rounded-[13px] bg-mc-pv-band">
           {/* No cover on a hosted page: the plain band (unmocked). */}
           {cover && (
             // eslint-disable-next-line @next/next/no-img-element
