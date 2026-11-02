@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { eventTimes, splitWhen } from "../encodeQr";
+import { splitWhen } from "../encodeQr";
+import { googleCalendarUrl, icsFile, outlookCalendarUrl } from "@/lib/calendar";
 import { cropStyle, fileSrc, parseStoredFile } from "../storedValues";
 import { localTimeZone, minutesInZone } from "@/lib/zoned";
 import { BarCaret, BarText, PreviewCard, Sample, ScanNote } from "./previews";
 import { eventEndOk } from "./forms6";
 import { RowLink, hrefOf } from "./previews";
-import { filledSocials, socialHref, usePageMode } from "./pageMode";
+import { filledSocials, socialHref, useDesktop, usePageMode } from "./pageMode";
 import { socialByKey } from "./socials";
 
 /**
@@ -104,24 +105,11 @@ const calGlyph = (
  * .ics file — once a start date and time are in and the end is valid.
  * Before that it does nothing, as theirs does.
  */
+/** The creator's "Add to Calendar": the same file the hosted page serves. */
 function downloadIcs(values: Values) {
-  const { start, end } = eventTimes(values);
-  const lines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//BarcodesQR//Event//EN",
-    "BEGIN:VEVENT",
-    `UID:${crypto.randomUUID()}@barcodesqr.com`,
-    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "")}`,
-    `SUMMARY:${t(values.eventTitle)}`,
-    `DTSTART:${start}`,
-    ...(end ? [`DTEND:${end}`] : []),
-    ...(t(values.location) ? [`LOCATION:${t(values.location)}`] : []),
-    ...(t(values.description) ? [`DESCRIPTION:${t(values.description).replace(/\n/g, "\\n")}`] : []),
-    "END:VEVENT",
-    "END:VCALENDAR",
-  ];
-  const url = URL.createObjectURL(new Blob([lines.join("\r\n")], { type: "text/calendar" }));
+  const body = icsFile(values, crypto.randomUUID(), localTimeZone() || "UTC");
+  if (!body) return;
+  const url = URL.createObjectURL(new Blob([body], { type: "text/calendar" }));
   const a = document.createElement("a");
   a.href = url;
   a.download = `${t(values.eventTitle).replace(/[^\w\- ]+/g, "").trim() || "event"}.ics`;
@@ -139,8 +127,19 @@ export function EventPreview({ values, open, onToggle }: Props) {
   const desc = t(values.description);
   // Their rule: sample rows show only while nothing at all is typed.
   const any = !!(t(values.eventTitle) || s.date || s.time || loc || desc);
-  const time = s.time ? hmm(s.time) + (e.time ? ` – ${hmm(e.time)}` : "") : "6:00 PM – 9:00 PM";
-  const canAdd = !!(t(values.eventTitle) && s.date && s.time && eventEndOk(values));
+  const allDay = values.allDay === "true";
+  // "All day" as their script writes it (desktop's all-day switch).
+  const time = allDay ? "All day" : s.time ? hmm(s.time) + (e.time ? ` – ${hmm(e.time)}` : "") : "6:00 PM – 9:00 PM";
+  const canAdd = !!(t(values.eventTitle) && s.date && (s.time || allDay) && eventEndOk(values));
+  const page = usePageMode();
+  const desk = useDesktop();
+  // The customer's cover; the file's photo as the creator's sample; on a
+  // published page with no cover, the approved teal-blue gradient (JB).
+  const coverFile = parseStoredFile(values.cover ?? "");
+  const cover = fileSrc(coverFile) ?? (page ? undefined : "/previews/sunset-hearts.jpg");
+  // A page is read anywhere: say whose clock the times are on. Unmocked.
+  const zone = page && !allDay && values.timezone ? `${values.timezone.split("/").pop()!.replace(/_/g, " ")} time` : "";
+  const [menu, setMenu] = useState(false);
 
   return (
     <PreviewCard
@@ -156,9 +155,16 @@ export function EventPreview({ values, open, onToggle }: Props) {
     >
       <Phone className="bg-[#f3f6fa] p-[11.36px]">
         <div className="overflow-hidden rounded-[9.73px] bg-white text-left shadow-[0_10px_24px_-18px_rgba(14,19,17,0.35)]">
-          <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/previews/sunset-hearts.jpg" alt="" className="block h-[97.34px] w-full object-cover" />
+          <div className={`relative bg-[linear-gradient(100deg,#0d9488_0%,#2563eb_100%)] ${desk ? "min-h-[105.46px]" : "min-h-[97.34px]"}`}>
+            {cover && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={cover}
+                alt=""
+                className={`block w-full object-cover ${desk ? "h-[105.46px]" : "h-[97.34px]"}`}
+                style={coverFile ? cropStyle(coverFile) : undefined}
+              />
+            )}
             <span className="absolute bottom-[8.92px] left-[9.73px] rounded-[7.3px] bg-white px-[8.92px] py-[5.68px] text-center shadow-[0_8px_18px_-10px_rgba(14,19,17,0.4)]">
               <span className="block text-[7.71px] leading-[normal] font-bold tracking-[0.62px] text-[#0e7490]">{valid ? MON[d.getMonth()] : "JUN"}</span>
               <span className="block text-[14.6px] leading-[16.79px] font-extrabold text-ink">{valid ? String(d.getDate()).padStart(2, "0") : "09"}</span>
@@ -176,6 +182,7 @@ export function EventPreview({ values, open, onToggle }: Props) {
               </i>
               <div className="min-w-0">
                 <span className="block text-[10.55px] leading-[14.76px] font-semibold text-ink">{time}</span>
+                {zone && <span className="block text-[9.33px] leading-[13.06px] text-muted">{zone}</span>}
               </div>
             </div>
             {(loc || !any) && (
@@ -201,15 +208,45 @@ export function EventPreview({ values, open, onToggle }: Props) {
             <a
               href="#"
               aria-disabled={!canAdd || undefined}
+              aria-expanded={page ? menu : undefined}
               onClick={(ev) => {
                 ev.preventDefault();
-                if (canAdd) downloadIcs({ ...values, timezone: values.timezone || localTimeZone() });
+                if (!canAdd) return;
+                // On the page: a choice of calendars (JB: Apple, Google,
+                // Outlook). In the creator: the file, as before.
+                if (page) setMenu(!menu);
+                else downloadIcs({ ...values, timezone: values.timezone || localTimeZone() });
               }}
               className="mt-[14.76px] flex items-center justify-center gap-[7.95px] rounded-full bg-[#0e7490] px-[11.36px] py-[9.65px] text-[11.36px] leading-[normal] font-semibold text-white [&>svg]:block [&>svg]:h-[13.63px] [&>svg]:w-[13.63px]"
             >
               {calGlyph}
               <span>Add to Calendar</span>
             </a>
+            {/* Unmocked: the file's one button opens these three. Each only
+                opens the visitor's calendar with the event filled in; nothing
+                is added until they save it there. */}
+            {page && menu && canAdd && (
+              <div className="mt-[7.3px] overflow-hidden rounded-[9.73px] border border-[#e5e8ee] bg-white">
+                {[
+                  { label: "Apple Calendar", href: `/q/${page.slug}/event.ics` },
+                  { label: "Google Calendar", href: googleCalendarUrl(values) },
+                  { label: "Outlook", href: outlookCalendarUrl(values) },
+                ].map((c, k) =>
+                  c.href ? (
+                    <a
+                      key={c.label}
+                      href={c.href}
+                      target={c.label === "Apple Calendar" ? undefined : "_blank"}
+                      rel="noopener"
+                      className={`flex items-center justify-between px-[11.36px] py-[9.73px] text-[10.55px] leading-[normal] font-semibold text-ink ${k ? "border-t border-[#eef1f4]" : ""}`}
+                    >
+                      {c.label}
+                      <span className="text-faint">›</span>
+                    </a>
+                  ) : null,
+                )}
+              </div>
+            )}
           </div>
         </div>
       </Phone>

@@ -5,7 +5,7 @@ import { MultiLinkPreview, VCardPreview } from "@/components/create/mobile/previ
 import { AppLinkPreview, ImagePreview, PdfPreview } from "@/components/create/mobile/previews2";
 import { MenuPreview, SocialMediaPreview, VideoPreview } from "@/components/create/mobile/previews3";
 import { AudioPreview } from "@/components/create/mobile/previews5";
-import { BusinessPreview, CouponPreview } from "@/components/create/mobile/previews6";
+import { BusinessPreview, CouponPreview, EventPreview } from "@/components/create/mobile/previews6";
 
 type Values = Record<string, string>;
 
@@ -26,6 +26,7 @@ export const designWidth: Record<string, number> = {
   mp3: 332.8,
   coupon: 332.8,
   business: 332.8,
+  event: 332.8,
 };
 
 const noop = () => {};
@@ -45,5 +46,6 @@ export function HostedPage({ type, values, slug }: { type: string; values: Value
   else if (type === "mp3") body = <AudioPreview {...p} />;
   else if (type === "coupon") body = <CouponPreview {...p} />;
   else if (type === "business") body = <BusinessPreview {...p} />;
+  else if (type === "event") body = <EventPreview {...p} />;
   return <PageMode.Provider value={{ slug }}>{body}</PageMode.Provider>;
 }

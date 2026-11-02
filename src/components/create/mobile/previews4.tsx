@@ -49,6 +49,9 @@ function BarIcon({ tint, children }: { tint: string; children: ReactNode }) {
 const SAMPLE_PLACE = { name: "Empire State Building", address: "20 W 34th St, New York, NY 10001" };
 
 export function MapsPreview({ values, open, onToggle }: Props) {
+  // Desktop shows the preview without a card to open: always load the map.
+  const desk = useDesktop();
+  const live = open || desk;
   const picked = values.addressPicked === "1" && (values.address ?? "").trim();
   const place = picked ? splitPlace(values.address!) : SAMPLE_PLACE;
   const query = encodeURIComponent(picked ? values.address!.trim() : "Empire State Building, New York");
@@ -71,17 +74,25 @@ export function MapsPreview({ values, open, onToggle }: Props) {
       <Phone className="bg-white">
         {/* Their keyless embed. Loaded only while open, so a collapsed card
             costs nothing. */}
-        {open && (
-          <iframe
-            key={query}
-            src={`https://www.google.com/maps?q=${query}&output=embed`}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Map preview"
-            className="block h-[235.3px] w-full border-0"
-          />
+        {live && (
+          // Desktop's column is zoomed ×10/8.112. The map is drawn that much
+          // larger and scaled back down, so Google's controls and
+          // attribution keep their own size and the whole map fits the card.
+          <div className={desk ? "relative h-[275.81px] overflow-hidden" : undefined}>
+            <iframe
+              key={query}
+              src={`https://www.google.com/maps?q=${query}&output=embed`}
+              // Lazy never fires inside desktop's zoomed column; it is on
+              // screen from the start there anyway.
+              loading={desk ? "eager" : "lazy"}
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Map preview"
+              className={`block border-0 ${desk ? "absolute top-0 left-0 origin-top-left" : "h-[235.3px] w-full"}`}
+              style={desk ? { width: `${1000 / 8.112}%`, height: `${1000 / 8.112}%`, transform: `scale(${8.112 / 10})` } : undefined}
+            />
+          </div>
         )}
-        {!open && <div className="h-[235.3px]" />}
+        {!live && <div className="h-[235.3px]" />}
         <div className="absolute top-[8.1px] right-[8.1px] left-[8.1px] flex items-start rounded-[9.7px] bg-white px-[8.9px] py-[8.1px] shadow-mc-map-card">
           <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[7.3px] bg-mc-map-pin-bg text-mc-map-pin [&>svg]:block [&>svg]:h-[13.8px] [&>svg]:w-[13.8px]">
             <svg {...svgProps}>
@@ -93,7 +104,8 @@ export function MapsPreview({ values, open, onToggle }: Props) {
             <span className="block text-[10.55px] leading-[normal] font-bold text-ink">{place.name}</span>
             {place.address && <span className="mt-[1.4px] block text-[9.33px] leading-[normal] text-muted">{place.address}</span>}
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=${query}`}
+              // The exact place the code opens, when one was picked.
+              href={`https://www.google.com/maps/search/?api=1&query=${query}${picked && values.placeId ? `&query_place_id=${encodeURIComponent(values.placeId)}` : ""}`}
               target="_blank"
               rel="noopener"
               className="mt-[3.9px] inline-block text-[9.73px] leading-[normal] font-semibold text-primary"
@@ -112,6 +124,9 @@ export function MapsPreview({ values, open, onToggle }: Props) {
 /* ---- Email ----------------------------------------------------------------- */
 
 export function EmailPreview({ values, open, onToggle }: Props) {
+  // create_desktop_email.html titles the window ("New Message", `.mttl`) and
+  // gives the body room (`.mbod` 14em).
+  const desk = useDesktop();
   const to = (values.to ?? "").trim() || "email@example.com";
   const subject = (values.subject ?? "").trim() || "Product Inquiry";
   const body = (values.body ?? "").trim() || "Hi there — I just scanned your QR code and wanted to learn more about your services.";
@@ -138,6 +153,15 @@ export function EmailPreview({ values, open, onToggle }: Props) {
             {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
               <i key={c} className="mr-[4.1px] block h-[7.7px] w-[7.7px] rounded-full" style={{ background: c }} />
             ))}
+            {desk && (
+              <span className="ml-[6.49px] flex items-center gap-[7.67px] text-[10.95px] leading-[normal] font-bold text-ink [&>svg]:block [&>svg]:h-[15.33px] [&>svg]:w-[15.33px] [&>svg]:text-primary">
+                <svg {...svgProps}>
+                  <rect width="20" height="16" x="2" y="4" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+                New Message
+              </span>
+            )}
             <span className="ml-auto flex h-[21.9px] w-[21.9px] items-center justify-center rounded-full bg-primary text-white [&>svg]:block [&>svg]:h-[10.5px] [&>svg]:w-[10.5px]">
               <svg {...svgProps}>
                 <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
@@ -154,7 +178,7 @@ export function EmailPreview({ values, open, onToggle }: Props) {
               <span className="min-w-0 flex-1 text-[9.73px] leading-[normal] font-semibold break-words text-ink">{v}</span>
             </div>
           ))}
-          <div className="px-[9.7px] pt-[8.9px] pb-[11.4px]">
+          <div className={`px-[9.7px] pt-[8.9px] pb-[11.4px] ${desk ? "min-h-[113.57px]" : ""}`}>
             <p className="text-[9.73px] leading-[15.6px] break-words whitespace-pre-wrap text-body">{body}</p>
           </div>
         </div>

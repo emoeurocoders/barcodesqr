@@ -32,6 +32,10 @@ const dynamicTypes = new Set([
   "coupon",
   "multilink",
   "applink",
+  // Hosted since 2026-11-02 (JB): the photo header and a working Add to
+  // Calendar need a page. Event codes printed before carry the event itself
+  // (`calendar` below) and keep working.
+  "event",
 ]);
 
 /**
@@ -184,7 +188,9 @@ export function encodeQr(
       return withScheme(v.url);
 
     case "text":
-      return [v.title, v.text].filter(Boolean).join("\n");
+      // The text alone (JB, 2026-11-02): the Title names the note in the
+      // preview and is not part of what a scanner reads.
+      return v.text ?? "";
 
     case "phone": {
       // The mobile form picks the country separately (`phoneCountry`), as

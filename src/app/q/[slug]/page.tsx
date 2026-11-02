@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const row = await find((await params).slug);
   const v = row?.values ?? {};
   const title =
-    v.title || v.headline || [v.firstName, v.lastName].filter(Boolean).join(" ") || row?.name || "BarcodesQR";
+    v.title || v.eventTitle || v.headline || [v.firstName, v.lastName].filter(Boolean).join(" ") || row?.name || "BarcodesQR";
   // The customer's page, not ours: kept out of search results.
   return { title, robots: { index: false, follow: false } };
 }

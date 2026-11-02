@@ -1,5 +1,7 @@
 "use client";
 
+import { useDesktop } from "./pageMode";
+
 import { encodeQr } from "../encodeQr";
 import { errorCopy } from "../validate";
 import { useEffect, useState } from "react";
@@ -87,13 +89,14 @@ export function checksForBatch5(type: string, values: Values): Check[] {
  * with the number filled in — `tel:` never places the call by itself.
  */
 export function PhoneForm({ s }: { s: FormState }) {
+  const desk = useDesktop();
   return (
     <IntlNumberFld
       s={s}
       ccId="telCc"
       numId="telNum"
       label="Phone number"
-      placeholder="555 555 0123"
+      placeholder={desk ? "Enter phone number" : "555 555 0123"}
       hint="Enter a valid phone number and area code."
       tip={{ label: "About the phone number", text: "The number people call after scanning." }}
     />

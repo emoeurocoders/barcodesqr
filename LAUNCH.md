@@ -717,6 +717,42 @@ the mobile ones; only layout differs (`useDesktop()`).
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
 
+## Desktop step 2, group 3 — create_desktop_*.html, ported 2026-11-02
+
+Google Maps, Event, Email, SMS, Phone and Plain Text (JB, Monday
+5684516982), as groups 1–2: the mobile forms and previews, zoomed, with
+`useDesktop()` variants. Pixel diffs at 1440: Phone 0.29%, Plain Text
+0.40%, Email 0.45%, SMS 0.46%, Event 1.8% (their zone list is filled by
+script after capture), Maps 2.2% (live map tiles). No overflow 800–1180.
+
+- **Event is hosted now** (JB: the photo header must reach the scanned
+  page). The page is the preview in page mode; no cover → the approved
+  teal-blue gradient; times carry the zone's city ("Tokyo time",
+  unmocked). "Add to Calendar" opens a choice of Apple Calendar
+  (`/q/<slug>/event.ics`, a real URL so iPhones offer "Add"), Google
+  Calendar and Outlook — unmocked; the file has the one button. No end
+  time → one hour; an end time earlier than the start with no end date
+  runs past midnight; all-day uses date-only values (end inclusive).
+  Times are converted in the chosen zone, DST included (lib/calendar.ts).
+  Event codes printed before carry the event and keep working.
+- **Desktop-only Event fields** (the mobile file has none): start/end side
+  by side, All-day, a 31-city time-zone picker (their script's list, the
+  visitor's own zone first), Cover image. An all-day event needs no time,
+  so editing one on a phone still saves.
+- **Google Maps**: the map loads on desktop (it waited for a card to be
+  opened), drawn at its own scale so Google's controls and attribution
+  are whole; arrow keys move through suggestions. The embed is keyless and
+  centres on the place's name and address; the QR and "View on Google
+  Maps" open the exact place id once `GOOGLE_PLACES_API_KEY` exists —
+  without it the picker still offers only what was typed.
+- **Plain Text no longer encodes the Title** (JB): the text alone. Codes
+  printed before keep their first line.
+- **The note sample** now runs "Wi-Fi: CozyCornerWiFi Schedule: …" on one
+  line, as both files do; ours had broken it.
+- Email/SMS/Phone copy from the desktop files: "Subject (optional)",
+  "Message (optional)", "Pre-filled SMS (optional)", "Open a pre-filled
+  text message", "Enter phone number"; To and Subject side by side.
+
 ## Desktop step 2, group 2 — create_desktop_*.html, ported 2026-10-30
 
 Image, WhatsApp, Menu, WiFi, Video and Google Review (JB, Monday

@@ -133,7 +133,8 @@ const noteGlyph = (
 );
 
 const SAMPLE_NOTE =
-  "Welcome to the workshop! 👋\n\nWi-Fi: CozyCornerWiFi\nSchedule: kickoff at 9:30, demos after lunch.\nParking: the garage on 5th St — first hour is free.\n\nQuestions? Find anyone in a teal lanyard.";
+  // As both files have it: "Schedule" runs on after the Wi-Fi line.
+  "Welcome to the workshop! 👋\n\nWi-Fi: CozyCornerWiFi Schedule: kickoff at 9:30, demos after lunch. Parking: the garage on 5th St — first hour is free.\n\nQuestions? Find anyone in a teal lanyard.";
 
 export function PlainTextPreview({ values, open, onToggle }: Props) {
   const title = (values.title ?? "").trim() || "Note";

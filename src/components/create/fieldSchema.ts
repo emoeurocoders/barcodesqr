@@ -1124,6 +1124,16 @@ export const fieldSchema: Record<string, Field[]> = {
       "labelKey": "description",
       "type": "textarea",
       "maxLength": 200
+    },
+    {
+      // create_desktop_event.html's "Cover image" (JB, 2026-11-02).
+      "name": "cover",
+      "labelKey": "coverPhoto",
+      "type": "file",
+      "accept": "image/png,image/jpeg",
+      "maxSizeMb": 5,
+      "formats": "PNG, JPG, JPEG",
+      "adjustable": "wide"
     }
   ],
   "social": [

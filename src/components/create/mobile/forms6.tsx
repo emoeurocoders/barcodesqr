@@ -1,5 +1,8 @@
 "use client";
 
+import { endAfterStart } from "@/lib/calendar";
+import { useDesktop } from "./pageMode";
+
 import { isValidEmail, isValidPhone, isValidUrl } from "../validate";
 import { splitWhen } from "../encodeQr";
 import { localTimeZone } from "@/lib/zoned";
@@ -16,14 +19,8 @@ import { SocialAcc } from "./forms";
 const httpsOk = (v: string) => /^https:\/\//i.test(v) && urlOk(v);
 
 /** Their end-time rule: a missing end date is the start's day, a missing end time 23:59. */
-export function eventEndOk(values: Values) {
-  const s = splitWhen(values.startsAt);
-  const e = splitWhen(values.endsAt);
-  if (!(e.date || e.time) || !s.date || !s.time) return true;
-  const start = new Date(`${s.date}T${s.time}`).getTime();
-  const end = new Date(`${e.date || s.date}T${e.time || "23:59"}`).getTime();
-  return end > start;
-}
+/** Shared with the calendars (lib/calendar), so the page and the form agree. */
+export const eventEndOk = (values: Values) => endAfterStart(values);
 
 /* ---- Validation ------------------------------------------------------------ */
 
@@ -34,7 +31,8 @@ export function checksForBatch6(type: string, values: Values): Check[] {
       return [
         { id: "evTitle", msg: trimmed(values.eventTitle) ? null : "Please enter an event title." },
         { id: "evStD", msg: s.date ? null : "Please choose a start date." },
-        { id: "evStT", msg: s.time ? null : "Please choose a start time." },
+        // All-day events (desktop) have no times.
+        { id: "evStT", msg: s.time || values.allDay === "true" ? null : "Please choose a start time." },
         { id: "evEnD", key: "endChk", msg: eventEndOk(values) ? null : "The end time must be after the start time." },
       ];
     }
@@ -130,27 +128,88 @@ export function EventForm({ s }: { s: FormState }) {
     });
   const tz = (s.values.timezone || localTimeZone()).replace(/_/g, " ");
   const descr = s.values.description ?? "";
+  // create_desktop_event.html: start and end side by side (`.dtPair`), an
+  // all-day switch that hides the times, a time-zone picker in place of the
+  // "All times use…" line, and a cover image. The mobile file has none of
+  // these; there the old layout stays.
+  const desk = useDesktop();
+  const allDay = s.values.allDay === "true";
+
+  const startRow = (
+    <div className={`flex gap-[9.73px] ${desk ? "min-w-0 flex-1" : ""}`}>
+      <DateFld s={s} id="evStD" label="Starts at" type="date" value={start.date} onChange={(v) => set("startsAt", "date", v)} required />
+      {!(desk && allDay) && <DateFld s={s} id="evStT" label={" "} type="time" value={start.time} onChange={(v) => set("startsAt", "time", v)} />}
+    </div>
+  );
+  const endRow = (
+    <div className={`flex flex-wrap gap-x-[9.73px] ${desk ? "min-w-0 flex-1" : ""}`}>
+      <DateFld s={s} id="evEnD" label={desk ? "Ends at (optional)" : "Ends at"} type="date" value={end.date} onChange={(v) => set("endsAt", "date", v)} />
+      {!(desk && allDay) && <DateFld s={s} id="evEnT" label={" "} type="time" value={end.time} onChange={(v) => set("endsAt", "time", v)} />}
+      {s.errors.endChk && (
+        <div className="basis-full">
+          <FieldError>{s.errors.endChk}</FieldError>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <>
       <TextFld s={s} id="evTitle" k="eventTitle" label="Event title" placeholder="e.g. Summer Networking Mixer" max={40} required counter />
       {/* Their `.rowCols`; the time's label is a blank, for alignment. */}
-      <div className="flex gap-[9.73px]">
-        <DateFld s={s} id="evStD" label="Starts at" type="date" value={start.date} onChange={(v) => set("startsAt", "date", v)} required />
-        <DateFld s={s} id="evStT" label={" "} type="time" value={start.time} onChange={(v) => set("startsAt", "time", v)} />
-      </div>
-      <div className="flex flex-wrap gap-x-[9.73px]">
-        <DateFld s={s} id="evEnD" label="Ends at" type="date" value={end.date} onChange={(v) => set("endsAt", "date", v)} />
-        <DateFld s={s} id="evEnT" label={" "} type="time" value={end.time} onChange={(v) => set("endsAt", "time", v)} />
-        {s.errors.endChk && (
-          <div className="basis-full">
-            <FieldError>{s.errors.endChk}</FieldError>
-          </div>
-        )}
-      </div>
-      <Sub>
-        All times use <b className="font-bold">{tz || "your local time zone"}</b>.
-      </Sub>
+      {desk ? (
+        <div className="flex gap-[12.98px]">
+          {startRow}
+          {endRow}
+        </div>
+      ) : (
+        <>
+          {startRow}
+          {endRow}
+        </>
+      )}
+      {desk ? (
+        <>
+          {/* Their `.chkRow`. Ticking it clears the times, as their script does. */}
+          <label className="mt-[15.9px] flex cursor-pointer items-center gap-[9.1px] text-[11.36px] leading-[normal] font-medium text-body">
+            <input
+              type="checkbox"
+              id="evAllDay"
+              checked={allDay}
+              onChange={(e) => {
+                const on = e.target.checked;
+                s.patch((cur) => ({
+                  ...cur,
+                  allDay: String(on),
+                  ...(on
+                    ? { startsAt: splitWhen(cur.startsAt).date ? `${splitWhen(cur.startsAt).date}T` : "", endsAt: splitWhen(cur.endsAt).date ? `${splitWhen(cur.endsAt).date}T` : "" }
+                    : {}),
+                }));
+              }}
+              className="m-0 h-[17.3px] w-[17.3px] shrink-0 accent-primary"
+            />
+            All-day event
+          </label>
+          <Fld id="evTz" label="Time zone" tip={{ label: "About the time zone", text: "Your event times are saved in this time zone." }}>
+            <select
+              id="evTz"
+              value={s.values.timezone || localTimeZone()}
+              onChange={(e) => s.set("timezone", e.target.value)}
+              className={`${textInput(false)} cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
+            >
+              {timeZoneOptions(s.values.timezone || localTimeZone()).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </Fld>
+        </>
+      ) : (
+        <Sub>
+          All times use <b className="font-bold">{tz || "your local time zone"}</b>.
+        </Sub>
+      )}
       <Fld id="evLoc" label="Address / Location" counter={<Sub>A street address or an online event link both work.</Sub>}>
         <input
           type="text"
@@ -173,8 +232,49 @@ export function EventForm({ s }: { s: FormState }) {
           className={`${textArea(false)} resize-y`}
         />
       </Fld>
+      {desk && (
+        <Acc
+          icon={
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+              <circle cx="9" cy="9" r="2" />
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+            </svg>
+          }
+          title="Cover image"
+          desc="Add a photo to make your event stand out in the preview (optional)"
+          open={s.isOpen("cover")}
+          onToggle={() => s.toggle("cover")}
+        >
+          <Upload type="event" field={schemaField("event", "cover")} value={s.values.cover ?? ""} onChange={(v) => s.set("cover", v)} what="your cover image" />
+        </Acc>
+      )}
     </>
   );
+}
+
+/**
+ * Their script's zone list: thirty-one cities, the visitor's own zone first
+ * when it is not among them, each as "(GMT-04:00) New York".
+ */
+const ZONES = [
+  "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu",
+  "America/Toronto", "America/Vancouver", "America/Mexico_City", "America/Sao_Paulo", "Europe/London", "Europe/Dublin",
+  "Europe/Paris", "Europe/Berlin", "Europe/Madrid", "Europe/Rome", "Europe/Amsterdam", "Europe/Stockholm", "Europe/Warsaw",
+  "Europe/Athens", "Africa/Johannesburg", "Asia/Dubai", "Asia/Kolkata", "Asia/Singapore", "Asia/Hong_Kong", "Asia/Shanghai",
+  "Asia/Tokyo", "Asia/Seoul", "Australia/Perth", "Australia/Sydney", "Pacific/Auckland",
+];
+
+function timeZoneOptions(current: string) {
+  const list = current && !ZONES.includes(current) ? [current, ...ZONES] : ZONES;
+  return list.map((z) => {
+    let off = "";
+    try {
+      off = new Intl.DateTimeFormat("en-US", { timeZone: z, timeZoneName: "longOffset" }).formatToParts(new Date()).find((p) => p.type === "timeZoneName")?.value ?? "";
+    } catch {}
+    const city = z.split("/").pop()!.replace(/_/g, " ");
+    return { value: z, label: (off ? `(${off}) ` : "") + city };
+  });
 }
 
 /* ---- Coupon ---------------------------------------------------------------- */

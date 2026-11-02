@@ -1,5 +1,7 @@
 "use client";
 
+import { useDesktop } from "./pageMode";
+
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { isValidEmail, isValidUrl, isGoogleReviewUrl } from "../validate";
@@ -162,7 +164,11 @@ export function MapsForm({ s }: { s: FormState }) {
     }));
     if (p.placeId) places.confirm(p.placeId);
     setListOpen(false);
+    setActive(-1);
   };
+  /** The suggestion the arrow keys are on (JB: keyboard and mouse). */
+  const [active, setActive] = useState(-1);
+  const shown = listOpen && list.length > 0;
 
   return (
     <div ref={wrap}>
@@ -189,10 +195,26 @@ export function MapsForm({ s }: { s: FormState }) {
             aria-invalid={!!err}
             role="combobox"
             aria-autocomplete="list"
-            aria-expanded={listOpen && list.length > 0}
+            aria-expanded={shown}
             aria-controls="gmSug"
+            aria-activedescendant={shown && active >= 0 ? `gmSug${active}` : undefined}
             onFocus={() => setListOpen(true)}
+            onKeyDown={(e) => {
+              if (!shown) return;
+              if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                e.preventDefault();
+                const n = list.length;
+                setActive((a) => (e.key === "ArrowDown" ? (a + 1) % n : (a - 1 + n) % n));
+              } else if (e.key === "Enter" && active >= 0) {
+                e.preventDefault();
+                pick(list[active]);
+              } else if (e.key === "Escape") {
+                setListOpen(false);
+                setActive(-1);
+              }
+            }}
             onChange={(e) => {
+              setActive(-1);
               setListOpen(true);
               s.patch((cur) => ({ ...cur, address: e.target.value, addressPicked: "", placeId: "" }));
             }}
@@ -228,14 +250,16 @@ export function MapsForm({ s }: { s: FormState }) {
         </div>
       )}
       {/* Their `.sugLst`. */}
-      {listOpen && list.length > 0 && (
+      {shown && (
         <ul id="gmSug" role="listbox" className="mt-[8.1px] overflow-hidden rounded-[9.7px] border border-mc-acc-line bg-white shadow-mc-sug">
           {list.map((p, i) => (
             <li
               key={i}
+              id={`gmSug${i}`}
               role="option"
-              aria-selected={false}
+              aria-selected={i === active}
               tabIndex={0}
+              onMouseEnter={() => setActive(i)}
               onClick={() => pick(p)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -243,7 +267,7 @@ export function MapsForm({ s }: { s: FormState }) {
                   pick(p);
                 }
               }}
-              className="flex cursor-pointer items-center px-[9.7px] py-[8.1px] hover:bg-mc-tile [&+&]:border-t [&+&]:border-mc-sug-line"
+              className={`flex cursor-pointer items-center px-[9.7px] py-[8.1px] [&+&]:border-t [&+&]:border-mc-sug-line ${i === active ? "bg-mc-tile" : ""}`}
             >
               <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-mc-sug-pin text-ink [&>svg]:block [&>svg]:h-[12.2px] [&>svg]:w-[12.2px]">
                 {pinGlyph}
@@ -266,9 +290,18 @@ export function MapsForm({ s }: { s: FormState }) {
 
 /* ---- Email ----------------------------------------------------------------- */
 
+/** Two fields side by side on desktop; on mobile no wrapper at all. */
+function DeskPair({ on, children }: { on: boolean; children: React.ReactNode }) {
+  return on ? <div className="flex gap-[9.73px] [&>*]:min-w-0 [&>*]:flex-1">{children}</div> : <>{children}</>;
+}
+
 export function EmailForm({ s }: { s: FormState }) {
+  // create_desktop_email.html: To and Subject side by side, "(optional)"
+  // labels, the body called "Message".
+  const desk = useDesktop();
   return (
     <>
+      <DeskPair on={desk}>
       <TextFld
         s={s}
         id="emTo"
@@ -283,16 +316,17 @@ export function EmailForm({ s }: { s: FormState }) {
         s={s}
         id="emSubj"
         k="subject"
-        label="Subject"
+        label={desk ? "Subject (optional)" : "Subject"}
         placeholder="e.g. Product Inquiry"
         max={80}
         tip={{ label: "About the subject", text: "A preset subject line. Optional; the scanner can change it." }}
       />
+      </DeskPair>
       <TipTextArea
         s={s}
         id="emBody"
         k="body"
-        label="Body"
+        label={desk ? "Message (optional)" : "Body"}
         placeholder="Write your message…"
         max={500}
         tip={{ label: "About the message", text: "A pre-written message. Optional; the scanner can edit it." }}
@@ -396,6 +430,7 @@ function HelpLine({ children }: { children: ReactNode }) {
 /* ---- SMS ------------------------------------------------------------------- */
 
 export function SmsForm({ s }: { s: FormState }) {
+  const desk = useDesktop();
   return (
     <>
       <IntlNumberFld
@@ -409,7 +444,7 @@ export function SmsForm({ s }: { s: FormState }) {
         s={s}
         id="smsMsg"
         k="message"
-        label="Pre-filled SMS"
+        label={desk ? "Pre-filled SMS (optional)" : "Pre-filled SMS"}
         placeholder="Type your message here…"
         max={160}
         tip={{ label: "About the pre-filled SMS", text: "Pre-filled message text. The scanner can edit it before sending." }}

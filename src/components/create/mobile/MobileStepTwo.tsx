@@ -294,9 +294,21 @@ const desktopPreview: Record<string, { title: string; tip?: string; caption?: st
   wifi: { title: "WiFi Preview" },
   video: { title: "Video Preview" },
   review: { title: "Preview" },
+  // Group 3 (JB, Monday 5684516982).
+  location: { title: "Location Preview" },
+  event: { title: "Event Preview" },
+  email: { title: "Email Preview" },
+  sms: { title: "SMS Preview" },
+  phone: { title: "Phone Preview" },
+  text: { title: "Text Preview" },
 };
 
 /** The types whose desktop step 2 is create_desktop_*.html so far (JB, 2026-10-29). */
+/** Where a desktop file words its header differently from the mobile one. */
+const desktopHeaderDesc: Record<string, string> = {
+  sms: "Open a pre-filled text message",
+};
+
 export const desktopTypes = new Set(Object.keys(desktopPreview));
 
 const deskSteps = [
@@ -561,7 +573,7 @@ export function MobileStepTwo({
     <FormHeader
       icon={mobileHeaderIcon[type] ?? (Glyph ? <Glyph className="h-[22.7px] w-[22.7px]" /> : null)}
       title={mobileTypeTitle[type] ?? meta?.stepLabel ?? meta?.label ?? type}
-      desc={mobileHeaderDesc[type] ?? meta?.stepDesc ?? meta?.desc ?? ""}
+      desc={(layout === "desktop" ? desktopHeaderDesc[type] : undefined) ?? mobileHeaderDesc[type] ?? meta?.stepDesc ?? meta?.desc ?? ""}
     />
   );
 
