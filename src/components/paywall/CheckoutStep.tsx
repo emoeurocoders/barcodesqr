@@ -84,7 +84,10 @@ function Field({
 export function CheckoutStep({
   qrValue,
   qrStyle,
+  onLogin,
 }: {
+  /** "Already a member? Log in" — unmocked; modal_join.html has no way in. */
+  onLogin?: () => void;
   qrValue: string;
   qrStyle: QrStyle;
 }) {
@@ -405,6 +408,21 @@ export function CheckoutStep({
           <Lock className="mr-1.5 h-[19.5px] w-[19.5px] shrink-0" />
           Your payment is secure and encrypted
         </p>
+        {onLogin && (
+          <p className="pb-[11px] text-center text-[13px] leading-[normal] text-body">
+            Already a member?{" "}
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                onLogin();
+              }}
+              className="font-semibold text-primary hover:underline"
+            >
+              Log in
+            </a>
+          </p>
+        )}
 
         <ul className="flex justify-center border-t border-line-soft pt-[11px] text-[13px] leading-[1.1em] text-muted">
           <li>

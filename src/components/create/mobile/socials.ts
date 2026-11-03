@@ -79,10 +79,14 @@ export function normalizeSocial(key: string, raw: string): { value: string; ok: 
     return { value: v, ok: true };
   }
   const rest = v.replace(/^https?:\/\//i, "");
-  const host = rest.split(/[/?#]/)[0].toLowerCase().replace(/^www\.|^m\.|^mobile\./, "");
+  const rawHost = rest.split(/[/?#]/)[0].toLowerCase();
+  // "m." is a mobile-site prefix (m.facebook.com) — but m.me IS Messenger's
+  // domain (Tami, 2026-11-03: every Messenger link was refused), so the host
+  // is checked both as written and without it.
+  const host = rawHost.replace(/^www\.|^m\.|^mobile\./, "");
   // Pinterest runs a site per country (pinterest.co.uk, pinterest.de…).
   const own = (h: string) => p.hosts.some((d) => h === d || h.endsWith(`.${d}`)) || (key === "pinterest" && /^([a-z]{2}\.)?pinterest\.[a-z.]{2,6}$/.test(h));
-  if (own(host)) {
+  if (own(rawHost) || own(host)) {
     const value = /^https?:\/\//i.test(v) ? v : `https://${v}`;
     return { value, ok: isValidUrl(value) };
   }

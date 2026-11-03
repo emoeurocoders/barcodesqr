@@ -2,7 +2,7 @@
 
 import { useDesktop } from "./pageMode";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { parseStoredFile, parseMenuItems, serializeMenuItems } from "../storedValues";
 import type { MenuItem } from "../storedValues";
@@ -182,7 +182,7 @@ function MenuItems({ s }: { s: FormState }) {
         return (
           <div key={i} className={`mt-[11.4px] rounded-[9.7px] border px-[9.7px] pt-[1.6px] pb-[12.2px] ${row.heading ? "border-mc-acc-line bg-white" : "border-mc-card-line bg-mc-row"}`}>
             <div className="mt-[9.7px] flex items-center justify-between">
-              <span className="text-[11.76px] leading-[normal] font-bold text-ink">{row.heading ? "New section" : `Item ${num}`}</span>
+              <span className="text-[11.76px] leading-[normal] font-bold text-ink">{row.heading ? "Section" : `Item ${num}`}</span>
               {(rows.length > 1 || row.heading) && (
                 <span className="flex items-center gap-[2.4px] text-muted">
                   <a href="#" aria-label="Move item up" className={ctlBtn} onClick={(e) => { e.preventDefault(); move(i, -1); }}>
@@ -252,6 +252,20 @@ function MenuItems({ s }: { s: FormState }) {
 }
 
 export function MenuForm({ s }: { s: FormState }) {
+  // A menu saved with the old single Category: move it into the items as
+  // the first heading, once, so the sections are the only place to edit it.
+  const { values, patch } = s;
+  useEffect(() => {
+    const cat = (values.category ?? "").trim();
+    if (!cat) return;
+    patch((cur) => {
+      const items = parseMenuItems(cur.items);
+      if (items[0]?.heading) return { ...cur, category: "" };
+      return { ...cur, category: "", items: serializeMenuItems([{ name: cat, price: "", desc: "", heading: true }, ...(items.length ? items : [emptyItem])]) };
+    });
+    // Once, on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <>
       <TrackingPill />
@@ -283,21 +297,9 @@ export function MenuForm({ s }: { s: FormState }) {
           what="your cover image"
         />
       </Acc>
-      <Acc
-        icon={
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-            <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
-          </svg>
-        }
-        title="Category / Section"
-        desc="Group items into a section (optional)"
-        open={s.isOpen("category")}
-        onToggle={() => s.toggle("category")}
-      >
-        <TextFld s={s} id="mnCat" k="category" label="Category / Section name" placeholder="e.g. Appetizers, Main Courses, Desserts" max={40} />
-        <Sub>Shown as a section heading above your items. Leave empty for a single list.</Sub>
-      </Acc>
+      {/* The files' "Category / Section" accordion is gone (Tami,
+          2026-11-03: it repeated "Add Section"). A category saved before
+          becomes the menu's first section heading — see the effect above. */}
       {/* Desktop parity (JB): desktop's menu has a description. Unmocked. */}
       <Acc icon={docGlyph} title="Description" desc="A line under your menu title (optional)" open={s.isOpen("desc")} onToggle={() => s.toggle("desc")}>
         <TextAreaFld s={s} id="mnDescription" k="description" label="Description" placeholder="e.g. Fresh, seasonal, and made to order." max={200} />

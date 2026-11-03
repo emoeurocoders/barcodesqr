@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteQrCode } from "@/app/actions/qr";
 import { Download, ExternalLink, Copy, Check, EllipsisVertical } from "lucide-react";
-import { QrPreview, defaultQrStyle, downloadQr } from "@/components/create/QrPreview";
+import { QrPreview, defaultQrStyle, downloadQr, preloadQr, prepareQr } from "@/components/create/QrPreview";
 import { allTypes } from "@/components/create/qrTypes";
 import { designerTypeIcons } from "@/components/create/designerTypeIcons";
 
@@ -160,6 +160,9 @@ function RowMenu({ row, onDelete }: { row: QrRow; onDelete: () => void }) {
 
   const toggle = () => {
     if (open) return setPos(null);
+    // Ready before a choice is made: Safari drops a late download.
+    prepareQr(row.qrValue, defaultQrStyle, row.name, "svg").catch(() => {});
+    prepareQr(row.qrValue, defaultQrStyle, row.name, "jpeg").catch(() => {});
     const r = btn.current!.getBoundingClientRect();
     const left = Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8));
     // Four items at 36px plus padding.
@@ -394,6 +397,10 @@ function Row({ row }: { row: QrRow }) {
       <div className="flex items-center justify-end gap-1 max-md:col-span-2 max-md:gap-2">
         <button
           type="button"
+          // Started as the pointer arrives, finished by the click (Safari).
+          onPointerEnter={() => prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {})}
+          onPointerDown={() => prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {})}
+          onFocus={() => prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {})}
           onClick={() => downloadQr(row.qrValue, defaultQrStyle, row.name, "png")}
           className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg max-md:flex-1 max-md:justify-center max-md:py-2.5 bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
         >
@@ -408,6 +415,7 @@ function Row({ row }: { row: QrRow }) {
 }
 
 export function QrTable({ rows }: { rows: QrRow[] }) {
+  useEffect(() => preloadQr(), []);
   return (
     <div className="px-6 pb-8 pt-6">
       <div className="md:overflow-x-auto">

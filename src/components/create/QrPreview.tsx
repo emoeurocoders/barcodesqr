@@ -120,28 +120,69 @@ export function QrPreview({
   return <div ref={hostRef} className={className} aria-hidden="true" />;
 }
 
+type Ext = "png" | "jpeg" | "svg";
+type Ready = { url: string; filename: string };
+
+const loadLib = () => import("qr-code-styling");
+/** Fetch the library ahead of the first click (the dashboard calls this). */
+export const preloadQr = () => void loadLib();
+
+const pending = new Map<string, Promise<Ready>>();
+const ready = new Map<string, Ready>();
+const keyOf = (value: string, style: QrStyle, name: string, ext: Ext) => JSON.stringify([value, style, name, ext]);
+
+/**
+ * Render the file ahead of the click, as a blob URL. Safari only lets a
+ * page start a download from the click itself; one that waits for the
+ * library to load and the code to draw is dropped without a word (Tami,
+ * 2026-11-03: "nothing happens" in Safari, fine in Chrome). So the menu
+ * prepares its files as it opens, and the click hands over a finished one.
+ */
+export function prepareQr(value: string, style: QrStyle, name: string, ext: Ext): Promise<Ready> {
+  const key = keyOf(value, style, name, ext);
+  let p = pending.get(key);
+  if (!p) {
+    p = (async () => {
+      const mod = await loadLib();
+      const QRCodeStyling = mod.default as unknown as new (o: Record<string, unknown>) => QrInstance & {
+        getRawData: (ext: Ext) => Promise<Blob | null>;
+      };
+      const qr = new QRCodeStyling({
+        ...optionsFor(value, style, 1024),
+        // Raster formats need a canvas; SVG stays vector.
+        type: ext === "svg" ? "svg" : "canvas",
+        margin: 32,
+      });
+      const blob = await qr.getRawData(ext);
+      if (!blob) throw new Error("QR render failed");
+      const safe = name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") || "qr-code";
+      const r = { url: URL.createObjectURL(blob), filename: `${safe}.${ext === "jpeg" ? "jpg" : ext}` };
+      ready.set(key, r);
+      return r;
+    })();
+    pending.set(key, p);
+    p.catch(() => pending.delete(key));
+  }
+  return p;
+}
+
+function save({ url, filename }: Ready) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
 /**
  * Download a code at print size without one on screen — the dashboard's
- * thumbnails are 36px, far too small to export from. Renders off-screen at
- * 1024px through the same options the preview uses, so what downloads is what
- * was shown.
+ * thumbnails are 36px, far too small to export from. Rendered off-screen at
+ * 1024px through the same options the preview uses, so what downloads is
+ * what was shown. Synchronous when `prepareQr` already finished.
  */
-export async function downloadQr(
-  value: string,
-  style: QrStyle,
-  name: string,
-  ext: "png" | "jpeg" | "svg",
-) {
-  const mod = await import("qr-code-styling");
-  const QRCodeStyling = mod.default as unknown as new (
-    o: Record<string, unknown>,
-  ) => QrInstance;
-  const qr = new QRCodeStyling({
-    ...optionsFor(value, style, 1024),
-    // Raster formats need a canvas; SVG stays vector.
-    type: ext === "svg" ? "svg" : "canvas",
-    margin: 32,
-  });
-  const safe = name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") || "qr-code";
-  await qr.download({ name: safe, extension: ext });
+export async function downloadQr(value: string, style: QrStyle, name: string, ext: Ext) {
+  const done = ready.get(keyOf(value, style, name, ext));
+  if (done) return save(done);
+  save(await prepareQr(value, style, name, ext));
 }

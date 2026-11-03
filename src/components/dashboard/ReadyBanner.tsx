@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, Download, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { defaultQrStyle, downloadQr } from "@/components/create/QrPreview";
+import { defaultQrStyle, downloadQr, prepareQr } from "@/components/create/QrPreview";
 import type { QrRow } from "./QrTable";
 
 /** Shown after a code is created; dismissible for the rest of the session. */
 export function ReadyBanner({ row, edited = false }: { row: QrRow; edited?: boolean }) {
   const [open, setOpen] = useState(true);
+  // The one file this banner offers, rendered before it is asked for so
+  // Safari lets the click download it.
+  useEffect(() => {
+    prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {});
+  }, [row.qrValue, row.name]);
   if (!open) return null;
 
   return (

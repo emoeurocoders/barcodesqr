@@ -717,6 +717,30 @@ the mobile ones; only layout differs (`useDesktop()`).
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
 
+## Fixes from Tami's iPhone recheck, 2026-11-03
+
+- **Safari downloads**: the dashboard's Download SVG/JPEG did nothing in
+  Safari (fine in Chrome). Safari drops a download that does not start in
+  the click; ours waited for the QR library and a render first. Files are
+  now prepared as the menu opens / the pointer reaches "Download QR", the
+  library preloads with the dashboard, and the click hands over a ready
+  blob. Verified in Chrome; **Safari itself is untested here** (no WebKit
+  in this setup) — Tami to recheck.
+- **Messenger** refused every link: the normaliser strips a mobile "m."
+  prefix (m.facebook.com) and m.me is Messenger's own domain. Fixed;
+  every platform now round-trips handle → link → valid.
+- **Menu's "Category / Section" accordion removed** — it duplicated "Add
+  Section". A menu saved with a category gets it as its first section
+  heading when opened for editing; published menus are unchanged until
+  then. A departure from both menu files, at QA's request.
+- **"Already a member? Log in"** under the paywall's payment form
+  (unmocked): it swaps in the Log In box. Google works; the emailed link
+  needs the mail service (Resend), which is still not connected.
+- **"Logged out after taking too long"**: nothing in the code expires a
+  session sooner than 30 days. Not reproduced; the join form appears when
+  the creator was opened signed out (or on another domain). Asked Tami for
+  the steps.
+
 ## Desktop step 2, group 3 — create_desktop_*.html, ported 2026-11-02
 
 Google Maps, Event, Email, SMS, Phone and Plain Text (JB, Monday
