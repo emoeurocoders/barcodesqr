@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { splitWhen } from "../encodeQr";
 import { googleCalendarUrl, icsFile, outlookCalendarUrl } from "@/lib/calendar";
 import { cropStyle, fileSrc, parseStoredFile } from "../storedValues";
-import { localTimeZone, minutesInZone } from "@/lib/zoned";
+import { localTimeZone, minutesInZone, zonedToUtc } from "@/lib/zoned";
 import { BarCaret, BarText, PreviewCard, Sample, ScanNote } from "./previews";
 import { eventEndOk } from "./forms6";
 import { RowLink, hrefOf } from "./previews";
@@ -283,7 +283,11 @@ export function CouponPreview({ values, open, onToggle }: Props) {
   const code = t(values.code) || (any ? "" : "SAVE20");
   const terms = t(values.terms) || (any ? "" : "One per customer. Cannot be combined with other offers.");
   const expDate = exp ? new Date(`${exp}T23:59:59`) : null;
-  const expired = !!expDate && expDate.getTime() < now;
+  // The last second of the expiry date in the business's own zone (saved
+  // with the coupon), not the visitor's; older coupons fall back to the
+  // visitor's clock.
+  const endMs = exp ? (values.timezone ? zonedToUtc(exp, "23:59", values.timezone) : null) : null;
+  const expired = !!expDate && (endMs !== null ? endMs + 59_999 : expDate.getTime()) < now;
   const expText = expDate
     ? `${expired ? "Expired" : "Expires"} ${expDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
     : any
@@ -392,6 +396,9 @@ export function CouponPreview({ values, open, onToggle }: Props) {
  * customer's own link once it is a valid https:// address.
  */
 export function FeedbackPreview({ values, open, onToggle }: Props) {
+  // create_desktop_feedback.html: no sample business name, the two-bubble
+  // icon, no "!", and the scan note under the caption. Mobile keeps its file.
+  const desk = useDesktop();
   const url = t(values.url);
   const live = /^https:\/\/[^\s]+\.[^\s]{2,}/i.test(url);
   const deco =
@@ -419,13 +426,20 @@ export function FeedbackPreview({ values, open, onToggle }: Props) {
       <Phone className="bg-[#f3f6fa] p-[11.36px]">
         <div className="rounded-[9.73px] bg-[#e8f3ec] bg-[radial-gradient(circle_at_12%_88%,#d9ecdf_0_36.5px,transparent_37.3px),radial-gradient(circle_at_90%_14%,#d9ecdf_0_40.56px,transparent_41.37px)] px-[12.98px] py-[16.22px] text-center">
           <i className={`relative mx-auto flex h-[45.42px] w-[45.42px] items-center justify-center rounded-full bg-white text-[#3f7d4e] not-italic shadow-[0_10px_22px_-14px_rgba(14,19,17,0.35)] [&>svg]:block [&>svg]:h-[20.27px] [&>svg]:w-[20.27px] ${deco}`}>
-            <svg {...svgProps}>
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
-              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
-            </svg>
+            {desk ? (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                <path fill="#2dd4bf" d="M3 4h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H8l-4 3.5V5a1 1 0 0 1 1-1z"></path>
+                <path fill="#0f766e" d="M10 9.5h10a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1h-3.5L13 19.8V17h-3a1 1 0 0 1-1-1v-5.5a1 1 0 0 1 1-1z"></path>
+              </svg>
+            ) : (
+              <svg {...svgProps}>
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+              </svg>
+            )}
           </i>
-          <p className="mt-[9.49px] text-[10.55px] leading-[14.76px] font-bold text-[#2f5e3d]">Harbor &amp; Sage Co.</p>
-          <h5 className="mt-[5.68px] text-[14.2px] leading-[18.45px] font-extrabold text-ink">We’d love your feedback!</h5>
+          {!desk && <p className="mt-[9.49px] text-[10.55px] leading-[14.76px] font-bold text-[#2f5e3d]">Harbor &amp; Sage Co.</p>}
+          <h5 className="mt-[5.68px] text-[14.2px] leading-[18.45px] font-extrabold text-ink">{desk ? "We’d love your feedback" : "We’d love your feedback!"}</h5>
           <p className="mx-auto mt-[6.33px] max-w-[210.91px] text-[10.55px] leading-[15.82px] text-prose">
             Tell us about your experience. Your feedback helps us improve.
           </p>
@@ -454,6 +468,7 @@ export function FeedbackPreview({ values, open, onToggle }: Props) {
         </div>
       </Phone>
       <Sample>Example preview. Harbor &amp; Sage Co. is sample content; the button uses your link.</Sample>
+      {desk && <ScanNote>Scanning opens this feedback form on the visitor’s device so they can share their review or feedback.</ScanNote>}
     </PreviewCard>
   );
 }
@@ -570,6 +585,7 @@ export function BusinessPreview({ values, open, onToggle, selectedSocials }: Pro
   // The profiles filled in so far (Tami, 2026-10-30: the editor's preview
   // showed none, only the published page did).
   const socs = filledSocials(values).filter((k) => page || !selectedSocials || selectedSocials.includes(k));
+  const desk = useDesktop();
   const filled = (k: string) => {
     const v = t(values[k]);
     return v === "https://" ? "" : v;
@@ -577,6 +593,9 @@ export function BusinessPreview({ values, open, onToggle, selectedSocials }: Pro
   const anyContact = bizRows.some((r) => filled(r.key));
   const anyTyped = anyContact || !!(t(values.title) || t(values.description) || t(values.opensAt) || t(values.closesAt));
   const hours = useHours(values, anyTyped);
+  // create_desktop_business.html's sample row, while nothing is typed (their
+  // script restores `crBzSocsDef`). Decoration, never links.
+  const deskSample = desk && !page && !anyTyped && !socs.length ? ["instagram", "facebook", "tiktok", "youtube"] : [];
 
   return (
     <PreviewCard
@@ -661,6 +680,16 @@ export function BusinessPreview({ values, open, onToggle, selectedSocials }: Pro
         </div>
         {/* The business's socials: their `.bzSocs` (2026-11-02 sync, batch
             17) — round badges, the first six, once one is filled in. */}
+        {deskSample.length > 0 && (
+          <div className="mt-[10.55px] flex items-center justify-center gap-[6.49px] px-[11.36px]">
+            {deskSample.map((k) => (
+              <i key={k} className="flex h-[23.52px] w-[23.52px] items-center justify-center rounded-full not-italic" style={{ background: socialByKey[k]?.color }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/create/soc/${k}.svg`} alt="" className="block h-[12.17px] w-[12.17px]" />
+              </i>
+            ))}
+          </div>
+        )}
         {socs.length > 0 && (
           <div className="mt-[10.55px] flex items-center justify-center gap-[6.49px] px-[11.36px]">
             {socs.slice(0, 6).map((k) => (

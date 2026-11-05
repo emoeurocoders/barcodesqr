@@ -1,5 +1,6 @@
 "use client";
 
+import { useDesktop } from "./pageMode";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { dialCodes } from "../fieldSchema";
@@ -342,6 +343,7 @@ function AudioCard({
   title: string;
   fileName: string;
 }) {
+  const desk = useDesktop();
   const el = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [at, setAt] = useState(0);
@@ -367,8 +369,14 @@ function AudioCard({
         </svg>
       </i>
       {/* Their `.top` also picks up the step rail's `.top` padding (3.2 /
-          4.9px) — a selector collision in their CSS, reproduced. */}
-      <div className="flex items-center gap-[8.92px] pt-[3.24px] pr-[14.6px] pb-[4.87px]">
+          4.9px) — a selector collision in their CSS, reproduced. On
+          desktop the rail's rule is bigger (1.7em 2.4em 1.8em) and adds its
+          bottom border; reproduced too, and raised with the designer. */}
+      <div
+        className={`flex items-center gap-[8.92px] pr-[14.6px] ${
+          desk ? "border-b border-[#eceef2] pt-[13.79px] pb-[14.6px] pl-[19.47px]" : "pt-[3.24px] pb-[4.87px]"
+        }`}
+      >
         <i className="flex h-[50.28px] w-[50.28px] shrink-0 items-center justify-center rounded-[8.92px] bg-[linear-gradient(135deg,#b4bdfc_0%,#818cf8_100%)] text-white not-italic [&>svg]:block [&>svg]:h-[21.89px] [&>svg]:w-[21.89px]">
           {noteMusic}
         </i>

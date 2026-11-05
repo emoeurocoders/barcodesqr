@@ -273,7 +273,7 @@ export function PhoneFld({
           id={`${id}Cc`}
           value={dial}
           onChange={(e) => s.set(`${k}Country`, e.target.value)}
-          className={`${textInput(false)} cursor-pointer appearance-none pr-[12.8px] pl-[13px] font-flags`}
+          className={`${textInput(false)} mc-select cursor-pointer appearance-none pr-[12.8px] pl-[13px] font-flags`}
         >
           {dialCodes.map((c) => (
             <option key={c.value} value={c.value}>
@@ -531,7 +531,7 @@ export function IntlNumberFld({
           id={ccId}
           value={dial}
           onChange={(e) => s.set("phoneCountry", e.target.value)}
-          className={`${textInput(false)} cursor-pointer appearance-none pr-[12.8px] pl-[13px] font-flags`}
+          className={`${textInput(false)} mc-select cursor-pointer appearance-none pr-[12.8px] pl-[13px] font-flags`}
         >
           {dialCodes.map((c) => (
             <option key={c.value} value={c.value}>

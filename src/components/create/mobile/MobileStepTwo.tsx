@@ -273,6 +273,9 @@ const DESK_ZOOM = {
   "--mc-ta-py": `${10.5 / Z}px`,
   "--mc-lb": `${14 / Z}px`,
   "--mc-hd-w": "400",
+  // The select caret: 12px wide, 0.9rem (9px) in from the edge.
+  "--mc-sel-w": `${12 / Z}px`,
+  "--mc-sel-x": `${9 / Z}px`,
 } as React.CSSProperties;
 
 /** Each desktop file's `.pvh` heading, its tip, and a caption that differs from mobile's. */
@@ -301,12 +304,20 @@ const desktopPreview: Record<string, { title: string; tip?: string; caption?: st
   sms: { title: "SMS Preview" },
   phone: { title: "Phone Preview" },
   text: { title: "Text Preview" },
+  // Group 4, the last five (JB, Monday 5696610943).
+  payment: { title: "Payment Preview" },
+  mp3: { title: "Audio Preview" },
+  coupon: { title: "Coupon Preview" },
+  feedback: { title: "Feedback Preview", caption: "Example preview. The button uses your link once it’s added." },
+  business: { title: "Business Page Preview" },
 };
 
 /** The types whose desktop step 2 is create_desktop_*.html so far (JB, 2026-10-29). */
 /** Where a desktop file words its header differently from the mobile one. */
 const desktopHeaderDesc: Record<string, string> = {
   sms: "Open a pre-filled text message",
+  mp3: "Play an audio clip with one scan",
+  feedback: "Share a survey or feedback form",
 };
 
 export const desktopTypes = new Set(Object.keys(desktopPreview));

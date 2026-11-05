@@ -1,5 +1,7 @@
 "use client";
 
+import { ScanNote } from "./previews";
+
 import { useDesktop } from "./pageMode";
 
 import { encodeQr } from "../encodeQr";
@@ -168,25 +170,45 @@ const payPlaceholders: Record<string, string> = {
   stripe: "e.g. https://buy.stripe.com/…",
 };
 
+/**
+ * The link's real host, as a browser would read it — so "paypal.com@evil.io"
+ * is evil.io, not PayPal.
+ */
+function hostOf(link: string) {
+  try {
+    return new URL(link.trim()).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * The provider's own domain or a subdomain of it — never a lookalike
+ * ("paypal.com.evil.io", "notpaypal.com"), which a substring test let
+ * through (JB, 2026-11-05: check provider links properly).
+ */
+const onDomain = (host: string, d: string) => host === d || host.endsWith(`.${d}`);
+
 /** The link's host belongs to the picked provider, where we know its hosts. */
 function providerMatches(values: Values) {
   const p = payProviders[values.provider ?? ""];
-  const host = ((values.paymentLink ?? "").trim().match(/^https?:\/\/([^/?#]+)/i) ?? [])[1]?.toLowerCase();
+  const host = hostOf(values.paymentLink ?? "");
   if (!p || values.provider === "other" || !host || !p.d.length) return true;
-  return p.d.some((d) => host.includes(d));
+  return p.d.some((d) => onDomain(host, d));
 }
 
 /** Their script: a recognised host switches the provider to match. */
 function detectProvider(link: string) {
-  const host = (link.match(/^https?:\/\/([^/?#]+)/i) ?? [])[1]?.toLowerCase();
+  const host = hostOf(link);
   if (!host) return null;
   for (const [k, p] of Object.entries(payProviders)) {
-    if (p.d.some((d) => host.includes(d))) return k;
+    if (p.d.some((d) => onDomain(host, d))) return k;
   }
   return null;
 }
 
 export function PaymentForm({ s }: { s: FormState }) {
+  const desk = useDesktop();
   const provider = s.values.provider ?? "";
   const link = s.values.paymentLink ?? "";
   const selErr = s.errors.paySel;
@@ -200,6 +222,8 @@ export function PaymentForm({ s }: { s: FormState }) {
   return (
     <>
       <TrackingPill />
+      {/* create_desktop_payment.html's `.nte3`, under the badge. */}
+      {desk && <ScanNote>Payments are handled by your chosen provider. BarcodesQR simply sends scanners to your payment page.</ScanNote>}
       <Fld
         id="paySel"
         label="Payment provider"
@@ -213,7 +237,7 @@ export function PaymentForm({ s }: { s: FormState }) {
           value={provider}
           aria-invalid={!!selErr}
           onChange={(e) => s.set("provider", e.target.value)}
-          className={`${textInput(!!selErr)} cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
+          className={`${textInput(!!selErr)} mc-select cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
         >
           <option value="">Select a payment provider…</option>
           {Object.entries(payProviders).map(([k, p]) => (
@@ -255,6 +279,24 @@ export function PaymentForm({ s }: { s: FormState }) {
 /* ---- Audio ----------------------------------------------------------------- */
 
 /** "m:ss" of an audio file, read from its metadata; "" until known. */
+/** The running time, read from the picked file before upload (JB: show it). */
+function audioSeconds(file: File): Promise<number | undefined> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const a = new Audio();
+    a.preload = "metadata";
+    const end = (v?: number) => {
+      URL.revokeObjectURL(url);
+      resolve(v);
+    };
+    a.addEventListener("loadedmetadata", () => end(isFinite(a.duration) ? Math.round(a.duration) : undefined));
+    a.addEventListener("error", () => end(undefined));
+    a.src = url;
+  });
+}
+
+const mmss = (t: number) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
+
 function useDuration(src: string | undefined) {
   const [found, setFound] = useState<{ src: string; text: string } | null>(null);
   useEffect(() => {
@@ -278,6 +320,8 @@ function useDuration(src: string | undefined) {
 
 /** One file, 20 MB at most (the schema's limit, which the upload route enforces too). */
 export function AudioForm({ s }: { s: FormState }) {
+  // create_desktop_audio.html: "Upload your audio file" (JB's wording).
+  const desk = useDesktop();
   const { take, clear, error, progress, pending, stored } = useFileUpload({
     type: "mp3",
     field: schemaField("mp3", "file"),
@@ -291,7 +335,11 @@ export function AudioForm({ s }: { s: FormState }) {
   const shown = pending ?? stored;
   const err = error ?? s.errors.auUpl;
   // Their file card adds the length once it is known: "3.2 MB · 1:04".
-  const length = useDuration(stored ? fileSrc(stored) : undefined);
+  // Saved with the file at pick time; else read from the hosted copy.
+  const savedSecs = (stored as { duration?: number } | null)?.duration;
+  const fetched = useDuration(stored && savedSecs === undefined ? fileSrc(stored) : undefined);
+  const length = savedSecs !== undefined ? mmss(savedSecs) : fetched;
+  const pick = async (f: File) => take(f, { duration: await audioSeconds(f) });
 
   return (
     <>
@@ -303,12 +351,12 @@ export function AudioForm({ s }: { s: FormState }) {
         <label
           id="auUpl"
           tabIndex={-1}
-          {...dropFiles(([f]) => take(f))}
+          {...dropFiles(([f]) => pick(f))}
           className="relative mt-[12.2px] block cursor-pointer rounded-[9.7px] border-2 border-dashed border-mc-drop-line bg-mc-drop px-[11.4px] py-[16.2px] text-center outline-none [&>svg]:text-primary"
         >
           {uploadGlyph}
           <span className="mt-[7.9px] block text-[11.36px] leading-[normal] font-semibold text-body">
-            <b className="font-semibold text-primary">{progress !== null ? `Uploading… ${progress}%` : "Upload your audio"}</b>
+            <b className="font-semibold text-primary">{progress !== null ? `Uploading… ${progress}%` : desk ? "Upload your audio file" : "Upload your audio"}</b>
           </span>
           <span className="mt-[3.4px] block text-[9.73px] leading-[normal] text-faint">
             Click to upload or drag &amp; drop · Max size: 20 MB · MP3, M4A, WAV, etc.
@@ -322,7 +370,7 @@ export function AudioForm({ s }: { s: FormState }) {
             onChange={(e) => {
               const file = e.currentTarget.files?.[0];
               e.currentTarget.value = "";
-              if (file) take(file);
+              if (file) pick(file);
             }}
           />
         </label>

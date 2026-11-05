@@ -161,7 +161,7 @@ export const mobileTypes = new Set([
  * Desktop's `.rowCols` / `.lnkRow`: two fields side by side, 1.2em apart.
  * On mobile, nothing — not even a wrapper, so the markup stays the file's.
  */
-function DeskRow({ on, children }: { on: boolean; children: React.ReactNode }) {
+export function DeskRow({ on, children }: { on: boolean; children: React.ReactNode }) {
   if (!on) return <>{children}</>;
   return <div className="flex gap-x-[9.73px] [&>*]:min-w-0 [&>*]:flex-1">{children}</div>;
 }

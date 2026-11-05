@@ -1,5 +1,9 @@
 "use client";
 
+import { DeskRow } from "./forms";
+
+import { ScanNote } from "./previews";
+
 import { endAfterStart } from "@/lib/calendar";
 import { useDesktop } from "./pageMode";
 
@@ -195,7 +199,7 @@ export function EventForm({ s }: { s: FormState }) {
               id="evTz"
               value={s.values.timezone || localTimeZone()}
               onChange={(e) => s.set("timezone", e.target.value)}
-              className={`${textInput(false)} cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
+              className={`${textInput(false)} mc-select cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
             >
               {timeZoneOptions(s.values.timezone || localTimeZone()).map((o) => (
                 <option key={o.value} value={o.value}>
@@ -280,11 +284,14 @@ function timeZoneOptions(current: string) {
 /* ---- Coupon ---------------------------------------------------------------- */
 
 export function CouponForm({ s }: { s: FormState }) {
+  const desk = useDesktop();
   const terms = s.values.terms ?? "";
   return (
     <>
       <TrackingPill />
       <TextFld s={s} id="cpTitle" k="title" label="Offer title" placeholder="e.g. Weekend Special" max={40} required counter />
+      {/* Desktop puts the offer and the code side by side. */}
+      <DeskRow on={desk}>
       <TextFld
         s={s}
         id="cpDisc"
@@ -304,6 +311,7 @@ export function CouponForm({ s }: { s: FormState }) {
         max={20}
         tip={{ label: "About the code", text: "Shown with a Copy button on your coupon page. Leave empty for no code." }}
       />
+      </DeskRow>
       <Fld
         id="cpExp"
         label="Expiry date (optional)"
@@ -375,6 +383,7 @@ export function CouponForm({ s }: { s: FormState }) {
 /* ---- Feedback -------------------------------------------------------------- */
 
 export function FeedbackForm({ s }: { s: FormState }) {
+  const desk = useDesktop();
   const v = s.values.url ?? "";
   const err = s.errors.fbUrl;
   return (
@@ -399,6 +408,8 @@ export function FeedbackForm({ s }: { s: FormState }) {
           {...urlHandlers(v, (x) => s.set("url", x))}
         />
       </Fld>
+      {/* create_desktop_feedback.html's `.nte3`. */}
+      {desk && <ScanNote>Scanning sends people straight to your link — a survey, review page, or any feedback form.</ScanNote>}
     </>
   );
 }
@@ -412,6 +423,7 @@ const accIcon = (children: React.ReactNode) => (
 );
 
 export function BusinessForm({ s }: { s: FormState }) {
+  const desk = useDesktop();
   const descr = s.values.description ?? "";
   const grpErr = s.errors.bzGrp;
   return (
@@ -449,10 +461,15 @@ export function BusinessForm({ s }: { s: FormState }) {
       >
         {/* Their `.grpReq`: one of the four is enough. */}
         <div>
-          <TextFld s={s} id="bzPhone" k="phone" label="Phone" placeholder="+1 555 014 2890" type="tel" />
-          <TextFld s={s} id="bzEmail" k="email" label="Email" placeholder="hello@harborsage.com" type="email" />
-          <TextFld s={s} id="bzWeb" k="website" label="Website" placeholder="https://harborsage.com" url />
-          <TextFld s={s} id="bzAdr" k="address" label="Address / Directions" placeholder="123 Harbor St, Portside" max={80} />
+          {/* Desktop pairs them (`.rowCols`). */}
+          <DeskRow on={desk}>
+            <TextFld s={s} id="bzPhone" k="phone" label="Phone" placeholder="+1 555 014 2890" type="tel" />
+            <TextFld s={s} id="bzEmail" k="email" label="Email" placeholder="hello@harborsage.com" type="email" />
+          </DeskRow>
+          <DeskRow on={desk}>
+            <TextFld s={s} id="bzWeb" k="website" label="Website" placeholder="https://harborsage.com" url />
+            <TextFld s={s} id="bzAdr" k="address" label="Address / Directions" placeholder="123 Harbor St, Portside" max={80} />
+          </DeskRow>
           {grpErr && <FieldError>{grpErr}</FieldError>}
         </div>
       </Acc>

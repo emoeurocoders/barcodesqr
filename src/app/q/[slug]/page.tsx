@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { qrCodes } from "@/db/schema";
 import { encodeQr, isDynamic } from "@/components/create/encodeQr";
+import { isValidUrl } from "@/components/create/validate";
 import { HostedPage, designWidth } from "@/components/hosted/HostedPage";
 
 /**
@@ -59,6 +60,15 @@ export default async function QrPage({ params }: { params: Promise<{ slug: strin
         ? http(v.androidUrl) || http(v.fallbackUrl)
         : http(v.fallbackUrl);
     if (target) redirect(target);
+  }
+
+  // Payment and Feedback go straight on to the customer's link — no page of
+  // ours in between (JB). Only a well-formed https:// link, whatever was
+  // stored: this is the one place a scan is sent somewhere.
+  if (row.type === "payment" || row.type === "feedback") {
+    const raw = ((row.type === "payment" ? v.paymentLink : v.url) ?? "").trim();
+    if (/^https:\/\//i.test(raw) && isValidUrl(raw)) redirect(raw);
+    notFound();
   }
 
   // A direct type never points here, but an old code might: send it on.

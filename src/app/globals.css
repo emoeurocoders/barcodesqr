@@ -448,6 +448,20 @@
   --font-flags: "Twemoji Country Flags", var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/*
+ * The caret every <select> in the files has (reset.css: a 6×3 grey
+ * triangle at 12px). It only showed once the 2026-11-02 sync changed the
+ * creator's `background` to `background-color`; ported 2026-11-05. Offset:
+ * 1.8rem at 390 (10.97px), 0.9rem from 640px — desktop sets both through
+ * its zoom variables.
+ */
+.mc-select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='3' viewBox='0 0 6 3'%3E%3Cpolygon fill='%23919191' points='5.992,0 2.992,3 -0.008,0'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: var(--mc-sel-w, 12px) auto;
+  background-position: calc(100% - var(--mc-sel-x, 10.97px)) 50%;
+}
+
 /* html_files/assets/fonts/flag.css, self-hosted. Twemoji graphics, CC BY 4.0. */
 @font-face {
   font-family: "Twemoji Country Flags";

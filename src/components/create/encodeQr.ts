@@ -32,6 +32,11 @@ const dynamicTypes = new Set([
   "coupon",
   "multilink",
   "applink",
+  // Redirected through /q/<slug> since 2026-11-05 (JB: edit the link without
+  // reprinting, count scans). No page in between: the scan lands on the
+  // customer's own link. Codes printed before carry that link and still work.
+  "payment",
+  "feedback",
   // Hosted since 2026-11-02 (JB): the photo header and a working Add to
   // Calendar need a page. Event codes printed before carry the event itself
   // (`calendar` below) and keep working.
@@ -202,15 +207,13 @@ export function encodeQr(
     }
 
     case "feedback":
-      // The file's own tip: "Scanners go straight there." So the code is the
-      // customer's form link itself, as Payment's is, until the redirect
-      // service exists. (Its preview pictures a hosted card — raised with JB.)
+      // Saved codes go through /q/<slug>, which redirects here; this is the
+      // link itself, for codes printed before 2026-11-05.
       return withScheme(v.url);
 
     case "payment":
-      // Straight to the customer's own payment page (JB, 2026-10-21) — the
-      // same way Website encodes its link — until the short-link service
-      // exists to route it.
+      // As Feedback: redirected through /q/<slug> since 2026-11-05; the
+      // link itself for codes printed before.
       return withScheme(v.paymentLink);
 
     case "email": {

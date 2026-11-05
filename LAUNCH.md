@@ -717,6 +717,44 @@ the mobile ones; only layout differs (`useDesktop()`).
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
 
+## Desktop step 2, group 4 (the last five) — ported 2026-11-05
+
+Payment, Audio, Coupon, Feedback and Business Page (JB, Monday
+5696610943): all 23 types now have the new desktop step 2. Pixel diffs at
+1440: 1.9–2.7% (the hidden tracking badge and live data). Mobile markup
+unchanged (skeleton identical before/after). No overflow 800–1180.
+
+- **Payment and Feedback are redirected now** (`/q/<slug>` → the
+  customer's link, no page between): editing the link keeps the printed
+  code, and scans are counted. The redirect only follows a well-formed
+  https:// link. Codes printed before carry the link itself.
+- **Payment provider matching was a substring test** — "paypal.com.evil.io",
+  "notpaypal.com" and "https://paypal.com@evil.io" all passed as PayPal.
+  Now the real host (URL parser), the provider's domain or a subdomain.
+  Nothing anywhere is labelled "verified". An open redirect *on* a
+  provider's own domain cannot be detected and is not attempted.
+- **Coupon expiry** ends at 23:59:59 on the expiry date in the business's
+  zone (saved with the coupon, as Event and Business do); older coupons use
+  the visitor's clock.
+- **Audio** saves the running time with the file at pick time, so the file
+  card shows it at once; "Upload your audio file" on desktop (the mobile
+  file still says "Upload your audio").
+- **Designer bug reproduced**: desktop's step-rail rule `.createDsk2 .top`
+  also pads the audio player's `.top` row and gives it a bottom border.
+- **Feedback desktop preview** has no sample business name (the mobile file
+  still shows "Harbor & Sage Co."); a scan note under the caption.
+- **Business**: phone/email and website/address paired; the file's sample
+  badges (Instagram, Facebook, TikTok, YouTube) while nothing is typed;
+  real profiles once filled, on both layouts and the published page.
+  **Weekly hours / closed days are not built**: both business files have
+  one Opens/Closes pair (overnight works). JB asked for a weekly schedule —
+  needs a design. Their hint says hours use "their local time"; the code
+  uses the business's zone, which is the correct one.
+- **Every creator <select> has its caret now** (WiFi security, country,
+  provider, time zone): the 2026-11-02 sync switched the creator's
+  `background` to `background-color`, which un-hid reset.css's caret; that
+  knock-on was missed then. `.mc-select` in globals.css.
+
 ## Fixes from Tami's iPhone recheck, 2026-11-03
 
 - **Safari downloads**: the dashboard's Download SVG/JPEG did nothing in

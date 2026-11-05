@@ -342,7 +342,7 @@ export function WifiForm({ s }: { s: FormState }) {
           id="wfSec"
           value={enc}
           onChange={(e) => s.set("encryption", e.target.value)}
-          className={`${textInput(false)} cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
+          className={`${textInput(false)} mc-select cursor-pointer appearance-none pr-[12.8px] pl-[13px]`}
         >
           <option value="WPA">WPA/WPA2 (recommended)</option>
           <option value="WEP">WEP</option>

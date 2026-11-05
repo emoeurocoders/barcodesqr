@@ -186,7 +186,8 @@ export function CreateWizard({
     // Times typed into Event and Business mean the creator's own clock;
     // the zone is saved with them so the code means the same moment for
     // whoever scans it, and the dashboard can re-encode it server-side.
-    const zoned = (type === "event" || type === "business") && !values.timezone
+    // Coupon too (JB, 2026-11-05): its expiry date ends in the business's zone.
+    const zoned = (type === "event" || type === "business" || type === "coupon") && !values.timezone
       ? { ...values, timezone: localTimeZone() }
       : values;
     const draft = { type, name: name.trim() || defaultName(type), values: zoned };
