@@ -16,7 +16,8 @@ Status: written 2026-09-01, when file uploads were wired to Cloudflare R2.
 ### Hosted pages — built 2026-10-23; what is left
 
 **`www.barcodesqr.com` still serves an older deployment with no `/q`
-route, so every hosted code 404s when scanned** (Tami's iPhone QA,
+route, so every hosted code 404s when scanned** — runbook, checks and
+rollback in docs/DOMAIN.md; `npm run -s domain:check -- <origin>` verifies it (Tami's iPhone QA,
 2026-10-30: all ten hosted types). `barcodesqr.vercel.app` serves the
 current build and its `/q` pages work. The fix is in Vercel, not the code:
 attach `barcodesqr.com` and `www.barcodesqr.com` to this project. Codes
@@ -716,6 +717,17 @@ the mobile ones; only layout differs (`useDesktop()`).
   has no phone layout): name, link, then the columns in pairs with their
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
+
+## JB's pre-QA notes, 2026-11-09
+
+- Audio says "Upload your audio file" on mobile too (the mobile file still
+  says "Upload your audio").
+- Business hours: the hint now says they are **daily** hours in the
+  business's zone ("Daily hours, in Sofia time…"), which is also how the
+  status is worked out. The weekly schedule is deferred (JB).
+- The old Payment receipt ("Payment successfully completed") was the
+  original desktop step 2's preview — unreachable since all 23 types moved
+  to the new screens, and still visible on www's old deployment. Deleted.
 
 ## Desktop step 2, group 4 (the last five) — ported 2026-11-05
 

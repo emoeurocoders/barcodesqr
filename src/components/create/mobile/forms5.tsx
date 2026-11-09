@@ -320,8 +320,8 @@ function useDuration(src: string | undefined) {
 
 /** One file, 20 MB at most (the schema's limit, which the upload route enforces too). */
 export function AudioForm({ s }: { s: FormState }) {
-  // create_desktop_audio.html: "Upload your audio file" (JB's wording).
-  const desk = useDesktop();
+  // "Upload your audio file" on both layouts (JB, 2026-11-09; the mobile
+  // file still says "Upload your audio").
   const { take, clear, error, progress, pending, stored } = useFileUpload({
     type: "mp3",
     field: schemaField("mp3", "file"),
@@ -356,7 +356,7 @@ export function AudioForm({ s }: { s: FormState }) {
         >
           {uploadGlyph}
           <span className="mt-[7.9px] block text-[11.36px] leading-[normal] font-semibold text-body">
-            <b className="font-semibold text-primary">{progress !== null ? `Uploading… ${progress}%` : desk ? "Upload your audio file" : "Upload your audio"}</b>
+            <b className="font-semibold text-primary">{progress !== null ? `Uploading… ${progress}%` : "Upload your audio file"}</b>
           </span>
           <span className="mt-[3.4px] block text-[9.73px] leading-[normal] text-faint">
             Click to upload or drag &amp; drop · Max size: 20 MB · MP3, M4A, WAV, etc.

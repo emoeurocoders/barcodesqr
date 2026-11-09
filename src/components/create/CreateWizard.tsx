@@ -40,7 +40,6 @@ import { LocationPreview } from "./previews/LocationPreview";
 import { MenuPreview } from "./previews/MenuPreview";
 import { CouponPreview } from "./previews/CouponPreview";
 import { FeedbackPreview } from "./previews/FeedbackPreview";
-import { PaymentPreview } from "./previews/PaymentPreview";
 import { EventPreview } from "./previews/EventPreview";
 import { BusinessPreview } from "./previews/BusinessPreview";
 import { WifiPreview } from "./previews/WifiPreview";
@@ -515,7 +514,6 @@ function ContentPreview({
   if (type === "menu") return <MenuPreview values={values} />;
   if (type === "coupon") return <CouponPreview values={values} />;
   if (type === "feedback") return <FeedbackPreview />;
-  if (type === "payment") return <PaymentPreview />;
   if (type === "event") return <EventPreview values={values} />;
   if (type === "business") return <BusinessPreview values={values} />;
   if (type === "wifi") return <WifiPreview values={values} />;

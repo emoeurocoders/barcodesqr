@@ -16,7 +16,8 @@
     "skel": "node scripts/design-skel.mjs",
     "diff:design": "node scripts/design-diff.mjs",
     "storage:check": "node scripts/storage-check.mjs",
-    "emails:build": "node scripts/build-email-templates.mjs"
+    "emails:build": "node scripts/build-email-templates.mjs",
+    "domain:check": "node scripts/domain-check.mjs"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

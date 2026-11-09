@@ -492,7 +492,14 @@ export function BusinessForm({ s }: { s: FormState }) {
           <DateFld s={s} id="bzOpen" label="Opens at" type="time" value={s.values.opensAt ?? ""} onChange={(v) => s.set("opensAt", v)} />
           <DateFld s={s} id="bzClose" label="Closes at" type="time" value={s.values.closesAt ?? ""} onChange={(v) => s.set("closesAt", v)} />
         </div>
-        <Sub>Visitors see an Open / Closed status based on their local time. Leave empty to hide it.</Sub>
+        {/* JB, 2026-11-09: say these are daily hours, and in whose clock —
+            the business's zone (saved with the page), which is also what the
+            Open / Closed status is worked out in. The files said "their local
+            time", which was never how it worked. */}
+        <Sub>
+          Daily hours, in {(s.values.timezone || localTimeZone() || "your").split("/").pop()!.replace(/_/g, " ")} time. Visitors see an
+          Open / Closed status based on these hours. Leave empty to hide it.
+        </Sub>
       </Acc>
 
       <Acc
