@@ -67,7 +67,12 @@ function target(raw: string | undefined, httpsOnly: boolean) {
 export default async function QrPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const row = await find(slug);
-  if (!row) notFound();
+  // Logged so a 404 on a printed code can be told apart in Vercel's logs:
+  // no such code, or a code whose stored link cannot be followed.
+  if (!row) {
+    console.warn(`[q] ${slug}: no such code`);
+    notFound();
+  }
 
   await db
     .update(qrCodes)
@@ -94,6 +99,7 @@ export default async function QrPage({ params }: { params: Promise<{ slug: strin
     // could be http://, and those codes worked.
     const to = target(row.type === "payment" ? v.paymentLink : v.url, row.type === "payment");
     if (to) redirect(to);
+    console.warn(`[q] ${slug}: ${row.type} link cannot be followed: ${JSON.stringify((row.type === "payment" ? v.paymentLink : v.url) ?? null)}`);
     notFound();
   }
 
