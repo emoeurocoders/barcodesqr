@@ -8,13 +8,14 @@ import { openLiveHelp } from "@/components/support/crisp";
  * with its chat glyph. Not the dashboard's SlimFooter, which is a different
  * (left-aligned) design. Below 640 the copyright wraps to its own last line.
  */
-export function MainSlimFooter() {
+export function MainSlimFooter({ inApp = false }: { inApp?: boolean } = {}) {
   const year = new Date().getFullYear();
   const item = "px-[0.6em]";
   const link = "inline-flex items-center whitespace-nowrap text-prose hover:text-ink";
 
   return (
-    <section className="border-t border-line bg-white py-[30px] text-center text-[14px] leading-[normal] [@media(max-width:480px)]:text-[3vw]">
+    // Inside the members area (`#mainApp #mainSlimFooter`): 2.4rem, no rule.
+    <section className={`bg-white text-center text-[14px] leading-[normal] [@media(max-width:480px)]:text-[3vw] ${inApp ? "py-[24px]" : "border-t border-line py-[30px]"}`}>
       <div className="mx-auto max-w-[1240px] px-5">
         <ul className="mx-auto flex justify-center text-prose [@media(max-width:640px)]:flex-wrap">
           <li className={`${item} [@media(max-width:640px)]:order-10 [@media(max-width:640px)]:mt-[0.6em] [@media(max-width:640px)]:min-w-full`}>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Lock, Mail } from "lucide-react";
 
 import { requestSignInLink } from "@/app/actions/signin";
-import { signInWithGoogle } from "@/app/actions/auth";
+import { loginUser, signInWithGoogle } from "@/app/actions/auth";
 import { validateEmail } from "@/components/paywall/validation";
 import { GoogleMark, AppleMark } from "@/components/paywall/BrandMarks";
 import { PaywallShell } from "@/components/paywall/PaywallShell";
@@ -26,6 +26,12 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
   const [listening, setListening] = useState(false);
   const [state, runSignIn] = useActionState(requestSignInLink, undefined);
   const [pending, startTransition] = useTransition();
+  // Unmocked (2026-11-10): accounts can set a password in My Account, so the
+  // box offers it as an alternative to the link. The designer's modal is
+  // link-only; the link stays the default.
+  const [withPassword, setWithPassword] = useState(false);
+  const [password, setPassword] = useState("");
+  const [pwState, runPassword] = useActionState(loginUser, undefined);
 
   // Google is a full-page round trip: on success the action throws a redirect
   // and this modal never renders again, so only the refusal needs state.
@@ -56,10 +62,15 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
 
     const payload = new FormData();
     payload.set("email", email.trim());
+    if (withPassword) {
+      payload.set("password", password);
+      startTransition(() => runPassword(payload));
+      return;
+    }
     startTransition(() => runSignIn(payload));
   };
 
-  const invalid = !!(emailError || state?.error);
+  const invalid = !!(emailError || state?.error || (withPassword && pwState?.error));
 
   return (
     <PaywallShell onClose={onClose} maxWidth="max-w-[480px]">
@@ -160,8 +171,24 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
 
               {invalid && (
                 <small className="block pt-[0.2em] text-left text-xs text-error">
-                  {emailError ?? state?.error}
+                  {emailError ?? (withPassword ? pwState?.error : state?.error)}
                 </small>
+              )}
+
+              {withPassword && (
+                <div className="relative mt-3">
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-faint" />
+                  <input
+                    id="inputPassword"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-14 w-full rounded-xl border border-line bg-white pl-11 pr-4 text-[15px] leading-[normal] text-ink placeholder:text-faint focus:border-primary focus:outline-none"
+                  />
+                </div>
               )}
 
               <button
@@ -169,13 +196,18 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
                 disabled={pending}
                 className="mt-1.5 flex h-14 w-full cursor-pointer items-center justify-center rounded-xl border border-primary bg-primary text-[17px] font-bold text-white transition-colors hover:border-primary-dark hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {pending ? "Sending…" : "Continue with Email"}
+                {pending ? (withPassword ? "Signing in…" : "Sending…") : withPassword ? "Sign In" : "Continue with Email"}
               </button>
             </form>
 
             <p className="mt-[1.4em] flex items-center justify-center text-[11.5px] text-muted">
               <Lock className="mr-1.5 h-[13px] w-[13px] shrink-0" />
-              We&rsquo;ll send you a secure sign-in link. No password required.
+              {withPassword ? "Signing in with the password you set in My Account." : <>We&rsquo;ll send you a secure sign-in link. No password required.</>}
+            </p>
+            <p className="mt-2 text-center text-[12.5px]">
+              <button type="button" onClick={() => setWithPassword(!withPassword)} className="cursor-pointer font-medium text-primary hover:underline">
+                {withPassword ? "Email me a sign-in link instead" : "Have a password? Sign in with it instead"}
+              </button>
             </p>
           </>
         )}

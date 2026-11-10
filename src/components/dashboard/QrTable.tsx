@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -67,16 +67,23 @@ const cell =
  * time zone, so it is only filled in once mounted; the server's clock is UTC
  * and would show someone in California tomorrow's date.
  */
+/**
+ * The customer's chosen zone (My Account → Preferences), else the browser's
+ * own. A context rather than a prop through every row.
+ */
+const ZoneCtx = createContext<string | undefined>(undefined);
+
 function Created({ iso }: { iso: string }) {
+  const timeZone = useContext(ZoneCtx);
   const mounted = useSyncExternalStore(noop, () => true, () => false);
   const d = new Date(iso);
   return (
     <div data-label="Created" className={`min-w-0 ${cell}`}>
       <p className="truncate text-xs text-ink">
-        {mounted ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "\u00a0"}
+        {mounted ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone }) : "\u00a0"}
       </p>
       <p className="truncate text-xs text-muted">
-        {mounted ? d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "\u00a0"}
+        {mounted ? d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone }) : "\u00a0"}
       </p>
     </div>
   );
@@ -378,7 +385,9 @@ function Row({ row }: { row: QrRow }) {
           direct code (Website, WiFi, SMS…) goes straight to its content, so
           it can never be counted: "N/A", not a zero that reads as "nobody
           scanned it" (JB, 2026-10-30). */}
-      <div data-label="Scans" className={cell}>
+      {/* The just-saved row has no Scans cell on desktop (member_main.html's
+          `.itm.on`): its actions, with the full Download QR, span both. */}
+      <div data-label="Scans" className={`${cell} ${row.highlight ? "md:hidden" : ""}`}>
         {row.scans !== null ? (
           <span className="inline-flex rounded-full bg-bg-alt px-2.5 py-1 text-xs font-medium text-body">
             {row.scans} {row.scans === 1 ? "scan" : "scans"}
@@ -394,7 +403,7 @@ function Row({ row }: { row: QrRow }) {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-1 max-md:col-span-2 max-md:gap-2">
+      <div className={`flex items-center justify-end gap-1 max-md:col-span-2 max-md:gap-2 ${row.highlight ? "md:col-[8/span_2]" : ""}`}>
         <button
           type="button"
           // Started as the pointer arrives, finished by the click (Safari).
@@ -414,9 +423,10 @@ function Row({ row }: { row: QrRow }) {
   );
 }
 
-export function QrTable({ rows }: { rows: QrRow[] }) {
+export function QrTable({ rows, timeZone }: { rows: QrRow[]; timeZone?: string }) {
   useEffect(() => preloadQr(), []);
   return (
+    <ZoneCtx.Provider value={timeZone || undefined}>
     <div className="px-6 pb-8 pt-6">
       <div className="md:overflow-x-auto">
         <div className="md:min-w-[1100px]">
@@ -442,5 +452,6 @@ export function QrTable({ rows }: { rows: QrRow[] }) {
         </div>
       </div>
     </div>
+    </ZoneCtx.Provider>
   );
 }

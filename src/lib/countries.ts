@@ -1,0 +1,23 @@
+/** member_myaccount.html's Country list, in its order (ISO 3166 alpha-2). */
+export const countries: { code: string; name: string }[] = [
+  { code: "AU", name: "Australia" },
+  { code: "BR", name: "Brazil" },
+  { code: "CA", name: "Canada" },
+  { code: "FR", name: "France" },
+  { code: "DE", name: "Germany" },
+  { code: "IN", name: "India" },
+  { code: "IE", name: "Ireland" },
+  { code: "IT", name: "Italy" },
+  { code: "JP", name: "Japan" },
+  { code: "MX", name: "Mexico" },
+  { code: "NL", name: "Netherlands" },
+  { code: "NZ", name: "New Zealand" },
+  { code: "SG", name: "Singapore" },
+  { code: "ZA", name: "South Africa" },
+  { code: "ES", name: "Spain" },
+  { code: "SE", name: "Sweden" },
+  { code: "TH", name: "Thailand" },
+  { code: "AE", name: "United Arab Emirates" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "US", name: "United States" },
+];

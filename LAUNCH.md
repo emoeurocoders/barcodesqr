@@ -718,6 +718,52 @@ the mobile ones; only layout differs (`useDesktop()`).
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
 
+## My Account & Billing — member_myaccount / member_billing.html, 2026-11-10
+
+JB, Monday 5709834361. `/account` and `/billing`, in a new shared members
+shell (`components/members/MembersShell`) that My QR Codes uses too: the
+files' sidebar with the ACCOUNT group and their icons, the real name and
+plan at the bottom, and — at 1024px and below — the drawer behind the
+title's burger, which the dashboard never had (member_main.html did). Sizes
+measured against the files: every card/field/button lands on the same
+pixels at 1440 (0.85% diff, the remainder is live data).
+
+**Working:**
+- Profile: prefilled, the file's validation messages, saved, persists.
+  A new email changes nothing until the new inbox opens a link
+  (`/auth/confirm-email`, 24h, single use; tokens can't sign anyone in).
+- Password: set (accounts made at checkout have none) or change (current
+  password required); "Last updated n days ago". The Log In box gained
+  "Have a password? Sign in with it instead" — unmocked; the file's box is
+  link-only, and a password would otherwise be useless.
+- Preferences: time zone (every IANA zone), used for My QR Codes' dates.
+- Delete: the file's two-step panel ("Type DELETE"), plus the password when
+  there is one; deletes codes, sessions, sign-ins and the uploaded files.
+- Tabs scroll to their card and flash it, as their script does.
+
+**Honest, not built** (JB: no buttons that do nothing):
+- **Billing has no processor behind it.** The plan card shows the real
+  plan, status and start date; payment method, address and invoices say
+  "No … on file / yet". No Upgrade, Cancel, Update Card, Remove, Edit
+  Address, Download PDF or View all — each needs the processor. The
+  hosted-codes-after-expiry policy (JB) is still undecided.
+- **2FA** "Not available yet"; **Email reports** "Not available yet".
+- **Language**: English only.
+- **Email change** needs Resend's sending domain verified (it is not:
+  "The associated domain with your API key is not verified") — until then
+  the page says the confirmation could not be sent and keeps the old email.
+
+**Found on the way:**
+- **No Privacy Policy page exists** — every footer and the paywall link to
+  one (`/legal/privacy`, `/privacy`), and there is no mockup. Launch item.
+- The dashboard footer's Terms link was `/legal/terms` (404) → `/terms`;
+  the paywall's Support link was `/support` (404) → `/help`.
+- The just-saved row in My QR Codes had its Download QR over the Scans
+  cell; per member_main.html that row has no Scans cell on desktop.
+- `sync:design -- page.html` never re-fetched the CSS a page uses, so new
+  pages arrived unstyled and the old default.css was called "unchanged".
+  Named syncs now follow references too.
+
 ## Tami's desktop QA, 2026-11-10
 
 All 23 types create, preview, download and scan. Every hosted failure she

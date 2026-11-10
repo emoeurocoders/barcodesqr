@@ -1,6 +1,6 @@
 import "server-only";
 
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectsCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { env } from "./env";
@@ -100,4 +100,44 @@ export async function presignUpload({
  */
 export function publicUrl(key: string) {
   return `${env.STORAGE_PUBLIC_BASE_URL}/${key}`;
+}
+
+/**
+ * Every upload key a saved code's values point at — single files, galleries
+ * and per-link logos are all stored as JSON carrying `key`. Only keys this
+ * app minted (`uploads/…`) are returned, whatever else the JSON holds.
+ */
+export function uploadKeysIn(values: Record<string, string>): string[] {
+  const out = new Set<string>();
+  const walk = (v: unknown) => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === "object") {
+      for (const [k, x] of Object.entries(v)) {
+        if (k === "key" && typeof x === "string" && /^uploads\/[a-z0-9-]+\/[0-9a-f-]{36}\.[a-z0-9]{1,8}$/.test(x)) out.add(x);
+        else walk(x);
+      }
+    }
+  };
+  for (const raw of Object.values(values ?? {})) {
+    if (typeof raw !== "string" || !/^[[{]/.test(raw.trim())) continue;
+    try {
+      walk(JSON.parse(raw));
+    } catch {
+      // not JSON — a plain value
+    }
+  }
+  return [...out];
+}
+
+/** Remove uploads from the bucket, 1,000 at a time (S3's batch limit). */
+export async function deleteUploads(keys: string[]) {
+  if (!env.storageConfigured || !keys.length) return;
+  for (let i = 0; i < keys.length; i += 1000) {
+    await client().send(
+      new DeleteObjectsCommand({
+        Bucket: env.STORAGE_BUCKET,
+        Delete: { Objects: keys.slice(i, i + 1000).map((Key) => ({ Key })), Quiet: true },
+      }),
+    );
+  }
 }

@@ -6,7 +6,8 @@ import { and, asc, desc, eq, ilike } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { qrCodes, users } from "@/db/schema";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { MembersShell } from "@/components/members/MembersShell";
+import { planLabel as shellPlan, shellName } from "@/lib/members";
 import { Toolbar } from "@/components/dashboard/Toolbar";
 import { ReadyBanner } from "@/components/dashboard/ReadyBanner";
 import { QrTable } from "@/components/dashboard/QrTable";
@@ -21,12 +22,6 @@ export const metadata: Metadata = {
   title: "My QR Codes — BarcodesQR",
 };
 
-const planLabel = {
-  free: "Free",
-  trial: "Trial",
-  quarterly: "Quarterly",
-  biannual: "Biannual",
-} as const;
 
 /** The sort menu's options; the first is what "Date created" means. */
 const sorts = {
@@ -55,7 +50,7 @@ export default async function DashboardPage({
    * until billing lands. That is the correct behaviour, not a stub.
    */
   const [row] = await db
-    .select({ plan: users.plan })
+    .select({ plan: users.plan, firstName: users.firstName, name: users.name, email: users.email, timezone: users.timezone })
     .from(users)
     .where(eq(users.id, session.user.id!))
     .limit(1);
@@ -91,14 +86,12 @@ export default async function DashboardPage({
 
   return (
     <>
-      <div className="flex flex-1 bg-white">
-        <Sidebar
-          current="My QR Codes"
-          // The plan from the row read above, not the token, which never
-          // carried one — the sidebar said "Free Plan" to paying customers.
-          user={{ ...session.user, plan: planLabel[row?.plan ?? "free"] }}
-        />
-
+      <MembersShell
+        current="My QR Codes"
+        // The plan from the row read above, not the token, which never
+        // carried one — the sidebar said "Free Plan" to paying customers.
+        user={{ name: shellName(row ?? session.user), plan: shellPlan(row?.plan) }}
+      >
         <main className="min-w-0 flex-1">
           <Toolbar q={q} sort={sort} />
           {/* Codes made before checkout are saved here, on arrival. */}
@@ -106,7 +99,7 @@ export default async function DashboardPage({
           {rows.length > 0 ? (
             <>
               {justSaved && <ReadyBanner row={justSaved} edited={!justSaved.isNew} />}
-              <QrTable rows={rows} />
+              <QrTable rows={rows} timeZone={row?.timezone ?? undefined} />
             </>
           ) : q ? (
             <NoMatches q={q} />
@@ -114,8 +107,8 @@ export default async function DashboardPage({
             <EmptyState />
           )}
         </main>
-      </div>
-      <SlimFooter />
+        <SlimFooter />
+      </MembersShell>
 
       {/*
         "How was your experience?" — shown here, on the member page AFTER a

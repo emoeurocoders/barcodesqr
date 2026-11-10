@@ -41,6 +41,43 @@ async function send(to: string, subject: string, html: string, text: string) {
  * return it to the caller, log it, or put it in an error message: anything
  * that can read it can become the account it belongs to.
  */
+/**
+ * "Confirm your new email address" — sent to the NEW address, so the change
+ * only happens once someone who can read that inbox agrees to it (JB,
+ * 2026-11-10). The link is the credential, as with the sign-in link.
+ */
+export async function sendEmailChangeLink(to: string, token: string) {
+  const url = `${env.APP_URL}/auth/confirm-email?token=${encodeURIComponent(token)}`;
+  const text = [
+    "Confirm your new email address",
+    "",
+    "Open the link below to make this your BarcodesQR sign-in email. It works once and expires in 24 hours.",
+    "",
+    url,
+    "",
+    "If you didn't ask for this, ignore this email — nothing changes until the link is opened.",
+  ].join("\n");
+  const html = `<!doctype html>
+<html>
+  <body style="margin:0;padding:24px;background:#f9fafb;font-family:Inter,Helvetica,Arial,sans-serif;color:#0e1311">
+    <div style="max-width:480px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:32px">
+      <h1 style="margin:0 0 8px;font-size:22px;letter-spacing:-0.02em">Confirm your new email address</h1>
+      <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#6b7280">
+        Open the button below to make this your BarcodesQR sign-in email. It works once and expires in 24 hours.
+      </p>
+      <a href="${url}"
+         style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:14px 24px;border-radius:12px">
+        Confirm email address
+      </a>
+      <p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#9ca3af">
+        If you didn't ask for this, ignore this email — nothing changes until the link is opened.
+      </p>
+    </div>
+  </body>
+</html>`;
+  await send(to, "Confirm your new BarcodesQR email", html, text);
+}
+
 export async function sendSignInLink(to: string, token: string) {
   const url = `${env.APP_URL}/auth/link?token=${encodeURIComponent(token)}`;
 

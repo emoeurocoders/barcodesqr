@@ -462,6 +462,14 @@
   background-position: calc(100% - var(--mc-sel-x, 10.97px)) 50%;
 }
 
+/* member_myaccount.html's `.accFrm select` chevron. */
+.acc-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%236B7280' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 16px 16px;
+  background-position: right 13px center;
+  background-repeat: no-repeat;
+}
+
 /* html_files/assets/fonts/flag.css, self-hosted. Twemoji graphics, CC BY 4.0. */
 @font-face {
   font-family: "Twemoji Country Flags";

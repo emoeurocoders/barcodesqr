@@ -3,7 +3,7 @@ import { LiveHelpLink } from "@/components/support/LiveHelpLink";
 
 const links = [
   { href: "/legal/privacy", label: "Privacy Policy" },
-  { href: "/legal/terms", label: "Terms & Conditions" },
+  { href: "/terms", label: "Terms & Conditions" },
 ];
 
 export function SlimFooter() {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { SortMenu } from "./SortMenu";
+import { MenuButton } from "@/components/members/MembersShell";
 import type { DashboardSort } from "@/app/dashboard/page";
 
 /**
@@ -22,9 +23,13 @@ export function Toolbar({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-4 px-6 py-5">
-      <h1 className="flex-1 text-2xl font-bold tracking-tight text-ink sm:text-[28px]">
-        {title}
-      </h1>
+      {/* The burger opens the sidebar at 1024px and below (member_main's `.brg`). */}
+      <div className="flex flex-1 items-center">
+        <MenuButton />
+        <h1 className="flex-1 text-2xl font-bold tracking-tight text-ink sm:text-[28px]">
+          {title}
+        </h1>
+      </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <SortMenu sort={sort} q={q} />

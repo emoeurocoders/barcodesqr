@@ -175,8 +175,11 @@ async function main() {
       writeFileSync(dest, body);
     }
 
-    // Queue anything this file points at that we have not looked at yet.
-    if (/\.(html?|css)$/i.test(rel) && !explicit.length) {
+    // Queue anything this file points at that we have not looked at yet —
+    // for a named page too: on 2026-11-10 two new pages arrived without the
+    // default.css that styles them, because a named sync followed nothing
+    // and reported the stale copy as fine.
+    if (/\.(html?|css)$/i.test(rel)) {
       for (const ref of references(rel, body)) {
         if (!seen.has(ref)) {
           seen.add(ref);

@@ -438,7 +438,7 @@ export function CheckoutStep({
             &nbsp;&nbsp;&bull;&nbsp;&nbsp;
           </li>
           <li>
-            <Link href="/support" className="hover:text-body">
+            <Link href="/help" className="hover:text-body">
               Support
             </Link>
           </li>

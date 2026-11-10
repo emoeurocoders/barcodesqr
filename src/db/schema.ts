@@ -31,6 +31,25 @@ export const users = pgTable("user", {
    */
   passwordHash: text("password_hash"),
 
+  /** When the password was last set or changed — My Account's "Last updated". */
+  passwordUpdatedAt: timestamp("password_updated_at", { withTimezone: true }),
+
+  // My Account → Profile (member_myaccount.html). `name` above stays Auth.js's
+  // display name; these are the customer's own fields. Phone and company are
+  // optional, as the page says.
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  phone: text("phone"),
+  company: text("company"),
+  /** ISO 3166 alpha-2, from the page's country list. */
+  country: text("country"),
+
+  // My Account → Preferences.
+  /** Only "en" exists; the column is here so a second language needs no migration. */
+  language: text("language").notNull().default("en"),
+  /** IANA zone the members area shows dates in; null = the browser's own. */
+  timezone: text("timezone"),
+
   /** Drives what the dashboard unlocks; billing sets it later. */
   plan: text("plan", { enum: ["free", "trial", "quarterly", "biannual"] })
     .notNull()
