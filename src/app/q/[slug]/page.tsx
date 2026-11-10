@@ -40,6 +40,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title, robots: { index: false, follow: false } };
 }
 
+/**
+ * A stored link made safe to send a scan to: parsed the way a browser would
+ * (spaces and non-ASCII percent-encoded — raw, a space failed validation and
+ * a "ż" crashed the redirect; Tami, 2026-11-10), then required to be a
+ * well-formed http(s) link. "" when it is not one.
+ */
+function target(raw: string | undefined, httpsOnly: boolean) {
+  let v = (raw ?? "").trim();
+  // Saved bare ("forms.gle/abc") by the old desktop form, which only added
+  // https:// when drawing the code — those printed codes worked, so the
+  // redirect reads them the same way (Tami, 2026-11-10: a Feedback code that
+  // "previously worked" now 404'd). Any other scheme is refused below.
+  if (v && !/^[a-z][a-z0-9+.-]*:/i.test(v)) v = `https://${v}`;
+  if (!/^https?:\/\//i.test(v)) return "";
+  let url: URL;
+  try {
+    url = new URL(v);
+  } catch {
+    return "";
+  }
+  if (httpsOnly && url.protocol !== "https:") return "";
+  return isValidUrl(url.href) ? url.href : "";
+}
+
 export default async function QrPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const row = await find(slug);
@@ -53,29 +77,31 @@ export default async function QrPage({ params }: { params: Promise<{ slug: strin
   const v = row.values;
   if (row.type === "applink") {
     const ua = (await headers()).get("user-agent") ?? "";
-    const http = (u?: string) => (u && /^https?:\/\//i.test(u.trim()) ? u.trim() : "");
-    const target = /iPhone|iPad|iPod/i.test(ua)
+    const http = (u?: string) => target(u, false);
+    const dest = /iPhone|iPad|iPod/i.test(ua)
       ? http(v.iosUrl) || http(v.fallbackUrl)
       : /Android/i.test(ua)
         ? http(v.androidUrl) || http(v.fallbackUrl)
         : http(v.fallbackUrl);
-    if (target) redirect(target);
+    if (dest) redirect(dest);
   }
 
   // Payment and Feedback go straight on to the customer's link — no page of
   // ours in between (JB). Only a well-formed https:// link, whatever was
   // stored: this is the one place a scan is sent somewhere.
   if (row.type === "payment" || row.type === "feedback") {
-    const raw = ((row.type === "payment" ? v.paymentLink : v.url) ?? "").trim();
-    if (/^https:\/\//i.test(raw) && isValidUrl(raw)) redirect(raw);
+    // Payment must be https (JB); Feedback links saved before 2026-11-05
+    // could be http://, and those codes worked.
+    const to = target(row.type === "payment" ? v.paymentLink : v.url, row.type === "payment");
+    if (to) redirect(to);
     notFound();
   }
 
   // A direct type never points here, but an old code might: send it on.
   // vCards printed while vCard was hosted (2026-10-23 → 10-30) keep their page.
   if (!isDynamic(row.type) && row.type !== "vcard") {
-    const target = encodeQr(row.type, v);
-    if (/^https?:\/\//i.test(target)) redirect(target);
+    const to = target(encodeQr(row.type, v), false);
+    if (to) redirect(to);
     notFound();
   }
 

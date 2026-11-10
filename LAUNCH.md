@@ -718,6 +718,27 @@ the mobile ones; only layout differs (`useDesktop()`).
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
 
+## Tami's desktop QA, 2026-11-10
+
+All 23 types create, preview, download and scan. Every hosted failure she
+saw on www is the domain (docs/DOMAIN.md): 12 of her 13 codes open on
+barcodesqr.vercel.app (`domain:check --slugs …`). The thirteenth was ours:
+
+- **The /q redirect was stricter than the codes it replaced.** Links saved
+  by the old desktop form could be bare ("forms.gle/x") or http:// — the old
+  code added https:// when drawing — and the redirect refused them: 404. A
+  space crashed nothing but failed validation (404); a non-ASCII character
+  ("ankieta-żółw") crashed the redirect itself (500). Now every stored link
+  is parsed as a browser would (percent-encoded), bare ones get https://,
+  Feedback and App Link accept http://, Payment stays https-only, any other
+  scheme is refused.
+- Payment / Feedback / Event "previously went straight there": they are
+  hosted/redirected on purpose (JB, 2026-11-02 and 11-05); they work once
+  the domain moves. Codes printed before carry their old content and still
+  work as printed.
+- Plain Text opening as text/search on iPhone is expected: JB decided it
+  stays a static text code (2026-11-02); the note card is the preview only.
+
 ## JB's pre-QA notes, 2026-11-09
 
 - Audio says "Upload your audio file" on mobile too (the mobile file still
