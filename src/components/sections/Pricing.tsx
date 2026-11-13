@@ -28,46 +28,50 @@ const plans: Plan[] = [
     name: "7-Day Trial",
     price: "1.00",
     period: "/ 7 days",
-    terms: "then $39.95 / month",
+    // 2026-11-13 (JB): $34.95 after the trial, was $39.95.
+    terms: "then $34.95 / month",
     href: "/checkout?plan=trial",
     cta: "Start $1 Trial",
     highlighted: true,
     features: [
-      "Unlimited QR codes",
-      "Full customization",
-      "Dynamic & editable codes",
+      "Unlimited dynamic QR\u00a0codes",
+      "All 23 QR code types",
+      "Full QR customization",
       "Scan analytics",
+      "Edit dynamic destinations",
     ],
   },
   {
     name: "Quarterly",
     price: "29.95",
     period: "/ month",
-    save: "Save 25%",
+    save: "Save 14%",
     terms: "billed quarterly $89.85",
     href: "/checkout?plan=quarterly",
     cta: "Start Quarterly Plan",
     features: [
-      "Everything in trial",
+      "Everything in Trial",
       "Priority support",
-      "Bulk creation",
+      "Bulk QR creation",
       "Password protection",
+      "90 days analytics history",
     ],
   },
   {
     name: "Bi-Annual",
     price: "19.95",
     period: "/ month",
-    save: "Save 50%",
+    save: "Save 43%",
     terms: "billed bi-annually $119.70",
     href: "/checkout?plan=biannual",
     cta: "Start Bi-Annual Plan",
-    badge: "Most popular",
+    badge: "Best value",
     features: [
-      "Everything in quarterly",
-      "Team sharing",
+      "Everything in Quarterly",
+      "3 team users",
       "Advanced exports",
-      "Best value",
+      "180 days analytics history",
+      "Custom dynamic links",
     ],
   },
 ];
@@ -143,7 +147,7 @@ function MobilePlans() {
           Start with a $1 trial or save with a longer plan
         </h4>
         <p className="mx-auto mt-[0.85em] max-w-[22em] p-0 text-[20px] leading-[1.55em] text-muted to-480:text-[4.1vw]">
-          Every plan includes unlimited dynamic codes, analytics and
+          Every plan includes unlimited dynamic QR codes, analytics and
           customization.
         </p>
       </div>
@@ -264,7 +268,7 @@ function DesktopPlans() {
           Start with a $1 trial or save with a longer plan
         </h4>
         <p className="mt-[0.85em] p-0 text-[17px] text-pricing-sub">
-          Every plan includes unlimited dynamic codes, analytics and
+          Every plan includes unlimited dynamic QR codes, analytics and
           customization.
         </p>
       </div>
@@ -325,8 +329,9 @@ function DesktopPlans() {
                     {plan.features.map((feature, j) => (
                       <li
                         key={feature}
-                        className={`flex items-start text-[1.4em] leading-[1.35em] text-prose ${
-                          j > 0 ? "mt-[0.6em]" : ""
+                        // 2026-11-13 sync: 1.25em lines, 0.4em apart (were 1.35 / 0.6).
+                        className={`flex items-start text-[1.4em] leading-[1.25em] text-prose ${
+                          j > 0 ? "mt-[0.4em]" : ""
                         }`}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}

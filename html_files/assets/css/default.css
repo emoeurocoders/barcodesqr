@@ -2378,8 +2378,8 @@ html:has(.mobHome) { scroll-behavior: smooth; }
 #mainPricing .itm .ln5 { font-size: 1.25em; color: #788497; letter-spacing: -0.02em; padding: 0; margin-top: 1.05em; }
 #mainPricing .itm .ln6 { font-size: 1.5em; font-weight: 600; color: #10151d; padding: 0; }
 #mainPricing .itm .row .rgt ul.lst { margin-top: 0.9em; }
-#mainPricing .itm .row .rgt ul.lst .itm { display: flex; align-items: flex-start; font-size: 1.4em; color: #4b5563; line-height: 1.35em; }
-#mainPricing .itm .row .rgt ul.lst .itm + .itm { margin-top: 0.6em; }
+#mainPricing .itm .row .rgt ul.lst .itm { display: flex; align-items: flex-start; font-size: 1.4em; color: #4b5563; line-height: 1.25em; }
+#mainPricing .itm .row .rgt ul.lst .itm + .itm { margin-top: 0.4em; }
 #mainPricing .itm .row .rgt ul.lst .itm img { width: 1em; margin: 0.15em 0.55em 0 0; flex: 0 0 auto; }
 #mainPricing .itm .btnWrp { margin-top: 2.4em; }
 #mainPricing .btnWrp .btn { display: flex; align-items: center; justify-content: center; gap: 0.5em; font-size: 1.7em!important; font-weight: 600; padding-top: 1.15em; padding-bottom: 1.15em; }

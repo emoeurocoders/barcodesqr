@@ -36,7 +36,7 @@ const SAMPLES = {
       amountCharged: USD(100), //      "$1.00 USD"
       trialStartsAt: utc("2026-09-07"), // "Sep 7, 2026"
       trialEndsAt: utc("2026-09-14"), //   "Sep 14, 2026"
-      nextChargeAmount: USD(3995), //  "$39.95 USD"
+      nextChargeAmount: USD(3495), //  "$34.95 USD" (was $39.95 until 2026-11-13)
     }),
 
   /** html_files/mailers/receipt/index.html */

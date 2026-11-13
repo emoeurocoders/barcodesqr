@@ -402,7 +402,7 @@ export function CheckoutStep({
         </form>
 
         <p className="pt-2 text-center text-[13px] leading-[1.6em] text-body">
-          7-day trial for $1.00. Renews at $39.95/month until canceled.
+          7-day trial for $1.00. Renews at $34.95/month until canceled.
         </p>
         <p className="flex items-center justify-center pb-[11px] pt-px text-[13px] leading-[normal] text-[#878c97]">
           <Lock className="mr-1.5 h-[19.5px] w-[19.5px] shrink-0" />

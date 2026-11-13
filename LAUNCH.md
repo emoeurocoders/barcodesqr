@@ -718,6 +718,23 @@ the mobile ones; only layout differs (`useDesktop()`).
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
 
+## Pricing — 2026-11-13 (JB, Monday 5720638425)
+
+mainB.html's pricing section: $34.95/month after the $1 trial (was
+$39.95), Save 14% / Save 43%, the new benefit lists, "Best value" on
+Bi-Annual, 1.25em list lines 0.4em apart. Desktop matches the file within
+0.35% at 1440.
+
+- **main_mobile.html was not updated** (still $39.95, Save 25%/50%, old
+  benefits). The phone layout shares the plan data, so it shows the new
+  prices and benefits in its own layout — the designer's mobile file is
+  behind, not the site.
+- The same price is also changed where it was repeated: the paywall's
+  "Renews at $34.95/month", the Terms' Monthly Plan line (legal text — JB
+  to confirm), and the dev email preview's sample charge. The mailers
+  themselves take the amount as data.
+- Nothing charges anyone yet (no processor), so no billing logic changed.
+
 ## My Account & Billing — member_myaccount / member_billing.html, 2026-11-10
 
 JB, Monday 5709834361. `/account` and `/billing`, in a new shared members

@@ -562,7 +562,7 @@ export const sections: Section[] = [
               "strong": true
             },
             {
-              "t": " — $39.95 per month"
+              "t": " — $34.95 per month"
             }
           ],
           [
