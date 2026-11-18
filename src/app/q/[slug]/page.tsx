@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { eq, sql } from "drizzle-orm";
+import { after } from "next/server";
+import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { qrCodes } from "@/db/schema";
+import { qrCodes, users } from "@/db/schema";
+import { recordScan } from "@/lib/scans";
 import { encodeQr, isDynamic } from "@/components/create/encodeQr";
 import { isValidUrl } from "@/components/create/validate";
 import { HostedPage, designWidth } from "@/components/hosted/HostedPage";
@@ -24,8 +26,16 @@ export const dynamic = "force-dynamic";
 async function find(slug: string) {
   if (!/^[A-Za-z0-9]{6,16}$/.test(slug)) return undefined;
   const [row] = await db
-    .select({ id: qrCodes.id, type: qrCodes.type, name: qrCodes.name, values: qrCodes.values })
+    .select({
+      id: qrCodes.id,
+      type: qrCodes.type,
+      name: qrCodes.name,
+      values: qrCodes.values,
+      userId: qrCodes.userId,
+      ownerTz: users.timezone,
+    })
     .from(qrCodes)
+    .innerJoin(users, eq(users.id, qrCodes.userId))
     .where(eq(qrCodes.slug, slug))
     .limit(1);
   return row;
@@ -74,14 +84,34 @@ export default async function QrPage({ params }: { params: Promise<{ slug: strin
     notFound();
   }
 
-  await db
-    .update(qrCodes)
-    .set({ scans: sql`${qrCodes.scans} + 1` })
-    .where(eq(qrCodes.id, row.id));
+  // The scan is recorded AFTER the response — redirect or page — has gone
+  // out (JB: analytics must never delay or break a QR code). The request's
+  // details are read now; the callback cannot read them later.
+  const h = await headers();
+  const scan = {
+    qrId: row.id,
+    userId: row.userId,
+    timezone: row.ownerTz,
+    userAgent: h.get("user-agent") ?? "",
+    ip: (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || h.get("x-real-ip") || "",
+    referrer: h.get("referer") ?? "",
+    country: h.get("x-vercel-ip-country"),
+    region: h.get("x-vercel-ip-country-region"),
+    city: (() => {
+      const c = h.get("x-vercel-ip-city");
+      try {
+        return c ? decodeURIComponent(c) : null;
+      } catch {
+        return c;
+      }
+    })(),
+    purpose: [h.get("sec-purpose"), h.get("purpose"), h.get("x-moz"), h.get("x-purpose")].filter(Boolean).join(" "),
+  };
+  after(() => recordScan(scan));
 
   const v = row.values;
   if (row.type === "applink") {
-    const ua = (await headers()).get("user-agent") ?? "";
+    const ua = scan.userAgent;
     const http = (u?: string) => target(u, false);
     const dest = /iPhone|iPad|iPod/i.test(ua)
       ? http(v.iosUrl) || http(v.fallbackUrl)
@@ -103,9 +133,19 @@ export default async function QrPage({ params }: { params: Promise<{ slug: strin
     notFound();
   }
 
+  // Website codes made since 2026-11-18 go through here so they can be
+  // tracked and re-pointed (JB). Handled before the line below, which would
+  // encode this very /q link and send the scan round in a loop.
+  if (row.type === "website") {
+    const to = target(v.url, false);
+    if (to) redirect(to);
+    console.warn(`[q] ${slug}: website link cannot be followed: ${JSON.stringify(v.url ?? null)}`);
+    notFound();
+  }
+
   // A direct type never points here, but an old code might: send it on.
   // vCards printed while vCard was hosted (2026-10-23 → 10-30) keep their page.
-  if (!isDynamic(row.type) && row.type !== "vcard") {
+  if (!isDynamic(row.type, v) && row.type !== "vcard") {
     const to = target(encodeQr(row.type, v), false);
     if (to) redirect(to);
     notFound();

@@ -2,7 +2,7 @@
 
 import { TRACKING_LIVE } from "../encodeQr";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, createContext, useContext } from "react";
 import type { ReactNode } from "react";
 
 /**
@@ -129,9 +129,18 @@ export function Tip({
 export const TRACKING_TIP =
   "This is a dynamic QR code. You can edit where it points anytime (even after printing) and track every scan.";
 
+/**
+ * Whether the code being built really is tracked and editable after printing
+ * — set by the creator per code (JB, 2026-11-18: the badge only where the
+ * redirect is behind it). False for static types, and for a Website code
+ * saved before Website went through the redirect.
+ */
+export const Tracked = createContext(false);
+
 export function TrackingPill({ className = "" }: { className?: string }) {
-  // Kept wherever the files draw it, shown only once it is true.
-  if (!TRACKING_LIVE) return null;
+  // Kept wherever the files draw it, shown only where it is true.
+  const tracked = useContext(Tracked);
+  if (!TRACKING_LIVE || !tracked) return null;
   return (
     <div
       className={`flex h-[32.4px] w-fit items-center rounded-full border border-mc-pill-line bg-brand-soft px-[13px] ${className}`}

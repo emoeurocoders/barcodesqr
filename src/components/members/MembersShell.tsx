@@ -82,7 +82,7 @@ const groups: { title: string; items: { label: string; href: string; icon: React
     items: [
       {
         label: "Statistics",
-        href: "/dashboard",
+        href: "/statistics",
         icon: (
           <svg {...sv}>
             <path d="M3.33333 16.6667V8.33333" {...st} />

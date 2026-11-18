@@ -52,8 +52,8 @@ code isn't active"; downloads only happen from the dashboard, after saving.
 - **App Link** redirects iPhones to the App Store link and Android to
   Google Play, falling back to the fallback URL; a desktop browser goes to
   the fallback, or sees the store buttons when there is none.
-- **Every page view is a scan**, bots and link previewers included. Good
-  enough for a count; real analytics would need filtering.
+- **Scans are filtered since 2026-11-18** — bots, link previewers and
+  prefetches are stored but not counted. Definitions under "Statistics".
 - **No owner checks yet**: a page stays up whatever the owner's plan. When
   billing lands, decide what an expired subscription's codes show.
 - **www.barcodesqr.com does not serve this deployment yet — blocker.** It
@@ -501,12 +501,10 @@ seven up front and sixteen behind "View All 23 QR Types".
   does not fit in a QR code, and phones ignore a photo given as a web link.
   It needs the hosted vCard page, which can serve a .vcf with the photo
   embedded (first blocker). Not yet tried on a real iPhone/Android.
-- **"Smart Tracking & Editing" is hidden everywhere** (2026-10-22, JB: show
-  it only where the code really supports editing and scan counts). No type
-  does until the redirect service exists, so `TRACKING_LIVE` in encodeQr.ts
-  is false: the desktop badge and the mobile pill render nothing. The pills
-  stay in the code where the files draw them — flip the flag when the
-  service ships. Forms whose file has the pill sit higher by its height.
+- **"Smart Tracking & Editing" is shown again since 2026-11-18**, per code:
+  on hosted types and on new Website codes, never on a static one (WiFi,
+  Phone, SMS, vCard, Google Review…) or on a Website code saved before that
+  date. (Hidden everywhere from 2026-10-22 until the redirect existed.)
 - **2026-10-29 mobile sync, ported** (JB, Monday 5675049195):
   App Link's page restyled (title, strap line, dark App Store and white
   Google Play buttons with their marks — the Google Play triangle and the
@@ -687,8 +685,8 @@ the mobile ones; only layout differs (`useDesktop()`).
 - **The rail uses the PM's step names** ("Add Content", "Customize &
   Download"), as step 1's header does; the files still say "Complete
   Content" / "Customize & Protect".
-- **No tracking badge** (TRACKING_LIVE), so these forms sit ~55px shorter
-  than the files.
+- **No tracking badge** at the time (TRACKING_LIVE), so these forms sat
+  ~55px shorter than the files. The badge is back since 2026-11-18.
 - Diffs at 1440: 1.1% (Website) to 3.0% (Social Media), the rest being the
   hidden badge and the parity extras. Checked for horizontal overflow at
   1180, 1024, 900 and 800; mobile unchanged (skeleton identical).
@@ -717,6 +715,94 @@ the mobile ones; only layout differs (`useDesktop()`).
   has no phone layout): name, link, then the columns in pairs with their
   headings, then a full-width Download QR. Direct codes show Scans "N/A";
   hosted codes count real visits (zero so far because of the domain).
+
+## Statistics — member_stats.html, 2026-11-18 (JB, Monday 5733186104)
+
+Postgres on Neon, no Tinybird (JB). `/statistics` is the designer's page on
+real data; `/q/<slug>` records each scan **after** answering, with Next's
+`after()`, so a slow or failing database never delays or breaks a code.
+
+**Definitions** — the same everywhere (lib/scans.ts):
+
+- **Bot**: empty user agent, a crawler, link previewer (WhatsApp, iMessage,
+  Slack, Facebook, Telegram…), script or headless browser, or a browser
+  prefetch. Stored with `bot = true`, never counted, never exported.
+- **Scan**: every other request to `/q/<slug>`.
+- **Unique scan**: the first scan of a code by one device on one day, in the
+  owner's time zone. A device is a salted SHA-256 of IP + user agent + day;
+  no IP is stored, and the hash changes daily so no one can be followed
+  across days. Over a range, uniques are the sum of the days — one phone on
+  two days counts twice. Two phones behind one Wi-Fi with the same browser
+  version count once (an estimate, said as such to customers).
+
+**How it is stored**:
+- `scan_event`, one row per request: bots included, so the filter can be
+  revisited.
+- `scan_daily`, per code per day.
+- `scan_visitor_day`, the day's device hashes, kept 2 days.
+
+A scan's event, daily total and lifetime counter are written in one
+statement, so they never disagree. A failed write is retried three times
+over about 4 seconds, then logged as `[scans] could not record a scan`.
+
+**Retention**: `/api/cron/scans`, nightly from vercel.json, keeps 180 days
+on Bi-Annual and 90 days otherwise (the pricing section's promise; the trial
+gets 90). The page offers no range longer than the plan. Lifetime totals on
+the dashboard are kept.
+
+**Tenant isolation**: every query filters on the signed-in user's id. A
+`?qr=` naming someone else's code is ignored, and the export returns
+nothing for it.
+
+**Website codes are managed for new codes only.** Since 2026-11-18 a new
+Website code encodes `/q/<slug>`, so it is counted and can be re-pointed
+after printing. The server sets `routing: "managed"` and the browser
+cannot. A code saved earlier keeps the link printed on it, and an edit never
+changes how a code is routed. Static types (WiFi, Phone, SMS, Email,
+WhatsApp, vCard, Location, Text, Google Review) still carry their content
+directly. They have no tracking badge and no statistics.
+
+**Before launch**:
+- **Set `CRON_SECRET` in Vercel (Production and Preview)** — without it the
+  cron answers 401 and nothing is ever deleted. Any long random string.
+- **Optional `SCAN_SALT`**: falls back to `AUTH_SECRET`. Changing it only
+  affects future unique counts.
+- **Location headers are Vercel's** (`x-vercel-ip-*`): local scans have no
+  country or city and show as "Unknown".
+- **Membership expiry is not enforced yet** (no payment processor). The
+  wording agreed with JB:
+  - Managed codes can be paused when a membership ends; static codes
+    cannot, since their content is in the image.
+  - A voluntary cancellation keeps codes working until the paid period ends.
+  - A failed renewal gets a 5-day grace period before they pause.
+  - Build it at `/q` with the billing work.
+
+**Divergences and unmocked states**:
+- **Chart.js is not ported** (vendor script). The chart is SVG laid out on
+  Chart.js's measured geometry: 0.42% mismatch at 1440, all in the live
+  dates, live name and the legend (±2px). The tooltip and hover dots follow
+  Chart.js's defaults; the mockup does not show them.
+- **The y-axis grows past 10** when a day has more than 10 scans. The
+  mockup's axis is fixed at 0–10, which would clip the line.
+- **The ranges are 7 / 30 / 90 / 180 days**, capped by the plan. The mockup
+  shows only "Last 30 days", which is today plus the 30 days before it: 31
+  points, as its sample plots.
+- **Filter** lists the customer's codes ("All QR codes" first). The mockup
+  shows only the closed control.
+- **"View all"** expands the panel in place, and "Show top 3" folds it
+  back. The mockup's link goes nowhere.
+- **Export data** downloads a CSV of scans, one row each, without bots or
+  device hashes.
+- **Icons and flags**: QR Name/Type uses the designer's three glyphs:
+  Social's, Location's, and the QR grid for everything else.
+  - Countries use their three SVG flags (UK, US, Thailand). Other countries
+    get an emoji flag in the same circle, which is unmocked.
+  - Cities, Continents, Browsers and OS reuse the designer's pin, globe and
+    device icons, also unmocked.
+- **Empty panel**: "No scans yet." is unmocked.
+- **Designer bug, reproduced**: at 390 the x-axis dates overlap ("Jul 21Jul
+  24…"), because the mockup's Chart.js has `autoSkip: false` and shows every
+  third label. Raised with JB.
 
 ## Pricing — 2026-11-13 (JB, Monday 5720638425)
 

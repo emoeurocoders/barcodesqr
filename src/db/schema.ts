@@ -1,5 +1,8 @@
 import type { AdapterAccountType } from "next-auth/adapters";
 import {
+  bigserial,
+  boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -149,7 +152,11 @@ export const qrCodes = pgTable(
      * changed — it is printed.
      */
     slug: text("slug").notNull().unique(),
-    /** Times /q/<slug> was opened. Counted for hosted types only. */
+    /**
+     * Lifetime scans, bots excluded — the dashboard's Scans column. Kept on
+     * the row so the list never has to count events. Statistics read the
+     * tables below.
+     */
     scans: integer("scans").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -162,4 +169,74 @@ export const qrCodes = pgTable(
     index("qr_code_user_created_idx").on(t.userId, t.createdAt),
     uniqueIndex("qr_code_user_draft_idx").on(t.userId, t.draftKey),
   ],
+);
+
+/* ---- Scan analytics (JB, 2026-11-18: stay on Neon) -------------------------
+ *
+ * Every visit to /q/<slug> is one `scan_event`, recorded after the visitor
+ * has been sent on (lib/scans.ts). Bots are stored with `bot` set and left
+ * out of every count. `scan_daily` holds each code's per-day totals, kept up
+ * to date as events arrive, so the Statistics chart never counts raw rows.
+ * Raw events and daily rows are pruned past the owner's plan retention
+ * (90 / 180 days) by /api/cron/scans.
+ */
+
+export const scanEvents = pgTable(
+  "scan_event",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    qrId: text("qr_id")
+      .notNull()
+      .references(() => qrCodes.id, { onDelete: "cascade" }),
+    /** The code's owner, copied in so every statistics query filters on it. */
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+    /**
+     * A daily, salted hash of IP + user agent: the same phone scanning twice
+     * on one day is one unique; nothing reversible is kept (no IP).
+     */
+    visitor: text("visitor").notNull(),
+    bot: boolean("bot").notNull().default(false),
+    country: text("country"),
+    region: text("region"),
+    city: text("city"),
+    device: text("device"),
+    browser: text("browser"),
+    os: text("os"),
+    /** Host only (instagram.com), when the scan arrived with one. */
+    referrer: text("referrer"),
+  },
+  (t) => [index("scan_event_user_at_idx").on(t.userId, t.at), index("scan_event_qr_at_idx").on(t.qrId, t.at)],
+);
+
+export const scanDaily = pgTable(
+  "scan_daily",
+  {
+    qrId: text("qr_id")
+      .notNull()
+      .references(() => qrCodes.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    /** The day in the owner's time zone when the scan happened. */
+    day: date("day", { mode: "string" }).notNull(),
+    scans: integer("scans").notNull().default(0),
+    uniques: integer("uniques").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.qrId, t.day] }), index("scan_daily_user_day_idx").on(t.userId, t.day)],
+);
+
+/** Who has already been counted today, per code — what makes `uniques` unique. */
+export const scanVisitorDay = pgTable(
+  "scan_visitor_day",
+  {
+    qrId: text("qr_id")
+      .notNull()
+      .references(() => qrCodes.id, { onDelete: "cascade" }),
+    day: date("day", { mode: "string" }).notNull(),
+    visitor: text("visitor").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.qrId, t.day, t.visitor] })],
 );

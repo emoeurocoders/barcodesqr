@@ -21,7 +21,9 @@ type Saved = {
 
 /** One line saying what the code holds — the bit someone scans for. */
 function summary(type: string, v: Record<string, string>, encoded: string) {
-  if (isDynamic(type)) {
+  // A managed Website code still describes itself by where it goes.
+  if (type === "website") return (v.url ?? "").replace(/^https?:\/\//, "");
+  if (isDynamic(type, v)) {
     // The page's own headline: its title, name, or the file it serves.
     const file = (() => {
       try {
@@ -73,9 +75,9 @@ export function toQrRow(row: Saved, newId?: string, updatedId?: string): QrRow {
     qrValue,
     createdAt: row.createdAt.toISOString(),
     type: row.type,
-    hosted: isDynamic(row.type),
+    hosted: isDynamic(row.type, row.values),
     // Counted only where a scan passes through us.
-    scans: isDynamic(row.type) ? row.scans : null,
+    scans: isDynamic(row.type, row.values) ? row.scans : null,
     isNew: row.id === newId,
     highlight: row.id === newId || row.id === updatedId,
   };

@@ -48,6 +48,7 @@ import { QrPreview, defaultQrStyle } from "./QrPreview";
 import type { QrStyle } from "./QrPreview";
 import { allTypes } from "./qrTypes";
 import { encodeQr, isDynamic } from "./encodeQr";
+import { Tracked } from "./mobile/ui";
 import { isComplete } from "./validate";
 import { Button } from "@/components/ui/Button";
 import { Paywall } from "@/components/paywall/Paywall";
@@ -155,7 +156,15 @@ export function CreateWizard({
      >(null);
   ----------------------------------------------------------------------- */
 
-  const qrValue = useMemo(() => encodeQr(type, values), [type, values]);
+  // A new Website code will be saved as managed (actions/qr), so it is
+  // previewed as one; an edited one keeps the routing it was saved with.
+  // The badge's truth for this code: hosted types, and Website codes saved
+  // through the redirect (all new ones); an edited code keeps what it was.
+  const tracked = isEditing ? isDynamic(type, values) : isDynamic(type) || type === "website";
+  const qrValue = useMemo(
+    () => encodeQr(type, !isEditing && type === "website" ? { ...values, routing: "managed" } : values),
+    [type, values, isEditing],
+  );
   const complete = isComplete(type, values);
 
   /**
@@ -351,7 +360,7 @@ export function CreateWizard({
               <Info className="mt-px h-4 w-4 shrink-0 text-primary" />
               <p>
                 <b className="font-semibold text-mc-note-ink">Editing “{editing!.name}”.</b>{" "}
-                {isDynamic(type)
+                {isDynamic(type, values)
                   ? "Saving updates what this code shows. The QR image stays the same."
                   : "This code holds its content directly, so saving changes the QR image. Download it again afterwards — copies already printed keep the old content."}
               </p>
@@ -378,6 +387,7 @@ export function CreateWizard({
   if (!isMobile && desktopTypes.has(type)) {
     return (
       <>
+        <Tracked.Provider value={tracked}>
         <MobileStepTwo
           layout="desktop"
           type={type}
@@ -389,6 +399,7 @@ export function CreateWizard({
           onNext={finishStepTwo}
           notice={isEditing ? editNote : undefined}
         />
+        </Tracked.Provider>
         {saveToast}
         {paywallLayer}
       </>
@@ -410,6 +421,7 @@ export function CreateWizard({
       {/* Step 2 sits in a narrower centred column, which is what makes the
           form read as a card rather than a sheet. */}
       {isMobile && mobileTypes.has(type) ? (
+        <Tracked.Provider value={tracked}>
         <MobileStepTwo
           type={type}
           values={values}
@@ -419,6 +431,7 @@ export function CreateWizard({
           onBack={back}
           onNext={finishStepTwo}
         />
+        </Tracked.Provider>
       ) : isMobile ? (
         <MobileFallbackStepTwo
           complete={complete}

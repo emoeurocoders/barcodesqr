@@ -85,8 +85,12 @@ export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
   const type = String(input?.type ?? "");
   if (!knownTypes.has(type)) return { error: "That QR code type isn't supported." };
 
-  const values = cleanValues(input?.values);
-  if (!values) return { error: "That QR code couldn't be saved." };
+  const cleaned = cleanValues(input?.values);
+  if (!cleaned) return { error: "That QR code couldn't be saved." };
+  // Website codes made from now on go through our redirect, so their scans
+  // are counted and the link can change after printing (JB, 2026-11-18).
+  // Set here, not by the browser, and never on codes saved before.
+  const values = type === "website" ? { ...cleaned, routing: "managed" } : cleaned;
 
   const name = cleanName(input?.name);
   const draftKey =
@@ -139,8 +143,20 @@ export async function updateQrCode(input: {
   const who = await payingUser();
   if ("error" in who) return who;
 
-  const values = cleanValues(input?.values);
-  if (!values || typeof input?.id !== "string") return { error: "That QR code couldn't be saved." };
+  const cleaned = cleanValues(input?.values);
+  if (!cleaned || typeof input?.id !== "string") return { error: "That QR code couldn't be saved." };
+
+  // How a code is routed is fixed when it is made — printed copies depend
+  // on it. Keep whatever it was saved with, whatever the browser sends.
+  const [current] = await db
+    .select({ values: qrCodes.values })
+    .from(qrCodes)
+    .where(and(eq(qrCodes.id, input.id), eq(qrCodes.userId, who.userId)))
+    .limit(1);
+  if (!current) return { error: "That QR code couldn't be found." };
+  const { routing: _ignored, ...rest } = cleaned;
+  void _ignored;
+  const values = current.values.routing ? { ...rest, routing: current.values.routing } : rest;
 
   const [row] = await db
     .update(qrCodes)

@@ -182,7 +182,7 @@ export function encodeQr(
   slug?: string,
 ): string {
   const v = values ?? {};
-  if (dynamicTypes.has(type)) return slug ? `${QR_BASE_URL}/q/${slug}` : DYNAMIC_PLACEHOLDER;
+  if (isDynamic(type, v)) return slug ? `${QR_BASE_URL}/q/${slug}` : DYNAMIC_PLACEHOLDER;
   // vCard is a direct contact card again (JB, 2026-10-30: phones import it
   // natively). It was hosted 2026-10-23 → 10-30 for the photo, which no QR
   // code can hold; codes printed then still open its page (app/q/[slug]).
@@ -268,8 +268,11 @@ export function encodeQr(
 }
 
 /** True when the code's destination is editable after printing. */
-export function isDynamic(type: string) {
-  return dynamicTypes.has(type);
+export function isDynamic(type: string, values?: Record<string, string>) {
+  // Website is per code: those saved since 2026-11-18 carry
+  // `routing: "managed"` and go through /q (tracked, editable); older ones
+  // keep the link printed on them (JB: never change an existing code).
+  return dynamicTypes.has(type) || (type === "website" && values?.routing === "managed");
 }
 
 /**
@@ -279,7 +282,9 @@ export function isDynamic(type: string) {
  * for the claim to go wherever the redirect system is not behind it, and
  * their mobile files carry no badge.
  */
-const untrackedTypes = new Set(["wifi", "email", "sms", "whatsapp", "phone", "location", "text"]);
+// vCard (direct again since 2026-10-30) and Google Review (the review link
+// itself) joined 2026-11-18, when the badge went live.
+const untrackedTypes = new Set(["wifi", "email", "sms", "whatsapp", "phone", "location", "text", "vcard", "review"]);
 
 /**
  * Types the creator advertises as tracked and editable in step 2.
@@ -293,10 +298,9 @@ export function hasTracking(type: string) {
 }
 
 /**
- * Whether the short-link/redirect service behind "Smart Tracking & Editing"
- * exists. It does not yet, so no code can be edited after printing or have
- * its scans counted — and JB's rule (2026-10-22) is that the badge shows only
- * where the code really supports both. Off everywhere, desktop badge and the
- * mobile pill alike; flip this when the service ships (see LAUNCH.md).
+ * The redirect service behind "Smart Tracking & Editing" exists since
+ * 2026-11-18: hosted types and new Website codes are counted (lib/scans) and
+ * editable. Whether one code shows the badge is decided per code — the
+ * creator's `Tracked` context — never by this switch alone.
  */
-export const TRACKING_LIVE = false;
+export const TRACKING_LIVE = true;
