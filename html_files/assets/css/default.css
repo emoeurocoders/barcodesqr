@@ -1927,7 +1927,7 @@ html:has(.mobHome) { scroll-behavior: smooth; }
 .mobHome #mainPlans .top .ln1 { font-size: 38px; line-height: 1.08em; letter-spacing: -0.035em; max-width: 11.5em; margin: 0 auto; }
 .mobHome #mainPlans .top .ln2 { font-size: 20px; line-height: 1.55em; max-width: 22em; margin: 0.85em auto 0 auto; }
 .mobHome #mainPlans .btm > .lst { margin-top: 3rem;     flex-wrap: wrap;}
-.mobHome #mainPlans .btm > .lst > .itm { position: relative; display: grid; grid-template-columns: 152fr 140fr; grid-template-areas: "ttl inc" "prc lst" "bdg lst" "ln3 lst" "btn btn"; grid-template-rows: auto auto auto 1fr auto; align-items: start; gap: 0 1.48em; border-radius: 2em; box-shadow: 0 2px 4px rgba(14,19,17,0.04); padding: 2.7em; flex-grow: 1; }
+.mobHome #mainPlans .btm > .lst > .itm { position: relative; display: grid; grid-template-columns: 142fr 150fr; grid-template-areas: "ttl inc" "prc lst" "bdg lst" "ln3 lst" "btn btn"; grid-template-rows: auto auto auto 1fr auto; align-items: start; gap: 0 1.48em; border-radius: 2em; box-shadow: 0 2px 4px rgba(14,19,17,0.04); padding: 2.7em; flex-grow: 1; }
 .mobHome #mainPlans .btm > .lst > .itm + .itm { margin: 1.8rem 0 0 0; }
 .mobHome #mainPlans .btm > .lst > .itm:has(.tag) { margin-top: 3rem; }
 .mobHome #mainPlans .itm > .ln1 { grid-area: ttl; font-size: 2.34em; font-weight: 800; }
@@ -1935,11 +1935,11 @@ html:has(.mobHome) { scroll-behavior: smooth; }
 .mobHome #mainPlans .itm .prc .cur { font-size: 2.2em; }
 .mobHome #mainPlans .itm .prc .num { font-size: 4.3em; }
 .mobHome #mainPlans .itm .prc .per { font-size: 1.23em; }
-.mobHome #mainPlans .itm .bdg { grid-area: bdg; font-size: 1.48em; padding: 0.33em 0.75em; margin-top: 0.7em; }
+.mobHome #mainPlans .itm .bdg { grid-area: bdg; font-size: 1.48em; padding: 0.33em 0.75em; margin-top: 0.7em; justify-self: flex-start; }
 .mobHome #mainPlans .itm .ln3 { grid-area: ln3; font-size: 1.35em; line-height: 1.4em; margin-top: 1em; }
 .mobHome #mainPlans .itm .ln2 { grid-area: inc; font-size: 1.6em; font-weight: 800; color: #0e1311; border-top: 0; padding: 0.15em 0 0 0; margin-top: 0; }
 .mobHome #mainPlans .itm ul.lst { grid-area: lst; margin: 0.9em 0 0 0; }
-.mobHome #mainPlans .itm ul.lst .itm { font-size: 1.48em; align-items: flex-start; margin-top: 0.6em; }
+.mobHome #mainPlans .itm ul.lst .itm { font-size: 1.48em; align-items: flex-start; margin-top: 0.4em; }
 .mobHome #mainPlans .itm ul.lst .itm:first-child { margin-top: 0; }
 .mobHome #mainPlans .itm ul.lst .itm img { margin-top: 0.18em; }
 .mobHome #mainPlans .itm .btnWrp { grid-area: btn; margin-top: 2em; }

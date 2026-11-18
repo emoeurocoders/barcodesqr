@@ -615,7 +615,8 @@
  * cards, which do not use this.
  */
 @utility plan-grid {
-  grid-template-columns: 152fr 140fr;
+  /* 142/150 since the 2026-11-18 sync (was 152/140). */
+  grid-template-columns: 142fr 150fr;
   grid-template-rows: auto auto auto 1fr auto;
   grid-template-areas:
     "ttl inc"

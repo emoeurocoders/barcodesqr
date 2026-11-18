@@ -186,7 +186,7 @@ function MobilePlans() {
                 </span>
               </div>
               {plan.save && (
-                <span className="mt-[0.7em] self-start rounded-full bg-plans-save px-[0.75em] py-[0.33em] text-[1.48em] font-semibold text-brand-dark [grid-area:bdg]">
+                <span className="mt-[0.7em] self-start justify-self-start rounded-full bg-plans-save px-[0.75em] py-[0.33em] text-[1.48em] font-semibold text-brand-dark [grid-area:bdg]">
                   {plan.save}
                 </span>
               )}
@@ -201,7 +201,7 @@ function MobilePlans() {
                   <li
                     key={feature}
                     className={`flex items-start text-[1.48em] text-prose ${
-                      j > 0 ? "mt-[0.6em]" : ""
+                      j > 0 ? "mt-[0.4em]" : ""
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
