@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { Info } from "lucide-react";
 
 import { allTypes } from "@/components/create/qrTypes";
 import type { Ranked, Stats } from "@/lib/stats";
@@ -136,15 +137,66 @@ const PT = 15;
 const PH = 226.5;
 const at = (f: number) => `calc(${PL}px + (100% - ${PL + PR}px) * ${f})`;
 
+/**
+ * Which days get a date label, by the chart's own width (JB, 2026-11-19):
+ * desktop keeps the mockup's every third day of 30 (11 labels); tablet
+ * shows 6–8 and phones 3–5. Labels are evenly spaced — a fixed step, first
+ * day to last where the range divides, otherwise counted back from today —
+ * and never closer than a label's width. Every point and line is still
+ * drawn; only labels are dropped.
+ */
+const MIN_GAP = 56; // "Nov 18" at 12px is ~38px wide, plus air
+function labelled(n: number, width: number): number[] {
+  const [lo, hi] = width >= 900 ? [9, 11] : width >= 560 ? [6, 8] : [3, 5];
+  const last = n - 1;
+  if (last < 1) return [0];
+  const per = (width - PL - PR) / last; // px between neighbouring days
+  for (let m = Math.min(hi, n); m >= Math.min(lo, n); m--) {
+    if (m > 1 && last % (m - 1) === 0 && per * (last / (m - 1)) >= MIN_GAP) {
+      return Array.from({ length: m }, (_, k) => (k * last) / (m - 1));
+    }
+  }
+  let step = Math.max(1, Math.ceil(last / (hi - 1)));
+  while (per * step < MIN_GAP && step < last) step++;
+  const out: number[] = [];
+  for (let i = last; i >= 0; i -= step) out.unshift(i);
+  return out;
+}
+
 function Chart({ series }: { series: Stats["series"] }) {
+  const box = useRef<HTMLDivElement>(null);
   const plot = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
+  // A tap pins the day's numbers until the next tap elsewhere (touch has
+  // no hover); a mouse shows them while it is over the chart.
+  const [pinned, setPinned] = useState(false);
+  // Measured, not guessed from the viewport: no labels until it is known,
+  // so a phone never paints the desktop set first.
+  const [width, setWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  useEffect(() => {
+    if (!pinned) return;
+    const away = (e: PointerEvent) => {
+      if (!plot.current?.contains(e.target as Node)) {
+        setPinned(false);
+        setHover(null);
+      }
+    };
+    document.addEventListener("pointerdown", away);
+    return () => document.removeEventListener("pointerdown", away);
+  }, [pinned]);
   const max = niceMax(Math.max(0, ...series.map((d) => d.scans)));
   const step = max / 5;
   const last = Math.max(1, series.length - 1);
   const fx = (i: number) => i / last;
   const fy = (v: number) => 1 - v / max;
-  const every = Math.max(3, Math.ceil(series.length / 11));
+  const shown = new Set(width === null ? [] : labelled(series.length, width));
   const line = (k: "scans" | "uniques") =>
     series
       .map(
@@ -166,7 +218,10 @@ function Chart({ series }: { series: Stats["series"] }) {
     );
   };
   return (
-    <div className="relative mt-[16px] h-[310px] text-[12px] leading-[12px] text-[#9ca3af]">
+    <div
+      ref={box}
+      className="relative mt-[16px] h-[310px] text-[12px] leading-[12px] text-[#9ca3af]"
+    >
       {Array.from({ length: 6 }, (_, k) => (
         <div key={k}>
           <i
@@ -182,7 +237,7 @@ function Chart({ series }: { series: Stats["series"] }) {
         </div>
       ))}
       {series.map((d, i) =>
-        i % every === 0 ? (
+        shown.has(i) ? (
           <span
             key={d.day}
             className="absolute -translate-x-1/2 whitespace-nowrap"
@@ -194,17 +249,44 @@ function Chart({ series }: { series: Stats["series"] }) {
       )}
       <div
         ref={plot}
-        className="absolute"
+        className="absolute outline-none focus-visible:rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2563eb]"
         style={{ left: PL, right: PR, top: PT, height: PH }}
-        onPointerMove={(e) => pick(e.clientX)}
-        onPointerLeave={() => setHover(null)}
+        tabIndex={0}
+        aria-label="Scans per day. Use the arrow keys to read each day."
+        onPointerDown={(e) => {
+          pick(e.clientX);
+          if (e.pointerType !== "mouse") setPinned(true);
+        }}
+        onPointerMove={(e) => {
+          if (e.pointerType === "mouse") pick(e.clientX);
+        }}
+        onPointerLeave={(e) => {
+          if (e.pointerType === "mouse" && !pinned) setHover(null);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+            e.preventDefault();
+            const d = e.key === "ArrowRight" ? 1 : -1;
+            setHover((h) =>
+              Math.max(
+                0,
+                Math.min(
+                  series.length - 1,
+                  h === null ? (d > 0 ? 0 : series.length - 1) : h + d,
+                ),
+              ),
+            );
+          } else if (e.key === "Escape") setHover(null);
+        }}
+        onBlur={() => {
+          if (!pinned) setHover(null);
+        }}
       >
         <svg
           viewBox="0 0 1000 100"
           preserveAspectRatio="none"
           className="absolute inset-0 h-full w-full overflow-visible"
-          role="img"
-          aria-label="Scans per day"
+          aria-hidden="true"
         >
           <path
             d={line("uniques")}
@@ -235,6 +317,7 @@ function Chart({ series }: { series: Stats["series"] }) {
               />
             ))}
             <div
+              role="status"
               className="pointer-events-none absolute top-[6px] z-10 rounded-[6px] bg-[rgba(0,0,0,0.8)] p-[6px] text-[12px] leading-[normal] whitespace-nowrap text-white"
               style={{
                 left: `${fx(hover) * 100}%`,
@@ -276,6 +359,82 @@ function Chart({ series }: { series: Stats["series"] }) {
         ))}
       </div>
     </div>
+  );
+}
+
+/** In the chart's place, same height, for a code we cannot count. Unmocked. */
+function Unavailable() {
+  return (
+    <div className="mt-[16px] flex h-[310px] flex-col items-center justify-center rounded-[12px] bg-[#f8fafc] px-[24px] text-center">
+      <p className="text-[15px] font-semibold text-[#374151]">
+        Tracking unavailable
+      </p>
+      <p className="mt-[6px] max-w-[420px] text-[13.5px] leading-[1.45] text-[#6b7280]">
+        This QR code opens its content directly, without passing through
+        BarcodesQR, so its scans can’t be counted.
+      </p>
+    </div>
+  );
+}
+
+const UNIQUE_TIP =
+  "Unique Scans are an estimate of the different devices that scanned each QR code on each day — not distinct people across the whole period. The same phone scanning on two different days counts twice.";
+
+/**
+ * "What does Unique mean" (JB, 2026-11-19). Unmocked: their info-note
+ * glyph (lucide Info, as the creator's notes use) beside the label; opens on
+ * hover, focus or tap, closes on Esc or a tap elsewhere. The bubble spans
+ * the card, so it never runs off a phone screen.
+ */
+function UniqueInfo() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  return (
+    <span
+      ref={ref}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        aria-label="What are unique scans?"
+        aria-expanded={open}
+        aria-describedby={open ? "unique-tip" : undefined}
+        // Opens, never toggles: a phone's tap fires mouseenter and focus
+        // (both open) before this click, which would otherwise shut it.
+        // Closing is Esc, a tap elsewhere, blur or the mouse leaving.
+        onClick={() => setOpen(true)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        className="ml-[5px] inline-flex h-[14px] w-[14px] items-center justify-center align-[-2px] leading-none text-[#9ca3af] hover:text-[#6b7280]"
+      >
+        <Info className="h-[14px] w-[14px]" strokeWidth={2} />
+      </button>
+      {open && (
+        <span
+          id="unique-tip"
+          role="tooltip"
+          className="absolute inset-x-[12px] top-[calc(100%+6px)] z-20 rounded-[8px] bg-[rgba(14,19,17,0.92)] px-[12px] py-[10px] text-[12.5px] leading-[1.45] font-normal whitespace-normal text-white shadow-[0_6px_20px_rgba(14,19,17,0.18)]"
+        >
+          {UNIQUE_TIP}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -371,7 +530,11 @@ const designerFlags: Record<string, (id: string) => ReactNode> = {
       </clipPath>
       <g clipPath={`url(#${id})`}>
         <rect width="30" height="30" fill="#ffffff" />
-        <path d="M0 1.15H30M0 5.77H30M0 10.38H30M0 15H30M0 19.62H30M0 24.23H30M0 28.85H30" stroke="#B22234" strokeWidth="2.31" />
+        <path
+          d="M0 1.15H30M0 5.77H30M0 10.38H30M0 15H30M0 19.62H30M0 24.23H30M0 28.85H30"
+          stroke="#B22234"
+          strokeWidth="2.31"
+        />
         <rect width="14" height="16.15" fill="#3C3B6E" />
       </g>
     </>
@@ -401,17 +564,30 @@ const flag = (code: string) => {
   if (own)
     return (
       <span className="flex h-[30px] w-[30px] shrink-0">
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           {own(`flag${code}`)}
         </svg>
       </span>
     );
   return code.length === 2 ? (
-    <span className="font-flags flex h-[30px] w-[30px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#f1f3f5] text-[34px] leading-none" aria-hidden="true">
-      {String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))}
+    <span
+      className="font-flags flex h-[30px] w-[30px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#f1f3f5] text-[34px] leading-none"
+      aria-hidden="true"
+    >
+      {String.fromCodePoint(
+        ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+      )}
     </span>
   ) : (
-    <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[#f1f3f5]">{globeIcon("#6B7280")}</span>
+    <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[#f1f3f5]">
+      {globeIcon("#6B7280")}
+    </span>
   );
 };
 
@@ -419,18 +595,39 @@ const flag = (code: string) => {
 const qrGlyph = (type: string, color: string) =>
   type === "social" ? (
     <svg {...sv17}>
-      <path d="M11.3333 2.125H5.66667C3.71066 2.125 2.125 3.71066 2.125 5.66667V11.3333C2.125 13.2893 3.71066 14.875 5.66667 14.875H11.3333C13.2893 14.875 14.875 13.2893 14.875 11.3333V5.66667C14.875 3.71066 13.2893 2.125 11.3333 2.125Z" {...st17(color)} />
-      <path d="M8.5 11.3333C10.0648 11.3333 11.3333 10.0648 11.3333 8.5C11.3333 6.93519 10.0648 5.66667 8.5 5.66667C6.93519 5.66667 5.66667 6.93519 5.66667 8.5C5.66667 10.0648 6.93519 11.3333 8.5 11.3333Z" {...st17(color)} />
-      <path d="M12.1833 5.59583C12.6137 5.59583 12.9625 5.24699 12.9625 4.81667C12.9625 4.38634 12.6137 4.0375 12.1833 4.0375C11.753 4.0375 11.4042 4.38634 11.4042 4.81667C11.4042 5.24699 11.753 5.59583 12.1833 5.59583Z" fill={color} />
+      <path
+        d="M11.3333 2.125H5.66667C3.71066 2.125 2.125 3.71066 2.125 5.66667V11.3333C2.125 13.2893 3.71066 14.875 5.66667 14.875H11.3333C13.2893 14.875 14.875 13.2893 14.875 11.3333V5.66667C14.875 3.71066 13.2893 2.125 11.3333 2.125Z"
+        {...st17(color)}
+      />
+      <path
+        d="M8.5 11.3333C10.0648 11.3333 11.3333 10.0648 11.3333 8.5C11.3333 6.93519 10.0648 5.66667 8.5 5.66667C6.93519 5.66667 5.66667 6.93519 5.66667 8.5C5.66667 10.0648 6.93519 11.3333 8.5 11.3333Z"
+        {...st17(color)}
+      />
+      <path
+        d="M12.1833 5.59583C12.6137 5.59583 12.9625 5.24699 12.9625 4.81667C12.9625 4.38634 12.6137 4.0375 12.1833 4.0375C11.753 4.0375 11.4042 4.38634 11.4042 4.81667C11.4042 5.24699 11.753 5.59583 12.1833 5.59583Z"
+        fill={color}
+      />
     </svg>
   ) : type === "location" ? (
     pinIcon(color)
   ) : (
     <svg {...sv17}>
-      <path d="M6.02083 2.125H3.1875C2.6007 2.125 2.125 2.6007 2.125 3.1875V6.02083C2.125 6.60764 2.6007 7.08333 3.1875 7.08333H6.02083C6.60764 7.08333 7.08333 6.60764 7.08333 6.02083V3.1875C7.08333 2.6007 6.60764 2.125 6.02083 2.125Z" {...st17(color)} />
-      <path d="M13.8125 2.125H10.9792C10.3924 2.125 9.91667 2.6007 9.91667 3.1875V6.02083C9.91667 6.60764 10.3924 7.08333 10.9792 7.08333H13.8125C14.3993 7.08333 14.875 6.60764 14.875 6.02083V3.1875C14.875 2.6007 14.3993 2.125 13.8125 2.125Z" {...st17(color)} />
-      <path d="M6.02083 9.91667H3.1875C2.6007 9.91667 2.125 10.3924 2.125 10.9792V13.8125C2.125 14.3993 2.6007 14.875 3.1875 14.875H6.02083C6.60764 14.875 7.08333 14.3993 7.08333 13.8125V10.9792C7.08333 10.3924 6.60764 9.91667 6.02083 9.91667Z" {...st17(color)} />
-      <path d="M13.8125 9.91667H10.9792C10.3924 9.91667 9.91667 10.3924 9.91667 10.9792V13.8125C9.91667 14.3993 10.3924 14.875 10.9792 14.875H13.8125C14.3993 14.875 14.875 14.3993 14.875 13.8125V10.9792C14.875 10.3924 14.3993 9.91667 13.8125 9.91667Z" {...st17(color)} />
+      <path
+        d="M6.02083 2.125H3.1875C2.6007 2.125 2.125 2.6007 2.125 3.1875V6.02083C2.125 6.60764 2.6007 7.08333 3.1875 7.08333H6.02083C6.60764 7.08333 7.08333 6.60764 7.08333 6.02083V3.1875C7.08333 2.6007 6.60764 2.125 6.02083 2.125Z"
+        {...st17(color)}
+      />
+      <path
+        d="M13.8125 2.125H10.9792C10.3924 2.125 9.91667 2.6007 9.91667 3.1875V6.02083C9.91667 6.60764 10.3924 7.08333 10.9792 7.08333H13.8125C14.3993 7.08333 14.875 6.60764 14.875 6.02083V3.1875C14.875 2.6007 14.3993 2.125 13.8125 2.125Z"
+        {...st17(color)}
+      />
+      <path
+        d="M6.02083 9.91667H3.1875C2.6007 9.91667 2.125 10.3924 2.125 10.9792V13.8125C2.125 14.3993 2.6007 14.875 3.1875 14.875H6.02083C6.60764 14.875 7.08333 14.3993 7.08333 13.8125V10.9792C7.08333 10.3924 6.60764 9.91667 6.02083 9.91667Z"
+        {...st17(color)}
+      />
+      <path
+        d="M13.8125 9.91667H10.9792C10.3924 9.91667 9.91667 10.3924 9.91667 10.9792V13.8125C9.91667 14.3993 10.3924 14.875 10.9792 14.875H13.8125C14.3993 14.875 14.875 14.3993 14.875 13.8125V10.9792C14.875 10.3924 14.3993 9.91667 13.8125 9.91667Z"
+        {...st17(color)}
+      />
     </svg>
   );
 
@@ -441,7 +638,15 @@ type Tab = {
   icon: (r: Ranked, i: number) => ReactNode;
 };
 
-function Panel({ tabs, start = 0 }: { tabs: Tab[]; start?: number }) {
+function Panel({
+  tabs,
+  start = 0,
+  empty = "No scans yet.",
+}: {
+  tabs: Tab[];
+  start?: number;
+  empty?: string;
+}) {
   const [cur, setCur] = useState(start);
   const [open, setOpen] = useState(false);
   const t = tabs[cur];
@@ -468,7 +673,7 @@ function Panel({ tabs, start = 0 }: { tabs: Tab[]; start?: number }) {
       </ul>
       <ul className="mt-[3px]">
         {rows.length === 0 && (
-          <li className="py-[9px] text-[14px] text-[#6b7280]">No scans yet.</li>
+          <li className="py-[9px] text-[14px] text-[#6b7280]">{empty}</li>
         )}
         {rows.map((r, i) => (
           <li
@@ -533,22 +738,30 @@ export function StatsView({
 }: {
   s: Stats;
   ranges: number[];
-  codes: { id: string; name: string }[];
+  codes: { id: string; name: string; tracked: boolean }[];
   qr: string;
 }) {
+  // JB, 2026-11-19: a code whose content is in the image (WiFi, Phone, a
+  // Website saved before 2026-11-18…) is never scanned through us, so its
+  // statistics say "Tracking unavailable" rather than a zero that reads as
+  // "nobody scanned it". Same for an account with only such codes.
+  const untracked = qr
+    ? !codes.find((c) => c.id === qr)?.tracked
+    : codes.length > 0 && !codes.some((c) => c.tracked);
   const router = useRouter();
   const go = (days: number, q: string) =>
     router.push(
       `/statistics?days=${days}${q ? `&qr=${encodeURIComponent(q)}` : ""}`,
     );
   const exportHref = `/api/stats/export?days=${s.days}${qr ? `&qr=${encodeURIComponent(qr)}` : ""}`;
-  const qrIcon = (r: Ranked, i: number) => box(rowBg[i % 3], qrGlyph(r.sub ?? "", rowFg[i % 3]));
+  const qrIcon = (r: Ranked, i: number) =>
+    box(rowBg[i % 3], qrGlyph(r.sub ?? "", rowFg[i % 3]));
 
   const cards = useMemo(
     () => [
       {
         n: s.codes,
-        label: qr ? "QR code" : "Total QR codes",
+        label: "Total QR codes",
         bg: "bg-[#eff4ff]",
         icon: (
           <svg
@@ -669,7 +882,7 @@ export function StatsView({
         ),
       },
     ],
-    [s, qr],
+    [s],
   );
   return (
     <>
@@ -704,7 +917,7 @@ export function StatsView({
             <option value="">All QR codes</option>
             {codes.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name}
+                {c.tracked ? c.name : `${c.name} (Tracking unavailable)`}
               </option>
             ))}
           </Sel>
@@ -744,7 +957,7 @@ export function StatsView({
           {cards.map((c) => (
             <div
               key={c.label}
-              className="flex min-w-0 flex-[1_0_0] items-center rounded-[14px] border border-[#dae0e8] px-[16px] py-[15px] text-[10px] [&+&]:ml-[16px] max-[768px]:[&+&]:mt-[12px] max-[768px]:[&+&]:ml-0"
+              className="relative flex min-w-0 flex-[1_0_0] items-center rounded-[14px] border border-[#dae0e8] px-[16px] py-[15px] text-[10px] [&+&]:ml-[16px] max-[768px]:[&+&]:mt-[12px] max-[768px]:[&+&]:ml-0"
             >
               <div
                 className={`flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-[13px] [&>svg]:h-[24px] [&>svg]:w-[24px] ${c.bg}`}
@@ -752,20 +965,32 @@ export function StatsView({
                 {c.icon}
               </div>
               <div className="min-w-0 pl-[11px]">
-                <p className="text-[30px] leading-[1.05em] font-extrabold tracking-[-0.02em] text-[#0e1311]">
-                  {c.n.toLocaleString("en-US")}
-                </p>
+                {untracked && c.label !== "Total QR codes" ? (
+                  <p
+                    className="text-[30px] leading-[1.05em] font-extrabold tracking-[-0.02em] text-[#9ca3af]"
+                    title="Tracking unavailable"
+                  >
+                    <span aria-hidden="true">—</span>
+                    <span className="sr-only">Tracking unavailable</span>
+                  </p>
+                ) : (
+                  <p className="text-[30px] leading-[1.05em] font-extrabold tracking-[-0.02em] text-[#0e1311]">
+                    {c.n.toLocaleString("en-US")}
+                  </p>
+                )}
                 <p className="mt-[0.28em] text-[14px] whitespace-nowrap text-[#6b7280] max-[576px]:font-medium">
                   {c.label}
+                  {c.label === "Unique Scans" && <UniqueInfo />}
                 </p>
               </div>
             </div>
           ))}
         </div>
-        <Chart series={s.series} />
+        {untracked ? <Unavailable /> : <Chart series={s.series} />}
       </div>
       <div className="mt-[15px] flex items-stretch max-[1120px]:flex-col">
         <Panel
+          empty={untracked ? "Tracking unavailable" : undefined}
           tabs={[
             {
               label: "QR Name",
@@ -792,6 +1017,7 @@ export function StatsView({
           ]}
         />
         <Panel
+          empty={untracked ? "Tracking unavailable" : undefined}
           start={1}
           tabs={[
             {
@@ -815,6 +1041,7 @@ export function StatsView({
           ]}
         />
         <Panel
+          empty={untracked ? "Tracking unavailable" : undefined}
           tabs={[
             {
               label: "Devices",

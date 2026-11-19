@@ -381,10 +381,11 @@ function Row({ row }: { row: QrRow }) {
         <TypePill type={row.type} />
       </div>
 
-      {/* Scans: hosted codes pass through /q/<slug>, which counts them. A
-          direct code (Website, WiFi, SMS…) goes straight to its content, so
-          it can never be counted: "N/A", not a zero that reads as "nobody
-          scanned it" (JB, 2026-10-30). */}
+      {/* Scans: hosted codes and managed Website codes pass through
+          /q/<slug>, which counts them. A direct code (WiFi, SMS, an older
+          Website…) goes straight to its content, so it can never be counted:
+          "Tracking unavailable" (JB, 2026-11-19; "N/A" before), not a zero
+          that reads as "nobody scanned it". */}
       {/* The just-saved row has no Scans cell on desktop (member_main.html's
           `.itm.on`): its actions, with the full Download QR, span both. */}
       <div data-label="Scans" className={`${cell} ${row.highlight ? "md:hidden" : ""}`}>
@@ -394,10 +395,12 @@ function Row({ row }: { row: QrRow }) {
           </span>
         ) : (
           <span
-            title="Not counted: this code opens its content directly, without passing through BarcodesQR."
-            className="inline-flex rounded-full bg-bg-alt px-2.5 py-1 text-xs font-medium text-faint"
+            title="This code opens its content directly, without passing through BarcodesQR, so its scans can't be counted."
+            // Wider than the desktop Scans column on one line, so there it
+            // wraps to two, centred (unmocked: every mockup row is counted).
+            className="inline-flex rounded-full bg-bg-alt px-2.5 py-1 text-xs font-medium text-faint max-md:whitespace-nowrap md:rounded-[10px] md:text-center md:leading-[1.25]"
           >
-            N/A
+            Tracking unavailable
           </span>
         )}
       </div>
@@ -411,10 +414,24 @@ function Row({ row }: { row: QrRow }) {
           onPointerDown={() => prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {})}
           onFocus={() => prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {})}
           onClick={() => downloadQr(row.qrValue, defaultQrStyle, row.name, "png")}
-          className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg max-md:flex-1 max-md:justify-center max-md:py-2.5 bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
+          className={`inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg max-md:flex-1 max-md:justify-center max-md:py-2.5 bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark ${
+            // member_main.html: only the just-saved row (`.itm.on`) has the
+            // full button on desktop; every other row has `.dwn`, a 38px
+            // outlined icon button — which also keeps it off the Scans cell.
+            row.highlight
+              ? ""
+              : "md:h-[38px] md:w-[38px] md:justify-center md:rounded-[9px] md:border md:border-[#d1d5db] md:bg-white md:p-0 md:hover:bg-bg-alt"
+          }`}
         >
-          <Download className="h-3.5 w-3.5" />
-          Download QR
+          <Download className={`h-3.5 w-3.5 ${row.highlight ? "" : "md:hidden"}`} />
+          {!row.highlight && (
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden h-[17px] w-[17px] md:block" aria-hidden="true">
+              <path d="M14.875 10.625V13.4583C14.875 13.8341 14.7257 14.1944 14.4601 14.4601C14.1944 14.7257 13.8341 14.875 13.4583 14.875H3.54167C3.16594 14.875 2.80561 14.7257 2.53993 14.4601C2.27426 14.1944 2.125 13.8341 2.125 13.4583V10.625" stroke="#4B5563" strokeWidth="1.41667" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M4.95833 7.08333L8.5 10.625L12.0417 7.08333" stroke="#4B5563" strokeWidth="1.41667" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M8.5 10.625V2.125" stroke="#4B5563" strokeWidth="1.41667" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+          <span className={row.highlight ? "" : "md:sr-only"}>Download QR</span>
         </button>
         <RowMenu row={row} onDelete={() => setConfirming(true)} />
       </div>

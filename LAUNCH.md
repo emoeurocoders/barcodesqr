@@ -713,7 +713,8 @@ the mobile ones; only layout differs (`useDesktop()`).
   (unmocked; the file's preview has neither).
 - **My QR Codes on phones** is a card per code (unmocked — member_main.html
   has no phone layout): name, link, then the columns in pairs with their
-  headings, then a full-width Download QR. Direct codes show Scans "N/A";
+  headings, then a full-width Download QR. Direct codes show Scans "N/A"
+  ("Tracking unavailable" since 2026-11-19);
   hosted codes count real visits (zero so far because of the domain).
 
 ## Statistics — member_stats.html, 2026-11-18 (JB, Monday 5733186104)
@@ -769,12 +770,14 @@ directly. They have no tracking badge and no statistics.
   affects future unique counts.
 - **Location headers are Vercel's** (`x-vercel-ip-*`): local scans have no
   country or city and show as "Unknown".
-- **Membership expiry is not enforced yet** (no payment processor). The
-  wording agreed with JB:
+- **Membership expiry is not enforced yet** (no payment processor). JB
+  approved the behaviour on 2026-11-19:
   - Managed codes can be paused when a membership ends; static codes
     cannot, since their content is in the image.
   - A voluntary cancellation keeps codes working until the paid period ends.
   - A failed renewal gets a 5-day grace period before they pause.
+  - Paused codes are restored on reactivation, so pausing must never
+    delete anything.
   - Build it at `/q` with the billing work.
 
 **Divergences and unmocked states**:
@@ -800,9 +803,28 @@ directly. They have no tracking badge and no statistics.
   - Cities, Continents, Browsers and OS reuse the designer's pin, globe and
     device icons, also unmocked.
 - **Empty panel**: "No scans yet." is unmocked.
-- **Designer bug, reproduced**: at 390 the x-axis dates overlap ("Jul 21Jul
-  24…"), because the mockup's Chart.js has `autoSkip: false` and shows every
-  third label. Raised with JB.
+- **Fewer date labels on smaller screens** (JB, 2026-11-19, fixing the
+  mockup's own overlap at 390). The count follows the chart's width:
+  - desktop keeps the mockup's every third day;
+  - tablet shows 6–8 and phones 3–5;
+  - spacing is even, a fixed step from the first day to the last;
+  - labels never sit closer than 56px apart.
+
+  Every point is still drawn. Checked at 320, 360, 390, 430, 600, 768,
+  1024 and 1440 for every range: no overlap.
+- **Tap or arrow keys show a day's figures**. A tap pins the tooltip until
+  the next tap elsewhere; the arrow keys step through days.
+- **Unique Scans has an info button** with the explanation, at JB's request.
+  It opens on hover, focus or tap and closes on Esc or a tap elsewhere.
+  Unmocked; it uses lucide's Info glyph, as the creator's notes do.
+- **"Tracking unavailable"** (JB, 2026-11-19) appears instead of anything
+  that reads as zero:
+  - when the filter is a static code, or the account has only static codes;
+  - the Scans cards show "—", and the chart and panels show the words;
+  - the Filter list marks static codes "(Tracking unavailable)";
+  - My QR Codes uses the same words where it used to say "N/A".
+
+  All of this is unmocked.
 
 ## Pricing — 2026-11-13 (JB, Monday 5720638425)
 
@@ -863,6 +885,9 @@ pixels at 1440 (0.85% diff, the remainder is live data).
   the paywall's Support link was `/support` (404) → `/help`.
 - The just-saved row in My QR Codes had its Download QR over the Scans
   cell; per member_main.html that row has no Scans cell on desktop.
+  **Every other row had the same overlap until 2026-11-19**: the full
+  button was wider than the Actions column. They now have the mockup's
+  `.dwn`, a 38px outlined icon button. Phones keep the full-width button.
 - `sync:design -- page.html` never re-fetched the CSS a page uses, so new
   pages arrived unstyled and the old default.css was called "unchanged".
   Named syncs now follow references too.
