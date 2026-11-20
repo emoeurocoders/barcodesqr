@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import type { NextRequest } from "next/server";
 import { and, eq } from "drizzle-orm";
 
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import { sendTrialEmail } from "@/lib/trial";
 
 /**
  * Where the paywall's "Continue with Google" lands after the OAuth round
@@ -28,10 +29,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/?signin=1", request.nextUrl.origin));
   }
 
-  await db
+  const granted = await db
     .update(users)
     .set({ plan: "trial" })
-    .where(and(eq(users.id, id), eq(users.plan, "free")));
+    .where(and(eq(users.id, id), eq(users.plan, "free")))
+    .returning({ email: users.email });
+
+  // Only when this request actually started the trial, so replaying the URL
+  // never sends a second one. TODO(primer): move to the payment webhook
+  // with the rest of this route (lib/trial.ts).
+  const to = granted[0]?.email;
+  if (to) after(() => sendTrialEmail(to));
 
   return NextResponse.redirect(new URL("/dashboard", request.nextUrl.origin));
 }

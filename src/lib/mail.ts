@@ -116,12 +116,13 @@ export async function sendSignInLink(to: string, token: string) {
 }
 
 /**
- * "Your 7-Day Trial Is Active" — the $1 trial receipt and account confirmation.
+ * "Your BarcodesQR 7-Day Trial Is Active – Payment Confirmation" — the $1
+ * trial receipt (trial-v2, JB 2026-11-20).
  *
- * Nothing calls this yet: checkout does not take a real payment, so there is no
- * moment at which it would be true. `docs/EMAILS.md` says where the call goes
- * once payments land, and why it must be the provider's webhook rather than the
- * checkout response that makes it.
+ * Called through `sendTrialEmail` in lib/trial.ts from checkout, ONLY until a
+ * payment processor exists (JB wants testers to see it in the flow now).
+ * TODO(primer): the call belongs in the processor's payment-succeeded
+ * webhook, once per payment id — lib/trial.ts and docs/EMAILS.md say why.
  */
 export async function sendTrialStartedEmail(
   to: string,

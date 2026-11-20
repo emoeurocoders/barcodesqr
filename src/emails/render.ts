@@ -37,7 +37,7 @@ export type EmailLinks = {
   baseUrl?: string;
   /** Both primary "Manage My QR Codes" buttons. */
   dashboardUrl?: string;
-  /** Both secondary "Manage or Cancel Subscription" buttons. */
+  /** "Manage Subscription" / "Manage or Cancel Subscription" links. */
   manageUrl?: string;
 };
 
@@ -189,9 +189,10 @@ export function resolveLinks(links: EmailLinks = {}) {
     assetBase: `${baseUrl}/emails`,
     homeUrl: baseUrl,
     dashboardUrl: links.dashboardUrl ?? `${baseUrl}/dashboard`,
-    // The footer's "Cancel Subscription" points at /dashboard too, until a
-    // billing portal exists to point at instead.
-    manageUrl: links.manageUrl ?? `${baseUrl}/dashboard`,
+    // "Manage Subscription": the Billing & Subscription page (2026-11-10).
+    // TODO(primer): point at the processor's customer portal, or keep
+    // /billing and build cancel there, once payments exist.
+    manageUrl: links.manageUrl ?? `${baseUrl}/billing`,
     helpUrl: `${baseUrl}/help`,
     termsUrl: `${baseUrl}/terms`,
     // Matches the site footer. The route does not exist yet — see LAUNCH.md.

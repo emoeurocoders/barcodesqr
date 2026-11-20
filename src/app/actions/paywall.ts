@@ -1,11 +1,13 @@
 "use server";
 
+import { after } from "next/server";
 import { eq } from "drizzle-orm";
 
 import { signIn } from "@/auth";
 import { db } from "@/db";
 import { users, verificationTokens } from "@/db/schema";
 import { env } from "@/lib/env";
+import { sendTrialEmail } from "@/lib/trial";
 
 export type PaywallFormState = { error?: string } | undefined;
 
@@ -87,6 +89,12 @@ export async function checkout(
     token,
     expires: new Date(Date.now() + TOKEN_TTL_MS),
   });
+
+  // The trial email, after the response so it never slows checkout. Once
+  // per account: this line is only reached for an address that had none.
+  // TODO(primer): move to the processor's payment-succeeded webhook — there
+  // is no proof of payment here (see SECURITY above and lib/trial.ts).
+  after(() => sendTrialEmail(email));
 
   // Throws a redirect on success, so anything below is the failure path.
   await signIn("paywall-token", { token, redirectTo: "/dashboard" });

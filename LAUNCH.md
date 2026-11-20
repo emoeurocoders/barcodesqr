@@ -717,6 +717,49 @@ the mobile ones; only layout differs (`useDesktop()`).
   ("Tracking unavailable" since 2026-11-19);
   hosted codes count real visits (zero so far because of the domain).
 
+## Trial email — mailers/trial-v2, 2026-11-20 (JB, Monday 5740495302)
+
+`trial-v2` replaces `trial/` as the trial email. It is ported verbatim
+through `npm run emails:build` and is pixel-identical to the designer's file
+at 750 and 390 (0.00%) in `/dev/emails/trial`.
+
+**What is real now**
+- **Sending:** checkout sends it once per new account, by email or Google
+  (`lib/trial.ts`). It goes out after the response, so it never slows
+  checkout, and a failed send is logged, never shown.
+- **Links:** Dashboard → `/dashboard`, Manage Subscription → `/billing`,
+  Help Center → `/help`, Terms → `/terms`, plus the support mailto.
+
+**Deliberately not done** (no processor yet; Primer, with Stripe
+underneath, is to be integrated later; marked `TODO(primer)` in the code):
+- **Proof of payment:** it is sent on checkout, which proves nothing. It
+  must move to Primer's payment-succeeded webhook, so a declined card can
+  never get "payment confirmed".
+- **Sent once per payment:** today "once" is per new account. The webhook
+  needs a processed-event table so a retried webhook does not resend it.
+- **Real values:** the amount, first renewal and price come from constants
+  in `lib/trial.ts` ($1.00, +7 days, $34.95/month).
+- **Billing descriptor:** "BARCODESQR.COM" is the mockup's sample, not a
+  verified descriptor. A mismatch with the card statement is a chargeback.
+- **Tax:** none is charged yet. If tax applies, the designer's note says to
+  add "Tax" and "Total charged" rows.
+- **Not built yet:** JB's other test steps (test card, renewal at
+  $34.95/month, cancel-at-period-end, failed payments not activating) and
+  the account showing subscription and renewal details.
+
+**Open**
+- **Resend rejects the local key:** "The associated domain with your API
+  key is not verified". The key in `.env.local` predates the separate
+  BarcodesQR Resend account (2026-11-11). Vercel's RESEND_API_KEY and
+  EMAIL_FROM are also 85 days old: confirm production holds the new
+  account's key and a verified sender, or no email of any kind is
+  delivered.
+- **The Privacy link 404s:** there is no Privacy Policy page (see above).
+- **Signed-out Manage Subscription:** a signed-out reader lands on sign-in,
+  then the dashboard, not Billing. Sign-in has no return-to yet.
+- **Legal footer line:** the designer's legal line (company legal name and
+  mailing address) is commented out in their file, "enable once confirmed".
+
 ## Statistics — member_stats.html, 2026-11-18 (JB, Monday 5733186104)
 
 Postgres on Neon, no Tinybird (JB). `/statistics` is the designer's page on

@@ -10,7 +10,7 @@ import { renderTrialStartedEmail } from "@/emails/trialStarted";
  * against the mockup while it only exists inside a webhook that does not run
  * yet, so this route is the port's other half:
  *
- *   npm run -s diff:design -- html_files/mailers/trial/index.html \
+ *   npm run -s diff:design -- html_files/mailers/trial-v2/index.html \
  *     http://localhost:3000/dev/emails/trial --width 750
  *
  * The sample values below are the mockup's own, exactly — that is what makes
@@ -29,14 +29,14 @@ const utc = (iso: string) => new Date(`${iso}T00:00:00Z`);
 const USD = (amount: number) => ({ amount, currency: "USD" });
 
 const SAMPLES = {
-  /** html_files/mailers/trial/index.html */
+  /** html_files/mailers/trial-v2/index.html */
   trial: (baseUrl: string) =>
     renderTrialStartedEmail({
       baseUrl,
-      amountCharged: USD(100), //      "$1.00 USD"
-      trialStartsAt: utc("2026-09-07"), // "Sep 7, 2026"
-      trialEndsAt: utc("2026-09-14"), //   "Sep 14, 2026"
-      nextChargeAmount: USD(3495), //  "$34.95 USD" (was $39.95 until 2026-11-13)
+      amountCharged: USD(100), //          "$1.00 USD"
+      trialStartsAt: utc("2026-08-11"), //  → "7 days", "(in 7 days)"
+      firstRenewalAt: utc("2026-08-18"), // "Aug 18, 2026"
+      renewalAmount: USD(3495), //          "$34.95 / month"
     }),
 
   /** html_files/mailers/receipt/index.html */

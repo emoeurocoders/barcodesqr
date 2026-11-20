@@ -5,7 +5,6 @@ import {
   TRIAL_STARTED_HTML_SUBJECT,
 } from "./templates/trialStarted.html";
 import {
-  billingFrequency,
   fill,
   formatDate,
   formatMoney,
@@ -17,84 +16,115 @@ import {
 } from "./render";
 
 /**
- * "Your 7-Day Trial Is Active" — the receipt for the $1 trial charge, and the
- * confirmation that the account now exists.
+ * "Your BarcodesQR 7-Day Trial Is Active – Payment Confirmation" — the
+ * receipt for the $1.00 trial charge (JB, 2026-11-20, Monday 5740495302).
  *
- * Ported from `html_files/mailers/trial/index.html`. Sent once, when the trial
- * charge succeeds; see `docs/EMAILS.md` for where that call belongs.
+ * Ported from `html_files/mailers/trial-v2/index.html`. Sent once per account,
+ * when the trial charge succeeds; see `docs/EMAILS.md` for where that call
+ * belongs and `checkout()` in `src/app/actions/paywall.ts` for where it is
+ * made until a payment processor exists.
  */
 export type TrialStartedData = EmailLinks & {
-  /** "7-Day Full Access Trial" in the mockup. */
+  /** "7-Day Trial" in the mockup. */
   planName?: string;
-  /** Taken today — $1.00 in the mockup. */
+  /**
+   * Taken today, tax included, in the billing currency — $1.00 in the mockup.
+   * The designer's note: if tax applies, the template needs "Tax" and "Total
+   * charged" rows (and loses the generic tax note). No tax is charged yet.
+   */
   amountCharged: Money;
+  /** When the trial charge succeeded. */
   trialStartsAt: Date;
-  /** Also the date named in the renewal notice, so it is passed once. */
-  trialEndsAt: Date;
-  /** What the first full charge will be once the trial lapses. */
-  nextChargeAmount: Money;
-  /** Weeks between charges. 4 in the mockup — "Every 4 weeks". */
-  billingIntervalWeeks?: number;
-  /** What the customer will see on their card statement. */
+  /** The first full charge's date — "First renewal" and the notice below. */
+  firstRenewalAt: Date;
+  /** The first full charge — "$34.95 / month". */
+  renewalAmount: Money;
+  /** "month" in the mockup ("$34.95 / month"). */
+  renewalInterval?: "month" | "year";
+  /**
+   * The processor's VERIFIED statement descriptor. A mismatch between this
+   * and the card statement is a chargeback — see docs/EMAILS.md.
+   */
   statementDescriptor?: string;
 };
 
+const DAY_MS = 86_400_000;
+
+/** "Aug 18, 2026" with the designer's non-breaking spaces, for the notice. */
+const nbsp = (s: string) => s.replace(/ /g, "&nbsp;");
+
 export function renderTrialStartedEmail(data: TrialStartedData): RenderedEmail {
   const links = resolveLinks(data);
-  const frequency = billingFrequency(data.billingIntervalWeeks ?? 4);
 
-  const planName = data.planName ?? "7-Day Full Access Trial";
+  const planName = data.planName ?? "7-Day Trial";
+  // TODO(primer): replace with the descriptor verified in the processor
+  // dashboard once Primer (Stripe underneath) is live — see docs/EMAILS.md.
   const statementDescriptor = data.statementDescriptor ?? "BARCODESQR.COM";
-  const amountCharged = formatMoney(data.amountCharged);
-  const nextChargeAmount = formatMoney(data.nextChargeAmount);
-  const trialStartedOn = formatDate(data.trialStartsAt);
-  const trialEndsOn = formatDate(data.trialEndsAt);
-  // The notice under the table drops the ISO code: "$39.95 every 4 weeks".
-  const renewalAmount = formatMoney(data.nextChargeAmount, { withCode: false });
+  const interval = data.renewalInterval ?? "month";
+
+  const amountCharged = formatMoney(data.amountCharged); // "$1.00 USD"
+  const amountChargedShort = formatMoney(data.amountCharged, { withCode: false });
+  const price = formatMoney(data.renewalAmount, { withCode: false });
+  const renewalPrice = `${price} / ${interval}`; // "$34.95 / month"
+  const renewalPriceCompact = `${price}/${interval}`; // preheader: "$34.95/month"
+
+  const days = Math.max(
+    0,
+    Math.round((data.firstRenewalAt.getTime() - data.trialStartsAt.getTime()) / DAY_MS),
+  );
+  const unit = days === 1 ? "day" : "days";
+  const trialPeriod = `${days} ${unit}`; // "7 days"
+  const firstRenewalOn = formatDate(data.firstRenewalAt);
 
   const html = fill(TRIAL_STARTED_HTML, {
     ...links,
     planName,
     amountCharged,
-    trialStartedOn,
-    trialEndsOn,
-    nextChargeAmount,
-    billingFrequency: frequency.title,
-    billingFrequencyLower: frequency.lowerHtml,
-    renewalAmount,
+    amountChargedShort,
+    trialPeriod,
+    renewalPrice,
+    renewalPriceCompact,
+    firstRenewalOn,
+    firstRenewalIn: `(in&nbsp;${days}&nbsp;${unit})`,
+    firstRenewalOnNbsp: nbsp(firstRenewalOn),
     statementDescriptor,
   });
 
   const text = [
-    "Your 7-Day Trial Is Active",
+    "Your BarcodesQR 7-Day Trial Is Active",
     "",
-    "Your QR code is ready and your BarcodesQR account has been created.",
+    "Thanks for joining BarcodesQR! Your payment was received and your trial " +
+      "has started. You now have full access to create, customize and manage " +
+      "your QR codes.",
     "",
-    `Manage my QR codes: ${links.dashboardUrl}`,
+    "What's included in your trial",
+    "- Create unlimited dynamic QR codes",
+    "- Access all 23 QR code types",
+    "- Customize colors, frames and styles",
+    "- Track scans with built-in analytics",
+    "- Edit dynamic destinations anytime without reprinting",
+    "- Download your QR codes in multiple formats",
     "",
-    "Transaction Details — Trial Active",
+    `Go to My Dashboard: ${links.dashboardUrl}`,
+    "",
+    "Your transaction receipt",
     `Plan: ${planName}`,
     `Charged today: ${amountCharged}`,
-    `Trial started: ${trialStartedOn}`,
-    `Trial ends: ${trialEndsOn}`,
-    `Next charge: ${nextChargeAmount}`,
-    `Billing frequency: ${frequency.title}`,
-    `Statement descriptor: ${statementDescriptor}`,
+    `Trial period: ${trialPeriod}`,
+    `Then renews at: ${renewalPrice}`,
+    `First renewal: ${firstRenewalOn} (in ${trialPeriod})`,
+    `Billing descriptor: ${statementDescriptor}`,
+    "Applicable taxes, if any, are shown at checkout.",
     "",
-    `Unless you cancel before ${trialEndsOn}, your subscription will ` +
-      `automatically continue at ${renewalAmount} ${frequency.lowerText}.`,
+    "You can cancel anytime before renewal from your dashboard. Unless " +
+      `canceled, your trial converts to the ${renewalPrice} subscription on ` +
+      `${firstRenewalOn}.`,
     "",
-    "What's included",
-    "- Unlimited QR code creation",
-    "- QR customization & download formats",
-    "- Unlimited scans",
-    "- Scan analytics & reporting",
+    "Need help? Visit our Help Center or contact support@barcodesqr.com.",
     "",
-    `Manage or cancel your subscription: ${links.manageUrl}`,
+    `Manage Subscription: ${links.manageUrl}`,
     ...textFooter(links, [
-      "You're receiving this email because you created a BarcodesQR account",
-      "and completed a trial purchase.",
-      "Thank you for choosing BarcodesQR!",
+      "This is a transactional email related to your BarcodesQR account.",
     ]),
   ].join("\n");
 

@@ -1,13 +1,17 @@
 # Transactional emails
 
-Two mailers are built, verified against the designer's files, and **not wired
-to anything**. They cannot be: both describe a payment, and nothing in this
-codebase takes one yet. This file is the instruction sheet for the day that
-changes.
+Two mailers are built and verified against the designer's files. **The trial
+email is sent from checkout** since 2026-11-20 (JB wanted testers to receive
+it in the real flow) even though no payment is taken yet. That call is
+temporary: it moves to Primer's payment-succeeded webhook when Primer (Stripe
+underneath) is integrated. Every spot is marked `TODO(primer)`, and
+`src/lib/trial.ts` lists what changes. The payment receipt is still not
+wired: renewals do not exist yet. This file is the instruction sheet for the
+day payments land.
 
 | Email | Subject | Sender | Renders |
 | ----- | ------- | ------ | ------- |
-| Trial started | `Your 7-Day Trial Is Active` | `sendTrialStartedEmail` | [trial mockup](../html_files/mailers/trial/index.html) |
+| Trial started | `Your BarcodesQR 7-Day Trial Is Active – Payment Confirmation` | `sendTrialStartedEmail` (via `sendTrialEmail` in lib/trial.ts) | [trial-v2 mockup](../html_files/mailers/trial-v2/index.html) |
 | Payment receipt | `Payment Received` | `sendPaymentReceiptEmail` | [receipt mockup](../html_files/mailers/receipt/index.html) |
 
 Both go out through Resend, via the same `send()` in `src/lib/mail.ts` that
@@ -44,10 +48,10 @@ designer specified `$39.95 USD`.
 import { sendTrialStartedEmail, sendPaymentReceiptEmail } from "@/lib/mail";
 
 await sendTrialStartedEmail(user.email, {
-  amountCharged: { amount: 100, currency: "USD" },   // $1.00 — charged today
-  trialStartsAt: new Date(...),
-  trialEndsAt: new Date(...),                        // also the cancel-by date
-  nextChargeAmount: { amount: 3995, currency: "USD" },
+  amountCharged: { amount: 100, currency: "USD" },   // $1.00 — charged today, tax included
+  trialStartsAt: new Date(...),                      // when the $1.00 succeeded
+  firstRenewalAt: new Date(...),                     // "First renewal: Aug 18, 2026 (in 7 days)"
+  renewalAmount: { amount: 3495, currency: "USD" },  // "$34.95 / month"
 });
 
 await sendPaymentReceiptEmail(user.email, {

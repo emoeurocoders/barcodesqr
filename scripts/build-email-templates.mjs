@@ -34,6 +34,12 @@ const IMAGES = [
   'hero_check.png',
   'ico_info.png',
   'ico_check.png',
+  // trial-v2 (2026-11-20)
+  'hero_qr.png',
+  'ico_layers.png',
+  'feat_qr.png',
+  'ico_receipt.png',
+  'ico_headset.png',
 ];
 
 /**
@@ -67,26 +73,45 @@ const CHROME = [
 
 const TEMPLATES = [
   {
+    // JB, 2026-11-20 (Monday 5740495302): trial-v2 replaces trial/ as the
+    // approved "trial started" email. One button this time, and a footer
+    // with Manage Subscription; the receipt rows changed shape.
     name: 'trialStarted',
-    src: 'trial/index.html',
+    src: 'trial-v2/index.html',
     constant: 'TRIAL_STARTED_HTML',
-    title: 'Your 7-Day Trial Is Active',
+    title: 'Your BarcodesQR 7-Day Trial Is Active – Payment Confirmation',
     edits: [
-      ...LINKS('{{dashboardUrl}}', '{{manageUrl}}'),
-      ...CHROME,
-      // --- Transaction Details rows, top to bottom ------------------------
-      { line: 364, find: '>7-Day Full Access Trial<', put: '>{{planName}}<' },
-      { line: 372, find: '>$1.00 USD<', put: '>{{amountCharged}}<' },
-      { line: 380, find: '>Sep 7, 2026<', put: '>{{trialStartedOn}}<' },
-      { line: 388, find: '>Sep 14, 2026<', put: '>{{trialEndsOn}}<' },
-      { line: 396, find: '>$39.95 USD<', put: '>{{nextChargeAmount}}<' },
-      { line: 404, find: '>Every 4 weeks<', put: '>{{billingFrequency}}<' },
-      { line: 412, find: '>BARCODESQR.COM<', put: '>{{statementDescriptor}}<' },
-      // --- Renewal notice. Their `&nbsp;` holds "4 weeks" on one line. ----
+      // "Go to My Dashboard", drawn twice: VML for Outlook, an anchor for
+      // everyone else.
+      { find: 'href="#LINK_MSO_VML"', put: 'href="{{dashboardUrl}}"' },
+      { find: 'href="#DONT_FORGET_TO_LINK_MSO_VML"', put: 'href="{{dashboardUrl}}"' },
+      { line: 249, find: '<a href="#" style="text-decoration: none;" >', put: '<a href="{{homeUrl}}" style="text-decoration: none;" >' },
+      { line: 536, find: '<a href="#" style="text-decoration: underline; color: #2563eb;">Help Center</a>', put: '<a href="{{helpUrl}}" style="text-decoration: underline; color: #2563eb;">Help Center</a>' },
+      { line: 572, find: '<a href="#" style="text-decoration: none; color: #2563eb;">Manage Subscription</a>', put: '<a href="{{manageUrl}}" style="text-decoration: none; color: #2563eb;">Manage Subscription</a>' },
+      { line: 572, find: '<a href="#" style="text-decoration: none; color: #2563eb;">Help Center</a>', put: '<a href="{{helpUrl}}" style="text-decoration: none; color: #2563eb;">Help Center</a>' },
+      { line: 572, find: '<a href="#" style="text-decoration: none; color: #2563eb;">Terms</a>', put: '<a href="{{termsUrl}}" style="text-decoration: none; color: #2563eb;">Terms</a>' },
+      { line: 572, find: '<a href="#" style="text-decoration: none; color: #2563eb;">Privacy</a>', put: '<a href="{{privacyUrl}}" style="text-decoration: none; color: #2563eb;">Privacy</a>' },
+      // --- Inbox preview line ----------------------------------------------
       {
-        line: 438,
-        find: 'Unless you cancel before <strong style="font-weight: 700;">Sep 14, 2026</strong>, your subscription will automatically continue at <strong style="font-weight: 700;">$39.95 every 4&nbsp;weeks</strong>.',
-        put: 'Unless you cancel before <strong style="font-weight: 700;">{{trialEndsOn}}</strong>, your subscription will automatically continue at <strong style="font-weight: 700;">{{renewalAmount}} {{{billingFrequencyLower}}}</strong>.',
+        line: 221,
+        find: 'Your $1.00 trial payment is confirmed. Enjoy 7 days of access, then $34.95/month unless canceled.',
+        put: 'Your {{amountChargedShort}} trial payment is confirmed. Enjoy {{trialPeriod}} of access, then {{renewalPriceCompact}} unless canceled.',
+      },
+      // --- Your transaction receipt, top to bottom (the file's own
+      //     "DYNAMIC FIELDS" note names these) -----------------------------
+      { line: 443, find: '>7-Day Trial<', put: '>{{planName}}<' },
+      { line: 448, find: '>$1.00 USD<', put: '>{{amountCharged}}<' },
+      { line: 453, find: '>7 days<', put: '>{{trialPeriod}}<' },
+      { line: 458, find: '>$34.95 / month<', put: '>{{renewalPrice}}<' },
+      // Raw: "(in&nbsp;7&nbsp;days)" keeps the designer's non-breaking spaces.
+      { line: 463, find: '>Aug 18, 2026 <', put: '>{{firstRenewalOn}} <' },
+      { line: 463, find: '(in&nbsp;7&nbsp;days)', put: '{{{firstRenewalIn}}}' },
+      { line: 468, find: '>BARCODESQR.COM<', put: '>{{statementDescriptor}}<' },
+      // --- Renewal notice. Their `&nbsp;`s hold the date on one line. ------
+      {
+        line: 503,
+        find: 'the <strong style="font-weight: 700; color: #0e1311;">$34.95 / month</strong> subscription on <strong style="font-weight: 700; color: #0e1311;">Aug&nbsp;18,&nbsp;2026</strong>.',
+        put: 'the <strong style="font-weight: 700; color: #0e1311;">{{renewalPrice}}</strong> subscription on <strong style="font-weight: 700; color: #0e1311;">{{{firstRenewalOnNbsp}}}</strong>.',
       },
     ],
   },
