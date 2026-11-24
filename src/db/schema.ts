@@ -1,4 +1,5 @@
 import type { AdapterAccountType } from "next-auth/adapters";
+import type { QrDesign } from "@/lib/qrDesign";
 import {
   bigserial,
   boolean,
@@ -145,6 +146,12 @@ export const qrCodes = pgTable(
     type: text("type").notNull(),
     name: text("name").notNull(),
     values: jsonb("values").$type<Record<string, string>>().notNull(),
+    /**
+     * Step 3's design (lib/qrDesign.ts): frame, colours, pattern, corners,
+     * logo. Null for codes saved before designs existed and for codes made
+     * without step 3 (mobile) — those download plain, as they always did.
+     */
+    design: jsonb("design").$type<QrDesign>(),
     draftKey: text("draft_key"),
     /**
      * The short code a hosted type's QR points at: /q/<slug>. Random, not

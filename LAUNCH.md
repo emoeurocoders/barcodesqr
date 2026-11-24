@@ -103,9 +103,9 @@ Still missing, in rough order:
 - **"Create QR code" is back in the toolbar**, as the mockup draws it. The
   PM had cut it, but the ready banner it relied on vanishes after a search
   or sort, and phones have no sidebar — there was no way to create.
-- **Codes download in the default black-on-white style.** Step 3 (colours,
-  frames) is shelved, so there is no style to save yet; a `style` column is
-  the place for it when it returns.
+- **Codes download in their step-3 design** since 2026-11-24 (`design`
+  column). Codes saved before that, or made on a phone, download plain as
+  they always did.
 - **Hosted types show their short link and scan count** in the
   dashboard (since 2026-10-23).
 - **The dashboard has no phone layout.** The table scrolls sideways below
@@ -166,9 +166,7 @@ write. That is correct least privilege and should stay, but it means
 reading the policy. Worth knowing before someone reads an `AccessDenied` as a
 broken bucket.
 
-### Step 3 (Customise & Protect) is shelved, not deleted
-
-`CreateWizard.tsx` keeps the whole step behind `--- SHELVED ---` comment blocks
+--- SHELVED ---` comment blocks
 against the PM changing their mind, and `StepCustomize.tsx` is still in the
 tree but unreferenced. Either restore it or delete it before launch; leaving
 dead UI in the bundle is how it gets half-restored later.
@@ -716,6 +714,98 @@ the mobile ones; only layout differs (`useDesktop()`).
   headings, then a full-width Download QR. Direct codes show Scans "N/A"
   ("Tracking unavailable" since 2026-11-19);
   hosted codes count real visits (zero so far because of the domain).
+
+## Step 3 Customize — create_customize_desktop.html, 2026-11-24 (JB, Monday 5748799333)
+
+Desktop only. The mobile customize design is coming separately, so on a
+phone `?step=customize` is ignored and Next saves as before (those codes
+stay plain).
+
+**One renderer** (`src/components/create/qrArt.ts`) draws the live preview,
+every frame thumbnail, the dashboard thumbnails and the PNG/JPG/SVG
+downloads. It draws the REAL code for the customer's content with the
+designer's CSS geometry, measured in headless Chrome at their 270px preview:
+- frames: `.qrFrm.frmX`;
+- patterns: `.qrM` rx and scale;
+- corner styles: `.qrEo`/`.qrEi`.
+
+So thumbnail = preview = download by construction. JB had flagged a
+mismatch: the file's thumbnails use their own label sizes, and its sub-pixel
+borders round to 1px. qr-code-styling no longer draws anything.
+
+**The preview encodes the code's own short link.** The slug is picked when
+the code is first built (`lib/slug.ts`), carried through checkout in the
+pending-QR stash, and adopted by `saveQrCode`. Preview and download are
+byte-identical, which was verified by decoding below. Before checkout that
+link is not live yet: scanning it shows "This QR code isn't active… starts
+working as soon as checkout is complete". This was decided 2026-11-24
+instead of serving unpaid drafts from our domain.
+
+**Readability guard** (`designIssue` in lib/qrDesign.ts, enforced in the UI
+and again by the server):
+- **Colours:** the code must be darker than its background, with at least
+  3:1 contrast (every preset passes); frame text must be legible on the
+  frame colour.
+- **Diamond corners** are refused with the Dots and Small-dot patterns.
+  That rule is measured, not guessed. Every pattern × corner style was
+  decoded with macOS CoreImage at three content sizes (short link,
+  full vCard, ~300-character text), at preview and print resolution:
+  - Small dots + Diamond failed every time;
+  - Dots + Diamond failed long content at print size;
+  - everything else decoded.
+- **Logos:** with a logo, error correction goes from Q to H. All five
+  patterns × two corner styles × three sizes decoded with a logo.
+- **Not done: a real decoder in the browser.** Installing `jsqr` was not
+  approved in-session; the guard is the measured rules above. Chrome's
+  native `BarcodeDetector` could add a live check where available (not
+  Windows or Safari).
+
+**Divergences from the file**, all deliberate:
+- **The sample-code copy is replaced:** under the preview, "This is your
+  actual QR code. Scan it with your phone to test it before you continue."
+  The tooltip says the same. JB: the preview must be the real code.
+- **Frame thumbnails** are exact miniatures of the real design, not the
+  file's own thumbnail CSS (JB).
+- **Branded Designs is disabled**, without a tag, until its templates exist
+  (JB). AI Designs is Coming Soon, as drawn.
+- **Bubble has no arrow above its pill.** The file's
+  `.qrLbl:before` is clipped by the label's own `overflow: hidden`, so it
+  never shows there either. It is reproduced, not fixed: a designer bug,
+  raised with JB.
+- **The colour swatches** draw a fixed sample code at 32px; a real code at
+  that size is noise.
+- **Downloads:**
+  - they omit the card shadow of Label and Top label (a preview effect);
+  - the No Frame and Ribbon downloads keep the file's thin grey box edge;
+  - JPG fills outside the rounded corners with white, while PNG and SVG
+    stay transparent.
+- **The SVG download** embeds Inter, so the lettering matches in any
+  browser. Vector apps that ignore embedded fonts fall back to Arial for
+  the frame text only.
+- **Unmocked states:**
+  - why Continue is disabled (red note);
+  - logo upload errors and "Uploading…";
+  - "Saving…";
+  - edit mode, where Step 3 saves back to the code;
+  - a paid customer sees no "Subscription required to download".
+- **Dashboard and checkout views:** dashboard thumbnails and the checkout
+  square show the design's colours and pattern unframed
+  (member_main.html draws bare coloured codes).
+
+**Where things live:**
+- **Storage:** additive migration 0005 adds `qr_code.design` (jsonb, null =
+  plain).
+- **Logos:** uploaded on pick to R2 under `logo/`, PNG/JPG/SVG up to 2 MB
+  (`QR_LOGO_FIELD`). Saved designs only accept logo URLs inside our bucket.
+
+**Still open:**
+- **Dependency:** `qrcode-generator` is imported directly but only installed
+  through `qr-code-styling`, which nothing else uses now. Make it a direct
+  dependency and drop `qr-code-styling` when dependency changes are
+  approved.
+- **Phone testing:** scanning a printed download with real phones (iOS
+  Camera, Google Lens) is still the final test, especially Diamond and
+  Fluid with Dots.
 
 ## Trial email — mailers/trial-v2, 2026-11-20 (JB, Monday 5740495302)
 

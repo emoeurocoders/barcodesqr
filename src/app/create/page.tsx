@@ -48,7 +48,7 @@ async function editingCode(session: Session | null, id: string | undefined) {
   const userId = session?.user?.id;
   if (!userId || !id) return undefined;
   const [row] = await db
-    .select({ id: qrCodes.id, type: qrCodes.type, name: qrCodes.name, values: qrCodes.values })
+    .select({ id: qrCodes.id, type: qrCodes.type, name: qrCodes.name, values: qrCodes.values, design: qrCodes.design, slug: qrCodes.slug })
     .from(qrCodes)
     .where(and(eq(qrCodes.id, id), eq(qrCodes.userId, userId)))
     .limit(1);

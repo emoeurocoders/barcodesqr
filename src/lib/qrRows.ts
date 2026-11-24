@@ -1,4 +1,5 @@
 import { encodeQr, intlPhone, isDynamic } from "@/components/create/encodeQr";
+import type { QrDesign } from "@/lib/qrDesign";
 import type { QrRow } from "@/components/dashboard/QrTable";
 
 /**
@@ -17,6 +18,7 @@ type Saved = {
   createdAt: Date;
   slug: string;
   scans: number;
+  design: QrDesign | null;
 };
 
 /** One line saying what the code holds — the bit someone scans for. */
@@ -76,6 +78,7 @@ export function toQrRow(row: Saved, newId?: string, updatedId?: string): QrRow {
     createdAt: row.createdAt.toISOString(),
     type: row.type,
     hosted: isDynamic(row.type, row.values),
+    design: row.design,
     // Counted only where a scan passes through us.
     scans: isDynamic(row.type, row.values) ? row.scans : null,
     isNew: row.id === newId,

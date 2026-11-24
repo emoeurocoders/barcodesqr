@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, Download, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { defaultQrStyle, downloadQr, prepareQr } from "@/components/create/QrPreview";
+import { downloadQr, prepareQr } from "@/components/create/QrPreview";
 import type { QrRow } from "./QrTable";
 
 /** Shown after a code is created; dismissible for the rest of the session. */
@@ -13,8 +13,8 @@ export function ReadyBanner({ row, edited = false }: { row: QrRow; edited?: bool
   // The one file this banner offers, rendered before it is asked for so
   // Safari lets the click download it.
   useEffect(() => {
-    prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {});
-  }, [row.qrValue, row.name]);
+    prepareQr(row.qrValue, row.design, row.name, "png").catch(() => {});
+  }, [row.qrValue, row.design, row.name]);
   if (!open) return null;
 
   return (
@@ -36,7 +36,7 @@ export function ReadyBanner({ row, edited = false }: { row: QrRow; edited?: bool
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button onClick={() => downloadQr(row.qrValue, defaultQrStyle, row.name, "png")}>
+        <Button onClick={() => downloadQr(row.qrValue, row.design, row.name, "png")}>
           <Download className="h-4 w-4" />
           Download QR
         </Button>

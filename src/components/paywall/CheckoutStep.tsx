@@ -4,7 +4,7 @@ import { useActionState, useState, useTransition } from "react";
 import Link from "next/link";
 import { Download, SquarePen, Lock, Mail } from "lucide-react";
 import { QrPreview } from "@/components/create/QrPreview";
-import type { QrStyle } from "@/components/create/QrPreview";
+import type { QrDesign } from "@/lib/qrDesign";
 import { checkout, checkoutWithGoogle } from "@/app/actions/paywall";
 import {
   formatCardNumber,
@@ -89,7 +89,8 @@ export function CheckoutStep({
   /** "Already a member? Log in" — unmocked; modal_join.html has no way in. */
   onLogin?: () => void;
   qrValue: string;
-  qrStyle: QrStyle;
+  /** Step 3's design; the square shows its colours and pattern, unframed. */
+  qrStyle: QrDesign | null;
 }) {
   const [email, setEmail] = useState("");
   const [fields, setFields] = useState<CardFields>({
@@ -160,12 +161,7 @@ export function CheckoutStep({
 
         <div className="relative mx-auto mt-[15px] w-max rounded-[14px] border border-[#dae0e8] bg-white p-[11px]">
           <div className="h-[165px] w-[165px]">
-            <QrPreview
-              value={qrValue}
-              style={qrStyle}
-              size={165}
-              className="h-full w-full"
-            />
+            <QrPreview value={qrValue} design={qrStyle} plain size={165} className="h-full w-full" />
           </div>
           <span className="absolute left-[33%] top-[33%] flex h-[34%] w-[34%] items-center justify-center rounded-full bg-white shadow-[0_4px_10px_rgba(14,19,17,0.25)]">
             <Lock className="w-[37%] text-primary" />

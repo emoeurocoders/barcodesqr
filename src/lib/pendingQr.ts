@@ -1,3 +1,5 @@
+import type { QrDesign } from "@/lib/qrDesign";
+
 /**
  * The QR code someone built before paying, kept in the browser across
  * checkout.
@@ -18,6 +20,10 @@ export type PendingQr = {
   type: string;
   name: string;
   values: Record<string, string>;
+  /** Step 3's design (desktop); the server re-validates it on save. */
+  design?: QrDesign | null;
+  /** The slug the previewed (and so printed-to-be) code encodes. */
+  slug?: string;
   /** Random per draft; saving the same draft twice inserts once. */
   draftKey: string;
   /** Epoch ms. Drafts older than a day are dropped rather than claimed. */

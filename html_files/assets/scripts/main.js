@@ -1734,4 +1734,163 @@ jQuery(document).ready(function($) {
 		});
 	}
 
+	//create step 3 desktop (create_customize_desktop.html) - design options drive the live preview, selections only (no content)
+	if ($('#mainCreate.createCust').length) {
+		var $cu = $('#mainCreate.createCust');
+		var $cuQr = $cu.find('.pvw .qrFrm');
+		var cuFrms = 'frmNone frmBrd frmLbl frmTop frmRnd frmBub frmRib frmSgn frmCrn';
+		var cuPats = 'patSq patDot patRnd patFld patSml';
+		var cuCrns = 'crnSq crnDot crnCir crnRnd crnDia';
+		var cuDefTxt = $cu.find('.frmTxt input').val();
+		function cuHex(theV) {
+			theV = $.trim(theV).replace(/^#?/, '#');
+			return /^#[0-9a-f]{6}$/i.test(theV) ? theV.toLowerCase() : null;
+		}
+		//one color var feeds the preview, the frame thumbnails and both advanced inputs
+		function cuSetVar(theVar, theVal) {
+			$cuQr.css(theVar, theVal);
+			$cu.find('.frmLst').css(theVar, theVal);
+			$cu.find('.adv input[data-var="' + theVar + '"]').each(function() {
+				$(this).val($(this).is('[type=color]') ? theVal : theVal.toUpperCase()).removeClass('error');
+			});
+		}
+
+		//frames
+		$cu.find('.frmLst input').on('change', function() {
+			$cuQr.removeClass(cuFrms).addClass($(this).attr('data-frm'));
+			$cu.find('.frmTxt').toggleClass('on', $(this).attr('data-txt') === '1');
+		});
+		$cu.find('.frmTxt input').on('input', function() {
+			var theV = $.trim($(this).val());
+			$cuQr.find('.qrLbl').text(theV || cuDefTxt);
+			$(this).siblings('.cnt').text($(this).val().length + '/' + $(this).attr('maxlength'));
+		});
+
+		//color themes
+		$cu.find('.clrLst input').on('change', function() {
+			cuSetVar('--qrFg', $(this).attr('data-fg'));
+			cuSetVar('--qrBg', $(this).attr('data-bg'));
+			cuSetVar('--qrFr', $(this).attr('data-fr'));
+		});
+
+		//advanced colors, a manual edit clears the theme highlight
+		$cu.find('.advBtn').on('click', function(e) {
+			e.preventDefault();
+			var theOn = !$(this).hasClass('on');
+			$(this).toggleClass('on', theOn).attr('aria-expanded', theOn ? 'true' : 'false');
+			$cu.find('.adv').toggleClass('on', theOn);
+		});
+		$cu.find('.adv input[type=color]').on('input change', function() {
+			cuSetVar($(this).attr('data-var'), $(this).val());
+			$cu.find('.clrLst input').prop('checked', false);
+		});
+		$cu.find('.adv input[type=text]').on('input', function() {
+			var theV = cuHex($(this).val());
+			$(this).toggleClass('error', !theV);
+			if (!theV) return;
+			cuSetVar($(this).attr('data-var'), theV);
+			$cu.find('.clrLst input').prop('checked', false);
+		}).on('blur', function() {
+			if (cuHex($(this).val())) return;
+			var theCur = $cu.find('.adv input[type=color][data-var="' + $(this).attr('data-var') + '"]').val();
+			$(this).val(theCur.toUpperCase()).removeClass('error');
+		});
+
+		//patterns + corners
+		$cu.find('.patLst input').on('change', function() {
+			$cuQr.removeClass(cuPats).addClass($(this).attr('data-pat'));
+		});
+		$cu.find('.crnLst input').on('change', function() {
+			$cuQr.removeClass(cuCrns).addClass($(this).attr('data-crn'));
+		});
+
+		//optional logo
+		var $lgo = $cu.find('.lgoBox');
+		function cuClearLgo() {
+			$lgo.removeClass('has').find('.uplPrv img').removeAttr('src');
+			$lgo.find('.nme').text('');
+			$lgo.find('input[type=file]').val('');
+			$cuQr.removeClass('hasLgo').find('.qrLgo img').removeAttr('src');
+		}
+		$cu.find('.logo .tgl input').on('change', function() {
+			$cuQr.toggleClass('hasLgo', this.checked && $lgo.hasClass('has'));
+		});
+		$lgo.find('input[type=file]').on('change', function() {
+			var theFile = this.files && this.files[0];
+			if (!theFile || !window.FileReader) return;
+			var theReader = new FileReader();
+			theReader.onload = function(ev) {
+				$lgo.addClass('has').find('.uplPrv img').attr('src', ev.target.result);
+				$lgo.find('.nme').text(theFile.name);
+				$cuQr.addClass('hasLgo').find('.qrLgo img').attr('src', ev.target.result);
+			};
+			theReader.readAsDataURL(theFile);
+		});
+		$lgo.find('.rmv').on('click', function(e) {
+			e.preventDefault();
+			cuClearLgo();
+		});
+
+		//reset to default: customization selections only, the content from step 2 is never touched
+		$cu.find('.opt .rst').on('click', function(e) {
+			e.preventDefault();
+			$cu.find('.frmLst, .clrLst, .patLst, .crnLst').find('input[data-def]').prop('checked', true).trigger('change');
+			$cu.find('.frmTxt input').val(cuDefTxt).trigger('input');
+			$cu.find('.advBtn').removeClass('on').attr('aria-expanded', 'false');
+			$cu.find('.adv').removeClass('on');
+			$cu.find('.logo .tgl input').prop('checked', false);
+			cuClearLgo();
+		});
+
+		//frame carousel arrows
+		var $trk = $cu.find('.car .trk');
+		function cuArws() {
+			var theMax = $trk[0].scrollWidth - $trk[0].clientWidth - 1;
+			var theStart = $trk.scrollLeft() <= 0;
+			var theEnd = $trk.scrollLeft() >= theMax;
+			$cu.find('.car').toggleClass('start', theStart).toggleClass('end', theEnd);
+			$cu.find('.car .prv').toggleClass('dis', theStart);
+			$cu.find('.car .nxt').toggleClass('dis', theEnd);
+		}
+		$cu.find('.car .arw').on('click', function(e) {
+			e.preventDefault();
+			var theStep = $trk.find('.itm').outerWidth(true) * 2;
+			$trk.scrollLeft($trk.scrollLeft() + ($(this).hasClass('nxt') ? theStep : -theStep));
+		});
+		$trk.on('scroll', cuArws);
+		$(window).on('resize', cuArws);
+		cuArws();
+		//a picked tile always comes fully into view, first / last snap to the track ends (clear of the edge fades)
+		$cu.find('.frmLst input').on('change', function() {
+			var $itm = $(this).closest('.itm');
+			var theIdx = $itm.index();
+			var theCur = $trk.scrollLeft();
+			var theMax = $trk[0].scrollWidth - $trk[0].clientWidth;
+			var theTr = $trk[0].getBoundingClientRect();
+			var theIr = $itm[0].getBoundingClientRect();
+			var thePad = 36;
+			var theTo = theCur;
+			if (theIdx === 0) theTo = 0;
+			else if (theIdx === $itm.siblings().length) theTo = theMax;
+			else if (theIr.left < theTr.left + thePad) theTo = theCur - (theTr.left + thePad - theIr.left);
+			else if (theIr.right > theTr.right - thePad) theTo = theCur + (theIr.right - (theTr.right - thePad));
+			if (theTo !== theCur) $trk.scrollLeft(Math.max(0, Math.min(theMax, theTo)));
+		});
+
+		//info tooltips, click to open, outside click or Escape closes
+		$cu.on('click', '.tipWrp .tipIco', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var $w = $(this).closest('.tipWrp');
+			$cu.find('.tipWrp').not($w).removeClass('on');
+			$w.toggleClass('on');
+		});
+		$(document).on('click', function() {
+			$cu.find('.tipWrp').removeClass('on');
+		});
+		$(document).on('keydown', function(e) {
+			if (e.key === 'Escape') $cu.find('.tipWrp').removeClass('on');
+		});
+	}
+
 });

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { QrPreview, defaultQrStyle } from "../QrPreview";
+import { QrPreview } from "../QrPreview";
 import { encodeQr } from "../encodeQr";
 import { wifiIssues } from "../validate";
 import { cropStyle, fileSrc, filledLinks, linkCaption, parseMenuItems, parseStoredFile } from "../storedValues";
@@ -309,7 +309,6 @@ export function WifiPreview({ values, open, onToggle }: Props) {
         {real ? (
           <QrPreview
             value={real}
-            style={defaultQrStyle}
             size={400}
             className={`mx-auto block overflow-hidden rounded-[11.4px] border border-mc-pv-ic-line bg-white p-[6px] [&>svg]:h-full [&>svg]:w-full ${qrBox}`}
           />

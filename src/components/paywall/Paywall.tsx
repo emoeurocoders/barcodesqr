@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { QrStyle } from "@/components/create/QrPreview";
+import type { QrDesign } from "@/lib/qrDesign";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { PaywallShell } from "./PaywallShell";
 import { CheckoutStep } from "./CheckoutStep";
@@ -20,7 +20,7 @@ export function Paywall({
 }: {
   open: boolean;
   qrValue: string;
-  qrStyle: QrStyle;
+  qrStyle: QrDesign | null;
   onClose: () => void;
 }) {
   // A member who reached the join form (Tami, 2026-11-03: "no way to login

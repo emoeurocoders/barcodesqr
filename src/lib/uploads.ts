@@ -18,9 +18,17 @@ export type UploadTarget = { accept?: string; maxSizeMb: number };
 export const LINK_LOGO_FIELD = "linkLogo";
 const LINK_LOGO: UploadTarget = { accept: "image/*", maxSizeMb: 2 };
 
+/**
+ * The logo in step 3's design (create_customize_desktop.html: "PNG, JPG or
+ * SVG · Max 2 MB"). Like the per-link logo, it belongs to no form field.
+ */
+export const QR_LOGO_FIELD = "qrLogo";
+const QR_LOGO: UploadTarget = { accept: "image/png,image/jpeg,image/svg+xml", maxSizeMb: 2 };
+
 /** The limits for one file field, or null if that field takes no file. */
 export function uploadTarget(type: string, field: string): UploadTarget | null {
   if (field === LINK_LOGO_FIELD) return LINK_LOGO;
+  if (field === QR_LOGO_FIELD) return QR_LOGO;
 
   const found = fieldSchema[type]?.find(
     (f) => f.name === field && f.type === "file",

@@ -1,4 +1,4 @@
-import { LINK_LOGO_FIELD, matchesAccept, uploadTarget } from "@/lib/uploads";
+import { LINK_LOGO_FIELD, QR_LOGO_FIELD, matchesAccept, uploadTarget } from "@/lib/uploads";
 
 /**
  * Puts one picked file into R2 and returns where it landed.
@@ -99,5 +99,26 @@ export async function uploadLinkLogo(type: string, file: File): Promise<string> 
     throw e instanceof UploadError
       ? e
       : new UploadError("That logo could not be uploaded.");
+  }
+}
+
+/**
+ * Step 3's logo: PNG, JPG or SVG up to 2 MB (create_customize_desktop.html),
+ * checked here and again by the server, then uploaded the moment it is
+ * picked — the design only ever holds the stored file's URL.
+ */
+export async function uploadQrLogo(type: string, file: File): Promise<string> {
+  const limits = uploadTarget(type, QR_LOGO_FIELD)!;
+  if (!matchesAccept(file.name, file.type, limits.accept)) {
+    throw new UploadError("Logos must be PNG, JPG or SVG images.");
+  }
+  if (file.size > limits.maxSizeMb * 1024 * 1024) {
+    throw new UploadError(`This logo is too large — the maximum size is ${limits.maxSizeMb} MB.`);
+  }
+  try {
+    const { url } = await uploadFile({ type, field: QR_LOGO_FIELD, file });
+    return url;
+  } catch (e) {
+    throw e instanceof UploadError ? e : new UploadError("That logo could not be uploaded.");
   }
 }

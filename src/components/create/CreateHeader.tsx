@@ -13,7 +13,18 @@ import Link from "next/link";
 
 const steps = ["Choose QR Type", "Add Content", "Customize & Download"];
 
-export function CreateHeader({ current = 1, logoOnly = false }: { current?: number; logoOnly?: boolean }) {
+export function CreateHeader({
+  current = 1,
+  logoOnly = false,
+  backLabel,
+  onBack,
+}: {
+  current?: number;
+  logoOnly?: boolean;
+  /** Step 3 (create_customize_desktop.html): "Back / Edit Content". */
+  backLabel?: string;
+  onBack?: () => void;
+}) {
   return (
     <>
       <div aria-hidden="true" className="h-[71px] min-[1300px]:h-[83px]" />
@@ -34,6 +45,9 @@ export function CreateHeader({ current = 1, logoOnly = false }: { current?: numb
           <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center [@media(max-width:1150px)]:hidden">
             {steps.map((label, i) => {
               const on = i + 1 === current;
+              // Step 3's file marks earlier steps done (`.stp.cpl`): a tick in
+              // a blue-tinted dot, the name in grey.
+              const done = i + 1 < current;
               return (
                 <div
                   key={label}
@@ -42,14 +56,20 @@ export function CreateHeader({ current = 1, logoOnly = false }: { current?: numb
                 >
                   <div
                     className={`flex h-7 w-7 flex-none items-center justify-center rounded-full text-[13px] font-bold ${
-                      on ? "bg-primary text-white" : "bg-cd-step text-muted"
+                      on ? "bg-primary text-white" : done ? "bg-cd-step-done text-primary" : "bg-cd-step text-muted"
                     }`}
                   >
-                    {i + 1}
+                    {done ? (
+                      <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="block h-[14px] w-[14px]">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : (
+                      i + 1
+                    )}
                   </div>
                   <h5
                     className={`ml-2.5 text-[15px] leading-[normal] whitespace-nowrap ${
-                      on ? "font-bold text-primary" : "font-semibold text-faint"
+                      on ? "font-bold text-primary" : done ? "font-semibold text-muted" : "font-semibold text-faint"
                     }`}
                   >
                     {label}
@@ -61,7 +81,33 @@ export function CreateHeader({ current = 1, logoOnly = false }: { current?: numb
 
           )}
 
-          {!logoOnly && (
+          {!logoOnly && onBack && (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              onBack();
+            }}
+            className="my-2.5 flex items-center gap-2 rounded-[12px] border border-cd-btn-line bg-white px-4 py-2.5 text-[14.5px] leading-[normal] font-semibold text-ink"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4 flex-none"
+            >
+              <path d="M19 12H5"></path>
+              <path d="m12 19-7-7 7-7"></path>
+            </svg>
+            {backLabel ?? "Back"}
+          </a>
+          )}
+
+          {!logoOnly && !onBack && (
           <Link
             href="/"
             className="my-2.5 flex items-center gap-2 rounded-[12px] border border-cd-btn-line bg-white px-4 py-2.5 text-[14.5px] leading-[normal] font-semibold text-ink"

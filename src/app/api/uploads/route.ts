@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     return bad("That file type isn't supported.");
   }
 
-  const key = uploadKey(field === "linkLogo" ? "logo" : type, filename);
+  const key = uploadKey(field === "linkLogo" || field === "qrLogo" ? "logo" : type, filename);
 
   return Response.json({
     key,

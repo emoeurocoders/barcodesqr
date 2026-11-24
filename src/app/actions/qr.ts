@@ -6,6 +6,9 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { qrCodes, users } from "@/db/schema";
 import { fieldSchema } from "@/components/create/fieldSchema";
+import { env } from "@/lib/env";
+import { cleanDesign, type QrDesign } from "@/lib/qrDesign";
+import { isSlug, newSlug } from "@/lib/slug";
 
 /**
  * Save a finished QR code to the signed-in customer's account.
@@ -22,9 +25,31 @@ export type SaveQrInput = {
   values: Record<string, string>;
   /** The draft's random key, when this is a claimed draft. */
   draftKey?: string;
+  /** Step 3's design; re-validated here (lib/qrDesign.ts). */
+  design?: unknown;
+  /**
+   * The slug step 3's preview already encodes. Adopted when well formed and
+   * free, so the saved code IS the previewed one; otherwise a fresh one.
+   */
+  slug?: string;
 };
 
 export type SaveQrResult = { id: string } | { error: string };
+
+/**
+ * The design to store: null when none was sent (mobile, which has no step 3
+ * yet — drawn plain, as codes always were), the cleaned design otherwise,
+ * the untouched default included: it is what the customer saw in step 3's
+ * preview, so it is what they download. `undefined` means the browser sent
+ * something that fails validation — a colour pair that would not scan, a
+ * logo from outside our bucket — which is refused rather than quietly
+ * replaced, since the customer chose it on purpose.
+ */
+function storedDesign(raw: unknown): QrDesign | null | undefined {
+  if (raw == null) return null;
+  const d = cleanDesign(raw, env.STORAGE_PUBLIC_BASE_URL);
+  return d ?? undefined;
+}
 
 /** Every format the creator offers, by the key the encoder knows it by. */
 const knownTypes = new Set(Object.keys(fieldSchema));
@@ -66,14 +91,8 @@ async function payingUser(): Promise<{ userId: string } | { error: string }> {
   return { userId };
 }
 
-const ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 /** 8 random base62 characters: short to print, impossible to guess or walk. */
-function newSlug() {
-  const bytes = crypto.getRandomValues(new Uint8Array(8));
-  // 256 % 62 skews a few characters very slightly; irrelevant for this.
-  return Array.from(bytes, (b) => ALPHABET[b % 62]).join("");
-}
 
 const cleanName = (raw: unknown) => String(raw ?? "").trim().slice(0, 40) || "My QR Code";
 
@@ -92,6 +111,9 @@ export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
   // Set here, not by the browser, and never on codes saved before.
   const values = type === "website" ? { ...cleaned, routing: "managed" } : cleaned;
 
+  const design = storedDesign(input?.design);
+  if (design === undefined) return { error: "That design can't be saved — its colors wouldn't scan reliably." };
+
   const name = cleanName(input?.name);
   const draftKey =
     typeof input?.draftKey === "string" && /^[A-Za-z0-9-]{8,64}$/.test(input.draftKey)
@@ -103,9 +125,10 @@ export async function saveQrCode(input: SaveQrInput): Promise<SaveQrResult> {
   let row: { id: string } | undefined;
   for (let attempt = 0; ; attempt++) {
     try {
+      const slug = attempt === 0 && isSlug(input?.slug) ? input.slug : newSlug();
       [row] = await db
         .insert(qrCodes)
-        .values({ userId, type, name, values, draftKey, slug: newSlug() })
+        .values({ userId, type, name, values, design, draftKey, slug })
         // A draft claimed twice inserts once; the second claim finds the first.
         .onConflictDoNothing({ target: [qrCodes.userId, qrCodes.draftKey] })
         .returning({ id: qrCodes.id });
@@ -139,6 +162,8 @@ export async function updateQrCode(input: {
   id: string;
   name: string;
   values: Record<string, string>;
+  /** Only when step 3 ran (desktop); absent, the stored design is kept. */
+  design?: unknown;
 }): Promise<SaveQrResult> {
   const who = await payingUser();
   if ("error" in who) return who;
@@ -158,9 +183,13 @@ export async function updateQrCode(input: {
   void _ignored;
   const values = current.values.routing ? { ...rest, routing: current.values.routing } : rest;
 
+  const touchDesign = input && "design" in input;
+  const design = touchDesign ? storedDesign(input.design) : null;
+  if (design === undefined) return { error: "That design can't be saved — its colors wouldn't scan reliably." };
+
   const [row] = await db
     .update(qrCodes)
-    .set({ name: cleanName(input.name), values, updatedAt: new Date() })
+    .set({ name: cleanName(input.name), values, ...(touchDesign ? { design } : {}), updatedAt: new Date() })
     .where(and(eq(qrCodes.id, input.id), eq(qrCodes.userId, who.userId)))
     .returning({ id: qrCodes.id });
   return row ? { id: row.id } : { error: "That QR code couldn't be found." };

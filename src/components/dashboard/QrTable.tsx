@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteQrCode } from "@/app/actions/qr";
 import { Download, ExternalLink, Copy, Check, EllipsisVertical } from "lucide-react";
-import { QrPreview, defaultQrStyle, downloadQr, preloadQr, prepareQr } from "@/components/create/QrPreview";
+import { QrPreview, downloadQr, preloadQr, prepareQr } from "@/components/create/QrPreview";
+import type { QrDesign } from "@/lib/qrDesign";
 import { allTypes } from "@/components/create/qrTypes";
 import { designerTypeIcons } from "@/components/create/designerTypeIcons";
 
@@ -28,6 +29,8 @@ export type QrRow = {
   type: string;
   /** Served from a hosted page (dynamic) rather than carried in the code. */
   hosted: boolean;
+  /** Step 3's design; null draws and downloads plain, as codes always did. */
+  design: QrDesign | null;
   /** Scans so far — hosted codes only; a direct code never reaches us. */
   scans: number | null;
   isNew?: boolean;
@@ -168,8 +171,8 @@ function RowMenu({ row, onDelete }: { row: QrRow; onDelete: () => void }) {
   const toggle = () => {
     if (open) return setPos(null);
     // Ready before a choice is made: Safari drops a late download.
-    prepareQr(row.qrValue, defaultQrStyle, row.name, "svg").catch(() => {});
-    prepareQr(row.qrValue, defaultQrStyle, row.name, "jpeg").catch(() => {});
+    prepareQr(row.qrValue, row.design, row.name, "svg").catch(() => {});
+    prepareQr(row.qrValue, row.design, row.name, "jpeg").catch(() => {});
     const r = btn.current!.getBoundingClientRect();
     const left = Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8));
     // Four items at 36px plus padding.
@@ -210,7 +213,7 @@ function RowMenu({ row, onDelete }: { row: QrRow; onDelete: () => void }) {
                 role="menuitem"
                 onClick={() => {
                   setPos(null);
-                  downloadQr(row.qrValue, defaultQrStyle, row.name, ext);
+                  downloadQr(row.qrValue, row.design, row.name, ext);
                 }}
                 className={`${item} text-ink`}
               >
@@ -319,12 +322,7 @@ function Row({ row }: { row: QrRow }) {
         <span className="relative grid h-[50px] w-[50px] shrink-0 place-items-center rounded-lg border border-line bg-white">
           {/* Drawn at 200 and shrunk: drawn at 40 the modules round to
               under a pixel and the thumbnail stops being a working code. */}
-          <QrPreview
-            value={row.qrValue}
-            style={defaultQrStyle}
-            size={200}
-            className="h-10 w-10 [&>svg]:h-full [&>svg]:w-full"
-          />
+          <QrPreview value={row.qrValue} design={row.design} plain size={40} className="h-10 w-10" />
           {row.isNew && (
             <span className="absolute -bottom-1.5 rounded bg-brand px-1.5 py-0.5 text-[9px] font-bold text-white">
               NEW
@@ -410,10 +408,10 @@ function Row({ row }: { row: QrRow }) {
         <button
           type="button"
           // Started as the pointer arrives, finished by the click (Safari).
-          onPointerEnter={() => prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {})}
-          onPointerDown={() => prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {})}
-          onFocus={() => prepareQr(row.qrValue, defaultQrStyle, row.name, "png").catch(() => {})}
-          onClick={() => downloadQr(row.qrValue, defaultQrStyle, row.name, "png")}
+          onPointerEnter={() => prepareQr(row.qrValue, row.design, row.name, "png").catch(() => {})}
+          onPointerDown={() => prepareQr(row.qrValue, row.design, row.name, "png").catch(() => {})}
+          onFocus={() => prepareQr(row.qrValue, row.design, row.name, "png").catch(() => {})}
+          onClick={() => downloadQr(row.qrValue, row.design, row.name, "png")}
           className={`inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg max-md:flex-1 max-md:justify-center max-md:py-2.5 bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark ${
             // member_main.html: only the just-saved row (`.itm.on`) has the
             // full button on desktop; every other row has `.dwn`, a 38px

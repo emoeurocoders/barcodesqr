@@ -437,6 +437,24 @@
   --color-cd-step: #eef1f5;
   --color-cd-step-rule: #e5e9ee;
   --color-cd-btn-line: #e3e7ec;
+  /* create_customize_desktop.html (step 3, 2026-11-24). */
+  --color-cd-step-done: #eaf3ff;
+  --color-cz-tile-on: #f5f8ff;
+  --color-cz-card-on: #eff4ff;
+  --color-cz-rule: #eceef2;
+  --color-cz-input-line: #d9dfe4;
+  --color-cz-adv: #f7f9fa;
+  --color-cz-adv-line: #eef1f3;
+  --color-cz-focus: #bfdbfe;
+  --color-cz-tag: #f3e8ff;
+  --color-cz-tag-ink: #7c3aed;
+  --color-cz-upload-line: #d1d5db;
+  --color-cz-thumb-line: #e3e7ee;
+  --color-cz-remove: #dc2626;
+  --color-cz-stage-line: #dae0e8;
+  --color-cz-test: #eff4ff;
+  --color-cz-test-line: #dbe7ff;
+  --color-cz-tip: #0e1311;
 
   /* Typography */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,

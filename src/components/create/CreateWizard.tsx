@@ -21,7 +21,6 @@ import {
 import { mobileTypes } from "./mobile/forms";
 import { useIsMobile } from "./useIsMobile";
 import { StepContent } from "./StepContent";
-// Shelved with step 3: import { StepCustomize } from "./StepCustomize";
 import { VCardPreview } from "./VCardPreview";
 import { MultiLinkPreview } from "./MultiLinkPreview";
 import { SocialPreview } from "./SocialPreview";
@@ -44,8 +43,10 @@ import { EventPreview } from "./previews/EventPreview";
 import { BusinessPreview } from "./previews/BusinessPreview";
 import { WifiPreview } from "./previews/WifiPreview";
 import { GoogleReviewPreview } from "./previews/GoogleReviewPreview";
-import { QrPreview, defaultQrStyle } from "./QrPreview";
-import type { QrStyle } from "./QrPreview";
+import { QrPreview } from "./QrPreview";
+import { DEFAULT_DRAFT, StepDesign, effectiveDesign, type DesignDraft } from "./StepDesign";
+import type { QrDesign } from "@/lib/qrDesign";
+import { newSlug } from "@/lib/slug";
 import { allTypes } from "./qrTypes";
 import { encodeQr, isDynamic } from "./encodeQr";
 import { Tracked } from "./mobile/ui";
@@ -68,7 +69,7 @@ const defaultName = (type: string) => {
 // and nothing filled-but-malformed — so a URL without a TLD blocks Next.
 
 /** A saved code reopened from the dashboard's "Edit". */
-export type EditingCode = { id: string; type: string; name: string; values: Values };
+export type EditingCode = { id: string; type: string; name: string; values: Values; design: QrDesign | null; slug: string };
 
 export function CreateWizard({
   entitled,
@@ -89,11 +90,14 @@ export function CreateWizard({
    * which Next syncs into `useSearchParams` without a server round trip.
    */
   const urlType = params.get("type");
-  const step = urlType && allTypes.some((t) => t.value === urlType) ? 2 : 1;
+  // Step 3 is `&step=customize` on top of step 2's URL. Desktop only — the
+  // mobile customize design is still coming, so a phone stays on step 2.
+  const validType = !!urlType && allTypes.some((t) => t.value === urlType);
+  const step = !validType ? 1 : params.get("step") === "customize" && !isMobile ? 3 : 2;
 
   // The last type chosen; the open form's type when on step 2.
   const [picked, setPicked] = useState("website");
-  const type = step === 2 ? urlType! : picked;
+  const type = step >= 2 ? urlType! : picked;
 
   /**
    * What has been typed, kept per type. Going Back and reopening the same
@@ -107,7 +111,7 @@ export function CreateWizard({
   );
   // Editing applies to the saved code's own type only; anything else on the
   // URL is an ordinary new code.
-  const isEditing = !!editing && step === 2 && type === editing.type;
+  const isEditing = !!editing && step >= 2 && type === editing.type;
   const current =
     draft.type === type ? draft : { type, values: {}, name: defaultName(type) };
   const values = current.values;
@@ -126,35 +130,37 @@ export function CreateWizard({
   /** Whether step 2 was reached from this page, i.e. there is a step 1 to go back to. */
   const pushed = useRef(false);
 
-  // The style is still read by step 2's preview; only the customiser wrote to
-  // it, so the setter is shelved with step 3.
-  const [style] = useState<QrStyle>(defaultQrStyle);
+  /**
+   * Step 3's design, kept here so Back / Edit Content and coming back again
+   * find it as it was left (JB). An edited code starts from its saved design;
+   * a code saved before designs starts from the default, and only takes it if
+   * the customer continues through step 3 (they saw it in the preview).
+   */
+  const [designDraft, setDesignDraft] = useState<DesignDraft>(() => {
+    const d = editing?.design;
+    if (!d) return DEFAULT_DRAFT;
+    return {
+      design: { ...d, logo: null },
+      logoOn: !!d.logo,
+      logoUrl: d.logo,
+      logoName: d.logo ? decodeURIComponent(d.logo.split("/").pop() ?? "").replace(/^[\w-]{8,}-/, "") : "",
+    };
+  });
+  const setDraftFn = (u: (d: DesignDraft) => DesignDraft) => setDesignDraft(u);
 
-  /* --- STEP 3 STATE — SHELVED ---------------------------------------------
-     Restore alongside the two blocks below.
+  /**
+   * The short link this code will have. Fixed now, not at save, so every
+   * preview — step 3's especially — encodes exactly what will be downloaded
+   * (JB, 2026-11-24). Until checkout saves the code, scanning it shows "isn't
+   * active yet" (q/[slug]/not-found.tsx).
+   */
+  const [slug] = useState(() => editing?.slug ?? newSlug());
 
-     WHEN THE DOWNLOAD IS RESTORED, call markDownloaded() from
-     lib/reviewPrompt.ts inside the download handler, on SUCCESS only:
-
-       import { markDownloaded } from "@/lib/reviewPrompt";
-       ...
-       onClick={() => { download?.(ext); markDownloaded(); }}
-
-     That is the trigger for the review modal. It records eligibility and
-     nothing else — the modal deliberately does NOT open here. It opens on the
-     next dashboard view, so the ask never lands on top of the download the
-     customer just came for. See lib/reviewPrompt.ts.
-
-     const [style, setStyle] = useState<QrStyle>(defaultQrStyle);
-     const [password, setPassword] = useState("");
-
-     // The exporter handed up by the QR renderer once it has a canvas to
-     // read. State rather than a ref: the download buttons' behaviour
-     // depends on whether it has arrived, and that is what state is for.
-     const [download, setDownload] = useState<
-       ((ext: "png" | "jpeg" | "svg") => void) | null
-     >(null);
-  ----------------------------------------------------------------------- */
+  /*
+     WHEN A DOWNLOAD HAPPENS IN THE CREATOR, call markDownloaded() from
+     lib/reviewPrompt.ts on success — that is the review modal's trigger.
+     Downloads live on the dashboard for now (step 3 continues to checkout).
+  */
 
   // A new Website code will be saved as managed (actions/qr), so it is
   // previewed as one; an edited one keeps the routing it was saved with.
@@ -162,8 +168,8 @@ export function CreateWizard({
   // through the redirect (all new ones); an edited code keeps what it was.
   const tracked = isEditing ? isDynamic(type, values) : isDynamic(type) || type === "website";
   const qrValue = useMemo(
-    () => encodeQr(type, !isEditing && type === "website" ? { ...values, routing: "managed" } : values),
-    [type, values, isEditing],
+    () => encodeQr(type, !isEditing && type === "website" ? { ...values, routing: "managed" } : values, slug),
+    [type, values, isEditing, slug],
   );
   const complete = isComplete(type, values);
 
@@ -189,7 +195,8 @@ export function CreateWizard({
    */
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const finishStepTwo = async () => {
+  /** Saved, or stashed and paywalled. `design` only from step 3. */
+  const save = async (design?: QrDesign) => {
     if (saving) return;
     // Times typed into Event and Business mean the creator's own clock;
     // the zone is saved with them so the code means the same moment for
@@ -202,7 +209,12 @@ export function CreateWizard({
     if (isEditing) {
       setSaving(true);
       setSaveError(null);
-      const res = await updateQrCode({ id: editing!.id, name: draft.name, values: zoned });
+      const res = await updateQrCode({
+        id: editing!.id,
+        name: draft.name,
+        values: zoned,
+        ...(design ? { design } : {}),
+      });
       if ("id" in res) {
         router.push(`/dashboard?updated=${encodeURIComponent(res.id)}`);
       } else {
@@ -212,13 +224,13 @@ export function CreateWizard({
       return;
     }
     if (!entitled) {
-      stashPendingQr(draft);
+      stashPendingQr({ ...draft, design: design ?? null, slug });
       paywall.show();
       return;
     }
     setSaving(true);
     setSaveError(null);
-    const res = await saveQrCode(draft);
+    const res = await saveQrCode({ ...draft, design, slug });
     if ("id" in res) {
       router.push(`/dashboard?new=${encodeURIComponent(res.id)}`);
     } else {
@@ -226,6 +238,43 @@ export function CreateWizard({
       setSaveError(res.error);
     }
   };
+
+  /** Whether step 3 was pushed from step 2 here, i.e. Back can pop it. */
+  const pushedDesign = useRef(false);
+  /**
+   * Step 2's Next. On desktop it opens step 3 (create_customize_desktop.html,
+   * JB 2026-11-24), which saves; on a phone, which has no step 3 yet, it
+   * saves straight away as before.
+   */
+  const finishStepTwo = () => {
+    if (isMobile) {
+      void save();
+      return;
+    }
+    const q = new URLSearchParams(window.location.search);
+    q.set("step", "customize");
+    pushedDesign.current = true;
+    window.history.pushState(null, "", `/create?${q}`);
+  };
+  /** Back / Edit Content: to step 2, design kept. */
+  const backFromDesign = () => {
+    if (pushedDesign.current) {
+      pushedDesign.current = false;
+      window.history.back();
+      return;
+    }
+    const q = new URLSearchParams(window.location.search);
+    q.delete("step");
+    window.history.replaceState(null, "", `/create?${q}`);
+  };
+  // Step 3 reached by URL with nothing to encode yet: back to the form.
+  useEffect(() => {
+    if (step === 3 && !complete) {
+      const q = new URLSearchParams(window.location.search);
+      q.delete("step");
+      window.history.replaceState(null, "", `/create?${q}`);
+    }
+  }, [step, complete]);
 
   // Choosing a type advances immediately — on the live creator one click on a
   // format takes you into its form, and the 2026-10-15 mobile picker does the
@@ -277,39 +326,10 @@ export function CreateWizard({
           name={name}
           setName={setName}
         />
-        {/* --- STEP 3 — SHELVED ------------------------------------
-            Customise & Protect, kept whole against the PM changing
-            their mind. Restore this and the footer block below, put
-            the `step === 2 ?` ternaries back around both, and have
-            `finishStepTwo` push step 3 — the step now lives in the URL
-            (`?type=`), so add a `&step=3` the way `chooseType` pushes.
-
-            <StepCustomize
-              style={style}
-              setStyle={setStyle}
-              password={password}
-              setPassword={setPassword}
-            />
-        --------------------------------------------------------- */}
       </div>
 
       <aside className="order-first lg:order-none lg:sticky lg:top-6 lg:self-start">
-        <ContentPreview
-          type={type}
-          values={values}
-          qrValue={qrValue}
-          style={style}
-        />
-        {/* --- STEP 3 PREVIEW — SHELVED ----------------------------
-            <SidePreview
-              qrValue={qrValue}
-              style={style}
-              // Wrapped: a bare function passed to a setter is read
-              // as an updater, and React would call it with the old
-              // value.
-              onReady={(fn) => setDownload(() => fn)}
-            />
-        --------------------------------------------------------- */}
+        <ContentPreview type={type} values={values} qrValue={qrValue} />
       </aside>
     </div>
   );
@@ -318,7 +338,7 @@ export function CreateWizard({
     <Paywall
       open={paywall.open}
       qrValue={qrValue}
-      qrStyle={style}
+      qrStyle={step === 3 ? effectiveDesign(designDraft) : null}
       onClose={paywall.close}
     />
   );
@@ -381,6 +401,25 @@ export function CreateWizard({
           )}
     </>
   );
+
+  if (step === 3) {
+    return (
+      <>
+        <StepDesign
+          type={type}
+          value={qrValue}
+          draft={designDraft}
+          setDraft={setDraftFn}
+          entitled={entitled}
+          busy={saving}
+          error={saveError}
+          onBack={backFromDesign}
+          onContinue={() => void save(effectiveDesign(designDraft))}
+        />
+        {paywallLayer}
+      </>
+    );
+  }
 
   // create_desktop_*.html (JB, 2026-10-29): the mobile form, as a desktop
   // page. Only the types those files cover; the rest keep the old step 2.
@@ -464,26 +503,6 @@ export function CreateWizard({
           Next
           <ChevronRight className="h-4 w-4" />
         </Button>
-
-        {/* --- STEP 3 FOOTER — SHELVED ------------------------------------
-            Kept against the PM changing their mind about dropping the
-            customise step. Restore alongside the step-3 branch in <main>.
-
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              {(["png", "jpeg", "svg"] as const).map((ext) => (
-                <Button
-                  key={ext}
-                  size="lg"
-                  variant={ext === "png" ? "primary" : "outline"}
-                  // markDownloaded() belongs here — see the note above.
-                  onClick={entitled ? () => download?.(ext) : paywall.open}
-                >
-                  <Download className="h-4 w-4" />
-                  {ext.toUpperCase()}
-                </Button>
-              ))}
-            </div>
-        ------------------------------------------------------------------ */}
       </div>
 
       {saveToast}
@@ -502,12 +521,10 @@ function ContentPreview({
   type,
   values,
   qrValue,
-  style,
 }: {
   type: string;
   values: Record<string, string>;
   qrValue: string;
-  style: QrStyle;
 }) {
   if (type === "vcard") return <VCardPreview values={values} />;
   if (type === "multilink") return <MultiLinkPreview values={values} />;
@@ -531,60 +548,16 @@ function ContentPreview({
   if (type === "business") return <BusinessPreview values={values} />;
   if (type === "wifi") return <WifiPreview values={values} />;
   if (type === "review") return <GoogleReviewPreview />;
-  return <SidePreview qrValue={qrValue} style={style} />;
+  return <SidePreview qrValue={qrValue} />;
 }
 
-/** Live QR alongside steps 2 and 3, framed the way the customiser asks. */
-function SidePreview({
-  qrValue,
-  style,
-  onReady,
-}: {
-  qrValue: string;
-  style: QrStyle;
-  onReady?: (fn: (ext: "png" | "jpeg" | "svg") => void) => void;
-}) {
-  const framed = style.frame !== null;
-
+/** The live code, for a type without a designed preview. */
+function SidePreview({ qrValue }: { qrValue: string }) {
   return (
     <aside className="rounded-2xl border border-line bg-white p-5 text-center shadow-soft">
-      <div
-        className={`mx-auto w-fit ${
-          framed ? "rounded-2xl border-2 p-3" : ""
-        }`}
-        style={framed ? { borderColor: style.fg, background: style.bg } : undefined}
-      >
-        {framed && style.frame === "top" && (
-          <p
-            className="mb-2 text-sm font-bold tracking-wide"
-            style={{ color: style.fg }}
-          >
-            {style.caption}
-          </p>
-        )}
-
-        <QrPreview
-          value={qrValue}
-          style={style}
-          size={240}
-          onReady={onReady}
-          className="mx-auto"
-        />
-
-        {framed && style.frame !== "top" && (
-          <p
-            className="mt-2 text-sm font-bold tracking-wide"
-            style={{ color: style.fg }}
-          >
-            {style.caption}
-          </p>
-        )}
-      </div>
-
+      <QrPreview value={qrValue} size={240} className="mx-auto w-[240px]" />
       <p className="mt-4 text-xs text-muted">
-        {qrValue
-          ? "Scan to test before you download."
-          : "Fill in the details to see your code."}
+        {qrValue ? "Scan to test before you download." : "Fill in the details to see your code."}
       </p>
     </aside>
   );
