@@ -411,6 +411,7 @@ export function CreateWizard({
           draft={designDraft}
           setDraft={setDraftFn}
           entitled={entitled}
+          pendingActivation={tracked && !isEditing}
           busy={saving}
           error={saveError}
           onBack={backFromDesign}

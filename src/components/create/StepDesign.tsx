@@ -319,6 +319,7 @@ export function StepDesign({
   draft,
   setDraft,
   entitled,
+  pendingActivation,
   busy,
   error,
   onBack,
@@ -331,6 +332,12 @@ export function StepDesign({
   setDraft: (u: (d: DesignDraft) => DesignDraft) => void;
   /** Already paid: no "Subscription required" under the button. */
   entitled: boolean;
+  /**
+   * A new managed or hosted code: its short link only goes live once checkout
+   * saves it, so the preview says so (JB, 2026-11-25: customers testing the
+   * preview must not think the code is broken).
+   */
+  pendingActivation: boolean;
   busy: boolean;
   error: string | null;
   onBack: () => void;
@@ -664,6 +671,8 @@ export function StepDesign({
                       Live Design Preview
                       <Tip label="About the live preview">
                         This is your real QR code with your content, in the design you picked. What you see here is exactly what you download.
+                        {pendingActivation &&
+                          " It goes live as soon as checkout is complete; until then, scanning it opens a “not active yet” page."}
                       </Tip>
                     </span>
                   </div>
@@ -677,9 +686,18 @@ export function StepDesign({
                       className="w-full max-w-[270px] [@media(max-width:992px)]:max-w-[312px]"
                     />
                   </div>
-                  <p className="mt-[10px] text-center text-[12.5px] leading-[1.45em] text-faint">
-                    This is your actual QR code. Scan it with your phone to test it before you continue.
-                  </p>
+                  {pendingActivation ? (
+                    // Unmocked (JB, 2026-11-25): a tracked code's link is
+                    // not live until checkout, and the preview must say so.
+                    <p className="mt-[10px] text-center text-[12.5px] leading-[1.45em] text-faint">
+                      This is your actual QR code.{" "}
+                      <b className="font-semibold text-body">It activates as soon as checkout is complete</b> — scanning it now opens a “not active yet” page. The image won’t change.
+                    </p>
+                  ) : (
+                    <p className="mt-[10px] text-center text-[12.5px] leading-[1.45em] text-faint">
+                      This is your actual QR code. Scan it with your phone to test it before you continue.
+                    </p>
+                  )}
                   <div className="mt-4 flex items-center rounded-[14px] border border-cz-test-line bg-cz-test px-4 py-[13px]">
                     <span className="flex h-9 w-9 flex-none items-center justify-center text-primary-dark">
                       <IcoPhone className="h-auto w-full" />

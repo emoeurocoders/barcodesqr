@@ -129,15 +129,17 @@ export function designIssue(d: Pick<QrDesign, "fg" | "bg" | "fr" | "frame" | "pa
       message: "These colors are too close to scan reliably. Pick a darker foreground or a lighter background.",
     };
   }
-  // Measured, not assumed (2026-11-24): every pattern × corner style was
-  // decoded at three content sizes, on screen and at print size. Diamond
-  // eyes — finder patterns rotated 45°, which is what readers look for first
-  // — failed with the two detached-dot patterns: Small dots on short links
-  // and contacts every time, Dots on long content at print size.
-  if (d.corners === "diamond" && (d.pattern === "small" || d.pattern === "dots")) {
+  // Measured, not assumed. Every pattern × corner style was decoded at three
+  // content sizes, on screen and at print size (2026-11-24), then printed
+  // sizes from 1.5 to 5 cm were simulated (2026-11-25). Diamond eyes —
+  // finder patterns rotated 45°, which is what readers look for first —
+  // only held up with solid modules: Small dots and Dots failed outright,
+  // and Fluid failed about half the print sizes even at 4–5 cm. With Square
+  // or Rounded they decoded at every size.
+  if (d.corners === "diamond" && d.pattern !== "square" && d.pattern !== "rounded") {
     return {
       field: "pattern",
-      message: "Diamond corners don’t scan reliably with dot patterns. Pick Square, Rounded or Fluid, or another corner style.",
+      message: "Diamond corners only scan reliably with Square or Rounded patterns. Pick one of those, or another corner style.",
     };
   }
   // The frame's text is white on the frame color (or the frame color on the

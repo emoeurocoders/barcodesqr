@@ -746,13 +746,16 @@ and again by the server):
 - **Colours:** the code must be darker than its background, with at least
   3:1 contrast (every preset passes); frame text must be legible on the
   frame colour.
-- **Diamond corners** are refused with the Dots and Small-dot patterns.
-  That rule is measured, not guessed. Every pattern × corner style was
-  decoded with macOS CoreImage at three content sizes (short link,
-  full vCard, ~300-character text), at preview and print resolution:
-  - Small dots + Diamond failed every time;
-  - Dots + Diamond failed long content at print size;
-  - everything else decoded.
+- **Diamond corners** are allowed only with the Square and Rounded
+  patterns. That rule is measured, not guessed, with macOS CoreImage:
+  - **2026-11-24:** every pattern × corner style was decoded at three
+    content sizes (short link, full vCard, ~300-character text), at preview
+    and print resolution. Small dots + Diamond failed every time; Dots +
+    Diamond failed long content at print size.
+  - **2026-11-25:** printed sizes of 1.5–5 cm at 300 dpi were simulated,
+    with camera blur and JPEG compression. Fluid + Diamond failed about
+    half the sizes, even at 4–5 cm. Square, Rounded, Fluid alone and the
+    plain baseline decoded at every size.
 - **Logos:** with a logo, error correction goes from Q to H. All five
   patterns × two corner styles × three sizes decoded with a logo.
 - **Not done: a real decoder in the browser.** Installing `jsqr` was not
@@ -797,6 +800,26 @@ and again by the server):
   plain).
 - **Logos:** uploaded on pick to R2 under `logo/`, PNG/JPG/SVG up to 2 MB
   (`QR_LOGO_FIELD`). Saved designs only accept logo URLs inside our bucket.
+
+**Activation (JB, 2026-11-25):**
+- **Step 3 says it:** for a new managed or hosted code, "It activates as soon
+  as checkout is complete — scanning it now opens a 'not active yet' page.
+  The image won't change." The tooltip says the same.
+- **The "not active" page** leads with "Just created it? It starts working
+  as soon as checkout is complete."
+- **Verified end to end:**
+  - the code saved at checkout keeps the previewed slug;
+  - the preview after checkout is pixel-identical to the one before;
+  - scanning then redirects, and the scan is counted on the event table,
+    the dashboard and statistics.
+
+**Print size guidance** (simulated, not yet confirmed with phones):
+- **Short links, contacts, WiFi:** decode from 2 cm wide (frame included).
+- **Long content** (~300 characters of text or a full address card):
+  needs about 3 cm. That is physics, not design: about 73 modules at 2 cm
+  is 0.25 mm each.
+- **Real phones:** Tami and Andy are testing with iPhone Camera and Google
+  Lens.
 
 **Still open:**
 - **Dependency:** `qrcode-generator` is imported directly but only installed
