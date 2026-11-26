@@ -821,6 +821,34 @@ and again by the server):
 - **Real phones:** Tami and Andy are testing with iPhone Camera and Google
   Lens.
 
+**Printing tip (JB, 2026-11-26):** JB's wording, plus "Sizes refer to the
+full printed design, including any frame, and are a guide rather than a
+guarantee."
+- **Where it shows:** under the ready banner after checkout, and otherwise
+  under the codes list.
+- **Where it does not:** Step 3 stays unchanged, as JB asked.
+- **Unmocked.**
+
+**Customer copy on static vs managed codes and on subscription end**
+(audited 2026-11-26, sent to JB for approval; these are the designer's
+strings, so nothing was changed yet):
+- **Accurate:**
+  - Step 3's activation note, the "not active yet" page, "Tracking
+    unavailable", and the delete dialog (static codes keep working once
+    printed);
+  - the desktop FAQ's "What happens to my QR codes if my subscription
+    ends?".
+- **Inaccurate:**
+  - the mobile FAQ's answer ("you can pause or reactivate them anytime":
+    no pause feature exists);
+  - member_myaccount.html's delete-account line ("Codes you have already
+    printed or shared will stop working": static ones keep working).
+- **Vague:** the Help Center cancel article's "What happens to my QR
+  codes?" section.
+- **Missing:** the "Static vs. dynamic QR codes" article has no page yet.
+- **Not enforced yet:** the approved expiry behaviour (paid period, 5-day
+  grace, restore on reactivation) waits for the payment processor.
+
 **Still open:**
 - **Dependency:** `qrcode-generator` is imported directly but only installed
   through `qr-code-styling`, which nothing else uses now. Make it a direct

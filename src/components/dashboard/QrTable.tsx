@@ -8,6 +8,7 @@ import { deleteQrCode } from "@/app/actions/qr";
 import { Download, ExternalLink, Copy, Check, EllipsisVertical } from "lucide-react";
 import { QrPreview, downloadQr, preloadQr, prepareQr } from "@/components/create/QrPreview";
 import type { QrDesign } from "@/lib/qrDesign";
+import { PrintTip } from "./PrintTip";
 import { allTypes } from "@/components/create/qrTypes";
 import { designerTypeIcons } from "@/components/create/designerTypeIcons";
 
@@ -465,6 +466,9 @@ export function QrTable({ rows, timeZone }: { rows: QrRow[]; timeZone?: string }
             ))}
           </ul>
         </div>
+        {/* Every row downloads here too (PNG, and SVG / JPEG in ⋮). Not
+            while the ready banner — which carries the same tip — is up. */}
+        {rows.length > 0 && !rows.some((r) => r.highlight) && <PrintTip className="mt-5 max-w-3xl" />}
       </div>
     </div>
     </ZoneCtx.Provider>

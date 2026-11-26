@@ -6,6 +6,7 @@ import { Check, Download, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { downloadQr, prepareQr } from "@/components/create/QrPreview";
 import type { QrRow } from "./QrTable";
+import { PrintTip } from "./PrintTip";
 
 /** Shown after a code is created; dismissible for the rest of the session. */
 export function ReadyBanner({ row, edited = false }: { row: QrRow; edited?: boolean }) {
@@ -44,6 +45,9 @@ export function ReadyBanner({ row, edited = false }: { row: QrRow; edited?: bool
           <Button variant="outline">Create Another QR</Button>
         </Link>
       </div>
+
+      {/* Below the download (JB, 2026-11-26). */}
+      <PrintTip className="basis-full" />
 
       <button
         type="button"
