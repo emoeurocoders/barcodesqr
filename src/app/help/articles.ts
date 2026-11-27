@@ -15,6 +15,8 @@
  * not exist yet. The anchor is still rendered, so the markup matches.
  */
 
+import { SUBSCRIPTION_LIFECYCLE_LIVE } from "@/lib/subscription";
+
 export type ArticleSection = {
   /** The designer's own anchor id, which the contents list targets. */
   id: string;
@@ -32,6 +34,13 @@ export type ArticleSection = {
 };
 
 export type ArticleLink = { title: string; href: string | null };
+
+/**
+ * JB, 2026-11-27: the grace period and automatic reactivation are only
+ * described once they run (lib/subscription.ts). Until then these sentences
+ * are left out rather than promised.
+ */
+const lifecycle = (...paras: string[]) => (SUBSCRIPTION_LIFECYCLE_LIVE ? paras : []);
 
 export type Article = {
   slug: string;
@@ -156,7 +165,7 @@ export const articles: Article[] = [
         heading: "2. Open your subscription settings",
         toc: "Open your subscription settings",
         paras: [
-          "Go to your account or billing settings and locate your current subscription.",
+          "Go to Billing & Subscription in your account and locate your current subscription.",
           "Here you can review your plan and billing information.",
         ],
       },
@@ -187,17 +196,34 @@ export const articles: Article[] = [
           "If you do not receive confirmation, check your spam or junk folder or contact BarcodesQR Support.",
         ],
       },
+      // JB, 2026-11-27: cancelling and a failed renewal are told apart, and
+      // static codes are said to be unaffected.
       {
         id: "artSec6",
         heading: "What happens to my QR codes?",
         toc: "What happens to my QR codes?",
         aside: true,
         paras: [
-          "Canceling prevents future subscription renewals.",
-          "Some account features, editable QR codes, analytics, or other subscription functionality may become unavailable when your paid access ends.",
-          "Your account will show the applicable status of your QR codes and features.",
+          "Canceling stops future renewals. Your paid access and your dynamic QR codes stay active until the end of the period you have already paid for.",
+          "When that period ends, your dynamic QR codes are paused and scan analytics stop until you reactivate a paid subscription. Reactivating restores them, so you never need to reprint them.",
+          "Static QR codes (such as WiFi and vCard) keep working whatever happens to your subscription, because their content is stored directly in the QR image.",
+          "If you want to delete your account and data entirely, that is a separate step in My Account, and it cannot be undone.",
         ],
       },
+      ...(SUBSCRIPTION_LIFECYCLE_LIVE
+        ? [
+            {
+              id: "artSec6b",
+              heading: "What if a renewal payment fails?",
+              toc: "What if a renewal payment fails?",
+              aside: true,
+              paras: [
+                "If a renewal payment fails, your dynamic QR codes keep working for a 5-day grace period while you update your payment details.",
+                "If payment is not completed within those 5 days, your dynamic QR codes are paused. As soon as a payment succeeds, they are reactivated automatically.",
+              ],
+            },
+          ]
+        : []),
       {
         id: "artSec7",
         heading: "Need help canceling?",
@@ -222,6 +248,97 @@ export const articles: Article[] = [
       { title: "How do I log in to my BarcodesQR account?", href: "/help/account-login/logging-in" },
       { title: "Plans and billing", href: null },
       { title: "Troubleshooting account access", href: null },
+    ],
+    popular: [
+      { title: "How to create your first QR code", href: "/help/getting-started/create-your-first-qr-code" },
+      { title: "Can I edit a QR code after creating it?", href: "/help/creating-managing/edit-after-creating" },
+      { title: "Why isn’t my QR code scanning?", href: "/help/troubleshooting/not-scanning" },
+      { title: "How do I log in to my BarcodesQR account?", href: "/help/account-login/logging-in" },
+      { title: "How do I cancel my subscription?", href: "/help/plans-billing/cancel-subscription" },
+    ],
+  },
+  {
+    // JB, 2026-11-27 — written for us, not lifted from a designer file; the
+    // template and tone follow the other five.
+    slug: "static-vs-dynamic",
+    category: "getting-started",
+    title: "Static vs. dynamic QR codes",
+    updated: "Updated today",
+    readTime: "3 min read",
+    intro:
+      "BarcodesQR creates two kinds of QR codes. Static QR codes store their information directly in the QR image. Dynamic QR codes are managed by BarcodesQR: the QR image points to a short BarcodesQR link, and we send each scan to your content.",
+    note: "Which kind you get depends on the QR code type you choose. You don’t need to pick it separately.",
+    sections: [
+      {
+        id: "artSec1",
+        heading: "1. Static QR codes",
+        toc: "Static QR codes",
+        paras: [
+          "WiFi, vCard, Email, SMS, WhatsApp, Phone, Google Maps, Plain Text and Google Review QR codes are static. Everything a phone needs is stored in the QR image itself.",
+          "Static QR codes work as soon as you create them, and they keep working whatever happens to your subscription or account.",
+          "Because the content is part of the image, changing it creates a new QR image. Copies you have already printed keep the old content.",
+          "Scans of static QR codes go straight to the phone, so they can’t be tracked. Your dashboard shows “Tracking unavailable” for them.",
+        ],
+      },
+      {
+        id: "artSec2",
+        heading: "2. Dynamic QR codes",
+        toc: "Dynamic QR codes",
+        paras: [
+          "Website, PDF, Image, Video, Audio, Social Media, Menu, Business, Coupon, Multi-Link, App Link, Event, Payment and Feedback QR codes are dynamic. The QR image holds a short BarcodesQR link, and BarcodesQR opens your page or destination when it is scanned.",
+          "You can edit a dynamic QR code’s destination or content at any time, even after printing. The QR image stays the same.",
+          "Every scan is counted, so dynamic QR codes include scan analytics: total and unique scans, locations, devices and more.",
+          "A new dynamic QR code becomes active as soon as checkout is complete. Scanning it before then shows a “not active yet” page.",
+        ],
+      },
+      {
+        id: "artSec3",
+        heading: "3. Choosing between them",
+        toc: "Choosing between them",
+        paras: [
+          "Choose a dynamic QR code when the content may change, when you want to see how often it is scanned, or for anything printed in large numbers.",
+          "A static QR code suits content that never changes, such as your WiFi details or a contact card, and keeps working without a subscription.",
+        ],
+      },
+      {
+        id: "artSec4",
+        heading: "If you cancel your subscription",
+        toc: "If you cancel your subscription",
+        aside: true,
+        paras: [
+          "Your dynamic QR codes stay active until the end of the period you have already paid for. After that they are paused, and scan analytics stop.",
+          "Reactivating a paid subscription restores your dynamic QR codes, so you never need to reprint them.",
+          "Static QR codes keep working throughout.",
+          ...lifecycle(
+            "If a renewal payment fails, your dynamic QR codes keep working for a 5-day grace period. After that they are paused, and they are reactivated automatically as soon as a payment succeeds.",
+          ),
+        ],
+      },
+      {
+        id: "artSec5",
+        heading: "If you delete your account",
+        toc: "If you delete your account",
+        aside: true,
+        paras: [
+          "Deleting your account removes your QR codes, saved designs, hosted pages and uploaded files, and scan analytics. It cannot be undone.",
+          "Dynamic QR codes you have printed or shared stop working. Static QR codes keep working, because their content is stored in the image.",
+          "If you only want to stop paying, cancel your subscription in Billing & Subscription instead.",
+        ],
+      },
+    ],
+    best: {
+      id: "artBest",
+      heading: "Best practices",
+      items: [
+        "Use dynamic QR codes for printed materials you may want to update later.",
+        "Scan every QR code with a phone before you print or share it.",
+      ],
+    },
+    relId: "artRel",
+    related: [
+      { title: "Can I edit a QR code after creating it?", href: "/help/creating-managing/edit-after-creating" },
+      { title: "How do I cancel my subscription?", href: "/help/plans-billing/cancel-subscription" },
+      { title: "How to create your first QR code", href: "/help/getting-started/create-your-first-qr-code" },
     ],
     popular: [
       { title: "How to create your first QR code", href: "/help/getting-started/create-your-first-qr-code" },

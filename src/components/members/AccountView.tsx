@@ -215,10 +215,14 @@ function ActionsCard({ hasPassword }: { hasPassword: boolean }) {
           </h4>
           <ul className="mt-[10px] [&>li]:relative [&>li]:pl-[16px] [&>li]:text-[14px] [&>li]:leading-[1.5em] [&>li]:text-[#374151] [&>li+li]:mt-[6px] [&>li]:before:absolute [&>li]:before:top-[0.62em] [&>li]:before:left-[3px] [&>li]:before:h-[5px] [&>li]:before:w-[5px] [&>li]:before:rounded-full [&>li]:before:bg-[#9ca3af] [&>li]:before:content-[''] [&_b]:font-semibold [&_b]:text-[#0e1311]">
             <li>
-              <b>Your QR codes are deleted.</b> Codes you have already printed or shared will stop working.
+              {/* JB, 2026-11-27: managed and static codes behave differently. */}
+              <b>Your QR codes are deleted.</b> Dynamic QR codes managed by BarcodesQR that you&apos;ve printed or shared
+              will stop working. Static QR codes (such as WiFi or vCard) will continue working because their information
+              is stored directly in the QR image.
             </li>
             <li>
-              <b>Your stored data is removed.</b> Scan statistics, templates and account settings can&apos;t be recovered.
+              <b>Your stored data is removed.</b> Saved QR designs and logos, hosted pages and the files uploaded to
+              them, scan statistics, templates and account settings can&apos;t be recovered.
             </li>
             <li>
               <b>This can&apos;t be undone.</b> If you only want to stop payments, cancel your plan in{" "}

@@ -829,25 +829,27 @@ guarantee."
 - **Where it does not:** Step 3 stays unchanged, as JB asked.
 - **Unmocked.**
 
-**Customer copy on static vs managed codes and on subscription end**
-(audited 2026-11-26, sent to JB for approval; these are the designer's
-strings, so nothing was changed yet):
-- **Accurate:**
-  - Step 3's activation note, the "not active yet" page, "Tracking
-    unavailable", and the delete dialog (static codes keep working once
-    printed);
-  - the desktop FAQ's "What happens to my QR codes if my subscription
-    ends?".
-- **Inaccurate:**
-  - the mobile FAQ's answer ("you can pause or reactivate them anytime":
-    no pause feature exists);
-  - member_myaccount.html's delete-account line ("Codes you have already
-    printed or shared will stop working": static ones keep working).
-- **Vague:** the Help Center cancel article's "What happens to my QR
-  codes?" section.
-- **Missing:** the "Static vs. dynamic QR codes" article has no page yet.
-- **Not enforced yet:** the approved expiry behaviour (paid period, 5-day
-  grace, restore on reactivation) waits for the payment processor.
+**Customer copy on static vs dynamic codes and on subscription end**
+(audited 2026-11-26, changes approved by JB 2026-11-27, done). One term
+throughout: "dynamic QR codes managed by BarcodesQR" against "static QR
+codes", with the creator's type names.
+- **Homepage FAQ:** both layouts give mainB.html's answer plus the static
+  sentence. main_mobile.html's "pause… anytime" is retired, since there is
+  no manual pause.
+- **My Account, delete account:** JB's wording on dynamic vs static codes.
+  The data line now names saved designs, logos, hosted pages and uploaded
+  files. Deleting an account now also removes Step 3 logos from storage,
+  which it did not before.
+- **Help Center:**
+  - the cancel article separates cancelling (paid period, then paused,
+    restored on reactivation, static codes unaffected) from a failed
+    renewal;
+  - the new "Static vs. dynamic QR codes" article covers editing,
+    tracking, activation, cancellation, reactivation and deletion.
+- **Launch blocker:** the failed-renewal section (5-day grace, automatic
+  reactivation) is written but hidden behind
+  `SUBSCRIPTION_LIFECYCLE_LIVE` (lib/subscription.ts). JB: flip it only
+  once both are built and tested with the payment processor.
 
 **Still open:**
 - **Dependency:** `qrcode-generator` is imported directly but only installed

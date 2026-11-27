@@ -28,14 +28,11 @@ const items = [
   {
     q: "What happens to my QR codes if my subscription ends?",
     /*
-      The two mockups answer this differently: mainB.html has the
-      subscription-lapse answer, main_mobile.html still has the older
-      "Static QR codes never expire" one. Each breakpoint shows its own file's.
+      JB, 2026-11-27: mainB.html's answer on both layouts, plus what happens
+      to static codes. main_mobile.html's own answer said dynamic codes can be
+      paused "anytime" — there is no manual pausing — so it is retired.
     */
-    a: "If your subscription ends, your dynamic QR codes will become inactive and scan analytics will pause. You’ll keep access through the end of any paid billing period. Reactivate your subscription anytime to restore your QR codes without having to reprint them.",
-    // Byte for byte, including the missing dash after "expire" — raised.
-    aMobile:
-      "Static QR codes never expire they keep working forever. Dynamic codes stay active as long as your plan is active, and you can pause or reactivate them anytime.",
+    a: "If your subscription ends, your dynamic QR codes will become inactive and scan analytics will pause. You’ll keep access through the end of any paid billing period. Reactivate your subscription anytime to restore your QR codes without having to reprint them. Static QR codes (such as WiFi and vCard) keep working, because their content is stored directly in the QR image.",
   },
 ];
 
@@ -95,7 +92,7 @@ function MobileFaq() {
                 </summary>
                 <div>
                   <p className="max-w-[44em] pb-[1.45em] pl-[4.66em] pr-[1.5em] pt-0 text-[1.72em] leading-[1.6em] text-prose to-576:font-medium">
-                    {item.aMobile ?? item.a}
+                    {item.a}
                   </p>
                 </div>
               </details>

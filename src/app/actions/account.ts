@@ -8,7 +8,7 @@ import { db } from "@/db";
 import { qrCodes, users, verificationTokens } from "@/db/schema";
 import { env } from "@/lib/env";
 import { sendEmailChangeLink } from "@/lib/mail";
-import { deleteUploads, uploadKeysIn } from "@/lib/storage";
+import { deleteUploads, uploadKeysIn, keyFromPublicUrl } from "@/lib/storage";
 import { countries } from "@/lib/countries";
 
 /**
@@ -164,9 +164,14 @@ export async function deleteAccount(_prev: unknown, form: FormData): Promise<Res
   // The uploaded files go too — the page promises "your stored data is
   // removed". Best effort: a storage hiccup must not keep an account alive
   // that the customer asked to delete, so it is logged and the rest goes on.
-  const codes = await db.select({ values: qrCodes.values }).from(qrCodes).where(eq(qrCodes.userId, user.id));
+  const codes = await db
+    .select({ values: qrCodes.values, design: qrCodes.design })
+    .from(qrCodes)
+    .where(eq(qrCodes.userId, user.id));
   try {
-    await deleteUploads(codes.flatMap((c) => uploadKeysIn(c.values)));
+    // Step 3's logos too: the design keeps them as URLs, not in the values.
+    const logos = codes.map((c) => keyFromPublicUrl(c.design?.logo)).filter((k): k is string => !!k);
+    await deleteUploads([...codes.flatMap((c) => uploadKeysIn(c.values)), ...logos]);
   } catch (e) {
     console.error("[account] upload cleanup failed for", user.id, e);
   }

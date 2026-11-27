@@ -103,6 +103,18 @@ export function publicUrl(key: string) {
 }
 
 /**
+ * The upload key behind one of our own public URLs, or null for anything
+ * else — step 3's design keeps its logo as a URL rather than a key.
+ */
+export function keyFromPublicUrl(url: unknown): string | null {
+  if (typeof url !== "string") return null;
+  const base = `${env.STORAGE_PUBLIC_BASE_URL}/`;
+  if (!url.startsWith(base)) return null;
+  const key = url.slice(base.length);
+  return /^uploads\/[a-z0-9-]+\/[0-9a-f-]{36}\.[a-z0-9]{1,8}$/.test(key) ? key : null;
+}
+
+/**
  * Every upload key a saved code's values point at — single files, galleries
  * and per-link logos are all stored as JSON carrying `key`. Only keys this
  * app minted (`uploads/…`) are returned, whatever else the JSON holds.

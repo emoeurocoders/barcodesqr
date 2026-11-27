@@ -169,7 +169,7 @@ export const gettingStartedArticles: Article[] = [
     title: "Static vs. dynamic QR codes",
     desc: "Understand the key differences and when to use each type.",
     icon: "copy-minus",
-    href: null,
+    href: "/help/getting-started/static-vs-dynamic",
   },
   {
     title: "How to customize your QR code",
